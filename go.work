@@ -4,5 +4,6 @@ use (
 	.
 	./pkg/db
 	./pkg/utils
+	./services/analytics
 	./services/core
 )
