@@ -2,8 +2,10 @@ package main
 
 import (
 	"log"
-	"tenkhours/pkg/db"
+	"os"
 
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -12,7 +14,19 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	r := gin.Default()
+
 	log.Println("--> Hello from Core service")
 
-	log.Println("Connected to DB", db.GetDB().Name())
+	r.Use(cors.New(cors.Config{
+		AllowAllOrigins: true,
+		AllowHeaders:    []string{"Content-Type", "Authorization"},
+	}))
+
+	port, found := os.LookupEnv("CORE_PORT")
+	if !found {
+		port = "8080"
+	}
+
+	r.Run(":" + port)
 }
