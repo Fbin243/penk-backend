@@ -53,7 +53,7 @@ var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 			Type:        graphql.NewList(dummyType),
 			Description: "Get all dummies",
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				return createDummyArrays(), nil
+				return localDummies, nil
 			},
 		},
 	},
@@ -86,7 +86,7 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 					return nil, fmt.Errorf("dummy not found")
 				}
 
-				localDummies[i].Message += " -> " + message
+				localDummies[i].Message = message
 
 				return localDummies[i], nil
 			},
