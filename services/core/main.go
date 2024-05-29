@@ -1,11 +1,18 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"log"
+	"net/http"
 	"os"
+
+	"tenkhours/pkg/dummy"
+	"tenkhours/pkg/utils"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/graphql-go/graphql"
 	"github.com/joho/godotenv"
 )
 
@@ -22,6 +29,28 @@ func main() {
 		AllowAllOrigins: true,
 		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
+
+	r.GET("/", func(c *gin.Context) {
+		c.String(http.StatusOK, "Core service is running!")
+	})
+
+	r.POST("/graphql", func(c *gin.Context) {
+		var postData utils.GraphqlQueryData
+		if err := json.NewDecoder(c.Request.Body).Decode(&postData); err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		result := graphql.Do(graphql.Params{
+			Context:        context.Background(),
+			Schema:         dummy.DummySchema,
+			RequestString:  postData.Query,
+			VariableValues: postData.Variables,
+			OperationName:  postData.Operation,
+		})
+
+		c.JSON(http.StatusOK, result)
+	})
 
 	port, found := os.LookupEnv("CORE_PORT")
 	if !found {

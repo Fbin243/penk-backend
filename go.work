@@ -3,6 +3,7 @@ go 1.21.6
 use (
 	.
 	./pkg/db
+	./pkg/dummy
 	./pkg/utils
 	./services/analytics
 	./services/core
