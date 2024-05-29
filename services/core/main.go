@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	if godotenv.Load(".env.development") != nil {
+	if godotenv.Load(".env."+os.Getenv("TENK_ENV")) != nil {
 		log.Fatal("Error loading .env file")
 	}
 
