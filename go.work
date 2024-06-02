@@ -2,6 +2,7 @@ go 1.21.6
 
 use (
 	.
+	./pkg/auth
 	./pkg/db
 	./pkg/dummy
 	./pkg/utils
