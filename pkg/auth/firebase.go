@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-func GetFirebaseApp() (*firebase.App, error) {
+func getFirebaseApp() (*firebase.App, error) {
 	opt := option.WithCredentialsFile(os.Getenv("FIREBASE_ADMIN"))
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
@@ -20,8 +20,8 @@ func GetFirebaseApp() (*firebase.App, error) {
 	return app, nil
 }
 
-func GetAuthClient() (*auth.Client, error) {
-	app, err := GetFirebaseApp()
+func getAuthClient() (*auth.Client, error) {
+	app, err := getFirebaseApp()
 	if err != nil {
 		return nil, err
 	}
@@ -29,15 +29,8 @@ func GetAuthClient() (*auth.Client, error) {
 	return app.Auth(context.Background())
 }
 
-type AuthProfile struct {
-	UID           string
-	Email         string
-	EmailVerified bool
-	Name          string
-}
-
-func VerifyClientIDToken(idToken string) (*AuthProfile, error) {
-	authClient, err := GetAuthClient()
+func GetProfileByIDToken(idToken string) (*Profile, error) {
+	authClient, err := getAuthClient()
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +40,7 @@ func VerifyClientIDToken(idToken string) (*AuthProfile, error) {
 		return nil, err
 	}
 
-	authProfile := AuthProfile{
+	authProfile := Profile{
 		UID:           token.UID,
 		Email:         token.Claims["email"].(string),
 		EmailVerified: token.Claims["email_verified"].(bool),
@@ -55,4 +48,18 @@ func VerifyClientIDToken(idToken string) (*AuthProfile, error) {
 	}
 
 	return &authProfile, nil
+}
+
+func GetProfileByContext(ctx context.Context) (*Profile, error) {
+	untypedProfile := ctx.Value(ProfileContextKey)
+	if untypedProfile == nil {
+		return nil, ErrorProfileNotFound
+	}
+
+	profile, ok := untypedProfile.(Profile)
+	if !ok {
+		return nil, ErrorCannotParseProfile
+	}
+
+	return &profile, nil
 }

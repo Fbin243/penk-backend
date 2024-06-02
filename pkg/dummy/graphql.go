@@ -3,6 +3,7 @@ package dummy
 import (
 	"fmt"
 	"slices"
+	"tenkhours/pkg/auth"
 
 	"github.com/graphql-go/graphql"
 )
@@ -54,6 +55,18 @@ var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 			Description: "Get all dummies",
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				return localDummies, nil
+			},
+		},
+		"testRequiredAuth": &graphql.Field{
+			Type:        graphql.String,
+			Description: "Give me your jwt, I'll greet you",
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				authProfile, err := auth.GetProfileByContext(params.Context)
+				if err != nil {
+					return nil, err
+				}
+
+				return "Hello from " + authProfile.Email, nil
 			},
 		},
 	},

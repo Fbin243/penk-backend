@@ -6,7 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
+	"tenkhours/pkg/auth"
 	"tenkhours/pkg/dummy"
 	"tenkhours/pkg/utils"
 
@@ -41,8 +43,23 @@ func main() {
 			return
 		}
 
+		gqlCtx := context.TODO()
+
+		authKey := c.Request.Header.Get("Authorization")
+		if strings.HasPrefix(authKey, "Bearer ") {
+			idToken := strings.Replace(authKey, "Bearer ", "", 1)
+
+			profile, err := auth.GetProfileByIDToken(idToken)
+			if err != nil {
+				c.String(http.StatusUnauthorized, "invalid id token")
+				return
+			}
+
+			gqlCtx = context.WithValue(gqlCtx, auth.ProfileContextKey, profile)
+		}
+
 		result := graphql.Do(graphql.Params{
-			Context:        context.Background(),
+			Context:        gqlCtx,
 			Schema:         dummy.DummySchema,
 			RequestString:  postData.Query,
 			VariableValues: postData.Variables,
