@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/dummy"
+	"tenkhours/pkg/character"
 	"tenkhours/pkg/utils"
 
 	"github.com/gin-contrib/cors"
@@ -60,7 +60,7 @@ func main() {
 
 		result := graphql.Do(graphql.Params{
 			Context:        gqlCtx,
-			Schema:         dummy.DummySchema,
+			Schema:         character.CharacterSchema,
 			RequestString:  postData.Query,
 			VariableValues: postData.Variables,
 			OperationName:  postData.Operation,
