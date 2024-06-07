@@ -28,8 +28,3 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
-
-var UserSchema, _ = graphql.NewSchema(graphql.SchemaConfig{
-	Query:    userQuery,
-	Mutation: userMutation,
-})
