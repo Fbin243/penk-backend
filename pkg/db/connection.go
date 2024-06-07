@@ -11,7 +11,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var db *mongo.Database
+var (
+	db             *mongo.Database
+	UserCollection = "users"
+)
 
 func GetDB() *mongo.Database {
 	if db != nil {
@@ -26,7 +29,7 @@ func GetDB() *mongo.Database {
 	mongoUser := os.Getenv("MONGO_USER")
 	mongoPassword := os.Getenv("MONGO_PASSWORD")
 	connectionURI := fmt.Sprintf(
-		"mongodb://%s:%s@%s:27017/%s",
+		"mongodb+srv://%s:%s@%s/%s",
 		mongoUser,
 		mongoPassword,
 		mongoAddress,
@@ -43,4 +46,8 @@ func GetDB() *mongo.Database {
 	// optional setup for db here
 
 	return db
+}
+
+func GetUsersCollection() *mongo.Collection {
+	return GetDB().Collection(UserCollection)
 }
