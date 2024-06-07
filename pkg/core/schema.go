@@ -9,7 +9,7 @@ import (
 var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 	Name: "RootQuery",
 	Fields: graphql.Fields{
-		"getUserById": &users.GetUserById,
+		"user": &users.User,
 	},
 })
 

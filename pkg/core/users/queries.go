@@ -4,7 +4,13 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-var GetUserById = graphql.Field{
+var User = graphql.Field{
 	Type:        userType,
-	Description: "Get a user by ID",
+	Description: "Get a user by email",
+	Args: graphql.FieldConfigArgument{
+		"email": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+	},
+	Resolve: getUserByEmail,
 }
