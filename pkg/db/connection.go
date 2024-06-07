@@ -26,7 +26,7 @@ func GetDB() *mongo.Database {
 	mongoUser := os.Getenv("MONGO_USER")
 	mongoPassword := os.Getenv("MONGO_PASSWORD")
 	connectionURI := fmt.Sprintf(
-		"mongodb://%s:%s@%s:27017/%s",
+		"mongodb+srv://%s:%s@%s/%s",
 		mongoUser,
 		mongoPassword,
 		mongoAddress,
