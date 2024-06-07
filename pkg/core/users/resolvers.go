@@ -6,8 +6,9 @@ import (
 	"time"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/core/models"
 	"tenkhours/pkg/db"
+
+	"tenkhours/pkg/db/usersdb"
 
 	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,7 +20,7 @@ func registerAccount(params graphql.ResolveParams) (interface{}, error) {
 		return nil, auth.ErrorProfileNotFound
 	}
 
-	user := models.User{
+	user := usersdb.User{
 		ID:          primitive.NewObjectID(),
 		Name:        authProfile.Name,
 		Email:       authProfile.Email,
