@@ -15,6 +15,9 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.String,
 		},
+		"user_id": &graphql.Field{
+			Type: graphql.String,
+		},
 		"name": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -29,6 +32,12 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 				Name: "CustomMetrics",
 				Fields: graphql.Fields{
 					"id": &graphql.Field{
+						Type: graphql.String,
+					},
+					"character_id": &graphql.Field{
+						Type: graphql.String,
+					},
+					"type": &graphql.Field{
 						Type: graphql.String,
 					},
 					"name": &graphql.Field{
@@ -96,6 +105,12 @@ var newCustomMetricInput = graphql.NewInputObject(graphql.InputObjectConfig{
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"character_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"type": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"name": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
@@ -105,9 +120,10 @@ var newCustomMetricInput = graphql.NewInputObject(graphql.InputObjectConfig{
 	},
 })
 
-func updatedCharacter(id string, name string, tags []string, totalFocusTime float64, customMetricsDatas []CustomMetricData) CharacterData {
+func updatedCharacter(id string, user_id string, name string, tags []string, totalFocusTime float64, customMetricsDatas []CustomMetricData) CharacterData {
 	return CharacterData{
 		ID:               id,
+		UserID:           user_id,
 		Name:             name,
 		Tags:             tags,
 		TotalFocusedTime: totalFocusTime,
@@ -125,6 +141,9 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 				"id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
+				"user_id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
 				"name": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
@@ -140,6 +159,7 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				id := params.Args["id"].(string)
+				userID := params.Args["user_id"].(string)
 				name := params.Args["name"].(string)
 				tags := params.Args["tags"].([]string)
 				totalFocusTime := params.Args["total_focus_time"].(float64)
@@ -149,18 +169,22 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 				for _, cm := range customMetricsInput {
 					cmMap, _ := cm.(map[string]interface{})
 					metricID, _ := cmMap["id"].(string)
+					metricCharacterID, _ := cmMap["character_id"].(string)
+					metricType, _ := cmMap["type"].(string)
 					metricName, _ := cmMap["name"].(string)
 					metricValue, _ := cmMap["value"].(string)
 
 					customMetric := CustomMetricData{
-						ID:    metricID,
-						Name:  metricName,
-						Value: metricValue,
+						ID:          metricID,
+						CharacterID: metricCharacterID,
+						Type:        metricType,
+						Name:        metricName,
+						Value:       metricValue,
 					}
 					customMetricDatas = append(customMetricDatas, customMetric)
 				}
 
-				return updatedCharacter(id, name, tags, totalFocusTime, customMetricDatas), nil
+				return updatedCharacter(id, userID, name, tags, totalFocusTime, customMetricDatas), nil
 			},
 		},
 	},
