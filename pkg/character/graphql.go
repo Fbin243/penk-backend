@@ -2,12 +2,21 @@ package character
 
 import (
 	"fmt"
-	"slices"
+	"log"
 
 	"github.com/graphql-go/graphql"
 )
 
-var localcharacter []*CharacterData = createCharacterArrays()
+var db Database
+
+func init() {
+	err := db.Connect()
+	if err != nil {
+		log.Fatalf("Failed to connect to the database: %v", err)
+	} else {
+		log.Println("Connected to MongoDB!")
+	}
+}
 
 var characterType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Character",
@@ -66,36 +75,25 @@ var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				id := params.Args["id"].(string)
 
-				i := slices.IndexFunc(localcharacter, func(c *CharacterData) bool {
-					return c.ID == id
-				})
-
-				if i == -1 {
-					return nil, fmt.Errorf("character not found")
+				character, err := db.GetCharacterByID(id)
+				if err != nil {
+					return nil, fmt.Errorf("character not found: %v", err)
 				}
 
-				return localcharacter[i], nil
+				return character, nil
 			},
 		},
 		"characters": &graphql.Field{
 			Type:        graphql.NewList(characterType),
 			Description: "Get all characters",
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				return localcharacter, nil
+				characters, err := db.GetAllCharacters()
+				if err != nil {
+					return nil, fmt.Errorf("error fetching characters: %v", err)
+				}
+				return characters, nil
 			},
 		},
-		// "testRequiredAuth": &graphql.Field{
-		// 	Type:        graphql.String,
-		// 	Description: "Give me your jwt, I'll greet you",
-		// 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-		// 		authProfile, err := auth.GetProfileByContext(params.Context)
-		// 		if err != nil {
-		// 			return nil, err
-		// 		}
-
-		// 		return "Hello from " + authProfile.Email, nil
-		// 	},
-		// },
 	},
 })
 
@@ -153,7 +151,7 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 				"total_focus_time": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Float),
 				},
-				"custome_metrics": &graphql.ArgumentConfig{
+				"custom_metrics": &graphql.ArgumentConfig{
 					Type: graphql.NewList(newCustomMetricInput),
 				},
 			},
@@ -161,7 +159,11 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 				id := params.Args["id"].(string)
 				userID := params.Args["user_id"].(string)
 				name := params.Args["name"].(string)
-				tags := params.Args["tags"].([]string)
+				tagsInterface := params.Args["tags"].([]interface{})
+				tags := make([]string, len(tagsInterface))
+				for i, tag := range tagsInterface {
+					tags[i] = tag.(string)
+				}
 				totalFocusTime := params.Args["total_focus_time"].(float64)
 				customMetricsInput := params.Args["custom_metrics"].([]interface{})
 
@@ -184,7 +186,13 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 					customMetricDatas = append(customMetricDatas, customMetric)
 				}
 
-				return updatedCharacter(id, userID, name, tags, totalFocusTime, customMetricDatas), nil
+				character := updatedCharacter(id, userID, name, tags, totalFocusTime, customMetricDatas)
+				err := db.InsertCharacter(character)
+				if err != nil {
+					return nil, fmt.Errorf("failed to update character: %v", err)
+				}
+
+				return character, nil
 			},
 		},
 	},
