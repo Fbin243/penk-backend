@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -16,7 +17,6 @@ type Database struct {
 
 func (db *Database) Connect() error {
 	clientOptions := options.Client().ApplyURI("mongodb+srv://gotosleep:qAgVbxBQ03lkrQYx@tenk-hours-dev.bbehsco.mongodb.net/")
-
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
 		return err
@@ -43,7 +43,11 @@ func (db *Database) InsertCharacter(character CharacterData) error {
 }
 
 func (db *Database) UpdateCharacter(id string, character CharacterData) error {
-	filter := bson.M{"id": id}
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": objectID}
 	update := bson.M{"$set": character}
 
 	log.Printf("Updating character with ID: %s\n", id)
@@ -59,9 +63,13 @@ func (db *Database) UpdateCharacter(id string, character CharacterData) error {
 }
 
 func (db *Database) GetCharacterByID(id string) (*CharacterData, error) {
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
 	var character CharacterData
-	filter := bson.M{"id": id}
-	err := db.collection.FindOne(context.Background(), filter).Decode(&character)
+	filter := bson.M{"_id": objectID}
+	err = db.collection.FindOne(context.Background(), filter).Decode(&character)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +95,11 @@ func (db *Database) GetAllCharacters() ([]*CharacterData, error) {
 }
 
 func (db *Database) DeleteCharacter(id string) error {
-	filter := bson.M{"id": id}
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": objectID}
 	result, err := db.collection.DeleteOne(context.Background(), filter)
 	if err != nil {
 		return err

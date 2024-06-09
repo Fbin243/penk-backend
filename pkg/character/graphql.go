@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/graphql-go/graphql"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var db Database
@@ -22,7 +23,7 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Character",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.ID,
 		},
 		"user_id": &graphql.Field{
 			Type: graphql.String,
@@ -74,7 +75,6 @@ var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 				id := params.Args["id"].(string)
-
 				character, err := db.GetCharacterByID(id)
 				if err != nil {
 					return nil, fmt.Errorf("character not found: %v", err)
@@ -118,9 +118,8 @@ var newCustomMetricInput = graphql.NewInputObject(graphql.InputObjectConfig{
 	},
 })
 
-func updatedCharacter(id string, user_id string, name string, tags []string, totalFocusTime float64, customMetricsDatas []CustomMetricData) CharacterData {
+func updatedCharacter(user_id string, name string, tags []string, totalFocusTime float64, customMetricsDatas []CustomMetricData) CharacterData {
 	return CharacterData{
-		ID:               id,
 		UserID:           user_id,
 		Name:             name,
 		Tags:             tags,
@@ -136,9 +135,6 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 			Type:        characterType,
 			Description: "Create a character",
 			Args: graphql.FieldConfigArgument{
-				"id": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
-				},
 				"user_id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
@@ -156,11 +152,11 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				id := params.Args["id"].(string)
 				userID := params.Args["user_id"].(string)
 				name := params.Args["name"].(string)
+				var tags []string
 				tagsInterface := params.Args["tags"].([]interface{})
-				tags := make([]string, len(tagsInterface))
+				tags = make([]string, len(tagsInterface))
 				for i, tag := range tagsInterface {
 					tags[i] = tag.(string)
 				}
@@ -170,8 +166,8 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 				var customMetricDatas []CustomMetricData
 				for _, cm := range customMetricsInput {
 					cmMap, _ := cm.(map[string]interface{})
-					metricID, _ := cmMap["id"].(string)
-					metricCharacterID, _ := cmMap["character_id"].(string)
+					metricID, _ := cmMap["id"].(primitive.ObjectID)
+					metricCharacterID, _ := cmMap["character_id"].(primitive.ObjectID)
 					metricType, _ := cmMap["type"].(string)
 					metricName, _ := cmMap["name"].(string)
 					metricValue, _ := cmMap["value"].(string)
@@ -186,7 +182,7 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 					customMetricDatas = append(customMetricDatas, customMetric)
 				}
 
-				character := updatedCharacter(id, userID, name, tags, totalFocusTime, customMetricDatas)
+				character := updatedCharacter(userID, name, tags, totalFocusTime, customMetricDatas)
 				err := db.InsertCharacter(character)
 				if err != nil {
 					return nil, fmt.Errorf("failed to update character: %v", err)
@@ -246,8 +242,8 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 					var customMetricDatas []CustomMetricData
 					for _, cm := range customMetricsInput {
 						cmMap, _ := cm.(map[string]interface{})
-						metricID, _ := cmMap["id"].(string)
-						metricCharacterID, _ := cmMap["character_id"].(string)
+						metricID, _ := cmMap["id"].(primitive.ObjectID)
+						metricCharacterID, _ := cmMap["character_id"].(primitive.ObjectID)
 						metricType, _ := cmMap["type"].(string)
 						metricName, _ := cmMap["name"].(string)
 						metricValue, _ := cmMap["value"].(string)
