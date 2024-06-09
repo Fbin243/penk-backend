@@ -85,3 +85,15 @@ func (db *Database) GetAllCharacters() ([]*CharacterData, error) {
 	}
 	return characters, nil
 }
+
+func (db *Database) DeleteCharacter(id string) error {
+	filter := bson.M{"id": id}
+	result, err := db.collection.DeleteOne(context.Background(), filter)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Deleted %d documents\n", result.DeletedCount)
+
+	return nil
+}

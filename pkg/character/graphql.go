@@ -132,9 +132,9 @@ func updatedCharacter(id string, user_id string, name string, tags []string, tot
 var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 	Name: "RootMutation",
 	Fields: graphql.Fields{
-		"updateCharacter": &graphql.Field{
+		"createCharacter": &graphql.Field{
 			Type:        characterType,
-			Description: "Update a character by id",
+			Description: "Create a character",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
@@ -193,6 +193,102 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 				}
 
 				return character, nil
+			},
+		},
+		"updateCharacter": &graphql.Field{
+			Type:        characterType,
+			Description: "Update a character",
+			Args: graphql.FieldConfigArgument{
+				"id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"user_id": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"tags": &graphql.ArgumentConfig{
+					Type: graphql.NewList(graphql.String),
+				},
+				"total_focus_time": &graphql.ArgumentConfig{
+					Type: graphql.Float,
+				},
+				"custom_metrics": &graphql.ArgumentConfig{
+					Type: graphql.NewList(newCustomMetricInput),
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				id := params.Args["id"].(string)
+
+				character, err := db.GetCharacterByID(id)
+				if err != nil {
+					return nil, fmt.Errorf("character not found: %v", err)
+				}
+
+				if userID, ok := params.Args["user_id"].(string); ok {
+					character.UserID = userID
+				}
+				if name, ok := params.Args["name"].(string); ok {
+					character.Name = name
+				}
+				if tagsInterface, ok := params.Args["tags"].([]interface{}); ok {
+					tags := make([]string, len(tagsInterface))
+					for i, tag := range tagsInterface {
+						tags[i] = tag.(string)
+					}
+					character.Tags = tags
+				}
+				if totalFocusTime, ok := params.Args["total_focus_time"].(float64); ok {
+					character.TotalFocusedTime = totalFocusTime
+				}
+				if customMetricsInput, ok := params.Args["custom_metrics"].([]interface{}); ok {
+					var customMetricDatas []CustomMetricData
+					for _, cm := range customMetricsInput {
+						cmMap, _ := cm.(map[string]interface{})
+						metricID, _ := cmMap["id"].(string)
+						metricCharacterID, _ := cmMap["character_id"].(string)
+						metricType, _ := cmMap["type"].(string)
+						metricName, _ := cmMap["name"].(string)
+						metricValue, _ := cmMap["value"].(string)
+
+						customMetric := CustomMetricData{
+							ID:          metricID,
+							CharacterID: metricCharacterID,
+							Type:        metricType,
+							Name:        metricName,
+							Value:       metricValue,
+						}
+						customMetricDatas = append(customMetricDatas, customMetric)
+					}
+					character.CustomMetrics = customMetricDatas
+				}
+
+				err = db.UpdateCharacter(id, *character)
+				if err != nil {
+					return nil, fmt.Errorf("failed to update character: %v", err)
+				}
+
+				return character, nil
+			},
+		},
+		"deleteCharacter": &graphql.Field{
+			Type:        graphql.Boolean,
+			Description: "Delete a character",
+			Args: graphql.FieldConfigArgument{
+				"id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+			},
+			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+				id := params.Args["id"].(string)
+
+				err := db.DeleteCharacter(id)
+				if err != nil {
+					return nil, fmt.Errorf("failed to delete character: %v", err)
+				}
+
+				return true, nil
 			},
 		},
 	},
