@@ -14,9 +14,9 @@ import (
 )
 
 func registerAccount(params graphql.ResolveParams) (interface{}, error) {
-	authProfile, ok := params.Context.Value(auth.ProfileContextKey).(auth.Profile)
-	if !ok {
-		return nil, auth.ErrorProfileNotFound
+	authProfile, err := auth.GetProfileByContext(params.Context)
+	if err != nil {
+		return nil, err
 	}
 
 	user := coredb.User{
@@ -32,7 +32,7 @@ func registerAccount(params graphql.ResolveParams) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := db.GetUsersCollection().InsertOne(ctx, user)
+	_, err = db.GetUsersCollection().InsertOne(ctx, user)
 	if err != nil {
 		log.Printf("Failed to insert user: %v\n", err)
 		return nil, err
@@ -51,7 +51,9 @@ func getUserByEmail(params graphql.ResolveParams) (interface{}, error) {
 	defer cancel()
 
 	var user coredb.User
-	err := db.GetUsersCollection().FindOne(ctx, coredb.User{Email: email}).Decode(&user)
+	err := db.GetUsersCollection().FindOne(ctx, map[string]string{
+		"email": email,
+	}).Decode(&user)
 	if err != nil {
 		log.Printf("Failed to find user: %v\n", err)
 		return nil, err
