@@ -56,10 +56,10 @@ func GetProfileByContext(ctx context.Context) (*Profile, error) {
 		return nil, ErrorProfileNotFound
 	}
 
-	profile, ok := untypedProfile.(Profile)
+	profile, ok := untypedProfile.(*Profile)
 	if !ok {
 		return nil, ErrorCannotParseProfile
 	}
 
-	return &profile, nil
+	return profile, nil
 }
