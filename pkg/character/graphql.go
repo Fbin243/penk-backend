@@ -152,7 +152,7 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 				},
 			},
 			Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-				userID := params.Args["user_id"].(string)
+				userID := params.Args["userID"].(string)
 				name := params.Args["name"].(string)
 				var tags []string
 				tagsInterface := params.Args["tags"].([]interface{})
