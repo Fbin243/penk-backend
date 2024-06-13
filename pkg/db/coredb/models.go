@@ -36,3 +36,10 @@ type Character struct {
 	TotalFocusedTime int32              `json:"total_focused_time,omitempty" bson:"total_focused_time,omitempty"`
 	CustomMetrics    []CustomMetric     `json:"custom_metrics,omitempty" bson:"custom_metrics,omitempty"`
 }
+
+type TimeTracking struct {
+    ID           primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+    CharacterID  string             `json:"characterID" bson:"character_id"`
+    StartTime    int64              `json:"startTime" bson:"start_time"`
+    EndTime      int64              `json:"endTime" bson:"end_time"`
+}
