@@ -17,6 +17,7 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 			},
 			Resolve: getCharacterByID,
 		},
+
 		"characters": &graphql.Field{
 			Type:        graphql.NewList(characterType),
 			Description: "Get all characters",
