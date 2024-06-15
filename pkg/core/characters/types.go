@@ -44,3 +44,24 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var newCustomMetricInput = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "CusTomMetricInput",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"characterID": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"type": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"value": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+	},
+})
