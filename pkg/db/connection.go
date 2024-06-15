@@ -13,9 +13,14 @@ import (
 )
 
 var (
+<<<<<<< HEAD
 	db                  *mongo.Database
 	UserCollection      = "users"
 	CharacterCollection = "character"
+=======
+	db             *mongo.Database
+	UserCollection = "users"
+>>>>>>> dev
 )
 
 func GetDB() *mongo.Database {
@@ -64,7 +69,10 @@ func GetDB() *mongo.Database {
 func GetUsersCollection() *mongo.Collection {
 	return GetDB().Collection(UserCollection)
 }
+<<<<<<< HEAD
 
 func GetCharactersCollection() *mongo.Collection {
 	return GetDB().Collection(CharacterCollection)
 }
+=======
+>>>>>>> dev
