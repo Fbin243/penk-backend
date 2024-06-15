@@ -104,6 +104,7 @@ func getAllCharacters(params graphql.ResolveParams) (interface{}, error) {
 		log.Printf("Failed to fetch characters: %v\n", err)
 		return nil, err
 	}
+
 	defer cursor.Close(ctx)
 
 	err = cursor.All(ctx, &characters)
