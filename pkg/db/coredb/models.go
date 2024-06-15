@@ -15,7 +15,6 @@ type User struct {
 	CreatedAt   time.Time          `json:"createdAt" bson:"created_at"`
 	UpdatedAt   time.Time          `json:"updatedAt" bson:"updated_at"`
 }
-<<<<<<< HEAD
 
 // Character
 type MetricsType interface {
@@ -37,5 +36,3 @@ type Character struct {
 	TotalFocusedTime int32              `json:"total_focused_time" bson:"total_focused_time"`
 	CustomMetrics    []CustomMetric     `json:"custom_metricsy" bson:"custom_metrics"`
 }
-=======
->>>>>>> dev
