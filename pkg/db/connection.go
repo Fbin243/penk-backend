@@ -7,11 +7,15 @@ import (
 	"os"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var db *mongo.Database
+var (
+	db             *mongo.Database
+	UserCollection = "users"
+)
 
 func GetDB() *mongo.Database {
 	if db != nil {
@@ -26,7 +30,7 @@ func GetDB() *mongo.Database {
 	mongoUser := os.Getenv("MONGO_USER")
 	mongoPassword := os.Getenv("MONGO_PASSWORD")
 	connectionURI := fmt.Sprintf(
-		"mongodb://%s:%s@%s:27017/%s",
+		"mongodb+srv://%s:%s@%s/%s",
 		mongoUser,
 		mongoPassword,
 		mongoAddress,
@@ -41,6 +45,21 @@ func GetDB() *mongo.Database {
 	db = client.Database(mongoDatabase)
 
 	// optional setup for db here
+	usersCollection := db.Collection(UserCollection)
+	_, _ = usersCollection.Indexes().CreateMany(context.TODO(), []mongo.IndexModel{
+		{
+			Keys:    bson.D{{Key: "email", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
+		{
+			Keys:    bson.D{{Key: "firebase_uid", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
+	})
 
 	return db
+}
+
+func GetUsersCollection() *mongo.Collection {
+	return GetDB().Collection(UserCollection)
 }
