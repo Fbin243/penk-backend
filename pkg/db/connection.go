@@ -69,13 +69,6 @@ func GetCharactersCollection() *mongo.Collection {
 	return GetDB().Collection(CharacterCollection)
 }
 
-var timeTrackingsCollection *mongo.Collection
-
-func SetTimeTrackingsCollection(collection *mongo.Collection) {
-    timeTrackingsCollection = collection
-}
-
 func GetTimeTrackingsCollection() *mongo.Collection {
-    return timeTrackingsCollection
+	return GetDB().Collection("time_trackings")
 }
-

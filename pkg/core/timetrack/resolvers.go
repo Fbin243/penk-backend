@@ -16,14 +16,14 @@ import (
 
 func createTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	characterID := params.Args["characterID"].(string)
-	startTime := int64(params.Args["startTime"].(int))
-	endTime := int64(params.Args["endTime"].(int))
+	startTime := time.Unix(int64(params.Args["startTime"].(int64)), 0)
+	endTime := time.Unix(int64(params.Args["endTime"].(int)), 0)
 
 	timeTracking := coredb.TimeTracking{
-		ID:           primitive.NewObjectID(),
+		ID:          primitive.NewObjectID(),
 		CharacterID: characterID,
-		StartTime:    startTime,
-		EndTime:      endTime,
+		StartTime:   startTime,
+		EndTime:     endTime,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -37,8 +37,7 @@ func createTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 
 	err = updateCharacterTotalFocusTime(timeTracking.CharacterID)
 	if err != nil {
-		// Handle error, maybe log and revert timeTracking creation? Need more context to decide
-		return nil, fmt.Errorf("failed to update character's total focus time: %v", err)
+		return nil, fmt.Errorf("Failed to update character's total focus time: %v", err)
 	}
 
 	return timeTracking, nil
@@ -129,7 +128,7 @@ func updateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 
 	err = db.GetTimeTrackingsCollection().FindOne(ctx, filter).Decode(&timeTracking)
 	if err != nil {
-		return nil, fmt.Errorf("time tracking not found: %v", err)
+		return nil, fmt.Errorf("Time tracking not found: %v", err)
 	}
 
 	if characterID, ok := params.Args["characterID"].(string); ok {
@@ -137,59 +136,59 @@ func updateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	}
 
 	if startTime, ok := params.Args["startTime"].(int64); ok {
-		timeTracking.StartTime = startTime
+		timeTracking.StartTime = time.Unix(startTime, 0)
 	}
 
 	if endTime, ok := params.Args["endTime"].(int64); ok {
-		timeTracking.EndTime = endTime
+		timeTracking.EndTime = time.Unix(endTime, 0) // Convert int64 to time.Time
 	}
 
 	update := bson.M{"$set": timeTracking}
 
 	_, err = db.GetTimeTrackingsCollection().UpdateOne(ctx, filter, update)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update time tracking: %v", err)
+		return nil, fmt.Errorf("Failed to update time tracking: %v", err)
 	}
 
 	err = updateCharacterTotalFocusTime(timeTracking.CharacterID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update character's total focus time: %v", err)
+		return nil, fmt.Errorf("Failed to update character's total focus time: %v", err)
 	}
 
 	return timeTracking, nil
 }
 
 func deleteTimeTracking(params graphql.ResolveParams) (interface{}, error) {
-    id := params.Args["id"].(string)
+	id := params.Args["id"].(string)
 
-    objectID, err := primitive.ObjectIDFromHex(id)
-    if err != nil {
-        return nil, err
-    }
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
 
-    filter := bson.M{"_id": objectID}
+	filter := bson.M{"_id": objectID}
 
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-    timeTracking := coredb.TimeTracking{}
-    err = db.GetTimeTrackingsCollection().FindOne(ctx, filter).Decode(&timeTracking)
-    if err != nil {
-        return nil, fmt.Errorf("failed to find time tracking: %v", err)
-    }
+	timeTracking := coredb.TimeTracking{}
+	err = db.GetTimeTrackingsCollection().FindOne(ctx, filter).Decode(&timeTracking)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to find time tracking: %v", err)
+	}
 
-    _, err = db.GetTimeTrackingsCollection().DeleteOne(ctx, filter)
-    if err != nil {
-        return nil, fmt.Errorf("failed to delete time tracking: %v", err)
-    }
+	_, err = db.GetTimeTrackingsCollection().DeleteOne(ctx, filter)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to delete time tracking: %v", err)
+	}
 
-    err = updateCharacterTotalFocusTime(timeTracking.CharacterID)
-    if err != nil {
-        // Handle error, maybe log and potentially revert the deletion if possible
-        return nil, fmt.Errorf("failed to update character's total focus time after deletion: %v", err)
-    }
+	err = updateCharacterTotalFocusTime(timeTracking.CharacterID)
+	if err != nil {
+		// Handle error, maybe log and potentially revert the deletion if possible
+		return nil, fmt.Errorf("Failed to update character's total focus time after deletion: %v", err)
+	}
 
-    return true, nil
+	return true, nil
 }
 
 func updateCharacterTotalFocusTime(characterID string) error {
@@ -200,13 +199,13 @@ func updateCharacterTotalFocusTime(characterID string) error {
 
 	totalFocusTime, err := calculateTotalFocusTime(characterID)
 	if err != nil {
-		return fmt.Errorf("failed to calculate total focus time: %v", err)
+		return fmt.Errorf("Failed to calculate total focus time: %v", err)
 	}
 
 	update := bson.M{"$set": bson.M{"totalFocusTime": totalFocusTime}}
 	_, err = db.GetCharactersCollection().UpdateOne(ctx, bson.M{"_id": objectID}, update)
 	if err != nil {
-		return fmt.Errorf("failed to update character's total focus time in database: %v", err)
+		return fmt.Errorf("Failed to update character's total focus time in database: %v", err)
 	}
 
 	return nil
@@ -220,19 +219,20 @@ func calculateTotalFocusTime(characterID string) (int64, error) {
 
 	cursor, err := db.GetTimeTrackingsCollection().Find(ctx, filter)
 	if err != nil {
-		return 0, fmt.Errorf("failed to fetch time trackings for character: %v", err)
+		return 0, fmt.Errorf("Failed to fetch time trackings for character: %v", err)
 	}
 	defer cursor.Close(ctx)
 
 	var timeTrackings []coredb.TimeTracking
 	err = cursor.All(ctx, &timeTrackings)
 	if err != nil {
-		return 0, fmt.Errorf("failed to decode time trackings: %v", err)
+		return 0, fmt.Errorf("Failed to decode time trackings: %v", err)
 	}
 
 	var totalFocusTime int64
 	for _, tt := range timeTrackings {
-		totalFocusTime += (tt.EndTime - tt.StartTime)
+		duration := tt.EndTime.Sub(tt.StartTime)
+		totalFocusTime += int64(duration.Seconds())
 	}
 
 	return totalFocusTime, nil

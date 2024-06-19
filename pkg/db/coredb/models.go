@@ -17,8 +17,7 @@ type User struct {
 }
 
 // Character
-type MetricsType interface {
-}
+type MetricsType interface{}
 
 type CustomMetric struct {
 	ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
@@ -38,8 +37,8 @@ type Character struct {
 }
 
 type TimeTracking struct {
-    ID           primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-    CharacterID  string             `json:"characterID" bson:"character_id"`
-    StartTime    int64              `json:"startTime" bson:"start_time"`
-    EndTime      int64              `json:"endTime" bson:"end_time"`
+	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	CharacterID string             `json:"characterID" bson:"character_id"`
+	StartTime   time.Time          `json:"startTime" bson:"start_time"`
+	EndTime     time.Time          `json:"endTime" bson:"end_time"`
 }
