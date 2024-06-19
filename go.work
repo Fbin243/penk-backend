@@ -3,7 +3,6 @@ go 1.22.3
 use (
 	.
 	./pkg/auth
-	./pkg/character
 	./pkg/db
 	./pkg/dummy
 	./pkg/utils

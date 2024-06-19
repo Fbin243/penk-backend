@@ -78,3 +78,4 @@ func SetTimeTrackingsCollection(collection *mongo.Collection) {
 func GetTimeTrackingsCollection() *mongo.Collection {
     return timeTrackingsCollection
 }
+
