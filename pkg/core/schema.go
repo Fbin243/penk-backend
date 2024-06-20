@@ -23,6 +23,7 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 		"createCharacter": &characters.CreateCharacter,
 		"updateCharacter": &characters.UpdateCharacter,
 		"deleteCharacter": &characters.DeleteCharacter,
+		"resetCharacter":  &characters.ResetCharacter,
 	},
 })
 

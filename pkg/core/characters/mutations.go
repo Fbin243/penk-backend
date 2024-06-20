@@ -57,3 +57,14 @@ var DeleteCharacter = graphql.Field{
 	},
 	Resolve: deleteCharacter,
 }
+
+var ResetCharacter = graphql.Field{
+	Type:        graphql.Boolean,
+	Description: "Delete a character",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+	},
+	Resolve: resetCharacter,
+}

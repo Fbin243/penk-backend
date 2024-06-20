@@ -268,3 +268,31 @@ func deleteCharacter(params graphql.ResolveParams) (interface{}, error) {
 
 	return true, nil
 }
+
+func resetCharacter(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"].(string)
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	character := coredb.Character{}
+	filter := bson.M{"_id": objectID}
+	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
+
+	character.Tags = []string{}
+	character.TotalFocusedTime = 0
+	character.CustomMetrics = []coredb.CustomMetric{}
+	update := bson.M{"$set": character}
+
+	_, err = db.GetCharactersCollection().UpdateOne(ctx, filter, update)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete character: %v", err)
+	}
+
+	return true, nil
+}
