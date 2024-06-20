@@ -17,20 +17,30 @@ type User struct {
 }
 
 // Character
-type MetricsType interface {
+type MetricProperty struct {
+	ID    primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name  string             `json:"name" bson:"name"`
+	Type  string             `json:"type" bson:"type"`
+	Value any                `json:"value" bson:"value"`
+	Unit  string             `json:"unit" bson:"unit"`
+}
+
+type StyleType struct {
+	Color string `json:"color" bson:"color"`
+	Icon  string `json:"icon" bson:"icon"`
 }
 
 type CustomMetric struct {
 	ID          primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	CharacterID primitive.ObjectID `json:"character_id,omitempty" bson:"character_id,omitempty"`
-	Type        string             `json:"type" bson:"type"`
 	Name        string             `json:"name" bson:"name"`
-	Value       string             `json:"value" bson:"value"`
+	Description string             `json:"description" bson:"description"`
+	Time        int32              `json:"time" bson:"time"` // will change after we merge time service
+	Style       StyleType          `json:"style" bson:"style"`
+	Properties  []MetricProperty   `json:"properties" bson:"properties"`
 }
 
 type Character struct {
 	ID               primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	UserID           string             `json:"user_id,omitempty" bson:"user_id,omitempty"`
 	Name             string             `json:"name" bson:"name"`
 	Tags             []string           `json:"tags" bson:"tags"`
 	TotalFocusedTime int32              `json:"total_focused_time" bson:"total_focused_time"`

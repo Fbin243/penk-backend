@@ -8,9 +8,6 @@ var CreateCharacter = graphql.Field{
 	Type:        characterType,
 	Description: "Create a character",
 	Args: graphql.FieldConfigArgument{
-		"userID": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.String),
-		},
 		"name": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},
@@ -33,9 +30,6 @@ var UpdateCharacter = graphql.Field{
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.String),
-		},
-		"userID": &graphql.ArgumentConfig{
-			Type: graphql.String,
 		},
 		"name": &graphql.ArgumentConfig{
 			Type: graphql.String,

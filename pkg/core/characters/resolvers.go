@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"tenkhours/pkg/db"
@@ -15,47 +16,78 @@ import (
 )
 
 func createCharacter(params graphql.ResolveParams) (interface{}, error) {
-	userID := params.Args["userID"].(string)
-
 	name := params.Args["name"].(string)
-
 	var tags []string
 	tagsInterface := params.Args["tags"].([]interface{})
 	tags = make([]string, len(tagsInterface))
 	for i, tag := range tagsInterface {
 		tags[i] = tag.(string)
 	}
-
-	totalFocusTime := int32(params.Args["totalFocusTime"].(int))
+	totalFocusTime := params.Args["totalFocusTime"].(int)
 
 	customMetricsInput := params.Args["customMetrics"].([]interface{})
-
 	var customMetricDatas []coredb.CustomMetric
 
 	for _, cm := range customMetricsInput {
 		cmMap, _ := cm.(map[string]interface{})
 		metricID, _ := cmMap["id"].(primitive.ObjectID)
-		metricCharacterID, _ := cmMap["characterID"].(primitive.ObjectID)
-		metricType, _ := cmMap["type"].(string)
 		metricName, _ := cmMap["name"].(string)
-		metricValue, _ := cmMap["value"].(string)
+		metricDescription, _ := cmMap["description"].(string)
+		metricTime, _ := cmMap["time"].(int)
+
+		metricStyle, _ := cmMap["style"].(interface{})
+		styleMap, _ := metricStyle.(map[string]interface{})
+		styleColor, _ := styleMap["color"].(string)
+		styleIcon, _ := styleMap["icon"].(string)
+		styleData := coredb.StyleType{
+			Color: styleColor,
+			Icon:  styleIcon,
+		}
+
+		metricProperties, _ := cmMap["properties"].([]interface{})
+
+		var propertiesData []coredb.MetricProperty
+		for _, prop := range metricProperties {
+			propMap, _ := prop.(map[string]interface{})
+			propName, _ := propMap["name"].(string)
+			propType, _ := propMap["type"].(string)
+			propValue, _ := propMap["value"].(string)
+			propUnit, _ := propMap["unit"].(string)
+			var newValue interface{}
+			switch propType {
+			case "Text":
+				newValue = propValue
+			case "Number":
+				newValue, _ = strconv.ParseFloat(propValue, 64)
+			default:
+				newValue = propValue
+			}
+
+			property := coredb.MetricProperty{
+				Name:  propName,
+				Type:  propType,
+				Value: newValue,
+				Unit:  propUnit,
+			}
+			propertiesData = append(propertiesData, property)
+		}
 
 		customMetric := coredb.CustomMetric{
 			ID:          metricID,
-			CharacterID: metricCharacterID,
-			Type:        metricType,
 			Name:        metricName,
-			Value:       metricValue,
+			Description: metricDescription,
+			Time:        int32(metricTime),
+			Style:       styleData,
+			Properties:  propertiesData,
 		}
 		customMetricDatas = append(customMetricDatas, customMetric)
 	}
 
 	character := coredb.Character{
 		ID:               primitive.NewObjectID(),
-		UserID:           userID,
 		Name:             name,
 		Tags:             tags,
-		TotalFocusedTime: totalFocusTime,
+		TotalFocusedTime: int32(totalFocusTime),
 		CustomMetrics:    customMetricDatas,
 	}
 
@@ -135,10 +167,6 @@ func updateCharacter(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	if userID, ok := params.Args["userID"].(string); ok {
-		character.UserID = userID
-	}
-
 	if name, ok := params.Args["name"].(string); ok {
 		character.Name = name
 	}
@@ -157,17 +185,53 @@ func updateCharacter(params graphql.ResolveParams) (interface{}, error) {
 		for _, cm := range customMetricsInput {
 			cmMap, _ := cm.(map[string]interface{})
 			metricID, _ := cmMap["id"].(primitive.ObjectID)
-			metricCharacterID, _ := cmMap["characterID"].(primitive.ObjectID)
-			metricType, _ := cmMap["type"].(string)
 			metricName, _ := cmMap["name"].(string)
-			metricValue, _ := cmMap["value"].(string)
+			metricDescription, _ := cmMap["description"].(string)
+			metricTime, _ := cmMap["time"].(int)
+			metricStyle, _ := cmMap["style"].(interface{})
+			styleMap, _ := metricStyle.(map[string]interface{})
+			styleColor, _ := styleMap["color"].(string)
+			styleIcon, _ := styleMap["icon"].(string)
+			styleData := coredb.StyleType{
+				Color: styleColor,
+				Icon:  styleIcon,
+			}
+
+			metricProperties, _ := cmMap["properties"].([]interface{})
+
+			var propertiesData []coredb.MetricProperty
+			for _, prop := range metricProperties {
+				propMap, _ := prop.(map[string]interface{})
+				propName, _ := propMap["name"].(string)
+				propType, _ := propMap["type"].(string)
+				propValue, _ := propMap["value"].(string)
+				propUnit, _ := propMap["unit"].(string)
+				var newValue interface{}
+				switch propType {
+				case "Text":
+					newValue = propValue
+				case "Number":
+					newValue, _ = strconv.ParseFloat(propValue, 64)
+				default:
+					newValue = propValue
+				}
+
+				property := coredb.MetricProperty{
+					Name:  propName,
+					Type:  propType,
+					Value: newValue,
+					Unit:  propUnit,
+				}
+				propertiesData = append(propertiesData, property)
+			}
 
 			customMetric := coredb.CustomMetric{
 				ID:          metricID,
-				CharacterID: metricCharacterID,
-				Type:        metricType,
 				Name:        metricName,
-				Value:       metricValue,
+				Description: metricDescription,
+				Time:        int32(metricTime),
+				Style:       styleData,
+				Properties:  propertiesData,
 			}
 			customMetricDatas = append(customMetricDatas, customMetric)
 		}
