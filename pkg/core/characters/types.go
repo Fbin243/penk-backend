@@ -67,6 +67,9 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.ID,
 		},
+		"userID": &graphql.Field{
+			Type: graphql.String,
+		},
 		"name": &graphql.Field{
 			Type: graphql.String,
 		},

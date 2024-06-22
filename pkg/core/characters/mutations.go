@@ -8,6 +8,9 @@ var CreateCharacter = graphql.Field{
 	Type:        characterType,
 	Description: "Create a character",
 	Args: graphql.FieldConfigArgument{
+		"userID": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
 		"name": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},
@@ -60,7 +63,7 @@ var DeleteCharacter = graphql.Field{
 
 var ResetCharacter = graphql.Field{
 	Type:        graphql.Boolean,
-	Description: "Delete a character",
+	Description: "Reset a character",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.String),

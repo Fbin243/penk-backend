@@ -15,6 +15,7 @@ import (
 )
 
 func createCharacter(params graphql.ResolveParams) (interface{}, error) {
+	userID := params.Args["userID"].(string)
 	name := params.Args["name"].(string)
 
 	var tags []string
@@ -36,13 +37,10 @@ func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 		metricDescription, _ := cmMap["description"].(string)
 		metricTime, _ := cmMap["time"].(int)
 
-		metricStyle, _ := cmMap["style"].(interface{})
-		styleMap, _ := metricStyle.(map[string]interface{})
-		styleColor, _ := styleMap["color"].(string)
-		styleIcon, _ := styleMap["icon"].(string)
+		metricStyleMap, _ := cmMap["style"].(map[string]interface{})
 		styleData := coredb.StyleType{
-			Color: styleColor,
-			Icon:  styleIcon,
+			Color: metricStyleMap["color"].(string),
+			Icon:  metricStyleMap["icon"].(string),
 		}
 
 		metricProperties, _ := cmMap["properties"].([]interface{})
@@ -55,12 +53,10 @@ func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 			propValue, _ := propMap["value"].(string)
 			propUnit, _ := propMap["unit"].(string)
 
-			newValue := castType(propType, propValue)
-
 			property := coredb.MetricProperty{
 				Name:  propName,
 				Type:  propType,
-				Value: newValue,
+				Value: castType(propType, propValue),
 				Unit:  propUnit,
 			}
 
@@ -81,6 +77,7 @@ func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 
 	character := coredb.Character{
 		ID:               primitive.NewObjectID(),
+		UserID:           userID,
 		Name:             name,
 		Tags:             tags,
 		TotalFocusedTime: int32(totalFocusTime),
@@ -185,14 +182,10 @@ func updateCharacter(params graphql.ResolveParams) (interface{}, error) {
 			metricDescription, _ := cmMap["description"].(string)
 			metricTime, _ := cmMap["time"].(int)
 
-			metricStyle, _ := cmMap["style"].(interface{})
-			styleMap, _ := metricStyle.(map[string]interface{})
-			styleColor, _ := styleMap["color"].(string)
-			styleIcon, _ := styleMap["icon"].(string)
-
+			metricStyleMap, _ := cmMap["style"].(map[string]interface{})
 			styleData := coredb.StyleType{
-				Color: styleColor,
-				Icon:  styleIcon,
+				Color: metricStyleMap["color"].(string),
+				Icon:  metricStyleMap["icon"].(string),
 			}
 
 			metricProperties, _ := cmMap["properties"].([]interface{})
@@ -204,12 +197,11 @@ func updateCharacter(params graphql.ResolveParams) (interface{}, error) {
 				propType, _ := propMap["type"].(string)
 				propValue, _ := propMap["value"].(string)
 				propUnit, _ := propMap["unit"].(string)
-				newValue := castType(propType, propValue)
 
 				property := coredb.MetricProperty{
 					Name:  propName,
 					Type:  propType,
-					Value: newValue,
+					Value: castType(propType, propValue),
 					Unit:  propUnit,
 				}
 				propertiesData = append(propertiesData, property)
