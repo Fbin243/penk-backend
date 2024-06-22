@@ -31,12 +31,3 @@ var TimeTrackingsByCharacterIDQuery = graphql.Field{
 	},
 	Resolve: getTimeTrackingsByCharacterID,
 }
-
-var RootQuery = graphql.NewObject(graphql.ObjectConfig{
-	Name: "RootQuery",
-	Fields: graphql.Fields{
-		"timeTracking":               &TimeTrackingQuery,
-		"timeTrackings":              &AllTimeTrackingsQuery,
-		"timeTrackingsByCharacterID": &TimeTrackingsByCharacterIDQuery,
-	},
-})

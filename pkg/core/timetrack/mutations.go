@@ -66,12 +66,3 @@ var DeleteTimeTrackingMutation = graphql.Field{
 	},
 	Resolve: deleteTimeTracking,
 }
-
-var RootMutation = graphql.NewObject(graphql.ObjectConfig{
-	Name: "RootMutation",
-	Fields: graphql.Fields{
-		"createTimeTracking": &CreateTimeTrackingMutation,
-		"updateTimeTracking": &UpdateTimeTrackingMutation,
-		"deleteTimeTracking": &DeleteTimeTrackingMutation,
-	},
-})
