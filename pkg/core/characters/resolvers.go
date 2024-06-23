@@ -32,7 +32,6 @@ func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 
 	for _, cm := range customMetricsInput {
 		cmMap, _ := cm.(map[string]interface{})
-		metricID, _ := cmMap["id"].(primitive.ObjectID)
 		metricName, _ := cmMap["name"].(string)
 		metricDescription, _ := cmMap["description"].(string)
 		metricTime, _ := cmMap["time"].(int)
@@ -64,7 +63,7 @@ func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 		}
 
 		customMetric := coredb.CustomMetric{
-			ID:          metricID,
+			ID:          primitive.NewObjectID(),
 			Name:        metricName,
 			Description: metricDescription,
 			Time:        int32(metricTime),
