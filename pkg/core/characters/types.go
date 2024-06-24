@@ -97,7 +97,7 @@ var styleTypeInput = graphql.NewInputObject(graphql.InputObjectConfig{
 	},
 })
 
-var metricPropertyInput = graphql.NewInputObject(graphql.InputObjectConfig{
+var metricPropertyInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "MetricPropertyInput",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"name": &graphql.InputObjectFieldConfig{
@@ -111,27 +111,6 @@ var metricPropertyInput = graphql.NewInputObject(graphql.InputObjectConfig{
 		},
 		"unit": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
-		},
-	},
-})
-
-var newCustomMetricInput = graphql.NewInputObject(graphql.InputObjectConfig{
-	Name: "CustomMetricInput",
-	Fields: graphql.InputObjectConfigFieldMap{
-		"name": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"description": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"time": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
-		},
-		"style": &graphql.InputObjectFieldConfig{
-			Type: styleTypeInput,
-		},
-		"properties": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewList(metricPropertyInput),
 		},
 	},
 })

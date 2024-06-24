@@ -16,7 +16,8 @@ func createCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	characterID := params.Args["characterID"].(string)
 	name := params.Args["name"].(string)
 	description := params.Args["description"].(string)
-	style := params.Args["style"].([]interface{})
+	style := params.Args["style"].(map[string]interface{})
+
 	styleData := coredb.StyleType{
 		Color: style["color"].(string),
 		Icon:  style["icon"].(string),
@@ -29,11 +30,12 @@ func createCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		Description: description,
 		Time:        0,
 		Style:       styleData,
+		Properties:  []coredb.MetricProperty{},
 	}
 
 	objectID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get object id: %v", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -43,6 +45,10 @@ func createCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	filter := bson.M{"_id": objectID}
 
 	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get character: %v", err)
+	}
+
 	character.CustomMetrics = append(character.CustomMetrics, customMetric)
 
 	update := bson.M{"$set": character}
@@ -95,6 +101,26 @@ func updateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 					Icon:  style["icon"].(string),
 				}
 			}
+			if properites, ok := params.Args["properties"].([]interface{}); ok {
+				var propertiesData []coredb.MetricProperty
+				for _, prop := range properites {
+					propMap, _ := prop.(map[string]interface{})
+					propName, _ := propMap["name"].(string)
+					propType, _ := propMap["type"].(string)
+					propValue, _ := propMap["value"].(string)
+					propUnit, _ := propMap["unit"].(string)
+
+					property := coredb.MetricProperty{
+						Name:  propName,
+						Type:  propType,
+						Value: castType(propType, propValue),
+						Unit:  propUnit,
+					}
+
+					propertiesData = append(propertiesData, property)
+				}
+				character.CustomMetrics[i].Properties = propertiesData
+			}
 			updatedMetric = character.CustomMetrics[i]
 			found = true
 			break
@@ -105,17 +131,17 @@ func updateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("custom metric not found")
 	}
 
-	update := bson.M{"$set": bson.M{"customMetrics": character.CustomMetrics}}
+	update := bson.M{"$set": character}
 
 	_, err = db.GetCharactersCollection().UpdateOne(ctx, filter, update)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update custom metric: %v", err)
 	}
-
 	return updatedMetric, nil
+
 }
 
-func deleteMetric(params graphql.ResolveParams) (interface{}, error) {
+func deleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	metricID := params.Args["id"].(string)
 	characterID := params.Args["characterID"].(string)
 
@@ -182,7 +208,7 @@ func resetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 			character.CustomMetrics[i].Description = ""
 			character.CustomMetrics[i].Time = 0
 			character.CustomMetrics[i].Style = coredb.StyleType{}
-
+			character.CustomMetrics[i].Properties = []coredb.MetricProperty{}
 			found = true
 			break
 		}

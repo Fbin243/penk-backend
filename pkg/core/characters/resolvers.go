@@ -25,62 +25,13 @@ func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 		tags[i] = tag.(string)
 	}
 
-	totalFocusTime := params.Args["totalFocusTime"].(int)
-
-	customMetricsInput := params.Args["customMetrics"].([]interface{})
-	var customMetricDatas []coredb.CustomMetric
-
-	for _, cm := range customMetricsInput {
-		cmMap, _ := cm.(map[string]interface{})
-		metricName, _ := cmMap["name"].(string)
-		metricDescription, _ := cmMap["description"].(string)
-		metricTime, _ := cmMap["time"].(int)
-
-		metricStyleMap, _ := cmMap["style"].(map[string]interface{})
-		styleData := coredb.StyleType{
-			Color: metricStyleMap["color"].(string),
-			Icon:  metricStyleMap["icon"].(string),
-		}
-
-		metricProperties, _ := cmMap["properties"].([]interface{})
-
-		var propertiesData []coredb.MetricProperty
-		for _, prop := range metricProperties {
-			propMap, _ := prop.(map[string]interface{})
-			propName, _ := propMap["name"].(string)
-			propType, _ := propMap["type"].(string)
-			propValue, _ := propMap["value"].(string)
-			propUnit, _ := propMap["unit"].(string)
-
-			property := coredb.MetricProperty{
-				Name:  propName,
-				Type:  propType,
-				Value: castType(propType, propValue),
-				Unit:  propUnit,
-			}
-
-			propertiesData = append(propertiesData, property)
-		}
-
-		customMetric := coredb.CustomMetric{
-			ID:          primitive.NewObjectID(),
-			Name:        metricName,
-			Description: metricDescription,
-			Time:        int32(metricTime),
-			Style:       styleData,
-			Properties:  propertiesData,
-		}
-
-		customMetricDatas = append(customMetricDatas, customMetric)
-	}
-
 	character := coredb.Character{
 		ID:               primitive.NewObjectID(),
 		UserID:           userID,
 		Name:             name,
 		Tags:             tags,
-		TotalFocusedTime: int32(totalFocusTime),
-		CustomMetrics:    customMetricDatas,
+		TotalFocusedTime: 0,
+		CustomMetrics:    []coredb.CustomMetric{},
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -165,60 +116,6 @@ func updateCharacter(params graphql.ResolveParams) (interface{}, error) {
 
 	if tags, ok := params.Args["tags"].([]string); ok {
 		character.Tags = tags
-	}
-
-	if totalFocusTime, ok := params.Args["totalFocusTime"].(int32); ok {
-		character.TotalFocusedTime = totalFocusTime
-	}
-
-	if customMetricsInput, ok := params.Args["customMetrics"].([]interface{}); ok {
-		var customMetricDatas []coredb.CustomMetric
-
-		for _, cm := range customMetricsInput {
-			cmMap, _ := cm.(map[string]interface{})
-			metricID, _ := cmMap["id"].(primitive.ObjectID)
-			metricName, _ := cmMap["name"].(string)
-			metricDescription, _ := cmMap["description"].(string)
-			metricTime, _ := cmMap["time"].(int)
-
-			metricStyleMap, _ := cmMap["style"].(map[string]interface{})
-			styleData := coredb.StyleType{
-				Color: metricStyleMap["color"].(string),
-				Icon:  metricStyleMap["icon"].(string),
-			}
-
-			metricProperties, _ := cmMap["properties"].([]interface{})
-
-			var propertiesData []coredb.MetricProperty
-			for _, prop := range metricProperties {
-				propMap, _ := prop.(map[string]interface{})
-				propName, _ := propMap["name"].(string)
-				propType, _ := propMap["type"].(string)
-				propValue, _ := propMap["value"].(string)
-				propUnit, _ := propMap["unit"].(string)
-
-				property := coredb.MetricProperty{
-					Name:  propName,
-					Type:  propType,
-					Value: castType(propType, propValue),
-					Unit:  propUnit,
-				}
-				propertiesData = append(propertiesData, property)
-			}
-
-			customMetric := coredb.CustomMetric{
-				ID:          metricID,
-				Name:        metricName,
-				Description: metricDescription,
-				Time:        int32(metricTime),
-				Style:       styleData,
-				Properties:  propertiesData,
-			}
-
-			customMetricDatas = append(customMetricDatas, customMetric)
-		}
-
-		character.CustomMetrics = customMetricDatas
 	}
 
 	update := bson.M{"$set": character}

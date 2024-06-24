@@ -18,12 +18,10 @@ type User struct {
 
 // Character
 type MetricProperty struct {
-	ID       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	MetricID string             `json:"metric_id,omitempty" bson:"metric_id,omitempty"`
-	Name     string             `json:"name" bson:"name"`
-	Type     string             `json:"type" bson:"type"`
-	Value    any                `json:"value" bson:"value"`
-	Unit     string             `json:"unit" bson:"unit"`
+	Name  string `json:"name" bson:"name"`
+	Type  string `json:"type" bson:"type"`
+	Value any    `json:"value" bson:"value"`
+	Unit  string `json:"unit" bson:"unit"`
 }
 
 type StyleType struct {
