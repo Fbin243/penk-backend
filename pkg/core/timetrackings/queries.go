@@ -1,10 +1,10 @@
-package timetrack
+package timetrackings
 
 import (
 	"github.com/graphql-go/graphql"
 )
 
-var TimeTrackingQuery = graphql.Field{
+var TimeTracking = graphql.Field{
 	Type:        timeTrackingType,
 	Description: "Get a time tracking by ID",
 	Args: graphql.FieldConfigArgument{
@@ -15,13 +15,13 @@ var TimeTrackingQuery = graphql.Field{
 	Resolve: getTimeTrackingByID,
 }
 
-var AllTimeTrackingsQuery = graphql.Field{
+var AllTimeTrackings = graphql.Field{
 	Type:        graphql.NewList(timeTrackingType),
 	Description: "Get all time trackings",
 	Resolve:     getAllTimeTrackings,
 }
 
-var TimeTrackingsByCharacterIDQuery = graphql.Field{
+var TimeTrackingsByCharacterID = graphql.Field{
 	Type:        graphql.NewList(timeTrackingType),
 	Description: "Get all time trackings for a character by character ID",
 	Args: graphql.FieldConfigArgument{

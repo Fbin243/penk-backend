@@ -2,8 +2,8 @@ package core
 
 import (
 	"tenkhours/pkg/core/characters"
+	"tenkhours/pkg/core/timetrackings"
 	"tenkhours/pkg/core/users"
-	"tenkhours/pkg/core/timetrack"
 
 	"github.com/graphql-go/graphql"
 )
@@ -11,9 +11,12 @@ import (
 var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 	Name: "RootQuery",
 	Fields: graphql.Fields{
-		"user":       &users.User,
-		"character":  &characters.CharacterQuery,
-		"characters": &characters.CharactersQuery,
+		"user":                       &users.User,
+		"character":                  &characters.CharacterQuery,
+		"characters":                 &characters.CharactersQuery,
+		"timeTracking":               &timetrackings.TimeTracking,
+		"timeTrackings":              &timetrackings.AllTimeTrackings,
+		"timeTrackingsByCharacterID": &timetrackings.TimeTrackingsByCharacterID,
 	},
 })
 
@@ -29,27 +32,11 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 		"updateCustomMetric": &characters.UpdateCustomMetric,
 		"deleteCustomMetric": &characters.DeleteCustomMetric,
 		"resetCustomMetric":  &characters.ResetCustomMetric,
+		"createTimeTracking": &timetrackings.CreateTimeTrackingMutation,
+		"updateTimeTracking": &timetrackings.UpdateTimeTrackingMutation,
+		"deleteTimeTracking": &timetrackings.DeleteTimeTrackingMutation,
 	},
 })
-
-var RootQuery = graphql.NewObject(graphql.ObjectConfig{
-	Name: "RootQuery",
-	Fields: graphql.Fields{
-		"timeTracking":               &timetrack.TimeTrackingQuery,
-		"timeTrackings":              &timetrack.AllTimeTrackingsQuery,
-		"timeTrackingsByCharacterID": &timetrack.TimeTrackingsByCharacterIDQuery,
-	},
-})
-
-var RootMutation = graphql.NewObject(graphql.ObjectConfig{
-	Name: "RootMutation",
-	Fields: graphql.Fields{
-		"createTimeTracking": &timetrack.CreateTimeTrackingMutation,
-		"updateTimeTracking": &timetrack.UpdateTimeTrackingMutation,
-		"deleteTimeTracking": &timetrack.DeleteTimeTrackingMutation,
-	},
-})
-
 
 var CoreSchema, _ = graphql.NewSchema(graphql.SchemaConfig{
 	Query:    rootQuery,
