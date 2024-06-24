@@ -31,7 +31,7 @@ func createCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
 
-	if character.LimitedMetrics >= 2 {
+	if len(character.CustomMetrics) >= int(character.LimitedMetrics) {
 		return nil, fmt.Errorf("custom metric creation limit reached")
 	}
 
@@ -45,17 +45,17 @@ func createCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	}
 
 	customMetric := coredb.CustomMetric{
-		ID:          primitive.NewObjectID(),
-		CharacterID: characterID,
-		Name:        name,
-		Description: description,
-		Time:        0,
-		Style:       styleData,
-		Properties:  []coredb.MetricProperty{},
+		ID:                primitive.NewObjectID(),
+		CharacterID:       characterID,
+		Name:              name,
+		Description:       description,
+		Time:              0,
+		Style:             styleData,
+		Properties:        []coredb.MetricProperty{},
+		LimitedProperties: 2,
 	}
 
 	character.CustomMetrics = append(character.CustomMetrics, customMetric)
-	character.LimitedMetrics++
 
 	update := bson.M{"$set": character}
 
@@ -126,7 +126,7 @@ func updateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 					propertiesData = append(propertiesData, property)
 				}
 
-				if len(propertiesData) > 2 {
+				if len(propertiesData) > int(character.CustomMetrics[i].LimitedProperties) {
 					return nil, fmt.Errorf("custom metric properties creation limit reached")
 				}
 				character.CustomMetrics[i].Properties = propertiesData
@@ -176,12 +176,10 @@ func deleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("invalid metric ID: %v", err)
 	}
 
-	character.LimitedMetrics--
 	update := bson.M{
 		"$pull": bson.M{
-			"metrics": bson.M{"_id": metricObjectID},
+			"custom_metrics": bson.M{"_id": metricObjectID},
 		},
-		"$set": character,
 	}
 
 	result, err := db.GetCharactersCollection().UpdateOne(ctx, filter, update)
@@ -203,7 +201,7 @@ func resetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		return false, fmt.Errorf("invalid metric ID: %v", err)
 	}
 
-	characterID := params.Args["CharacterID"].(string)
+	characterID := params.Args["characterID"].(string)
 	characterObjectID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
 		return false, fmt.Errorf("invalid character ID: %v", err)
@@ -231,8 +229,6 @@ func resetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 			break
 		}
 	}
-
-	character.LimitedMetrics = 0
 
 	if !found {
 		return false, fmt.Errorf("custom metric not found")
