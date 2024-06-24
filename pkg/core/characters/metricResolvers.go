@@ -31,7 +31,7 @@ func createCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
 
-	if len(character.CustomMetrics) >= int(character.LimitedMetrics) {
+	if len(character.CustomMetrics) >= int(character.LimitedMetricNumber) {
 		return nil, fmt.Errorf("custom metric creation limit reached")
 	}
 
@@ -39,19 +39,19 @@ func createCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	description := params.Args["description"].(string)
 	style := params.Args["style"].(map[string]interface{})
 
-	styleData := coredb.StyleType{
+	styleData := coredb.MetricStyle{
 		Color: style["color"].(string),
 		Icon:  style["icon"].(string),
 	}
 
 	customMetric := coredb.CustomMetric{
-		ID:                primitive.NewObjectID(),
-		Name:              name,
-		Description:       description,
-		Time:              0,
-		Style:             styleData,
-		Properties:        []coredb.MetricProperty{},
-		LimitedProperties: 2,
+		ID:                    primitive.NewObjectID(),
+		Name:                  name,
+		Description:           description,
+		Time:                  0,
+		Style:                 styleData,
+		Properties:            []coredb.MetricProperty{},
+		LimitedPropertyNumber: 2,
 	}
 
 	character.CustomMetrics = append(character.CustomMetrics, customMetric)
@@ -101,7 +101,7 @@ func updateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 				character.CustomMetrics[i].Description = description
 			}
 			if style, ok := params.Args["style"].(map[string]interface{}); ok {
-				character.CustomMetrics[i].Style = coredb.StyleType{
+				character.CustomMetrics[i].Style = coredb.MetricStyle{
 					Color: style["color"].(string),
 					Icon:  style["icon"].(string),
 				}
@@ -125,7 +125,7 @@ func updateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 					propertiesData = append(propertiesData, property)
 				}
 
-				if len(propertiesData) > int(character.CustomMetrics[i].LimitedProperties) {
+				if len(propertiesData) > int(character.CustomMetrics[i].LimitedPropertyNumber) {
 					return nil, fmt.Errorf("custom metric properties creation limit reached")
 				}
 				character.CustomMetrics[i].Properties = propertiesData
@@ -222,7 +222,7 @@ func resetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		if metric.ID == metricObjectID {
 			character.CustomMetrics[i].Description = ""
 			character.CustomMetrics[i].Time = 0
-			character.CustomMetrics[i].Style = coredb.StyleType{}
+			character.CustomMetrics[i].Style = coredb.MetricStyle{}
 			character.CustomMetrics[i].Properties = []coredb.MetricProperty{}
 			found = true
 			break
