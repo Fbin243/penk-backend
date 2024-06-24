@@ -46,4 +46,5 @@ type Character struct {
 	Tags             []string           `json:"tags" bson:"tags"`
 	TotalFocusedTime int32              `json:"total_focused_time" bson:"total_focused_time"`
 	CustomMetrics    []CustomMetric     `json:"custom_metrics" bson:"custom_metrics"`
+	LimitedMetrics   int32              `json:"limited_metrics" bson:"limited_metrics"`
 }

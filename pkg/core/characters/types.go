@@ -58,6 +58,9 @@ var customMetricsType = graphql.NewObject(graphql.ObjectConfig{
 		"properties": &graphql.Field{
 			Type: graphql.NewList(metricProperty),
 		},
+		"limitedProperties": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })
 
@@ -81,6 +84,9 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"customMetrics": &graphql.Field{
 			Type: graphql.NewList(customMetricsType),
+		},
+		"limitedCustomMetrics": &graphql.Field{
+			Type: graphql.Int,
 		},
 	},
 })

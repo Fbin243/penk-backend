@@ -32,6 +32,7 @@ func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 		Tags:             tags,
 		TotalFocusedTime: 0,
 		CustomMetrics:    []coredb.CustomMetric{},
+		LimitedMetrics:   0,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
