@@ -26,13 +26,13 @@ func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 	}
 
 	character := coredb.Character{
-		ID:               primitive.NewObjectID(),
-		UserID:           userID,
-		Name:             name,
-		Tags:             tags,
-		TotalFocusedTime: 0,
-		CustomMetrics:    []coredb.CustomMetric{},
-		LimitedMetrics:   2,
+		ID:                  primitive.NewObjectID(),
+		UserID:              userID,
+		Name:                name,
+		Tags:                tags,
+		TotalFocusedTime:    0,
+		CustomMetrics:       []coredb.CustomMetric{},
+		LimitedMetricNumber: 2,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

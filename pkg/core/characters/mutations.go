@@ -61,8 +61,8 @@ var ResetCharacter = graphql.Field{
 }
 
 var CreateCustomMetric = graphql.Field{
-	Type:        customMetricsType,
-	Description: "Create a Custom Metrics",
+	Type:        customMetricType,
+	Description: "Create a Custom Metric",
 	Args: graphql.FieldConfigArgument{
 		"characterID": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.String),
@@ -74,15 +74,15 @@ var CreateCustomMetric = graphql.Field{
 			Type: graphql.String,
 		},
 		"style": &graphql.ArgumentConfig{
-			Type: styleTypeInput,
+			Type: metricStyleTypeInput,
 		},
 	},
 	Resolve: createCustomMetric,
 }
 
 var UpdateCustomMetric = graphql.Field{
-	Type:        customMetricsType,
-	Description: "Update a Custom Metrics",
+	Type:        customMetricType,
+	Description: "Update a Custom Metric",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.String),
@@ -97,10 +97,10 @@ var UpdateCustomMetric = graphql.Field{
 			Type: graphql.String,
 		},
 		"style": &graphql.ArgumentConfig{
-			Type: styleTypeInput,
+			Type: metricStyleTypeInput,
 		},
 		"properties": &graphql.ArgumentConfig{
-			Type: graphql.NewList(metricPropertyInputType),
+			Type: graphql.NewList(metricPropertyTypeInput),
 		},
 	},
 	Resolve: updateCustomMetric,

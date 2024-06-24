@@ -4,7 +4,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-var styleType = graphql.NewObject(graphql.ObjectConfig{
+var metricStyleType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "StyleType",
 	Fields: graphql.Fields{
 		"color": &graphql.Field{
@@ -16,7 +16,7 @@ var styleType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var metricProperty = graphql.NewObject(graphql.ObjectConfig{
+var metricPropertyType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "MetricProperty",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
@@ -37,7 +37,7 @@ var metricProperty = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var customMetricsType = graphql.NewObject(graphql.ObjectConfig{
+var customMetricType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "CustomMetrics",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
@@ -53,12 +53,12 @@ var customMetricsType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"style": &graphql.Field{
-			Type: styleType,
+			Type: metricStyleType,
 		},
 		"properties": &graphql.Field{
-			Type: graphql.NewList(metricProperty),
+			Type: graphql.NewList(metricPropertyType),
 		},
-		"limitedProperties": &graphql.Field{
+		"limitedPropertyNumber": &graphql.Field{
 			Type: graphql.Int,
 		},
 	},
@@ -83,15 +83,15 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"customMetrics": &graphql.Field{
-			Type: graphql.NewList(customMetricsType),
+			Type: graphql.NewList(customMetricType),
 		},
-		"limitedCustomMetrics": &graphql.Field{
+		"limitedCustomMetricNumber": &graphql.Field{
 			Type: graphql.Int,
 		},
 	},
 })
 
-var styleTypeInput = graphql.NewInputObject(graphql.InputObjectConfig{
+var metricStyleTypeInput = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "StyleTypeInput",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"color": &graphql.InputObjectFieldConfig{
@@ -103,7 +103,7 @@ var styleTypeInput = graphql.NewInputObject(graphql.InputObjectConfig{
 	},
 })
 
-var metricPropertyInputType = graphql.NewInputObject(graphql.InputObjectConfig{
+var metricPropertyTypeInput = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "MetricPropertyInput",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"name": &graphql.InputObjectFieldConfig{

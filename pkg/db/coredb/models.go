@@ -24,27 +24,27 @@ type MetricProperty struct {
 	Unit  string `json:"unit" bson:"unit"`
 }
 
-type StyleType struct {
+type MetricStyle struct {
 	Color string `json:"color" bson:"color"`
 	Icon  string `json:"icon" bson:"icon"`
 }
 
 type CustomMetric struct {
-	ID                primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name              string             `json:"name" bson:"name"`
-	Description       string             `json:"description" bson:"description"`
-	Time              int32              `json:"time" bson:"time"` // will change after we merge time service
-	Style             StyleType          `json:"style" bson:"style"`
-	Properties        []MetricProperty   `json:"properties" bson:"properties"`
-	LimitedProperties int32              `json:"limited_properties" bson:"limited_properties"`
+	ID                    primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name                  string             `json:"name" bson:"name"`
+	Description           string             `json:"description" bson:"description"`
+	Time                  int32              `json:"time" bson:"time"` // will change after we merge time service
+	Style                 MetricStyle        `json:"style" bson:"style"`
+	Properties            []MetricProperty   `json:"properties" bson:"properties"`
+	LimitedPropertyNumber int32              `json:"limited_properties" bson:"limited_properties"`
 }
 
 type Character struct {
-	ID               primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	UserID           string             `json:"user_id,omitempty" bson:"user_id,omitempty"`
-	Name             string             `json:"name" bson:"name"`
-	Tags             []string           `json:"tags" bson:"tags"`
-	TotalFocusedTime int32              `json:"total_focused_time" bson:"total_focused_time"`
-	CustomMetrics    []CustomMetric     `json:"custom_metrics" bson:"custom_metrics"`
-	LimitedMetrics   int32              `json:"limited_metrics" bson:"limited_metrics"`
+	ID                  primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	UserID              string             `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	Name                string             `json:"name" bson:"name"`
+	Tags                []string           `json:"tags" bson:"tags"`
+	TotalFocusedTime    int32              `json:"total_focused_time" bson:"total_focused_time"`
+	CustomMetrics       []CustomMetric     `json:"custom_metrics" bson:"custom_metrics"`
+	LimitedMetricNumber int32              `json:"limited_metrics" bson:"limited_metrics"`
 }
