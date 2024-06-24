@@ -11,12 +11,9 @@ import (
 var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 	Name: "RootQuery",
 	Fields: graphql.Fields{
-		"user":                       &users.User,
-		"character":                  &characters.CharacterQuery,
-		"characters":                 &characters.CharactersQuery,
-		"timeTracking":               &timetrackings.TimeTracking,
-		"timeTrackings":              &timetrackings.AllTimeTrackings,
-		"timeTrackingsByCharacterID": &timetrackings.TimeTrackingsByCharacterID,
+		"user":       &users.User,
+		"character":  &characters.CharacterQuery,
+		"characters": &characters.CharactersQuery,
 	},
 })
 
@@ -34,7 +31,6 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 		"resetCustomMetric":  &characters.ResetCustomMetric,
 		"createTimeTracking": &timetrackings.CreateTimeTrackingMutation,
 		"updateTimeTracking": &timetrackings.UpdateTimeTrackingMutation,
-		"deleteTimeTracking": &timetrackings.DeleteTimeTrackingMutation,
 	},
 })
 

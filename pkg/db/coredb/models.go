@@ -50,8 +50,9 @@ type Character struct {
 }
 
 type TimeTracking struct {
-	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	CharacterID string             `json:"characterID" bson:"character_id"`
-	StartTime   time.Time          `json:"startTime" bson:"start_time"`
-	EndTime     time.Time          `json:"endTime" bson:"end_time"`
+	ID             primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	CharacterID    string             `json:"characterID" bson:"character_id"`
+	CustomMetricID string             `json:"customMetricID" bson:"custom_metric_id"`
+	StartTime      time.Time          `json:"startTime" bson:"start_time"`
+	EndTime        time.Time          `json:"endTime" bson:"end_time"`
 }

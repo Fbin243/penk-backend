@@ -13,6 +13,9 @@ var timeTrackingType = graphql.NewObject(graphql.ObjectConfig{
 		"characterID": &graphql.Field{
 			Type: graphql.String,
 		},
+		"customMetricID": &graphql.Field{
+			Type: graphql.String,
+		},
 		"startTime": &graphql.Field{
 			Type: graphql.Int,
 		},
