@@ -48,3 +48,11 @@ type Character struct {
 	CustomMetrics       []CustomMetric     `json:"custom_metrics" bson:"custom_metrics"`
 	LimitedMetricNumber int32              `json:"limited_metrics" bson:"limited_metrics"`
 }
+
+type TimeTracking struct {
+	ID             primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	CharacterID    string             `json:"characterID" bson:"character_id"`
+	CustomMetricID string             `json:"customMetricID" bson:"custom_metric_id"`
+	StartTime      time.Time          `json:"startTime" bson:"start_time"`
+	EndTime        time.Time          `json:"endTime" bson:"end_time"`
+}

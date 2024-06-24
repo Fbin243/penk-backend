@@ -2,6 +2,7 @@ package core
 
 import (
 	"tenkhours/pkg/core/characters"
+	"tenkhours/pkg/core/timetrackings"
 	"tenkhours/pkg/core/users"
 
 	"github.com/graphql-go/graphql"
@@ -28,6 +29,8 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 		"updateCustomMetric": &characters.UpdateCustomMetric,
 		"deleteCustomMetric": &characters.DeleteCustomMetric,
 		"resetCustomMetric":  &characters.ResetCustomMetric,
+		"createTimeTracking": &timetrackings.CreateTimeTrackingMutation,
+		"updateTimeTracking": &timetrackings.UpdateTimeTrackingMutation,
 	},
 })
 
