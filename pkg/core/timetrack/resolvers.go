@@ -150,6 +150,39 @@ func updateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("Failed to update time tracking: %v", err)
 	}
 
+    // Update Character's focus time
+    if customMetricsID, ok := params.Args["customMetricsID"].(string); ok && customMetricsID != "" {
+        // Update specific custom metric
+        customMetricObjectID, _ := primitive.ObjectIDFromHex(customMetricsID)
+        filter := bson.M{
+            "_id":           timeTracking.CharacterID,
+            "customMetrics._id": customMetricObjectID,
+        }
+
+        // Calculate duration and update the specific custom metric's value
+        duration := int64(timeTracking.EndTime.Sub(timeTracking.StartTime).Seconds())
+        update := bson.M{"$inc": bson.M{"customMetrics.$.value": duration}}
+
+        _, err = db.GetCharactersCollection().UpdateOne(ctx, filter, update)
+        if err != nil {
+            return nil, fmt.Errorf("failed to update custom metric: %v", err)
+        }
+
+        // Update total focus time as well (after updating custom metric)
+        err = updateCharacterTotalFocusTime(timeTracking.CharacterID)
+        if err != nil {
+            return nil, fmt.Errorf("failed to update character's total focus time: %v", err)
+        }
+
+    } else {
+        // Update total focus time
+        err = updateCharacterTotalFocusTime(timeTracking.CharacterID)
+        if err != nil {
+            return nil, fmt.Errorf("failed to update character's total focus time: %v", err)
+        }
+        
+    }
+
 	err = updateCharacterTotalFocusTime(timeTracking.CharacterID)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to update character's total focus time: %v", err)
