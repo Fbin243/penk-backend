@@ -16,8 +16,8 @@ import (
 
 func createTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	characterID := params.Args["characterID"].(string)
-	startTime := time.Unix(int64(params.Args["startTime"].(int64)), 0)
-	endTime := time.Unix(int64(params.Args["endTime"].(int64)), 0)
+	startTime := time.Unix(int64(params.Args["startTime"].(int)), 0)
+	endTime := time.Unix(int64(params.Args["endTime"].(int)), 0)
 
 	timeTracking := coredb.TimeTracking{
 		ID:          primitive.NewObjectID(),
