@@ -46,7 +46,6 @@ func createCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 
 	customMetric := coredb.CustomMetric{
 		ID:                primitive.NewObjectID(),
-		CharacterID:       characterID,
 		Name:              name,
 		Description:       description,
 		Time:              0,

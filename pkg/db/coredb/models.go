@@ -31,7 +31,6 @@ type StyleType struct {
 
 type CustomMetric struct {
 	ID                primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	CharacterID       string             `json:"character_id,omitempty" bson:"character_id,omitempty"`
 	Name              string             `json:"name" bson:"name"`
 	Description       string             `json:"description" bson:"description"`
 	Time              int32              `json:"time" bson:"time"` // will change after we merge time service

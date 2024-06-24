@@ -82,7 +82,7 @@ var CreateCustomMetric = graphql.Field{
 
 var UpdateCustomMetric = graphql.Field{
 	Type:        customMetricsType,
-	Description: "Create a Custom Metrics",
+	Description: "Update a Custom Metrics",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.String),
