@@ -16,7 +16,6 @@ import (
 
 func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 	userID := params.Args["userID"].(string)
-
 	name := params.Args["name"].(string)
 
 	var tags []string
@@ -26,37 +25,14 @@ func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 		tags[i] = tag.(string)
 	}
 
-	totalFocusTime := int32(params.Args["totalFocusTime"].(int))
-
-	customMetricsInput := params.Args["customMetrics"].([]interface{})
-
-	var customMetricDatas []coredb.CustomMetric
-
-	for _, cm := range customMetricsInput {
-		cmMap, _ := cm.(map[string]interface{})
-		metricID, _ := cmMap["id"].(primitive.ObjectID)
-		metricCharacterID, _ := cmMap["characterID"].(primitive.ObjectID)
-		metricType, _ := cmMap["type"].(string)
-		metricName, _ := cmMap["name"].(string)
-		metricValue, _ := cmMap["value"].(string)
-
-		customMetric := coredb.CustomMetric{
-			ID:          metricID,
-			CharacterID: metricCharacterID,
-			Type:        metricType,
-			Name:        metricName,
-			Value:       metricValue,
-		}
-		customMetricDatas = append(customMetricDatas, customMetric)
-	}
-
 	character := coredb.Character{
 		ID:               primitive.NewObjectID(),
 		UserID:           userID,
 		Name:             name,
 		Tags:             tags,
-		TotalFocusedTime: totalFocusTime,
-		CustomMetrics:    customMetricDatas,
+		TotalFocusedTime: 0,
+		CustomMetrics:    []coredb.CustomMetric{},
+		LimitedMetrics:   2,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -135,43 +111,12 @@ func updateCharacter(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	if userID, ok := params.Args["userID"].(string); ok {
-		character.UserID = userID
-	}
-
 	if name, ok := params.Args["name"].(string); ok {
 		character.Name = name
 	}
 
 	if tags, ok := params.Args["tags"].([]string); ok {
 		character.Tags = tags
-	}
-
-	if totalFocusTime, ok := params.Args["totalFocusTime"].(int32); ok {
-		character.TotalFocusedTime = totalFocusTime
-	}
-
-	if customMetricsInput, ok := params.Args["customMetrics"].([]interface{}); ok {
-		var customMetricDatas []coredb.CustomMetric
-
-		for _, cm := range customMetricsInput {
-			cmMap, _ := cm.(map[string]interface{})
-			metricID, _ := cmMap["id"].(primitive.ObjectID)
-			metricCharacterID, _ := cmMap["characterID"].(primitive.ObjectID)
-			metricType, _ := cmMap["type"].(string)
-			metricName, _ := cmMap["name"].(string)
-			metricValue, _ := cmMap["value"].(string)
-
-			customMetric := coredb.CustomMetric{
-				ID:          metricID,
-				CharacterID: metricCharacterID,
-				Type:        metricType,
-				Name:        metricName,
-				Value:       metricValue,
-			}
-			customMetricDatas = append(customMetricDatas, customMetric)
-		}
-		character.CustomMetrics = customMetricDatas
 	}
 
 	update := bson.M{"$set": character}
@@ -198,6 +143,38 @@ func deleteCharacter(params graphql.ResolveParams) (interface{}, error) {
 	defer cancel()
 
 	_, err = db.GetCharactersCollection().DeleteOne(ctx, filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete character: %v", err)
+	}
+
+	return true, nil
+}
+
+func resetCharacter(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"].(string)
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	character := coredb.Character{}
+	filter := bson.M{"_id": objectID}
+
+	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
+	if err != nil {
+		return nil, fmt.Errorf("character not found: %v", err)
+	}
+
+	character.Tags = []string{}
+	character.TotalFocusedTime = 0
+	character.CustomMetrics = []coredb.CustomMetric{}
+	update := bson.M{"$set": character}
+
+	_, err = db.GetCharactersCollection().UpdateOne(ctx, filter, update)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete character: %v", err)
 	}

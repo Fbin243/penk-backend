@@ -20,10 +20,15 @@ var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 	Name: "RootMutation",
 	Fields: graphql.Fields{
-		"registerAccount": &users.RegisterAccount,
-		"createCharacter": &characters.CreateCharacter,
-		"updateCharacter": &characters.UpdateCharacter,
-		"deleteCharacter": &characters.DeleteCharacter,
+		"registerAccount":    &users.RegisterAccount,
+		"createCharacter":    &characters.CreateCharacter,
+		"updateCharacter":    &characters.UpdateCharacter,
+		"deleteCharacter":    &characters.DeleteCharacter,
+		"resetCharacter":     &characters.ResetCharacter,
+		"createCustomMetric": &characters.CreateCustomMetric,
+		"updateCustomMetric": &characters.UpdateCustomMetric,
+		"deleteCustomMetric": &characters.DeleteCustomMetric,
+		"resetCustomMetric":  &characters.ResetCustomMetric,
 	},
 })
 
