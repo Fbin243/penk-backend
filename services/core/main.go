@@ -1,15 +1,14 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/core"
+	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
 
 	"github.com/gin-contrib/cors"
@@ -36,6 +35,8 @@ func main() {
 		c.String(http.StatusOK, "Core service is running!")
 	})
 
+	r.Use(auth.NewMiddleware(coredb.NewUsersRepo()).Authentication)
+
 	r.POST("/graphql", func(c *gin.Context) {
 		var postData utils.GraphqlQueryData
 		if err := json.NewDecoder(c.Request.Body).Decode(&postData); err != nil {
@@ -43,23 +44,8 @@ func main() {
 			return
 		}
 
-		gqlCtx := context.TODO()
-
-		authKey := c.Request.Header.Get("Authorization")
-		if strings.HasPrefix(authKey, "Bearer ") {
-			idToken := strings.Replace(authKey, "Bearer ", "", 1)
-
-			profile, err := auth.GetProfileByIDToken(idToken)
-			if err != nil {
-				c.String(http.StatusUnauthorized, "invalid id token")
-				return
-			}
-
-			gqlCtx = context.WithValue(gqlCtx, auth.ProfileContextKey, profile)
-		}
-
 		result := graphql.Do(graphql.Params{
-			Context:        gqlCtx,
+			Context:        c.Request.Context(),
 			Schema:         core.CoreSchema,
 			RequestString:  postData.Query,
 			VariableValues: postData.Variables,

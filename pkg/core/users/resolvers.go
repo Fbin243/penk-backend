@@ -24,7 +24,7 @@ func registerAccount(params graphql.ResolveParams) (interface{}, error) {
 		Name:        authProfile.Name,
 		Email:       authProfile.Email,
 		FirebaseUID: authProfile.UID,
-		ImageURL:    "", // default avatar URL
+		ImageURL:    "",
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
@@ -34,7 +34,7 @@ func registerAccount(params graphql.ResolveParams) (interface{}, error) {
 
 	_, err = db.GetUsersCollection().InsertOne(ctx, user)
 	if err != nil {
-		log.Printf("Failed to insert user: %v\n", err)
+		log.Printf("failed to insert user: %v\n", err)
 		return nil, err
 	}
 
@@ -55,7 +55,7 @@ func getUserByEmail(params graphql.ResolveParams) (interface{}, error) {
 		"email": email,
 	}).Decode(&user)
 	if err != nil {
-		log.Printf("Failed to find user: %v\n", err)
+		log.Printf("failed to find user: %v\n", err)
 		return nil, err
 	}
 

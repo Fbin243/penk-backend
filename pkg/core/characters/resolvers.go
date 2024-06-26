@@ -40,7 +40,7 @@ func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 
 	_, err := db.GetCharactersCollection().InsertOne(ctx, character)
 	if err != nil {
-		log.Printf("Failed to insert character: %v\n", err)
+		log.Printf("failed to insert character: %v\n", err)
 		return nil, err
 	}
 
@@ -63,7 +63,7 @@ func getCharacterByID(params graphql.ResolveParams) (interface{}, error) {
 
 	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
 	if err != nil {
-		log.Printf("Failed to find character: %v\n", err)
+		log.Printf("failed to find character: %v\n", err)
 		return nil, err
 	}
 
@@ -77,7 +77,7 @@ func getAllCharacters(params graphql.ResolveParams) (interface{}, error) {
 	var characters []coredb.Character
 	cursor, err := db.GetCharactersCollection().Find(ctx, primitive.M{})
 	if err != nil {
-		log.Printf("Failed to fetch characters: %v\n", err)
+		log.Printf("failed to fetch characters: %v\n", err)
 		return nil, err
 	}
 
@@ -85,7 +85,7 @@ func getAllCharacters(params graphql.ResolveParams) (interface{}, error) {
 
 	err = cursor.All(ctx, &characters)
 	if err != nil {
-		log.Printf("Failed to decode characters: %v\n", err)
+		log.Printf("failed to decode characters: %v\n", err)
 		return nil, err
 	}
 
