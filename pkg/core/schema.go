@@ -8,12 +8,18 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
+var (
+	characterResolver = characters.NewCharactersResolver()
+	characterQuery    = characters.InitCharacterQuery(characterResolver)
+	characterMutation = characters.InitCharacterMutation(characterResolver)
+)
+
 var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 	Name: "RootQuery",
 	Fields: graphql.Fields{
-		"user":       &users.User,
-		"character":  &characters.CharacterQuery,
-		"characters": &characters.CharactersQuery,
+		"user":           &users.User,
+		"userCharacters": characterQuery.UserCharacters,
+		"characters":     characterQuery.Characters,
 	},
 })
 
@@ -21,14 +27,14 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 	Name: "RootMutation",
 	Fields: graphql.Fields{
 		"registerAccount":    &users.RegisterAccount,
-		"createCharacter":    &characters.CreateCharacter,
-		"updateCharacter":    &characters.UpdateCharacter,
-		"deleteCharacter":    &characters.DeleteCharacter,
-		"resetCharacter":     &characters.ResetCharacter,
-		"createCustomMetric": &characters.CreateCustomMetric,
-		"updateCustomMetric": &characters.UpdateCustomMetric,
-		"deleteCustomMetric": &characters.DeleteCustomMetric,
-		"resetCustomMetric":  &characters.ResetCustomMetric,
+		"createCharacter":    characterMutation.CreateCharacter,
+		"updateCharacter":    characterMutation.UpdateCharacter,
+		"deleteCharacter":    characterMutation.DeleteCharacter,
+		"resetCharacter":     characterMutation.ResetCharacter,
+		"createCustomMetric": characterMutation.CreateCustomMetric,
+		"updateCustomMetric": characterMutation.UpdateCustomMetric,
+		"deleteCustomMetric": characterMutation.DeleteCustomMetric,
+		"resetCustomMetric":  characterMutation.ResetCustomMetric,
 		"createTimeTracking": &timetrackings.CreateTimeTrackingMutation,
 		"updateTimeTracking": &timetrackings.UpdateTimeTrackingMutation,
 	},

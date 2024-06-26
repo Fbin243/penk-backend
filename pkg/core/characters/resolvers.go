@@ -1,21 +1,28 @@
 package characters
 
 import (
-	"context"
 	"fmt"
 	"log"
-	"time"
 
-	"tenkhours/pkg/db"
+	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
 
 	"github.com/graphql-go/graphql"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func createCharacter(params graphql.ResolveParams) (interface{}, error) {
-	userID := params.Args["userID"].(string)
+type CharactersResolver struct {
+	CharactersRepo *coredb.CharactersRepo
+}
+
+func NewCharactersResolver() *CharactersResolver {
+	return &CharactersResolver{
+		CharactersRepo: coredb.NewCharactersRepo(),
+	}
+}
+
+func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (interface{}, error) {
+	user := params.Context.Value(auth.UserKey).(*coredb.User)
 	name := params.Args["name"].(string)
 
 	var tags []string
@@ -27,7 +34,7 @@ func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 
 	character := coredb.Character{
 		ID:                  primitive.NewObjectID(),
-		UserID:              userID,
+		UserID:              user.ID,
 		Name:                name,
 		Tags:                tags,
 		TotalFocusedTime:    0,
@@ -35,19 +42,16 @@ func createCharacter(params graphql.ResolveParams) (interface{}, error) {
 		LimitedMetricNumber: 2,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err := db.GetCharactersCollection().InsertOne(ctx, character)
+	createResult, err := r.CharactersRepo.CreateCharacter(character)
 	if err != nil {
-		log.Printf("failed to insert character: %v\n", err)
+		log.Printf("failed to create character: %v\n", err)
 		return nil, err
 	}
 
-	return character, nil
+	return createResult, nil
 }
 
-func getCharacterByID(params graphql.ResolveParams) (interface{}, error) {
+func (r *CharactersResolver) GetCharacterByID(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"].(string)
 
 	objectID, err := primitive.ObjectIDFromHex(id)
@@ -55,44 +59,37 @@ func getCharacterByID(params graphql.ResolveParams) (interface{}, error) {
 		return nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	character := coredb.Character{}
-	filter := bson.M{"_id": objectID}
-
-	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
+	character, err := r.CharactersRepo.GetCharacterByID(objectID)
 	if err != nil {
-		log.Printf("failed to find character: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
 	return character, nil
 }
 
-func getAllCharacters(params graphql.ResolveParams) (interface{}, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+func (r *CharactersResolver) GetCharactersByUserID(params graphql.ResolveParams) (interface{}, error) {
+	user := params.Context.Value(auth.UserKey).(*coredb.User)
 
-	var characters []coredb.Character
-	cursor, err := db.GetCharactersCollection().Find(ctx, primitive.M{})
+	characters, err := r.CharactersRepo.GetCharactersByUserID(user.ID)
 	if err != nil {
-		log.Printf("failed to fetch characters: %v\n", err)
-		return nil, err
-	}
-
-	defer cursor.Close(ctx)
-
-	err = cursor.All(ctx, &characters)
-	if err != nil {
-		log.Printf("failed to decode characters: %v\n", err)
+		log.Printf("failed to find character: %v\n", err)
 		return nil, err
 	}
 
 	return characters, nil
 }
 
-func updateCharacter(params graphql.ResolveParams) (interface{}, error) {
+func (r *CharactersResolver) GetAllCharacters(params graphql.ResolveParams) (interface{}, error) {
+	characters, err := r.CharactersRepo.GetAllCharacters()
+	if err != nil {
+		log.Printf("failed to find characters: %v\n", err)
+		return nil, err
+	}
+
+	return characters, nil
+}
+
+func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"].(string)
 
 	objectID, err := primitive.ObjectIDFromHex(id)
@@ -100,13 +97,7 @@ func updateCharacter(params graphql.ResolveParams) (interface{}, error) {
 		return nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	character := coredb.Character{}
-	filter := bson.M{"_id": objectID}
-
-	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
+	character, err := r.CharactersRepo.GetCharacterByID(objectID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -119,17 +110,15 @@ func updateCharacter(params graphql.ResolveParams) (interface{}, error) {
 		character.Tags = tags
 	}
 
-	update := bson.M{"$set": character}
-
-	_, err = db.GetCharactersCollection().UpdateOne(ctx, filter, update)
+	updateResult, err := r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return character, nil
+	return updateResult, nil
 }
 
-func deleteCharacter(params graphql.ResolveParams) (interface{}, error) {
+func (r *CharactersResolver) DeleteCharacter(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"].(string)
 
 	objectID, err := primitive.ObjectIDFromHex(id)
@@ -137,20 +126,15 @@ func deleteCharacter(params graphql.ResolveParams) (interface{}, error) {
 		return nil, err
 	}
 
-	filter := bson.M{"_id": objectID}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err = db.GetCharactersCollection().DeleteOne(ctx, filter)
+	deleteResult, err := r.CharactersRepo.DeleteCharacter(objectID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete character: %v", err)
 	}
 
-	return true, nil
+	return deleteResult, nil
 }
 
-func resetCharacter(params graphql.ResolveParams) (interface{}, error) {
+func (r *CharactersResolver) ResetCharacter(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"].(string)
 
 	objectID, err := primitive.ObjectIDFromHex(id)
@@ -158,13 +142,7 @@ func resetCharacter(params graphql.ResolveParams) (interface{}, error) {
 		return nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	character := coredb.Character{}
-	filter := bson.M{"_id": objectID}
-
-	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
+	character, err := r.CharactersRepo.GetCharacterByID(objectID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -172,12 +150,11 @@ func resetCharacter(params graphql.ResolveParams) (interface{}, error) {
 	character.Tags = []string{}
 	character.TotalFocusedTime = 0
 	character.CustomMetrics = []coredb.CustomMetric{}
-	update := bson.M{"$set": character}
 
-	_, err = db.GetCharactersCollection().UpdateOne(ctx, filter, update)
+	updateResult, err := r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete character: %v", err)
 	}
 
-	return true, nil
+	return updateResult, nil
 }

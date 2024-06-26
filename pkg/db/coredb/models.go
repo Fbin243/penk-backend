@@ -41,7 +41,7 @@ type CustomMetric struct {
 
 type Character struct {
 	ID                  primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	UserID              string             `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	UserID              primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
 	Name                string             `json:"name" bson:"name"`
 	Tags                []string           `json:"tags" bson:"tags"`
 	TotalFocusedTime    int32              `json:"total_focused_time" bson:"total_focused_time"`

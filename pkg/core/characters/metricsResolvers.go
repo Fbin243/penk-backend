@@ -1,18 +1,25 @@
 package characters
 
 import (
-	"context"
 	"fmt"
-	"tenkhours/pkg/db"
+
 	"tenkhours/pkg/db/coredb"
-	"time"
 
 	"github.com/graphql-go/graphql"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func createCustomMetric(params graphql.ResolveParams) (interface{}, error) {
+type MetricsResolver struct {
+	CharactersRepo *coredb.CharactersRepo
+}
+
+func NewMetricsResolver() *MetricsResolver {
+	return &MetricsResolver{
+		CharactersRepo: coredb.NewCharactersRepo(),
+	}
+}
+
+func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	characterID := params.Args["characterID"].(string)
 
 	objectID, err := primitive.ObjectIDFromHex(characterID)
@@ -20,13 +27,7 @@ func createCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("failed to get object id: %v", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	character := coredb.Character{}
-	filter := bson.M{"_id": objectID}
-
-	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
+	character, err := r.CharactersRepo.GetCharacterByID(objectID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -54,19 +55,15 @@ func createCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		LimitedPropertyNumber: 2,
 	}
 
-	character.CustomMetrics = append(character.CustomMetrics, customMetric)
-
-	update := bson.M{"$set": character}
-
-	_, err = db.GetCharactersCollection().UpdateOne(ctx, filter, update)
+	result, err := r.CharactersRepo.AddCustomMetric(character.ID, customMetric)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create custom metric: %v", err)
 	}
 
-	return customMetric, nil
+	return result, nil
 }
 
-func updateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
+func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	metricID := params.Args["id"].(string)
 	metricObjectID, err := primitive.ObjectIDFromHex(metricID)
 	if err != nil {
@@ -79,29 +76,22 @@ func updateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("invalid character ID: %v", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	character := coredb.Character{}
-	filter := bson.M{"_id": characterObjectID}
-
-	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
+	character, err := r.CharactersRepo.GetCharacterByID(characterObjectID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	var updatedMetric coredb.CustomMetric
 	found := false
-	for i, cm := range character.CustomMetrics {
+	for _, cm := range character.CustomMetrics {
 		if cm.ID == metricObjectID {
 			if name, ok := params.Args["name"].(string); ok {
-				character.CustomMetrics[i].Name = name
+				cm.Name = name
 			}
 			if description, ok := params.Args["description"].(string); ok {
-				character.CustomMetrics[i].Description = description
+				cm.Description = description
 			}
 			if style, ok := params.Args["style"].(map[string]interface{}); ok {
-				character.CustomMetrics[i].Style = coredb.MetricStyle{
+				cm.Style = coredb.MetricStyle{
 					Color: style["color"].(string),
 					Icon:  style["icon"].(string),
 				}
@@ -125,12 +115,11 @@ func updateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 					propertiesData = append(propertiesData, property)
 				}
 
-				if len(propertiesData) > int(character.CustomMetrics[i].LimitedPropertyNumber) {
+				if len(propertiesData) > int(cm.LimitedPropertyNumber) {
 					return nil, fmt.Errorf("custom metric properties creation limit reached")
 				}
-				character.CustomMetrics[i].Properties = propertiesData
+				cm.Properties = propertiesData
 			}
-			updatedMetric = character.CustomMetrics[i]
 			found = true
 			break
 		}
@@ -140,17 +129,15 @@ func updateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("custom metric not found")
 	}
 
-	update := bson.M{"$set": character}
-
-	_, err = db.GetCharactersCollection().UpdateOne(ctx, filter, update)
+	updateResult, err := r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update custom metric: %v", err)
 	}
-	return updatedMetric, nil
 
+	return updateResult, nil
 }
 
-func deleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {
+func (r *CharactersResolver) DeleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	metricID := params.Args["id"].(string)
 	characterID := params.Args["characterID"].(string)
 
@@ -159,13 +146,7 @@ func deleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("failed to get object id: %v", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	character := coredb.Character{}
-	filter := bson.M{"_id": objectID}
-
-	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
+	_, err = r.CharactersRepo.GetCharacterByID(objectID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -175,13 +156,7 @@ func deleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		return nil, fmt.Errorf("invalid metric ID: %v", err)
 	}
 
-	update := bson.M{
-		"$pull": bson.M{
-			"custom_metrics": bson.M{"_id": metricObjectID},
-		},
-	}
-
-	result, err := db.GetCharactersCollection().UpdateOne(ctx, filter, update)
+	result, err := r.CharactersRepo.DeleteCustomMetric(objectID, metricObjectID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete metric: %v", err)
 	}
@@ -193,7 +168,7 @@ func deleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	return true, nil
 }
 
-func resetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
+func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	metricID := params.Args["id"].(string)
 	metricObjectID, err := primitive.ObjectIDFromHex(metricID)
 	if err != nil {
@@ -206,24 +181,18 @@ func resetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		return false, fmt.Errorf("invalid character ID: %v", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	character := coredb.Character{}
-	filter := bson.M{"_id": characterObjectID}
-
-	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
+	character, err := r.CharactersRepo.GetCharacterByID(characterObjectID)
 	if err != nil {
 		return false, fmt.Errorf("character not found: %v", err)
 	}
 
 	found := false
-	for i, metric := range character.CustomMetrics {
+	for _, metric := range character.CustomMetrics {
 		if metric.ID == metricObjectID {
-			character.CustomMetrics[i].Description = ""
-			character.CustomMetrics[i].Time = 0
-			character.CustomMetrics[i].Style = coredb.MetricStyle{}
-			character.CustomMetrics[i].Properties = []coredb.MetricProperty{}
+			metric.Description = ""
+			metric.Time = 0
+			metric.Style = coredb.MetricStyle{}
+			metric.Properties = []coredb.MetricProperty{}
 			found = true
 			break
 		}
@@ -233,11 +202,10 @@ func resetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 		return false, fmt.Errorf("custom metric not found")
 	}
 
-	update := bson.M{"$set": character}
-	_, err = db.GetCharactersCollection().UpdateOne(ctx, filter, update)
+	updateResult, err := r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return false, fmt.Errorf("failed to reset custom metric: %v", err)
 	}
 
-	return true, nil
+	return updateResult, nil
 }

@@ -85,7 +85,7 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 		"customMetrics": &graphql.Field{
 			Type: graphql.NewList(customMetricType),
 		},
-		"limitedCustomMetricNumber": &graphql.Field{
+		"limitedMetricNumber": &graphql.Field{
 			Type: graphql.Int,
 		},
 	},

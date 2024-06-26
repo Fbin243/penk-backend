@@ -4,19 +4,33 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-var CharacterQuery = graphql.Field{
-	Type:        characterType,
-	Description: "Get a character",
-	Args: graphql.FieldConfigArgument{
-		"id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.String),
-		},
-	},
-	Resolve: getCharacterByID,
+type CharacterQuery struct {
+	Character      *graphql.Field
+	Characters     *graphql.Field
+	UserCharacters *graphql.Field
 }
 
-var CharactersQuery = graphql.Field{
-	Type:        graphql.NewList(characterType),
-	Description: "Get all characters",
-	Resolve:     getAllCharacters,
+func InitCharacterQuery(r *CharactersResolver) *CharacterQuery {
+	return &CharacterQuery{
+		Character: &graphql.Field{
+			Type:        characterType,
+			Description: "Get a character by ID",
+			Args: graphql.FieldConfigArgument{
+				"id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+			},
+			Resolve: r.GetCharacterByID,
+		},
+		Characters: &graphql.Field{
+			Type:        graphql.NewList(characterType),
+			Description: "Get all characters",
+			Resolve:     r.GetAllCharacters,
+		},
+		UserCharacters: &graphql.Field{
+			Type:        characterType,
+			Description: "Get all characters of a user",
+			Resolve:     r.GetCharactersByUserID,
+		},
+	}
 }
