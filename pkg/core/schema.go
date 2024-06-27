@@ -10,37 +10,41 @@ import (
 
 func InitSchema() graphql.Schema {
 	var (
-		usersResolver     = users.NewUsersResolver()
-		userQuery         = users.InitUserQuery(usersResolver)
-		userMutation      = users.InitUserMutation(usersResolver)
-		characterResolver = characters.NewCharactersResolver()
-		characterQuery    = characters.InitCharacterQuery(characterResolver)
-		characterMutation = characters.InitCharacterMutation(characterResolver)
+		usersResolver = users.NewUsersResolver()
+		usersQuery    = users.InitUserQuery(usersResolver)
+		usersMutation = users.InitUserMutation(usersResolver)
+
+		charactersResolver = characters.NewCharactersResolver()
+		charactersQuery    = characters.InitCharacterQuery(charactersResolver)
+		charactersMutation = characters.InitCharacterMutation(charactersResolver)
+
+		timeTrackingsResolver = timetrackings.NewTimeTrackingsResolver()
+		timeTrackingsMutation = timetrackings.InitTimeTrackingsMutation(timeTrackingsResolver)
 	)
 
 	rootQuery := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootQuery",
 		Fields: graphql.Fields{
-			"user":           userQuery.User,
-			"userCharacters": characterQuery.UserCharacters,
-			"characters":     characterQuery.Characters,
+			"user":           usersQuery.User,
+			"userCharacters": charactersQuery.UserCharacters,
+			"characters":     charactersQuery.Characters,
 		},
 	})
 
 	rootMutation := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootMutation",
 		Fields: graphql.Fields{
-			"registerAccount":    userMutation.RegisterAccount,
-			"createCharacter":    characterMutation.CreateCharacter,
-			"updateCharacter":    characterMutation.UpdateCharacter,
-			"deleteCharacter":    characterMutation.DeleteCharacter,
-			"resetCharacter":     characterMutation.ResetCharacter,
-			"createCustomMetric": characterMutation.CreateCustomMetric,
-			"updateCustomMetric": characterMutation.UpdateCustomMetric,
-			"deleteCustomMetric": characterMutation.DeleteCustomMetric,
-			"resetCustomMetric":  characterMutation.ResetCustomMetric,
-			"createTimeTracking": &timetrackings.CreateTimeTrackingMutation,
-			"updateTimeTracking": &timetrackings.UpdateTimeTrackingMutation,
+			"registerAccount":    usersMutation.RegisterAccount,
+			"createCharacter":    charactersMutation.CreateCharacter,
+			"updateCharacter":    charactersMutation.UpdateCharacter,
+			"deleteCharacter":    charactersMutation.DeleteCharacter,
+			"resetCharacter":     charactersMutation.ResetCharacter,
+			"createCustomMetric": charactersMutation.CreateCustomMetric,
+			"updateCustomMetric": charactersMutation.UpdateCustomMetric,
+			"deleteCustomMetric": charactersMutation.DeleteCustomMetric,
+			"resetCustomMetric":  charactersMutation.ResetCustomMetric,
+			"createTimeTracking": timeTrackingsMutation.CreateTimeTracking,
+			"updateTimeTracking": timeTrackingsMutation.UpdateTimeTracking,
 		},
 	})
 

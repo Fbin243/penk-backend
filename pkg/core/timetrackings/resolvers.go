@@ -1,102 +1,100 @@
 package timetrackings
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 
 	"github.com/graphql-go/graphql"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func createTimeTracking(params graphql.ResolveParams) (interface{}, error) {
+type TimeTrackingsResolver struct {
+	TimeTrackingsRepo *coredb.TimeTrackingsRepo
+	CharactersRepo    *coredb.CharactersRepo
+}
+
+func NewTimeTrackingsResolver() *TimeTrackingsResolver {
+	return &TimeTrackingsResolver{
+		TimeTrackingsRepo: coredb.NewTimeTrackingsRepo(),
+		CharactersRepo:    coredb.NewCharactersRepo(),
+	}
+}
+
+func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	characterID := params.Args["characterID"].(string)
+	characterOID, err := primitive.ObjectIDFromHex(characterID)
+	if err != nil {
+		return nil, err
+	}
+
 	customMetricID, ok := params.Args["customMetricID"].(string)
-	if !ok {
-		customMetricID = ""
+	customMetricOID := primitive.ObjectID{}
+	if ok {
+		customMetricOID, err = primitive.ObjectIDFromHex(customMetricID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	timeTracking := coredb.TimeTracking{
 		ID:             primitive.NewObjectID(),
-		CharacterID:    characterID,
-		CustomMetricID: customMetricID,
+		CharacterID:    characterOID,
+		CustomMetricID: customMetricOID,
 		StartTime:      time.Now(),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err := db.GetTimeTrackingsCollection().InsertOne(ctx, timeTracking)
+	insertResult, err := r.TimeTrackingsRepo.CreateTimeTracking(timeTracking)
 	if err != nil {
 		log.Printf("failed to insert time tracking: %v\n", err)
 		return nil, err
 	}
 
-	return timeTracking, nil
+	return insertResult, nil
 }
 
-func updateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
-	id := params.Args["id"].(string)
-
-	objectID, err := primitive.ObjectIDFromHex(id)
+func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
+	timeTrackingID := params.Args["id"].(string)
+	timeTrackingOID, err := primitive.ObjectIDFromHex(timeTrackingID)
 	if err != nil {
 		return nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	timeTracking := coredb.TimeTracking{}
-	filter := bson.M{"_id": objectID}
-
-	err = db.GetTimeTrackingsCollection().FindOne(ctx, filter).Decode(&timeTracking)
+	timeTracking, err := r.TimeTrackingsRepo.GetTimeTrackingByID(timeTrackingOID)
 	if err != nil {
 		return nil, fmt.Errorf("time tracking not found: %v", err)
 	}
 
-	endTime := time.Now()
-	characterID, err := primitive.ObjectIDFromHex(timeTracking.CharacterID)
+	timeTracking.EndTime = time.Now()
+
+	character, err := r.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	character := coredb.Character{}
-
-	filter = bson.M{"_id": characterID}
-	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
-	if err != nil {
-		return nil, err
-	}
-
-	duration := endTime.Sub(timeTracking.StartTime).Seconds()
+	duration := timeTracking.EndTime.Sub(timeTracking.StartTime).Seconds()
 
 	character.TotalFocusedTime += int32(duration)
-	if timeTracking.CustomMetricID != "" {
-		for i, customMetric := range character.CustomMetrics {
-			if customMetric.ID.Hex() == timeTracking.CustomMetricID {
-				character.CustomMetrics[i].Time += int32(duration)
+	if !timeTracking.CustomMetricID.IsZero() {
+		for _, customMetric := range character.CustomMetrics {
+			if customMetric.ID == timeTracking.CustomMetricID {
+				customMetric.Time += int32(duration)
 				break
 			}
 		}
 	}
 
-	timeTracking.EndTime = endTime
-	update := bson.M{"$set": timeTracking}
-	_, err = db.GetTimeTrackingsCollection().UpdateOne(ctx, filter, update)
+	updateResult, err := r.TimeTrackingsRepo.UpdateTimeTracking(timeTracking)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update time tracking: %v", err)
 	}
 
-	update = bson.M{"$set": character}
-	_, err = db.GetCharactersCollection().UpdateOne(ctx, filter, update)
+	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update character tracking: %v", err)
+		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return timeTracking, nil
+	return updateResult, nil
 }

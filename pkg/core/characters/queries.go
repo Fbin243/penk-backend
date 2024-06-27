@@ -4,14 +4,14 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-type CharacterQuery struct {
+type CharactersQuery struct {
 	Character      *graphql.Field
 	Characters     *graphql.Field
 	UserCharacters *graphql.Field
 }
 
-func InitCharacterQuery(r *CharactersResolver) *CharacterQuery {
-	return &CharacterQuery{
+func InitCharacterQuery(r *CharactersResolver) *CharactersQuery {
+	return &CharactersQuery{
 		Character: &graphql.Field{
 			Type:        characterType,
 			Description: "Get a character by ID",

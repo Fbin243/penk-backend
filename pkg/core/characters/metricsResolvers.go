@@ -9,19 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type MetricsResolver struct {
-	CharactersRepo *coredb.CharactersRepo
-}
-
-func NewMetricsResolver() *MetricsResolver {
-	return &MetricsResolver{
-		CharactersRepo: coredb.NewCharactersRepo(),
-	}
-}
-
 func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	characterID := params.Args["characterID"].(string)
-
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get object id: %v", err)
@@ -33,15 +22,22 @@ func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (i
 	}
 
 	if len(character.CustomMetrics) >= int(character.LimitedMetricNumber) {
-		fmt.Println(len(character.CustomMetrics))
-		fmt.Println(character.LimitedMetricNumber)
-
 		return nil, fmt.Errorf("custom metric creation limit reached")
 	}
 
 	name := params.Args["name"].(string)
-	description := params.Args["description"].(string)
-	style := params.Args["style"].(map[string]interface{})
+	description, ok := params.Args["description"].(string)
+	if !ok {
+		description = ""
+	}
+
+	style, ok := params.Args["style"].(map[string]interface{})
+	if !ok {
+		style = map[string]interface{}{
+			"color": "",
+			"icon":  "",
+		}
+	}
 
 	styleData := coredb.MetricStyle{
 		Color: style["color"].(string),

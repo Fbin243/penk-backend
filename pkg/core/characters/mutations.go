@@ -4,7 +4,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-type CharacterMutation struct {
+type CharactersMutation struct {
 	CreateCharacter *graphql.Field
 	UpdateCharacter *graphql.Field
 	DeleteCharacter *graphql.Field
@@ -16,8 +16,8 @@ type CharacterMutation struct {
 	ResetCustomMetric  *graphql.Field
 }
 
-func InitCharacterMutation(r *CharactersResolver) *CharacterMutation {
-	return &CharacterMutation{
+func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
+	return &CharactersMutation{
 		CreateCharacter: &graphql.Field{
 			Type:        characterType,
 			Description: "Create a character",
