@@ -78,9 +78,9 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 
 	character.TotalFocusedTime += int32(duration)
 	if !timeTracking.CustomMetricID.IsZero() {
-		for _, customMetric := range character.CustomMetrics {
+		for i, customMetric := range character.CustomMetrics {
 			if customMetric.ID == timeTracking.CustomMetricID {
-				customMetric.Time += int32(duration)
+				character.CustomMetrics[i].Time += int32(duration)
 				break
 			}
 		}

@@ -81,7 +81,7 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 	}
 
 	found := false
-	for _, cm := range character.CustomMetrics {
+	for i, cm := range character.CustomMetrics {
 		if cm.ID == metricObjectID {
 			if name, ok := params.Args["name"].(string); ok {
 				cm.Name = name
@@ -119,6 +119,8 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 				}
 				cm.Properties = propertiesData
 			}
+
+			character.CustomMetrics[i] = cm
 			found = true
 			break
 		}
@@ -186,12 +188,14 @@ func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (in
 	}
 
 	found := false
-	for _, metric := range character.CustomMetrics {
+	for i, metric := range character.CustomMetrics {
 		if metric.ID == metricObjectID {
 			metric.Description = ""
 			metric.Time = 0
 			metric.Style = coredb.MetricStyle{}
 			metric.Properties = []coredb.MetricProperty{}
+
+			character.CustomMetrics[i] = metric
 			found = true
 			break
 		}
