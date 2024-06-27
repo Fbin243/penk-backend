@@ -51,7 +51,7 @@ func GetProfileByIDToken(idToken string) (*Profile, error) {
 }
 
 func GetProfileByContext(ctx context.Context) (*Profile, error) {
-	untypedProfile := ctx.Value(ProfileContextKey)
+	untypedProfile := ctx.Value(ProfileKey)
 	if untypedProfile == nil {
 		return nil, ErrorProfileNotFound
 	}

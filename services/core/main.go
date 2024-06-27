@@ -1,14 +1,12 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/core"
-	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
 
 	"github.com/gin-contrib/cors"
@@ -35,18 +33,22 @@ func main() {
 		c.String(http.StatusOK, "Core service is running!")
 	})
 
-	r.Use(auth.NewMiddleware(coredb.NewUsersRepo()).Authentication)
+	authMiddleware := auth.NewMiddleware()
+
+	r.Use(authMiddleware.CheckRequestBody)
+
+	r.Use(authMiddleware.CheckAuth)
 
 	r.POST("/graphql", func(c *gin.Context) {
-		var postData utils.GraphqlQueryData
-		if err := json.NewDecoder(c.Request.Body).Decode(&postData); err != nil {
-			c.String(http.StatusBadRequest, err.Error())
+		postData, ok := c.Request.Context().Value(auth.PostDataKey).(utils.GraphqlQueryData)
+		if !ok {
+			c.String(http.StatusBadRequest, "invalid post data")
 			return
 		}
 
 		result := graphql.Do(graphql.Params{
 			Context:        c.Request.Context(),
-			Schema:         core.CoreSchema,
+			Schema:         core.InitSchema(),
 			RequestString:  postData.Query,
 			VariableValues: postData.Variables,
 			OperationName:  postData.Operation,

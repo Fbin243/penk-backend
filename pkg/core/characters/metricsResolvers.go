@@ -22,17 +22,20 @@ func NewMetricsResolver() *MetricsResolver {
 func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	characterID := params.Args["characterID"].(string)
 
-	objectID, err := primitive.ObjectIDFromHex(characterID)
+	characterOID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get object id: %v", err)
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(objectID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
 
 	if len(character.CustomMetrics) >= int(character.LimitedMetricNumber) {
+		fmt.Println(len(character.CustomMetrics))
+		fmt.Println(character.LimitedMetricNumber)
+
 		return nil, fmt.Errorf("custom metric creation limit reached")
 	}
 

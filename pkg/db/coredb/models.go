@@ -30,23 +30,23 @@ type MetricStyle struct {
 }
 
 type CustomMetric struct {
-	ID                    primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	ID                    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name                  string             `json:"name" bson:"name"`
 	Description           string             `json:"description" bson:"description"`
-	Time                  int32              `json:"time" bson:"time"` // will change after we merge time service
+	Time                  int32              `json:"time" bson:"time"`
 	Style                 MetricStyle        `json:"style" bson:"style"`
 	Properties            []MetricProperty   `json:"properties" bson:"properties"`
-	LimitedPropertyNumber int32              `json:"limited_properties" bson:"limited_properties"`
+	LimitedPropertyNumber int32              `json:"limitedPropertyNumber" bson:"limited_property_number"`
 }
 
 type Character struct {
-	ID                  primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	UserID              primitive.ObjectID `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	ID                  primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	UserID              primitive.ObjectID `json:"userID,omitempty" bson:"user_id,omitempty"`
 	Name                string             `json:"name" bson:"name"`
 	Tags                []string           `json:"tags" bson:"tags"`
-	TotalFocusedTime    int32              `json:"total_focused_time" bson:"total_focused_time"`
-	CustomMetrics       []CustomMetric     `json:"custom_metrics" bson:"custom_metrics"`
-	LimitedMetricNumber int32              `json:"limited_metrics" bson:"limited_metrics"`
+	TotalFocusedTime    int32              `json:"totalFocusedTime" bson:"total_focused_time"`
+	CustomMetrics       []CustomMetric     `json:"customMetrics" bson:"custom_metrics"`
+	LimitedMetricNumber int32              `json:"limitedMetricNumber" bson:"limited_metric_number"`
 }
 
 type TimeTracking struct {

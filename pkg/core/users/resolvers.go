@@ -13,7 +13,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func registerAccount(params graphql.ResolveParams) (interface{}, error) {
+type UsersResolver struct {
+	UsersRepo *coredb.UsersRepo
+}
+
+func NewUsersResolver() *UsersResolver {
+	return &UsersResolver{
+		UsersRepo: coredb.NewUsersRepo(),
+	}
+}
+
+func (r *UsersResolver) RegisterAccount(params graphql.ResolveParams) (interface{}, error) {
 	authProfile, err := auth.GetProfileByContext(params.Context)
 	if err != nil {
 		return nil, err
@@ -41,7 +51,7 @@ func registerAccount(params graphql.ResolveParams) (interface{}, error) {
 	return user, nil
 }
 
-func getUserByEmail(params graphql.ResolveParams) (interface{}, error) {
+func (r *UsersResolver) GetUserByEmail(params graphql.ResolveParams) (interface{}, error) {
 	email, ok := params.Args["email"].(string)
 	if !ok {
 		return nil, nil

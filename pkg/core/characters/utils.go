@@ -18,3 +18,13 @@ func castType(valueType string, value string) any {
 
 	return newValue
 }
+
+func convertListToSlice(list interface{}) []string {
+	var slice []string
+
+	for _, item := range list.([]interface{}) {
+		slice = append(slice, item.(string))
+	}
+
+	return slice
+}

@@ -26,10 +26,8 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 	name := params.Args["name"].(string)
 
 	var tags []string
-	tagsInterface := params.Args["tags"].([]interface{})
-	tags = make([]string, len(tagsInterface))
-	for i, tag := range tagsInterface {
-		tags[i] = tag.(string)
+	if tagsList, ok := params.Args["tags"].([]interface{}); ok {
+		tags = convertListToSlice(tagsList)
 	}
 
 	character := coredb.Character{
@@ -106,8 +104,8 @@ func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (inte
 		character.Name = name
 	}
 
-	if tags, ok := params.Args["tags"].([]string); ok {
-		character.Tags = tags
+	if tags, ok := params.Args["tags"].([]interface{}); ok {
+		character.Tags = convertListToSlice(tags)
 	}
 
 	updateResult, err := r.CharactersRepo.UpdateCharacter(character)
