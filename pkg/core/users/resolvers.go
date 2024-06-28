@@ -26,7 +26,7 @@ func NewUsersResolver() *UsersResolver {
 func (r *UsersResolver) RegisterAccount(params graphql.ResolveParams) (interface{}, error) {
 	authProfile, err := auth.GetProfileByContext(params.Context)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
 	user := coredb.User{
@@ -45,10 +45,10 @@ func (r *UsersResolver) RegisterAccount(params graphql.ResolveParams) (interface
 	_, err = db.GetUsersCollection().InsertOne(ctx, user)
 	if err != nil {
 		log.Printf("failed to insert user: %v\n", err)
-		return nil, err
+		return false, err
 	}
 
-	return user, nil
+	return true, nil
 }
 
 func (r *UsersResolver) GetUserByEmail(params graphql.ResolveParams) (interface{}, error) {

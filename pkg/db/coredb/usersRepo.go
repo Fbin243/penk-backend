@@ -36,15 +36,29 @@ func NewUsersRepo() *UsersRepo {
 	return &UsersRepo{usersCollection}
 }
 
-func (r *UsersRepo) GetUserByFirebaseUID(firebaseUID string) (*User, error) {
+func (r *UsersRepo) GetUserByFirebaseUID(firebaseUID string) (User, error) {
 	var user User
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	err := r.FindOne(ctx, bson.M{"firebase_uid": firebaseUID}).Decode(&user)
-	if err != nil {
-		return nil, err
-	}
 
-	return &user, err
+	return user, err
+}
+
+func (r *UsersRepo) CreateNewUser(user User) (*mongo.InsertOneResult, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return r.InsertOne(ctx, user)
+}
+
+func (r *UsersRepo) GetUserByEmail(email string) (User, error) {
+	var user User
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := r.FindOne(ctx, bson.M{"email": email}).Decode(&user)
+
+	return user, err
 }
