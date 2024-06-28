@@ -27,7 +27,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 	characterID := params.Args["characterID"].(string)
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
 	customMetricID, ok := params.Args["customMetricID"].(string)
@@ -35,7 +35,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 	if ok {
 		customMetricOID, err = primitive.ObjectIDFromHex(customMetricID)
 		if err != nil {
-			return nil, err
+			return false, err
 		}
 	}
 
@@ -46,32 +46,32 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		StartTime:      time.Now(),
 	}
 
-	insertResult, err := r.TimeTrackingsRepo.CreateTimeTracking(timeTracking)
+	_, err = r.TimeTrackingsRepo.CreateTimeTracking(timeTracking)
 	if err != nil {
 		log.Printf("failed to insert time tracking: %v\n", err)
-		return nil, err
+		return false, err
 	}
 
-	return insertResult, nil
+	return true, nil
 }
 
 func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	timeTrackingID := params.Args["id"].(string)
 	timeTrackingOID, err := primitive.ObjectIDFromHex(timeTrackingID)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
 	timeTracking, err := r.TimeTrackingsRepo.GetTimeTrackingByID(timeTrackingOID)
 	if err != nil {
-		return nil, fmt.Errorf("time tracking not found: %v", err)
+		return false, fmt.Errorf("time tracking not found: %v", err)
 	}
 
 	timeTracking.EndTime = time.Now()
 
 	character, err := r.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
 	if err != nil {
-		return nil, fmt.Errorf("character not found: %v", err)
+		return false, fmt.Errorf("character not found: %v", err)
 	}
 
 	duration := timeTracking.EndTime.Sub(timeTracking.StartTime).Seconds()
@@ -86,15 +86,15 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 		}
 	}
 
-	updateResult, err := r.TimeTrackingsRepo.UpdateTimeTracking(timeTracking)
+	_, err = r.TimeTrackingsRepo.UpdateTimeTracking(timeTracking)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update time tracking: %v", err)
+		return false, fmt.Errorf("failed to update time tracking: %v", err)
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update character: %v", err)
+		return false, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return updateResult, nil
+	return true, nil
 }
