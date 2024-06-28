@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/test"
 
 	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -53,6 +54,12 @@ func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (i
 		Properties:            []coredb.MetricProperty{},
 		LimitedPropertyNumber: 2,
 	}
+
+	// --> JUST FOR TESTING
+	mTest := test.NewTestManager()
+	ctx := mTest.GetContext()
+	ctx.IdCustomMetric = customMetric.ID.Hex()
+	mTest.UpdateContext(ctx)
 
 	_, err = r.CharactersRepo.AddCustomMetric(character.ID, customMetric)
 	if err != nil {
@@ -115,7 +122,7 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 				}
 
 				if len(propertiesData) > int(cm.LimitedPropertyNumber) {
-					return nil, fmt.Errorf("custom metric properties creation limit reached")
+					return false, fmt.Errorf("custom metric properties creation limit reached")
 				}
 				cm.Properties = propertiesData
 			}

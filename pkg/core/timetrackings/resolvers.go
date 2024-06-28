@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/test"
 
 	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -45,6 +46,12 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		CustomMetricID: customMetricOID,
 		StartTime:      time.Now(),
 	}
+
+	// --> JUST FOR TESTING
+	mTest := test.NewTestManager()
+	ctx := mTest.GetContext()
+	ctx.IdTimeTracking = timeTracking.ID.Hex()
+	mTest.UpdateContext(ctx)
 
 	_, err = r.TimeTrackingsRepo.CreateTimeTracking(timeTracking)
 	if err != nil {

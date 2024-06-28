@@ -6,6 +6,7 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/test"
 
 	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -39,6 +40,14 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 		CustomMetrics:       []coredb.CustomMetric{},
 		LimitedMetricNumber: 2,
 	}
+
+	// --> JUST FOR TESTING
+	mTest := test.NewTestManager()
+	ctx := mTest.GetContext()
+	ctx.IdCharacter = character.ID.Hex()
+	mTest.UpdateContext(ctx)
+
+	fmt.Println("CreateCharacter: ", ctx)
 
 	_, err := r.CharactersRepo.CreateCharacter(character)
 	if err != nil {
