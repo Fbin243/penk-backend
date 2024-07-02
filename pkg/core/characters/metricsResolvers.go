@@ -358,7 +358,7 @@ func (r *CharactersResolver) DeleteMetricProperty(params graphql.ResolveParams) 
 			for j, prop := range character.CustomMetrics[i].Properties {
 				if prop.ID == metricPropObjectID {
 					character.CustomMetrics[i].Properties = append(character.CustomMetrics[i].Properties[:j], character.CustomMetrics[i].Properties[j+1:]...)
-					foundForMetric = true
+					foundForProperty = true
 					break
 				}
 			}
