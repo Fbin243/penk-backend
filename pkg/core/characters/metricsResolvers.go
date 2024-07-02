@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"tenkhours/pkg/db/coredb"
-	"tenkhours/test"
 
 	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -14,16 +13,16 @@ func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (i
 	characterID := params.Args["characterID"].(string)
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
-		return false, fmt.Errorf("failed to get object id: %v", err)
+		return nil, fmt.Errorf("failed to get object id: %v", err)
 	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
-		return false, fmt.Errorf("failed to get character: %v", err)
+		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
 
 	if len(character.CustomMetrics) >= int(character.LimitedMetricNumber) {
-		return false, fmt.Errorf("custom metric creation limit reached")
+		return nil, fmt.Errorf("custom metric creation limit reached")
 	}
 
 	name := params.Args["name"].(string)
@@ -55,36 +54,30 @@ func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (i
 		LimitedPropertyNumber: 2,
 	}
 
-	// --> JUST FOR TESTING
-	mTest := test.NewTestManager()
-	ctx := mTest.GetContext()
-	ctx.IdCustomMetric = customMetric.ID.Hex()
-	mTest.UpdateContext(ctx)
-
 	_, err = r.CharactersRepo.AddCustomMetric(character.ID, customMetric)
 	if err != nil {
-		return false, fmt.Errorf("failed to create custom metric: %v", err)
+		return nil, fmt.Errorf("failed to create custom metric: %v", err)
 	}
 
-	return true, nil
+	return customMetric.ID.Hex(), nil
 }
 
 func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	metricID := params.Args["id"].(string)
 	metricObjectID, err := primitive.ObjectIDFromHex(metricID)
 	if err != nil {
-		return false, fmt.Errorf("invalid metric ID: %v", err)
+		return nil, fmt.Errorf("invalid metric ID: %v", err)
 	}
 
 	characterID := params.Args["characterID"].(string)
 	characterObjectID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
-		return false, fmt.Errorf("invalid character ID: %v", err)
+		return nil, fmt.Errorf("invalid character ID: %v", err)
 	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(characterObjectID)
 	if err != nil {
-		return false, fmt.Errorf("character not found: %v", err)
+		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
 	found := false
@@ -122,7 +115,7 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 				}
 
 				if len(propertiesData) > int(cm.LimitedPropertyNumber) {
-					return false, fmt.Errorf("custom metric properties creation limit reached")
+					return nil, fmt.Errorf("custom metric properties creation limit reached")
 				}
 				cm.Properties = propertiesData
 			}
@@ -134,15 +127,15 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 	}
 
 	if !found {
-		return false, fmt.Errorf("custom metric not found")
+		return nil, fmt.Errorf("custom metric not found")
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
-		return false, fmt.Errorf("failed to update custom metric: %v", err)
+		return nil, fmt.Errorf("failed to update custom metric: %v", err)
 	}
 
-	return true, nil
+	return metricID, nil
 }
 
 func (r *CharactersResolver) DeleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {
@@ -173,25 +166,25 @@ func (r *CharactersResolver) DeleteCustomMetric(params graphql.ResolveParams) (i
 		return nil, fmt.Errorf("metric not found or already deleted")
 	}
 
-	return true, nil
+	return metricID, nil
 }
 
 func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
 	metricID := params.Args["id"].(string)
 	metricObjectID, err := primitive.ObjectIDFromHex(metricID)
 	if err != nil {
-		return false, fmt.Errorf("invalid metric ID: %v", err)
+		return nil, fmt.Errorf("invalid metric ID: %v", err)
 	}
 
 	characterID := params.Args["characterID"].(string)
 	characterObjectID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
-		return false, fmt.Errorf("invalid character ID: %v", err)
+		return nil, fmt.Errorf("invalid character ID: %v", err)
 	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(characterObjectID)
 	if err != nil {
-		return false, fmt.Errorf("character not found: %v", err)
+		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
 	found := false
@@ -209,13 +202,13 @@ func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (in
 	}
 
 	if !found {
-		return false, fmt.Errorf("custom metric not found")
+		return nil, fmt.Errorf("custom metric not found")
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
-		return false, fmt.Errorf("failed to reset custom metric: %v", err)
+		return nil, fmt.Errorf("failed to reset custom metric: %v", err)
 	}
 
-	return true, nil
+	return metricID, nil
 }

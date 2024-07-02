@@ -11,7 +11,7 @@ type UsersMutation struct {
 func InitUserMutation(r *UsersResolver) *UsersMutation {
 	return &UsersMutation{
 		RegisterAccount: &graphql.Field{
-			Type:        graphql.Boolean,
+			Type:        graphql.ID,
 			Description: "Register a new account",
 			Resolve:     r.RegisterAccount,
 		},

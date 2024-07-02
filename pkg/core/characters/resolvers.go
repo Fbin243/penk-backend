@@ -6,7 +6,6 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
-	"tenkhours/test"
 
 	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -16,46 +15,10 @@ type CharactersResolver struct {
 	CharactersRepo *coredb.CharactersRepo
 }
 
-func NewCharactersResolver() *CharactersResolver {
+func NewCharactersResolver(charactersRepo *coredb.CharactersRepo) *CharactersResolver {
 	return &CharactersResolver{
-		CharactersRepo: coredb.NewCharactersRepo(),
+		CharactersRepo: charactersRepo,
 	}
-}
-
-func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (interface{}, error) {
-	user := params.Context.Value(auth.UserKey).(coredb.User)
-	name := params.Args["name"].(string)
-
-	var tags []string
-	if tagsList, ok := params.Args["tags"].([]interface{}); ok {
-		tags = convertListToSlice(tagsList)
-	}
-
-	character := coredb.Character{
-		ID:                  primitive.NewObjectID(),
-		UserID:              user.ID,
-		Name:                name,
-		Tags:                tags,
-		TotalFocusedTime:    0,
-		CustomMetrics:       []coredb.CustomMetric{},
-		LimitedMetricNumber: 2,
-	}
-
-	// --> JUST FOR TESTING
-	mTest := test.NewTestManager()
-	ctx := mTest.GetContext()
-	ctx.IdCharacter = character.ID.Hex()
-	mTest.UpdateContext(ctx)
-
-	fmt.Println("CreateCharacter: ", ctx)
-
-	_, err := r.CharactersRepo.CreateCharacter(character)
-	if err != nil {
-		log.Printf("failed to create character: %v\n", err)
-		return false, err
-	}
-
-	return true, nil
 }
 
 func (r *CharactersResolver) GetCharacterByID(params graphql.ResolveParams) (interface{}, error) {
@@ -96,17 +59,45 @@ func (r *CharactersResolver) GetAllCharacters(params graphql.ResolveParams) (int
 	return characters, nil
 }
 
+func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (interface{}, error) {
+	user := params.Context.Value(auth.UserKey).(coredb.User)
+	name := params.Args["name"].(string)
+
+	var tags []string
+	if tagsList, ok := params.Args["tags"].([]interface{}); ok {
+		tags = convertListToSlice(tagsList)
+	}
+
+	character := coredb.Character{
+		ID:                  primitive.NewObjectID(),
+		UserID:              user.ID,
+		Name:                name,
+		Tags:                tags,
+		TotalFocusedTime:    0,
+		CustomMetrics:       []coredb.CustomMetric{},
+		LimitedMetricNumber: 2,
+	}
+
+	_, err := r.CharactersRepo.CreateCharacter(character)
+	if err != nil {
+		log.Printf("failed to create character: %v\n", err)
+		return nil, err
+	}
+
+	return character.ID.Hex(), nil
+}
+
 func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"].(string)
 
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(objectID)
 	if err != nil {
-		return false, fmt.Errorf("character not found: %v", err)
+		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
 	if name, ok := params.Args["name"].(string); ok {
@@ -119,10 +110,10 @@ func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (inte
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
-		return false, fmt.Errorf("failed to update character: %v", err)
+		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return true, nil
+	return character.ID.Hex(), nil
 }
 
 func (r *CharactersResolver) DeleteCharacter(params graphql.ResolveParams) (interface{}, error) {
@@ -130,15 +121,15 @@ func (r *CharactersResolver) DeleteCharacter(params graphql.ResolveParams) (inte
 
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	_, err = r.CharactersRepo.DeleteCharacter(objectID)
 	if err != nil {
-		return false, fmt.Errorf("failed to delete character: %v", err)
+		return nil, fmt.Errorf("failed to delete character: %v", err)
 	}
 
-	return true, nil
+	return id, nil
 }
 
 func (r *CharactersResolver) ResetCharacter(params graphql.ResolveParams) (interface{}, error) {
@@ -146,12 +137,12 @@ func (r *CharactersResolver) ResetCharacter(params graphql.ResolveParams) (inter
 
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(objectID)
 	if err != nil {
-		return false, fmt.Errorf("character not found: %v", err)
+		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
 	character.Tags = []string{}
@@ -160,8 +151,8 @@ func (r *CharactersResolver) ResetCharacter(params graphql.ResolveParams) (inter
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
-		return false, fmt.Errorf("failed to delete character: %v", err)
+		return nil, fmt.Errorf("failed to delete character: %v", err)
 	}
 
-	return true, nil
+	return id, nil
 }

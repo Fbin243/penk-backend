@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"tenkhours/pkg/db/coredb"
-	"tenkhours/test"
 
 	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -17,10 +16,10 @@ type TimeTrackingsResolver struct {
 	CharactersRepo    *coredb.CharactersRepo
 }
 
-func NewTimeTrackingsResolver() *TimeTrackingsResolver {
+func NewTimeTrackingsResolver(timeTrackingsRepo *coredb.TimeTrackingsRepo, charactersRepo *coredb.CharactersRepo) *TimeTrackingsResolver {
 	return &TimeTrackingsResolver{
-		TimeTrackingsRepo: coredb.NewTimeTrackingsRepo(),
-		CharactersRepo:    coredb.NewCharactersRepo(),
+		TimeTrackingsRepo: timeTrackingsRepo,
+		CharactersRepo:    charactersRepo,
 	}
 }
 
@@ -28,7 +27,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 	characterID := params.Args["characterID"].(string)
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	customMetricID, ok := params.Args["customMetricID"].(string)
@@ -36,7 +35,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 	if ok {
 		customMetricOID, err = primitive.ObjectIDFromHex(customMetricID)
 		if err != nil {
-			return false, err
+			return nil, err
 		}
 	}
 
@@ -47,38 +46,32 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		StartTime:      time.Now(),
 	}
 
-	// --> JUST FOR TESTING
-	mTest := test.NewTestManager()
-	ctx := mTest.GetContext()
-	ctx.IdTimeTracking = timeTracking.ID.Hex()
-	mTest.UpdateContext(ctx)
-
 	_, err = r.TimeTrackingsRepo.CreateTimeTracking(timeTracking)
 	if err != nil {
 		log.Printf("failed to insert time tracking: %v\n", err)
-		return false, err
+		return nil, err
 	}
 
-	return true, nil
+	return timeTracking.ID.Hex(), nil
 }
 
 func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	timeTrackingID := params.Args["id"].(string)
 	timeTrackingOID, err := primitive.ObjectIDFromHex(timeTrackingID)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	timeTracking, err := r.TimeTrackingsRepo.GetTimeTrackingByID(timeTrackingOID)
 	if err != nil {
-		return false, fmt.Errorf("time tracking not found: %v", err)
+		return nil, fmt.Errorf("time tracking not found: %v", err)
 	}
 
 	timeTracking.EndTime = time.Now()
 
 	character, err := r.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
 	if err != nil {
-		return false, fmt.Errorf("character not found: %v", err)
+		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
 	duration := timeTracking.EndTime.Sub(timeTracking.StartTime).Seconds()
@@ -95,13 +88,13 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 
 	_, err = r.TimeTrackingsRepo.UpdateTimeTracking(timeTracking)
 	if err != nil {
-		return false, fmt.Errorf("failed to update time tracking: %v", err)
+		return nil, fmt.Errorf("failed to update time tracking: %v", err)
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
-		return false, fmt.Errorf("failed to update character: %v", err)
+		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return true, nil
+	return timeTrackingID, nil
 }

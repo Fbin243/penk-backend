@@ -12,7 +12,7 @@ type TimeTrackingsMutation struct {
 func InitTimeTrackingsMutation(r *TimeTrackingsResolver) *TimeTrackingsMutation {
 	return &TimeTrackingsMutation{
 		CreateTimeTracking: &graphql.Field{
-			Type:        graphql.Boolean,
+			Type:        graphql.ID,
 			Description: "Create a time tracking",
 			Args: graphql.FieldConfigArgument{
 				"characterID": &graphql.ArgumentConfig{
@@ -25,7 +25,7 @@ func InitTimeTrackingsMutation(r *TimeTrackingsResolver) *TimeTrackingsMutation 
 			Resolve: r.CreateTimeTracking,
 		},
 		UpdateTimeTracking: &graphql.Field{
-			Type:        graphql.Boolean,
+			Type:        graphql.ID,
 			Description: "Update a time tracking",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{

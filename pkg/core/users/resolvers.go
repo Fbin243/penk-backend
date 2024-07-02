@@ -17,16 +17,16 @@ type UsersResolver struct {
 	UsersRepo *coredb.UsersRepo
 }
 
-func NewUsersResolver() *UsersResolver {
+func NewUsersResolver(usersRepo *coredb.UsersRepo) *UsersResolver {
 	return &UsersResolver{
-		UsersRepo: coredb.NewUsersRepo(),
+		UsersRepo: usersRepo,
 	}
 }
 
 func (r *UsersResolver) RegisterAccount(params graphql.ResolveParams) (interface{}, error) {
 	authProfile, err := auth.GetProfileByContext(params.Context)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	user := coredb.User{
@@ -45,10 +45,10 @@ func (r *UsersResolver) RegisterAccount(params graphql.ResolveParams) (interface
 	_, err = db.GetUsersCollection().InsertOne(ctx, user)
 	if err != nil {
 		log.Printf("failed to insert user: %v\n", err)
-		return false, err
+		return nil, err
 	}
 
-	return true, nil
+	return user.ID.Hex(), nil
 }
 
 func (r *UsersResolver) GetUserByEmail(params graphql.ResolveParams) (interface{}, error) {
