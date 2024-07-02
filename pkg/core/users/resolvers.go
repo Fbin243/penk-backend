@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -13,7 +14,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func registerAccount(params graphql.ResolveParams) (interface{}, error) {
+type UsersResolver struct {
+	UsersRepo *coredb.UsersRepo
+}
+
+func NewUsersResolver(usersRepo *coredb.UsersRepo) *UsersResolver {
+	return &UsersResolver{
+		UsersRepo: usersRepo,
+	}
+}
+
+func (r *UsersResolver) RegisterAccount(params graphql.ResolveParams) (interface{}, error) {
 	authProfile, err := auth.GetProfileByContext(params.Context)
 	if err != nil {
 		return nil, err
@@ -24,7 +35,7 @@ func registerAccount(params graphql.ResolveParams) (interface{}, error) {
 		Name:        authProfile.Name,
 		Email:       authProfile.Email,
 		FirebaseUID: authProfile.UID,
-		ImageURL:    "", // default avatar URL
+		ImageURL:    "",
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
@@ -34,29 +45,17 @@ func registerAccount(params graphql.ResolveParams) (interface{}, error) {
 
 	_, err = db.GetUsersCollection().InsertOne(ctx, user)
 	if err != nil {
-		log.Printf("Failed to insert user: %v\n", err)
+		log.Printf("failed to insert user: %v\n", err)
 		return nil, err
 	}
 
-	return user, nil
+	return user.ID.Hex(), nil
 }
 
-func getUserByEmail(params graphql.ResolveParams) (interface{}, error) {
-	email, ok := params.Args["email"].(string)
+func (r *UsersResolver) GetUserByToken(params graphql.ResolveParams) (interface{}, error) {
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, nil
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	var user coredb.User
-	err := db.GetUsersCollection().FindOne(ctx, map[string]string{
-		"email": email,
-	}).Decode(&user)
-	if err != nil {
-		log.Printf("Failed to find user: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("user not found")
 	}
 
 	return user, nil

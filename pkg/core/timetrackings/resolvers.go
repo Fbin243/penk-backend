@@ -1,102 +1,129 @@
 package timetrackings
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 
 	"github.com/graphql-go/graphql"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func createTimeTracking(params graphql.ResolveParams) (interface{}, error) {
+type TimeTrackingsResolver struct {
+	TimeTrackingsRepo *coredb.TimeTrackingsRepo
+	CharactersRepo    *coredb.CharactersRepo
+}
+
+func NewTimeTrackingsResolver(timeTrackingsRepo *coredb.TimeTrackingsRepo, charactersRepo *coredb.CharactersRepo) *TimeTrackingsResolver {
+	return &TimeTrackingsResolver{
+		TimeTrackingsRepo: timeTrackingsRepo,
+		CharactersRepo:    charactersRepo,
+	}
+}
+
+func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	characterID := params.Args["characterID"].(string)
+	characterOID, err := primitive.ObjectIDFromHex(characterID)
+	if err != nil {
+		return nil, err
+	}
+
 	customMetricID, ok := params.Args["customMetricID"].(string)
-	if !ok {
-		customMetricID = ""
+	customMetricOID := primitive.ObjectID{}
+	if ok {
+		customMetricOID, err = primitive.ObjectIDFromHex(customMetricID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Check if the time tracking is already started
+	timeTrackings, _ := r.TimeTrackingsRepo.GetTimeTrackingsByCharacterID(characterOID)
+	for _, timeTracking := range timeTrackings {
+		if timeTracking.EndTime.IsZero() {
+			return nil, fmt.Errorf("time tracking is already started")
+		}
 	}
 
 	timeTracking := coredb.TimeTracking{
-		ID:             primitive.NewObjectID(),
-		CharacterID:    characterID,
-		CustomMetricID: customMetricID,
-		StartTime:      time.Now(),
+		ID:              primitive.NewObjectID(),
+		CharacterID:     characterOID,
+		CustomMetricID:  customMetricOID,
+		StartTime:       time.Now(),
+		MinDurationTime: 600,
+		MaxDurationTime: 14400,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err := db.GetTimeTrackingsCollection().InsertOne(ctx, timeTracking)
+	_, err = r.TimeTrackingsRepo.CreateTimeTracking(timeTracking)
 	if err != nil {
 		log.Printf("failed to insert time tracking: %v\n", err)
 		return nil, err
 	}
 
-	return timeTracking, nil
+	return timeTracking.ID.Hex(), nil
 }
 
-func updateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
-	id := params.Args["id"].(string)
-
-	objectID, err := primitive.ObjectIDFromHex(id)
+func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
+	timeTrackingID := params.Args["id"].(string)
+	timeTrackingOID, err := primitive.ObjectIDFromHex(timeTrackingID)
 	if err != nil {
 		return nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	timeTracking := coredb.TimeTracking{}
-	filter := bson.M{"_id": objectID}
-
-	err = db.GetTimeTrackingsCollection().FindOne(ctx, filter).Decode(&timeTracking)
+	timeTracking, err := r.TimeTrackingsRepo.GetTimeTrackingByID(timeTrackingOID)
 	if err != nil {
 		return nil, fmt.Errorf("time tracking not found: %v", err)
 	}
 
-	endTime := time.Now()
-	characterID, err := primitive.ObjectIDFromHex(timeTracking.CharacterID)
+	timeTracking.EndTime = time.Now()
+
+	character, err := r.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	character := coredb.Character{}
+	duration := timeTracking.EndTime.Sub(timeTracking.StartTime).Seconds()
 
-	filter = bson.M{"_id": characterID}
-	err = db.GetCharactersCollection().FindOne(ctx, filter).Decode(&character)
-	if err != nil {
-		return nil, err
+	// JUST FOR TESTING
+	// duration = 599 // Test for the min duration time
+	// duration = 600 // Test for the min duration time
+	// duration = 601 // Test for the min duration time
+	// duration = 14400 // Test for the max duration time
+	// duration = 14401 // Test for the max duration time
+
+	if int32(duration) < timeTracking.MinDurationTime {
+		duration = 0
+		r.TimeTrackingsRepo.DeleteTimeTracking(timeTrackingOID)
+		fmt.Printf("the period time is less than 10 min, so the time tracking will be deleted")
+		return timeTrackingID, nil
 	}
 
-	duration := endTime.Sub(timeTracking.StartTime).Seconds()
+	if int32(duration) > timeTracking.MaxDurationTime {
+		duration = float64(timeTracking.MaxDurationTime)
+		fmt.Printf("the period time is more than 4 hours, so the time tracking will be limited to 4 hours")
+	}
 
 	character.TotalFocusedTime += int32(duration)
-	if timeTracking.CustomMetricID != "" {
+	if !timeTracking.CustomMetricID.IsZero() {
 		for i, customMetric := range character.CustomMetrics {
-			if customMetric.ID.Hex() == timeTracking.CustomMetricID {
+			if customMetric.ID == timeTracking.CustomMetricID {
 				character.CustomMetrics[i].Time += int32(duration)
 				break
 			}
 		}
 	}
 
-	timeTracking.EndTime = endTime
-	update := bson.M{"$set": timeTracking}
-	_, err = db.GetTimeTrackingsCollection().UpdateOne(ctx, filter, update)
+	_, err = r.TimeTrackingsRepo.UpdateTimeTracking(timeTracking)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update time tracking: %v", err)
 	}
 
-	update = bson.M{"$set": character}
-	_, err = db.GetCharactersCollection().UpdateOne(ctx, filter, update)
+	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update character tracking: %v", err)
+		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return timeTracking, nil
+	return timeTrackingID, nil
 }

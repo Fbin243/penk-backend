@@ -1,0 +1,266 @@
+package test
+
+import (
+	"fmt"
+	"net/http"
+	"testing"
+
+	"github.com/steinfletcher/apitest"
+	jsonpath "github.com/steinfletcher/apitest-jsonpath"
+)
+
+/**
+ * CREATE
+ */
+func createNewCharacter(t *testing.T, ctx *TestContext) {
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(`mutation {
+			createCharacter(name: "Test Character")
+		}`).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(func(r1 *http.Response, r2 *http.Request) error {
+			data, err := decodeResponseData(r1)
+			if err != nil {
+				return err
+			}
+
+			if idCharacter, ok := data["createCharacter"].(string); ok {
+				ctx.IdCharacter = idCharacter
+				return nil
+			}
+
+			return fmt.Errorf("failed to create a new character")
+		}).
+		End()
+}
+
+func createCustomMetrics(t *testing.T, ctx *TestContext) {
+	// Create the first custom metric with just name -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			createCustomMetric(name: "Test metric 1", characterID: "%s") 
+		}`, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(func(r1 *http.Response, r2 *http.Request) error {
+			data, err := decodeResponseData(r1)
+			if err != nil {
+				return err
+			}
+
+			if idCustomMetric, ok := data["createCustomMetric"].(string); ok {
+				ctx.IdCustomMetric = idCustomMetric
+				return nil
+			}
+
+			return fmt.Errorf("failed to create a custom metric")
+		}).
+		End()
+
+	// Create another custom metric with full information -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			createCustomMetric(name: "Test metric 2", characterID: "%s", description: "Test metric description", style: {color: "red", icon: "icon.png"})
+		}`, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		End()
+
+	// Create the third custom metric to reach the limit -> failed
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			createCustomMetric(name: "Test metric 3", characterID: "%s")
+		}`, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.Present("$.errors")).
+		End()
+}
+
+func createProperties(t *testing.T, ctx *TestContext) {
+	// Create the first property -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			createMetricProperty(metricID: "%s", characterID: "%s", name: "Test property 1", type: "Number", value: "10", unit: "kg")
+		}`, ctx.IdCustomMetric, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(func(r1 *http.Response, r2 *http.Request) error {
+			data, err := decodeResponseData(r1)
+			if err != nil {
+				return err
+			}
+
+			if idProperty, ok := data["createMetricProperty"].(string); ok {
+				ctx.IdProperty = idProperty
+				return nil
+			}
+
+			return fmt.Errorf("failed to create a property")
+		}).
+		End()
+
+	// Create the second --> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			createMetricProperty(metricID: "%s", characterID: "%s", name: "Test property 2", type: "Number", value: "20", unit: "l")
+		}`, ctx.IdCustomMetric, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		End()
+
+	// Create the third --> failed
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			createMetricProperty(metricID: "%s", characterID: "%s", name: "Test property 3", type: "Number", value: "30", unit: "m")
+		}`, ctx.IdCustomMetric, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.Present("$.errors")).
+		End()
+}
+
+/**
+ * READ
+ */
+func getUserCharacters(t *testing.T, ctx *TestContext) {
+	// Get the user's character -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(`query { 
+			userCharacters { id limitedMetricNumber name tags totalFocusTime userID customMetrics { description id limitedPropertyNumber name time properties { id name type unit value } style { color icon } } }
+		}`).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
+		End()
+}
+
+/**
+ * UPDATE
+ */
+func updateCharacter(t *testing.T, ctx *TestContext) {
+	// Update the character's name -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			updateCharacter(id: "%s", name: "Updated Character")
+		}`, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
+		End()
+}
+
+func updateCustomMetric(t *testing.T, ctx *TestContext) {
+	// Update the custom metric's name -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			updateCustomMetric(id: "%s", characterID: "%s" ,name: "Updated Metric")
+		}`, ctx.IdCustomMetric, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
+		End()
+}
+
+func updateProperty(t *testing.T, ctx *TestContext) {
+	// Update the property's value -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			updateMetricProperty(id: "%s", metricID: "%s", characterID: "%s", name: "Updated property", value: "50")
+		}`, ctx.IdProperty, ctx.IdCustomMetric, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
+		End()
+}
+
+func deleteProperty(t *testing.T, ctx *TestContext) {
+	// Delete the property -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			deleteMetricProperty(id: "%s", metricID: "%s", characterID: "%s")
+		}`, ctx.IdProperty, ctx.IdCustomMetric, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
+		End()
+}
+
+func deleteCustomMetric(t *testing.T, ctx *TestContext) {
+	// Delete the custom metric -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			deleteCustomMetric(id: "%s", characterID: "%s")
+		}`, ctx.IdCustomMetric, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
+		End()
+}
+
+func deleteCharacter(t *testing.T, ctx *TestContext) {
+	// Delete the character -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			deleteCharacter(id: "%s")
+		}`, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
+		End()
+}

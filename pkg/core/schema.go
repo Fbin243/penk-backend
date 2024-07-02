@@ -4,37 +4,62 @@ import (
 	"tenkhours/pkg/core/characters"
 	"tenkhours/pkg/core/timetrackings"
 	"tenkhours/pkg/core/users"
+	"tenkhours/pkg/db/coredb"
 
 	"github.com/graphql-go/graphql"
 )
 
-var rootQuery = graphql.NewObject(graphql.ObjectConfig{
-	Name: "RootQuery",
-	Fields: graphql.Fields{
-		"user":       &users.User,
-		"character":  &characters.CharacterQuery,
-		"characters": &characters.CharactersQuery,
-	},
-})
+func InitSchema() graphql.Schema {
+	var (
+		usersRepo         = coredb.NewUsersRepo()
+		charactersRepo    = coredb.NewCharactersRepo()
+		timeTrackingsRepo = coredb.NewTimeTrackingsRepo()
 
-var rootMutation = graphql.NewObject(graphql.ObjectConfig{
-	Name: "RootMutation",
-	Fields: graphql.Fields{
-		"registerAccount":    &users.RegisterAccount,
-		"createCharacter":    &characters.CreateCharacter,
-		"updateCharacter":    &characters.UpdateCharacter,
-		"deleteCharacter":    &characters.DeleteCharacter,
-		"resetCharacter":     &characters.ResetCharacter,
-		"createCustomMetric": &characters.CreateCustomMetric,
-		"updateCustomMetric": &characters.UpdateCustomMetric,
-		"deleteCustomMetric": &characters.DeleteCustomMetric,
-		"resetCustomMetric":  &characters.ResetCustomMetric,
-		"createTimeTracking": &timetrackings.CreateTimeTrackingMutation,
-		"updateTimeTracking": &timetrackings.UpdateTimeTrackingMutation,
-	},
-})
+		usersResolver = users.NewUsersResolver(usersRepo)
+		usersQuery    = users.InitUserQuery(usersResolver)
+		usersMutation = users.InitUserMutation(usersResolver)
 
-var CoreSchema, _ = graphql.NewSchema(graphql.SchemaConfig{
-	Query:    rootQuery,
-	Mutation: rootMutation,
-})
+		charactersResolver = characters.NewCharactersResolver(charactersRepo)
+		charactersQuery    = characters.InitCharacterQuery(charactersResolver)
+		charactersMutation = characters.InitCharacterMutation(charactersResolver)
+
+		timeTrackingsResolver = timetrackings.NewTimeTrackingsResolver(timeTrackingsRepo, charactersRepo)
+		timeTrackingsMutation = timetrackings.InitTimeTrackingsMutation(timeTrackingsResolver)
+	)
+
+	rootQuery := graphql.NewObject(graphql.ObjectConfig{
+		Name: "RootQuery",
+		Fields: graphql.Fields{
+			"user":           usersQuery.User,
+			"userCharacters": charactersQuery.UserCharacters,
+			"characters":     charactersQuery.Characters,
+		},
+	})
+
+	rootMutation := graphql.NewObject(graphql.ObjectConfig{
+		Name: "RootMutation",
+		Fields: graphql.Fields{
+			"registerAccount":      usersMutation.RegisterAccount,
+			"createCharacter":      charactersMutation.CreateCharacter,
+			"updateCharacter":      charactersMutation.UpdateCharacter,
+			"deleteCharacter":      charactersMutation.DeleteCharacter,
+			"resetCharacter":       charactersMutation.ResetCharacter,
+			"createCustomMetric":   charactersMutation.CreateCustomMetric,
+			"updateCustomMetric":   charactersMutation.UpdateCustomMetric,
+			"deleteCustomMetric":   charactersMutation.DeleteCustomMetric,
+			"createMetricProperty": charactersMutation.CreateMetricProperty,
+			"updateMetricProperty": charactersMutation.UpdateMetricProperty,
+			"deleteMetricProperty": charactersMutation.DeleteMetricProperty,
+			"resetCustomMetric":    charactersMutation.ResetCustomMetric,
+			"createTimeTracking":   timeTrackingsMutation.CreateTimeTracking,
+			"updateTimeTracking":   timeTrackingsMutation.UpdateTimeTracking,
+		},
+	})
+
+	CoreSchema, _ := graphql.NewSchema(graphql.SchemaConfig{
+		Query:    rootQuery,
+		Mutation: rootMutation,
+	})
+
+	return CoreSchema
+}

@@ -4,27 +4,35 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-var CreateTimeTrackingMutation = graphql.Field{
-	Type:        timeTrackingType,
-	Description: "Create a time tracking",
-	Args: graphql.FieldConfigArgument{
-		"characterID": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.String),
-		},
-		"customMetricID": &graphql.ArgumentConfig{
-			Type: graphql.String,
-		},
-	},
-	Resolve: createTimeTracking,
+type TimeTrackingsMutation struct {
+	CreateTimeTracking *graphql.Field
+	UpdateTimeTracking *graphql.Field
 }
 
-var UpdateTimeTrackingMutation = graphql.Field{
-	Type:        timeTrackingType,
-	Description: "Update a time tracking",
-	Args: graphql.FieldConfigArgument{
-		"id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.String),
+func InitTimeTrackingsMutation(r *TimeTrackingsResolver) *TimeTrackingsMutation {
+	return &TimeTrackingsMutation{
+		CreateTimeTracking: &graphql.Field{
+			Type:        graphql.ID,
+			Description: "Create a time tracking",
+			Args: graphql.FieldConfigArgument{
+				"characterID": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"customMetricID": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: r.CreateTimeTracking,
 		},
-	},
-	Resolve: updateTimeTracking,
+		UpdateTimeTracking: &graphql.Field{
+			Type:        graphql.ID,
+			Description: "Update a time tracking",
+			Args: graphql.FieldConfigArgument{
+				"id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+			},
+			Resolve: r.UpdateTimeTracking,
+		},
+	}
 }

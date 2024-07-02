@@ -3,7 +3,10 @@ package auth
 type ContextKey int
 
 const (
-	ProfileContextKey ContextKey = iota
+	ProfileKey ContextKey = iota
+	UserKey
+	RegisterKey
+	PostDataKey
 )
 
 type Profile struct {
