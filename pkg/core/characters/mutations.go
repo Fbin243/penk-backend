@@ -14,6 +14,10 @@ type CharactersMutation struct {
 	UpdateCustomMetric *graphql.Field
 	DeleteCustomMetric *graphql.Field
 	ResetCustomMetric  *graphql.Field
+
+	CreateMetricProperty *graphql.Field
+	UpdateMetricProperty *graphql.Field
+	DeleteMetricProperty *graphql.Field
 }
 
 func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
@@ -105,9 +109,6 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 				"style": &graphql.ArgumentConfig{
 					Type: metricStyleTypeInput,
 				},
-				"properties": &graphql.ArgumentConfig{
-					Type: graphql.NewList(metricPropertyTypeInput),
-				},
 			},
 			Resolve: r.UpdateCustomMetric,
 		},
@@ -136,6 +137,75 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 				},
 			},
 			Resolve: r.DeleteCustomMetric,
+		},
+		CreateMetricProperty: &graphql.Field{
+			Type:        graphql.Boolean,
+			Description: "Create a metric property",
+			Args: graphql.FieldConfigArgument{
+				"characterID": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"metricID": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"name": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"type": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"value": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"unit": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: r.CreateMetricProperty,
+		},
+		UpdateMetricProperty: &graphql.Field{
+			Type:        graphql.Boolean,
+			Description: "Update a metric property",
+			Args: graphql.FieldConfigArgument{
+				"id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"characterID": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"metricID": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"type": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"value": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"unit": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: r.UpdateMetricProperty,
+		},
+		DeleteMetricProperty: &graphql.Field{
+			Type:        graphql.Boolean,
+			Description: "Delete a metric property",
+			Args: graphql.FieldConfigArgument{
+				"id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"characterID": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"metricID": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+			},
+			Resolve: r.DeleteMetricProperty,
 		},
 	}
 }

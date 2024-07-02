@@ -18,10 +18,11 @@ type User struct {
 
 // Character
 type MetricProperty struct {
-	Name  string `json:"name" bson:"name"`
-	Type  string `json:"type" bson:"type"`
-	Value any    `json:"value" bson:"value"`
-	Unit  string `json:"unit" bson:"unit"`
+	ID    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name  string             `json:"name" bson:"name"`
+	Type  string             `json:"type" bson:"type"`
+	Value any                `json:"value" bson:"value"`
+	Unit  string             `json:"unit" bson:"unit"`
 }
 
 type MetricStyle struct {
@@ -50,9 +51,11 @@ type Character struct {
 }
 
 type TimeTracking struct {
-	ID             primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	CharacterID    primitive.ObjectID `json:"characterID" bson:"character_id"`
-	CustomMetricID primitive.ObjectID `json:"customMetricID" bson:"custom_metric_id"`
-	StartTime      time.Time          `json:"startTime" bson:"start_time"`
-	EndTime        time.Time          `json:"endTime" bson:"end_time"`
+	ID              primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	CharacterID     primitive.ObjectID `json:"characterID" bson:"character_id"`
+	CustomMetricID  primitive.ObjectID `json:"customMetricID" bson:"custom_metric_id"`
+	StartTime       time.Time          `json:"startTime" bson:"start_time"`
+	EndTime         time.Time          `json:"endTime" bson:"end_time"`
+	MinDurationTime int32              `json:"minDurationTime" bson:"min_duration_time"`
+	MaxDurationTime int32              `json:"maxDurationTime" bson:"max_duration_time"`
 }

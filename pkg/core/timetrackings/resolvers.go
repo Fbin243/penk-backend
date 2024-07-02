@@ -41,10 +41,12 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 	}
 
 	timeTracking := coredb.TimeTracking{
-		ID:             primitive.NewObjectID(),
-		CharacterID:    characterOID,
-		CustomMetricID: customMetricOID,
-		StartTime:      time.Now(),
+		ID:              primitive.NewObjectID(),
+		CharacterID:     characterOID,
+		CustomMetricID:  customMetricOID,
+		StartTime:       time.Now(),
+		MinDurationTime: 600,
+		MaxDurationTime: 14400,
 	}
 
 	// --> JUST FOR TESTING
@@ -83,6 +85,21 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 
 	duration := timeTracking.EndTime.Sub(timeTracking.StartTime).Seconds()
 
+	minDurationError := false
+	if int32(duration) < timeTracking.MinDurationTime {
+		duration = 0
+		minDurationError = true
+	}
+	if minDurationError {
+		return false, fmt.Errorf("the period time is less than 10 min")
+	}
+
+	maxDurationError := false
+	if int32(duration) > timeTracking.MaxDurationTime {
+		duration = float64(timeTracking.MaxDurationTime)
+		maxDurationError = true
+	}
+
 	character.TotalFocusedTime += int32(duration)
 	if !timeTracking.CustomMetricID.IsZero() {
 		for i, customMetric := range character.CustomMetrics {
@@ -101,6 +118,10 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return false, fmt.Errorf("failed to update character: %v", err)
+	}
+
+	if maxDurationError {
+		return false, fmt.Errorf("the period time is more than 4 hours, so the period time will set to 4 hours")
 	}
 
 	return true, nil
