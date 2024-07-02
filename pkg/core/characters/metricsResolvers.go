@@ -302,7 +302,7 @@ func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) 
 					}
 
 					character.CustomMetrics[i].Properties[j] = prop
-					foundForMetric = true
+					foundForProperty = true
 					break
 				}
 			}
