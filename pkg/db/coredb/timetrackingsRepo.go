@@ -29,6 +29,21 @@ func (r *TimeTrackingsRepo) GetTimeTrackingByID(id primitive.ObjectID) (TimeTrac
 	return timeTracking, err
 }
 
+func (r *TimeTrackingsRepo) GetTimeTrackingsByCharacterID(characterID primitive.ObjectID) ([]TimeTracking, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var timeTrackings []TimeTracking
+	cursor, err := r.Find(ctx, bson.M{"character_id": characterID})
+	if err != nil {
+		return nil, err
+	}
+
+	cursor.All(ctx, &timeTrackings)
+
+	return timeTrackings, err
+}
+
 func (r *TimeTrackingsRepo) CreateTimeTracking(timeTracking TimeTracking) (*mongo.InsertOneResult, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

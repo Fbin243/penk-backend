@@ -9,31 +9,9 @@ import (
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
 )
 
-func registerNewUser(t *testing.T, ctx *TestContext) {
-	apitest.New().
-		EnableNetworking(cli).
-		Post(url).
-		Header("Authorization", "Bearer "+IdToken).
-		GraphQLQuery(`mutation { registerAccount }`).
-		Expect(t).
-		Status(http.StatusOK).
-		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(func(r1 *http.Response, r2 *http.Request) error {
-			data, err := decodeResponseData(r1)
-			if err != nil {
-				return err
-			}
-
-			if idUser, ok := data["registerAccount"].(string); ok {
-				ctx.IdUser = idUser
-				return nil
-			}
-
-			return fmt.Errorf("failed to register a new user")
-		}).
-		End()
-}
-
+/**
+ * CREATE
+ */
 func createNewCharacter(t *testing.T, ctx *TestContext) {
 	apitest.New().
 		EnableNetworking(cli).
@@ -169,53 +147,120 @@ func createProperties(t *testing.T, ctx *TestContext) {
 		End()
 }
 
-func startTimeTracking(t *testing.T, ctx *TestContext, trackWithMetric bool) {
-	gqlQuery := fmt.Sprintf(`mutation { 
-		createTimeTracking(characterID: "%s")
-	}`, ctx.IdCharacter)
-
-	if trackWithMetric {
-		gqlQuery = fmt.Sprintf(`mutation { 
-			createTimeTracking(characterID: "%s", customMetricID: "%s")
-		}`, ctx.IdCharacter, ctx.IdCustomMetric)
-	}
-
-	// Create a time tracking -> success
+/**
+ * READ
+ */
+func getUserCharacters(t *testing.T, ctx *TestContext) {
+	// Get the user's character -> success
 	apitest.New().
 		EnableNetworking(cli).
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
-		GraphQLQuery(gqlQuery).
+		GraphQLQuery(`query { 
+			userCharacters { id limitedMetricNumber name tags totalFocusTime userID customMetrics { description id limitedPropertyNumber name time properties { id name type unit value } style { color icon } } }
+		}`).
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(func(r1 *http.Response, r2 *http.Request) error {
-			data, err := decodeResponseData(r1)
-			if err != nil {
-				return err
-			}
-
-			if idTimeTracking, ok := data["createTimeTracking"].(string); ok {
-				ctx.IdTimeTracking = idTimeTracking
-				return nil
-			}
-
-			return fmt.Errorf("failed to create a time tracking")
-		}).
+		Assert(logResponseData).
 		End()
 }
 
-func stopTimeTracking(t *testing.T, ctx *TestContext) {
-	// Stop the time tracking -> success
+/**
+ * UPDATE
+ */
+func updateCharacter(t *testing.T, ctx *TestContext) {
+	// Update the character's name -> success
 	apitest.New().
 		EnableNetworking(cli).
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			updateTimeTracking(id: "%s")
-		}`, ctx.IdTimeTracking)).
+			updateCharacter(id: "%s", name: "Updated Character")
+		}`, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
+		End()
+}
+
+func updateCustomMetric(t *testing.T, ctx *TestContext) {
+	// Update the custom metric's name -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			updateCustomMetric(id: "%s", characterID: "%s" ,name: "Updated Metric")
+		}`, ctx.IdCustomMetric, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
+		End()
+}
+
+func updateProperty(t *testing.T, ctx *TestContext) {
+	// Update the property's value -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			updateMetricProperty(id: "%s", metricID: "%s", characterID: "%s", name: "Updated property", value: "50")
+		}`, ctx.IdProperty, ctx.IdCustomMetric, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
+		End()
+}
+
+func deleteProperty(t *testing.T, ctx *TestContext) {
+	// Delete the property -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			deleteMetricProperty(id: "%s", metricID: "%s", characterID: "%s")
+		}`, ctx.IdProperty, ctx.IdCustomMetric, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
+		End()
+}
+
+func deleteCustomMetric(t *testing.T, ctx *TestContext) {
+	// Delete the custom metric -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			deleteCustomMetric(id: "%s", characterID: "%s")
+		}`, ctx.IdCustomMetric, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
+		End()
+}
+
+func deleteCharacter(t *testing.T, ctx *TestContext) {
+	// Delete the character -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(fmt.Sprintf(`mutation { 
+			deleteCharacter(id: "%s")
+		}`, ctx.IdCharacter)).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(logResponseData).
 		End()
 }

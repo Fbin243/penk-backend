@@ -1,12 +1,25 @@
 package users
 
-import "github.com/graphql-go/graphql"
+import (
+	"fmt"
+
+	"tenkhours/pkg/db/coredb"
+
+	"github.com/graphql-go/graphql"
+)
 
 var userType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "User",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
 			Type: graphql.ID,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if user, ok := p.Source.(coredb.User); ok {
+					return user.ID.Hex(), nil
+				}
+
+				return nil, fmt.Errorf("failed to convert user ObjectID to Hex")
+			},
 		},
 		"name": &graphql.Field{
 			Type: graphql.String,
@@ -19,6 +32,20 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"imageURL": &graphql.Field{
 			Type: graphql.String,
+		},
+		"currentCharacterID": &graphql.Field{
+			Type: graphql.ID,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if user, ok := p.Source.(coredb.User); ok {
+					if user.CurrentCharacterID.IsZero() {
+						return nil, nil
+					}
+
+					return user.CurrentCharacterID.Hex(), nil
+				}
+
+				return nil, fmt.Errorf("failed to convert current character ObjectID to Hex")
+			},
 		},
 		"createdAt": &graphql.Field{
 			Type: graphql.DateTime,

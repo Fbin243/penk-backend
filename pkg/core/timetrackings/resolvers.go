@@ -39,6 +39,14 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		}
 	}
 
+	// Check if the time tracking is already started
+	timeTrackings, _ := r.TimeTrackingsRepo.GetTimeTrackingsByCharacterID(characterOID)
+	for _, timeTracking := range timeTrackings {
+		if timeTracking.EndTime.IsZero() {
+			return nil, fmt.Errorf("time tracking is already started")
+		}
+	}
+
 	timeTracking := coredb.TimeTracking{
 		ID:              primitive.NewObjectID(),
 		CharacterID:     characterOID,
@@ -79,18 +87,22 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 	duration := timeTracking.EndTime.Sub(timeTracking.StartTime).Seconds()
 
 	// JUST FOR TESTING
-	// duration = 10000
+	// duration = 599 // Test for the min duration time
+	// duration = 600 // Test for the min duration time
+	// duration = 601 // Test for the min duration time
+	// duration = 14400 // Test for the max duration time
+	// duration = 14401 // Test for the max duration time
 
 	if int32(duration) < timeTracking.MinDurationTime {
 		duration = 0
 		r.TimeTrackingsRepo.DeleteTimeTracking(timeTrackingOID)
-		return nil, fmt.Errorf("the period time is less than 10 min, so the time tracking will be deleted")
+		fmt.Printf("the period time is less than 10 min, so the time tracking will be deleted")
+		return timeTrackingID, nil
 	}
 
-	var maxDurationErr error = nil
 	if int32(duration) > timeTracking.MaxDurationTime {
 		duration = float64(timeTracking.MaxDurationTime)
-		maxDurationErr = fmt.Errorf("the period time is more than 4 hours, so the period time will set to 4 hours")
+		fmt.Printf("the period time is more than 4 hours, so the time tracking will be limited to 4 hours")
 	}
 
 	character.TotalFocusedTime += int32(duration)
@@ -113,5 +125,5 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return timeTrackingID, maxDurationErr
+	return timeTrackingID, nil
 }

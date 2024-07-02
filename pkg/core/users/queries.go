@@ -12,13 +12,8 @@ func InitUserQuery(r *UsersResolver) *UsersQuery {
 	return &UsersQuery{
 		User: &graphql.Field{
 			Type:        userType,
-			Description: "Get a user by email",
-			Args: graphql.FieldConfigArgument{
-				"email": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
-				},
-			},
-			Resolve: r.GetUserByEmail,
+			Description: "Get a user by token",
+			Resolve:     r.GetUserByToken,
 		},
 	}
 }

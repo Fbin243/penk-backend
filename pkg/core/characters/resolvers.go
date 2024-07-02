@@ -38,7 +38,10 @@ func (r *CharactersResolver) GetCharacterByID(params graphql.ResolveParams) (int
 }
 
 func (r *CharactersResolver) GetCharactersByUserID(params graphql.ResolveParams) (interface{}, error) {
-	user := params.Context.Value(auth.UserKey).(coredb.User)
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
+	}
 
 	characters, err := r.CharactersRepo.GetCharactersByUserID(user.ID)
 	if err != nil {
