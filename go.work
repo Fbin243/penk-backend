@@ -4,7 +4,6 @@ use (
 	.
 	./pkg/auth
 	./pkg/db
-	./pkg/dummy
 	./pkg/utils
 	./services/analytics
 	./services/core
