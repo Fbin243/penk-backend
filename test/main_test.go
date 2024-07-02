@@ -5,43 +5,31 @@ import (
 	"time"
 )
 
-func TestUserFlow(t *testing.T) {
-	// Step 0: Initialize the test context
-	mTest := NewTestManager()
-	mTest.InitContext()
+var ctx *TestContext = &TestContext{}
 
-	// Step 1: Register a new user
+func TestCreateFlow(t *testing.T) {
 	// registerNewUser(t, ctx)
-
-	// Step 2: Create a new character
-	createNewCharacter(t)
-	t.Log("--> Id Character: ", mTest.GetContext().IdCharacter)
-
-	// Step 3: Create custom metrics
-	createCustomMetrics(t, mTest.GetContext())
-	t.Log("--> Id Custom Metric: ", mTest.GetContext().IdCustomMetric)
-
-	// Step 4: Create properties
-	createProperties(t, mTest.GetContext())
-	// t.Log("--> Id Property: ", mTest.GetContext().IdProperty)
-
-	// Step 5: Start a session without a custom metric
-	startTimeTracking(t, mTest.GetContext(), false)
-	t.Log("--> Id Time Tracking: ", mTest.GetContext().IdTimeTracking)
-
-	// Simulate focus duration
-	time.Sleep(5 * time.Second)
-
-	// Step 6: End the session
-	stopTimeTracking(t, mTest.GetContext())
-
-	// Step 7: Start a session with a custom metric
-	startTimeTracking(t, mTest.GetContext(), true)
-	t.Log("--> Id Time Tracking: ", mTest.GetContext().IdTimeTracking)
-
-	// Simulate focus duration
-	time.Sleep(5 * time.Second)
-
-	// Step 8: End the session
-	stopTimeTracking(t, mTest.GetContext())
+	createNewCharacter(t, ctx)
+	createCustomMetrics(t, ctx)
+	createProperties(t, ctx)
 }
+
+func TestTimeTrackingFlow(t *testing.T) {
+	t.Logf("Testing time tracking flow: %v", ctx)
+
+	// Test time tracking without a custom metric
+	startTimeTracking(t, ctx, false)
+	time.Sleep(5 * time.Second)
+	stopTimeTracking(t, ctx)
+
+	// Test time tracking with a custom metric
+	startTimeTracking(t, ctx, true)
+	time.Sleep(5 * time.Second)
+	stopTimeTracking(t, ctx)
+}
+
+// func TestUpdateFlow(t *testing.T) {
+// 	updateCharacter(t, ctx)
+// 	updateCustomMetrics(t, ctx)
+// 	updateProperties(t, ctx)
+// }

@@ -5,9 +5,10 @@ import (
 )
 
 type CharactersQuery struct {
-	Character      *graphql.Field
-	Characters     *graphql.Field
-	UserCharacters *graphql.Field
+	Character        *graphql.Field
+	Characters       *graphql.Field
+	UserCharacters   *graphql.Field
+	CurrentCharacter *graphql.Field
 }
 
 func InitCharacterQuery(r *CharactersResolver) *CharactersQuery {

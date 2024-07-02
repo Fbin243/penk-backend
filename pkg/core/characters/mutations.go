@@ -139,7 +139,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.DeleteCustomMetric,
 		},
 		CreateMetricProperty: &graphql.Field{
-			Type:        graphql.Boolean,
+			Type:        graphql.ID,
 			Description: "Create a metric property",
 			Args: graphql.FieldConfigArgument{
 				"characterID": &graphql.ArgumentConfig{
@@ -164,7 +164,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.CreateMetricProperty,
 		},
 		UpdateMetricProperty: &graphql.Field{
-			Type:        graphql.Boolean,
+			Type:        graphql.ID,
 			Description: "Update a metric property",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
@@ -192,7 +192,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.UpdateMetricProperty,
 		},
 		DeleteMetricProperty: &graphql.Field{
-			Type:        graphql.Boolean,
+			Type:        graphql.ID,
 			Description: "Delete a metric property",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{

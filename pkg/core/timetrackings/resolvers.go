@@ -77,14 +77,20 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 	}
 
 	duration := timeTracking.EndTime.Sub(timeTracking.StartTime).Seconds()
+
+	// JUST FOR TESTING
+	// duration = 10000
+
 	if int32(duration) < timeTracking.MinDurationTime {
 		duration = 0
-		return nil, fmt.Errorf("the period time is less than 10 min")
+		r.TimeTrackingsRepo.DeleteTimeTracking(timeTrackingOID)
+		return nil, fmt.Errorf("the period time is less than 10 min, so the time tracking will be deleted")
 	}
 
+	var maxDurationErr error = nil
 	if int32(duration) > timeTracking.MaxDurationTime {
 		duration = float64(timeTracking.MaxDurationTime)
-		return nil, fmt.Errorf("the period time is more than 4 hours, so the period time will set to 4 hours")
+		maxDurationErr = fmt.Errorf("the period time is more than 4 hours, so the period time will set to 4 hours")
 	}
 
 	character.TotalFocusedTime += int32(duration)
@@ -107,5 +113,5 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return timeTrackingID, nil
+	return timeTrackingID, maxDurationErr
 }

@@ -193,18 +193,18 @@ func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) 
 	metricID := params.Args["metricID"].(string)
 	metricObjectID, err := primitive.ObjectIDFromHex(metricID)
 	if err != nil {
-		return false, fmt.Errorf("invalid metric ID: %v", err)
+		return nil, fmt.Errorf("invalid metric ID: %v", err)
 	}
 
 	characterID := params.Args["characterID"].(string)
 	characterObjectID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
-		return false, fmt.Errorf("invalid character ID: %v", err)
+		return nil, fmt.Errorf("invalid character ID: %v", err)
 	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(characterObjectID)
 	if err != nil {
-		return false, fmt.Errorf("character not found: %v", err)
+		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
 	propName := params.Args["name"].(string)
@@ -216,14 +216,15 @@ func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) 
 	}
 
 	found := false
+	metricPropertyID := primitive.NewObjectID()
 	for i, cm := range character.CustomMetrics {
 		if cm.ID == metricObjectID {
 			if len(character.CustomMetrics[i].Properties) >= int(character.CustomMetrics[i].LimitedPropertyNumber) {
-				return false, fmt.Errorf("metric properties creation limit reached")
+				return nil, fmt.Errorf("metric properties creation limit reached")
 			}
 
 			metricProperty := coredb.MetricProperty{
-				ID:    primitive.NewObjectID(),
+				ID:    metricPropertyID,
 				Name:  propName,
 				Type:  propType,
 				Value: castType(propType, propValue),
@@ -237,39 +238,39 @@ func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) 
 	}
 
 	if !found {
-		return false, fmt.Errorf("custom metric not found")
+		return nil, fmt.Errorf("custom metric not found")
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
-		return false, fmt.Errorf("failed to create metric property: %v", err)
+		return nil, fmt.Errorf("failed to create metric property: %v", err)
 	}
 
-	return true, nil
+	return metricPropertyID.Hex(), nil
 }
 
 func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) (interface{}, error) {
 	metricPropID := params.Args["id"].(string)
 	metricPropObjectID, err := primitive.ObjectIDFromHex(metricPropID)
 	if err != nil {
-		return false, fmt.Errorf("invalid metric property ID: %v", err)
+		return nil, fmt.Errorf("invalid metric property ID: %v", err)
 	}
 
 	metricID := params.Args["metricID"].(string)
 	metricObjectID, err := primitive.ObjectIDFromHex(metricID)
 	if err != nil {
-		return false, fmt.Errorf("invalid metric ID: %v", err)
+		return nil, fmt.Errorf("invalid metric ID: %v", err)
 	}
 
 	characterID := params.Args["characterID"].(string)
 	characterObjectID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
-		return false, fmt.Errorf("invalid character ID: %v", err)
+		return nil, fmt.Errorf("invalid character ID: %v", err)
 	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(characterObjectID)
 	if err != nil {
-		return false, fmt.Errorf("character not found: %v", err)
+		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
 	foundForMetric := false
@@ -306,43 +307,43 @@ func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) 
 	}
 
 	if !foundForMetric {
-		return false, fmt.Errorf("custom metric not found")
+		return nil, fmt.Errorf("custom metric not found")
 	}
 
 	if !foundForProperty {
-		return false, fmt.Errorf("metric property not found")
+		return nil, fmt.Errorf("metric property not found")
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
-		return false, fmt.Errorf("failed to update metric property: %v", err)
+		return nil, fmt.Errorf("failed to update metric property: %v", err)
 	}
 
-	return true, nil
+	return metricPropID, nil
 }
 
 func (r *CharactersResolver) DeleteMetricProperty(params graphql.ResolveParams) (interface{}, error) {
 	metricPropID := params.Args["id"].(string)
 	metricPropObjectID, err := primitive.ObjectIDFromHex(metricPropID)
 	if err != nil {
-		return false, fmt.Errorf("invalid metric property ID: %v", err)
+		return nil, fmt.Errorf("invalid metric property ID: %v", err)
 	}
 
 	metricID := params.Args["metricID"].(string)
 	metricObjectID, err := primitive.ObjectIDFromHex(metricID)
 	if err != nil {
-		return false, fmt.Errorf("invalid metric ID: %v", err)
+		return nil, fmt.Errorf("invalid metric ID: %v", err)
 	}
 
 	characterID := params.Args["characterID"].(string)
 	characterObjectID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
-		return false, fmt.Errorf("invalid character ID: %v", err)
+		return nil, fmt.Errorf("invalid character ID: %v", err)
 	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(characterObjectID)
 	if err != nil {
-		return false, fmt.Errorf("character not found: %v", err)
+		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
 	foundForMetric := false
@@ -363,17 +364,17 @@ func (r *CharactersResolver) DeleteMetricProperty(params graphql.ResolveParams) 
 	}
 
 	if !foundForMetric {
-		return false, fmt.Errorf("custom metric not found")
+		return nil, fmt.Errorf("custom metric not found")
 	}
 
 	if !foundForProperty {
-		return false, fmt.Errorf("metric property not found")
+		return nil, fmt.Errorf("metric property not found")
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
-		return false, fmt.Errorf("failed to remove metric property: %v", err)
+		return nil, fmt.Errorf("failed to remove metric property: %v", err)
 	}
 
-	return true, nil
+	return metricPropID, nil
 }

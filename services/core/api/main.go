@@ -56,6 +56,11 @@ func (app *App) InitRouter() {
 			OperationName:  postData.Operation,
 		})
 
+		// Log errors
+		if len(result.Errors) > 0 {
+			log.Printf("errors: %v", result.Errors)
+		}
+
 		c.JSON(http.StatusOK, result)
 	})
 }
