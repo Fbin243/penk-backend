@@ -306,6 +306,7 @@ func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) 
 					break
 				}
 			}
+
 			foundForMetric = true
 			break
 		}
@@ -362,6 +363,7 @@ func (r *CharactersResolver) DeleteMetricProperty(params graphql.ResolveParams) 
 					break
 				}
 			}
+
 			foundForMetric = true
 			break
 		}
