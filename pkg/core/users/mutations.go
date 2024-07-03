@@ -6,6 +6,7 @@ import (
 
 type UsersMutation struct {
 	RegisterAccount *graphql.Field
+	UpdateAccount   *graphql.Field
 }
 
 func InitUserMutation(r *UsersResolver) *UsersMutation {
@@ -14,6 +15,22 @@ func InitUserMutation(r *UsersResolver) *UsersMutation {
 			Type:        graphql.ID,
 			Description: "Register a new account",
 			Resolve:     r.RegisterAccount,
+		},
+		UpdateAccount: &graphql.Field{
+			Type:        graphql.ID,
+			Description: "Update an account",
+			Args: graphql.FieldConfigArgument{
+				"name": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"imageURL": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+				"currentCharacterID": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: r.UpdateAccount,
 		},
 	}
 }

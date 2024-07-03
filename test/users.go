@@ -38,3 +38,20 @@ func getUserInfo(t *testing.T, ctx *TestContext) {
 
 	logResponse(responseBody)
 }
+
+func updateUser(t *testing.T, ctx *TestContext) {
+	// Update the user's info -> success
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(`mutation { 
+			updateAccount(name: "new name", currentCharacterID: "111111111111111111111111") 
+		}`).
+		Expect(t).
+		Status(http.StatusOK).
+		Assert(jsonpath.NotPresent("$.errors")).
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
+}

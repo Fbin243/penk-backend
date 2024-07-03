@@ -8,9 +8,9 @@ var ctx *TestContext = &TestContext{}
 
 func TestCreate(t *testing.T) {
 	registerNewUser(t, ctx)
-	createNewCharacter(t, ctx)
-	createCustomMetrics(t, ctx)
-	createProperties(t, ctx)
+	// createNewCharacter(t, ctx)
+	// createCustomMetrics(t, ctx)
+	// createProperties(t, ctx)
 }
 
 // func TestTimeTracking(t *testing.T) {
@@ -28,11 +28,12 @@ func TestGetInfo(t *testing.T) {
 	getUserCharacters(t, ctx)
 }
 
-// func TestUpdate(t *testing.T) {
-// 	updateCharacter(t, ctx)
-// 	updateCustomMetric(t, ctx)
-// 	updateProperty(t, ctx)
-// }
+func TestUpdate(t *testing.T) {
+	updateUser(t, ctx)
+	// updateCharacter(t, ctx)
+	// updateCustomMetric(t, ctx)
+	// updateProperty(t, ctx)
+}
 
 // func TestDelete(t *testing.T) {
 // 	deleteProperty(t, ctx)

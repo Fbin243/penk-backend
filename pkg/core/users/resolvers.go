@@ -1,13 +1,11 @@
 package users
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 
 	"github.com/graphql-go/graphql"
@@ -40,10 +38,7 @@ func (r *UsersResolver) RegisterAccount(params graphql.ResolveParams) (interface
 		UpdatedAt:   time.Now(),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err = db.GetUsersCollection().InsertOne(ctx, user)
+	_, err = r.UsersRepo.CreateNewUser(user)
 	if err != nil {
 		log.Printf("failed to insert user: %v\n", err)
 		return nil, err
@@ -59,4 +54,38 @@ func (r *UsersResolver) GetUserByToken(params graphql.ResolveParams) (interface{
 	}
 
 	return user, nil
+}
+
+func (r *UsersResolver) UpdateAccount(params graphql.ResolveParams) (interface{}, error) {
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	if name, ok := params.Args["name"].(string); ok {
+		user.Name = name
+	}
+
+	if imageURL, ok := params.Args["imageURL"].(string); ok {
+		user.ImageURL = imageURL
+	}
+
+	if currentCharacterID, ok := params.Args["currentCharacterID"].(string); ok {
+		currentCharacterOID, err := primitive.ObjectIDFromHex(currentCharacterID)
+		if err != nil {
+			return nil, err
+		}
+
+		user.CurrentCharacterID = currentCharacterOID
+	}
+
+	user.UpdatedAt = time.Now()
+
+	_, err := r.UsersRepo.UpdateUserByID(user.ID, user)
+	if err != nil {
+		log.Printf("failed to update user: %v\n", err)
+		return nil, err
+	}
+
+	return user.ID.Hex(), nil
 }

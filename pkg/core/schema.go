@@ -39,20 +39,25 @@ func InitSchema() graphql.Schema {
 	rootMutation := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootMutation",
 		Fields: graphql.Fields{
-			"registerAccount":      usersMutation.RegisterAccount,
-			"createCharacter":      charactersMutation.CreateCharacter,
-			"updateCharacter":      charactersMutation.UpdateCharacter,
-			"deleteCharacter":      charactersMutation.DeleteCharacter,
-			"resetCharacter":       charactersMutation.ResetCharacter,
-			"createCustomMetric":   charactersMutation.CreateCustomMetric,
-			"updateCustomMetric":   charactersMutation.UpdateCustomMetric,
-			"deleteCustomMetric":   charactersMutation.DeleteCustomMetric,
+			"registerAccount": usersMutation.RegisterAccount,
+			"updateAccount":   usersMutation.UpdateAccount,
+
+			"createCharacter": charactersMutation.CreateCharacter,
+			"updateCharacter": charactersMutation.UpdateCharacter,
+			"deleteCharacter": charactersMutation.DeleteCharacter,
+			"resetCharacter":  charactersMutation.ResetCharacter,
+
+			"createCustomMetric": charactersMutation.CreateCustomMetric,
+			"updateCustomMetric": charactersMutation.UpdateCustomMetric,
+			"deleteCustomMetric": charactersMutation.DeleteCustomMetric,
+			"resetCustomMetric":  charactersMutation.ResetCustomMetric,
+
 			"createMetricProperty": charactersMutation.CreateMetricProperty,
 			"updateMetricProperty": charactersMutation.UpdateMetricProperty,
 			"deleteMetricProperty": charactersMutation.DeleteMetricProperty,
-			"resetCustomMetric":    charactersMutation.ResetCustomMetric,
-			"createTimeTracking":   timeTrackingsMutation.CreateTimeTracking,
-			"updateTimeTracking":   timeTrackingsMutation.UpdateTimeTracking,
+
+			"createTimeTracking": timeTrackingsMutation.CreateTimeTracking,
+			"updateTimeTracking": timeTrackingsMutation.UpdateTimeTracking,
 		},
 	})
 

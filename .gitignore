@@ -3,4 +3,4 @@
 firebase-admin.*.json
 
 tmp/
-context.json
+.vscode
