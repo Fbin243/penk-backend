@@ -62,7 +62,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		return nil, err
 	}
 
-	return createdTimeTracking, nil
+	return *createdTimeTracking, nil
 }
 
 func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
@@ -95,9 +95,13 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 
 	if int32(duration) < timeTracking.MinDurationTime {
 		duration = 0
-		r.TimeTrackingsRepo.DeleteTimeTracking(timeTrackingOID)
+		_, err := r.TimeTrackingsRepo.DeleteTimeTracking(timeTrackingOID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete time tracking: %v", err)
+		}
+
 		log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
-		return timeTrackingID, nil
+		return *timeTracking, nil
 	}
 
 	if int32(duration) > timeTracking.MaxDurationTime {
@@ -125,5 +129,5 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return timeTrackingID, nil
+	return *timeTracking, nil
 }

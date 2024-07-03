@@ -13,19 +13,19 @@ func TestCreate(t *testing.T) {
 	createProperties(t, ctx)
 }
 
-// func TestTimeTracking(t *testing.T) {
-// 	// Test time tracking without a custom metric
-// 	startTimeTracking(t, ctx, false)
-// 	stopTimeTracking(t, ctx)
+func TestTimeTracking(t *testing.T) {
+	// Test time tracking without a custom metric
+	startTimeTracking(t, ctx, false)
+	stopTimeTracking(t, ctx)
 
-// 	// Test time tracking with a custom metric
-// 	startTimeTracking(t, ctx, true)
-// 	stopTimeTracking(t, ctx)
-// }
+	// Test time tracking with a custom metric
+	startTimeTracking(t, ctx, true)
+	stopTimeTracking(t, ctx)
+}
 
 func TestGetInfo(t *testing.T) {
-	// getUserInfo(t, ctx)
-	// getUserCharacters(t, ctx)
+	getUserInfo(t, ctx)
+	getUserCharacters(t, ctx)
 }
 
 func TestUpdate(t *testing.T) {
