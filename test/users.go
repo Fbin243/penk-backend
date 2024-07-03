@@ -46,7 +46,7 @@ func updateUser(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(`mutation { 
-			updateAccount(name: "new name", currentCharacterID: "111111111111111111111111") 
+			updateAccount(name: "new name new namenew namenew namenew", currentCharacterID: "111111111111111111111111") 
 		}`).
 		Expect(t).
 		Status(http.StatusOK).

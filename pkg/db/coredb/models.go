@@ -8,7 +8,7 @@ import (
 
 type User struct {
 	ID                 primitive.ObjectID `json:"id" bson:"_id"`
-	Name               string             `json:"name" bson:"name"`
+	Name               string             `json:"name" bson:"name" validate:"required,min=1,max=50"`
 	Email              string             `json:"email" bson:"email"`
 	FirebaseUID        string             `json:"firebaseUID" bson:"firebase_uid"`
 	ImageURL           string             `json:"imageURL" bson:"image_url"`
@@ -20,21 +20,21 @@ type User struct {
 // Character
 type MetricProperty struct {
 	ID    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name  string             `json:"name" bson:"name"`
+	Name  string             `json:"name" bson:"name" validate:"required,min=1,max=50"`
 	Type  string             `json:"type" bson:"type"`
 	Value any                `json:"value" bson:"value"`
-	Unit  string             `json:"unit" bson:"unit"`
+	Unit  string             `json:"unit" bson:"unit" validate:"min=0,max=10"`
 }
 
 type MetricStyle struct {
-	Color string `json:"color" bson:"color"`
+	Color string `json:"color" bson:"color" validate:"omitempty,hexcolor"`
 	Icon  string `json:"icon" bson:"icon"`
 }
 
 type CustomMetric struct {
 	ID                    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name                  string             `json:"name" bson:"name"`
-	Description           string             `json:"description" bson:"description"`
+	Name                  string             `json:"name" bson:"name" validate:"required,min=1,max=50"`
+	Description           string             `json:"description" bson:"description" validate:"omitempty,max=255"`
 	Time                  int32              `json:"time" bson:"time"`
 	Style                 MetricStyle        `json:"style" bson:"style"`
 	Properties            []MetricProperty   `json:"properties" bson:"properties"`
@@ -44,9 +44,9 @@ type CustomMetric struct {
 type Character struct {
 	ID                  primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	UserID              primitive.ObjectID `json:"userID,omitempty" bson:"user_id,omitempty"`
-	Name                string             `json:"name" bson:"name"`
+	Name                string             `json:"name" bson:"name" validate:"required,min=1,max=50"`
 	Gender              bool               `json:"gender" bson:"gender"`
-	Tags                []string           `json:"tags" bson:"tags"`
+	Tags                []string           `json:"tags" bson:"tags" validate:"omitempty,tags_valid"`
 	TotalFocusedTime    int32              `json:"totalFocusedTime" bson:"total_focused_time"`
 	CustomMetrics       []CustomMetric     `json:"customMetrics" bson:"custom_metrics"`
 	LimitedMetricNumber int32              `json:"limitedMetricNumber" bson:"limited_metric_number"`

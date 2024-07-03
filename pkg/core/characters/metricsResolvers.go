@@ -54,6 +54,11 @@ func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (i
 		LimitedPropertyNumber: 2,
 	}
 
+	err = ValidateCustomMetric(customMetric)
+	if err != nil {
+		return nil, err
+	}
+
 	_, err = r.CharactersRepo.AddCustomMetric(character.ID, customMetric)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create custom metric: %v", err)
@@ -94,6 +99,11 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 					Color: style["color"].(string),
 					Icon:  style["icon"].(string),
 				}
+			}
+
+			err = ValidateCustomMetric(cm)
+			if err != nil {
+				return nil, err
 			}
 
 			character.CustomMetrics[i] = cm
@@ -231,6 +241,11 @@ func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) 
 				Unit:  propUnit,
 			}
 
+			err = ValidateMetricProperty(metricProperty)
+			if err != nil {
+				return nil, err
+			}
+
 			character.CustomMetrics[i].Properties = append(character.CustomMetrics[i].Properties, metricProperty)
 			found = true
 			break
@@ -295,6 +310,11 @@ func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) 
 						prop.Unit = propUnit
 					}
 
+					err := ValidateMetricProperty(prop)
+					if err != nil {
+						return nil, err
+					}
+
 					character.CustomMetrics[i].Properties[j] = prop
 					foundForProperty = true
 					break
@@ -312,6 +332,11 @@ func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) 
 
 	if !foundForProperty {
 		return nil, fmt.Errorf("metric property not found")
+	}
+
+	err = ValidateCharacter(character)
+	if err != nil {
+		return nil, err
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)

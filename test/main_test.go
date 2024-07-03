@@ -7,10 +7,10 @@ import (
 var ctx *TestContext = &TestContext{}
 
 func TestCreate(t *testing.T) {
-	registerNewUser(t, ctx)
-	// createNewCharacter(t, ctx)
-	// createCustomMetrics(t, ctx)
-	// createProperties(t, ctx)
+	// registerNewUser(t, ctx)
+	createNewCharacter(t, ctx)
+	createCustomMetrics(t, ctx)
+	createProperties(t, ctx)
 }
 
 // func TestTimeTracking(t *testing.T) {
@@ -23,16 +23,16 @@ func TestCreate(t *testing.T) {
 // 	stopTimeTracking(t, ctx)
 // }
 
-func TestGetInfo(t *testing.T) {
-	getUserInfo(t, ctx)
-	getUserCharacters(t, ctx)
-}
+// func TestGetInfo(t *testing.T) {
+// 	getUserInfo(t, ctx)
+// 	getUserCharacters(t, ctx)
+// }
 
 func TestUpdate(t *testing.T) {
-	updateUser(t, ctx)
-	// updateCharacter(t, ctx)
-	// updateCustomMetric(t, ctx)
-	// updateProperty(t, ctx)
+	// updateUser(t, ctx)
+	updateCharacter(t, ctx)
+	updateCustomMetric(t, ctx)
+	updateProperty(t, ctx)
 }
 
 // func TestDelete(t *testing.T) {

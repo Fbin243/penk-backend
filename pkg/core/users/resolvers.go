@@ -38,6 +38,11 @@ func (r *UsersResolver) RegisterAccount(params graphql.ResolveParams) (interface
 		UpdatedAt:   time.Now(),
 	}
 
+	err = ValidateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
 	_, err = r.UsersRepo.CreateNewUser(user)
 	if err != nil {
 		log.Printf("failed to insert user: %v\n", err)
@@ -81,7 +86,12 @@ func (r *UsersResolver) UpdateAccount(params graphql.ResolveParams) (interface{}
 
 	user.UpdatedAt = time.Now()
 
-	_, err := r.UsersRepo.UpdateUserByID(user.ID, user)
+	err := ValidateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = r.UsersRepo.UpdateUserByID(user.ID, user)
 	if err != nil {
 		log.Printf("failed to update user: %v\n", err)
 		return nil, err

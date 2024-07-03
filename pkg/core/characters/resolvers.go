@@ -87,6 +87,11 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 		LimitedMetricNumber: 2,
 	}
 
+	err = ValidateCharacter(character)
+	if err != nil {
+		return nil, err
+	}
+
 	_, err = r.CharactersRepo.CreateCharacter(character)
 	if err != nil {
 		log.Printf("failed to create character: %v\n", err)
@@ -124,6 +129,11 @@ func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (inte
 
 	if tags, ok := params.Args["tags"].([]interface{}); ok {
 		character.Tags = convertListToSlice(tags)
+	}
+
+	err = ValidateCharacter(character)
+	if err != nil {
+		return nil, err
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)

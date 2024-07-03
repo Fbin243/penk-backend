@@ -53,7 +53,7 @@ func createCustomMetrics(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			createCustomMetric(name: "Test metric 2", characterID: "%s", description: "Test metric description", style: {color: "red", icon: "icon.png"})
+			createCustomMetric(name: "Test metric 2", characterID: "%s", description: "Test metric description", style: {color: "#000000", icon: "icon.png"})
 		}`, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
