@@ -3,6 +3,7 @@ package characters
 import (
 	"fmt"
 	"log"
+	"strconv"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
@@ -65,6 +66,10 @@ func (r *CharactersResolver) GetAllCharacters(params graphql.ResolveParams) (int
 func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (interface{}, error) {
 	user := params.Context.Value(auth.UserKey).(coredb.User)
 	name := params.Args["name"].(string)
+	gender, err := strconv.ParseBool(params.Args["gender"].(string))
+	if err != nil {
+		return nil, err
+	}
 
 	var tags []string
 	if tagsList, ok := params.Args["tags"].([]interface{}); ok {
@@ -75,13 +80,14 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 		ID:                  primitive.NewObjectID(),
 		UserID:              user.ID,
 		Name:                name,
+		Gender:              gender,
 		Tags:                tags,
 		TotalFocusedTime:    0,
 		CustomMetrics:       []coredb.CustomMetric{},
 		LimitedMetricNumber: 2,
 	}
 
-	_, err := r.CharactersRepo.CreateCharacter(character)
+	_, err = r.CharactersRepo.CreateCharacter(character)
 	if err != nil {
 		log.Printf("failed to create character: %v\n", err)
 		return nil, err
@@ -105,6 +111,15 @@ func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (inte
 
 	if name, ok := params.Args["name"].(string); ok {
 		character.Name = name
+	}
+
+	if gender, ok := params.Args["gender"].(string); ok {
+		genderBool, err := strconv.ParseBool(gender)
+		if err != nil {
+			return nil, err
+		}
+
+		character.Gender = genderBool
 	}
 
 	if tags, ok := params.Args["tags"].([]interface{}); ok {

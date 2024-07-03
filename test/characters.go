@@ -18,7 +18,7 @@ func createNewCharacter(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(`mutation {
-			createCharacter(name: "Test Character")
+			createCharacter(name: "Test Character", gender: "true")
 		}`).
 		Expect(t).
 		Status(http.StatusOK).
@@ -136,7 +136,7 @@ func getUserCharacters(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(`query { 
-			userCharacters { id limitedMetricNumber name tags totalFocusTime userID customMetrics { description id limitedPropertyNumber name time properties { id name type unit value } style { color icon } } }
+			userCharacters { id limitedMetricNumber name gender tags totalFocusTime userID customMetrics { description id limitedPropertyNumber name time properties { id name type unit value } style { color icon } } }
 		}`).
 		Expect(t).
 		Status(http.StatusOK).

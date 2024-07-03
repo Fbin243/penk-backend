@@ -108,6 +108,9 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 		"name": &graphql.Field{
 			Type: graphql.String,
 		},
+		"gender": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 		"tags": &graphql.Field{
 			Type: graphql.NewList(graphql.String),
 		},
