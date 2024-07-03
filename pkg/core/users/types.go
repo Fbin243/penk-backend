@@ -14,7 +14,7 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if user, ok := p.Source.(coredb.User); ok {
+				if user, ok := p.Source.(*coredb.User); ok {
 					return user.ID.Hex(), nil
 				}
 
@@ -36,7 +36,7 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 		"currentCharacterID": &graphql.Field{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if user, ok := p.Source.(coredb.User); ok {
+				if user, ok := p.Source.(*coredb.User); ok {
 					if user.CurrentCharacterID.IsZero() {
 						return nil, nil
 					}

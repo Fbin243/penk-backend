@@ -56,13 +56,13 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		MaxDurationTime: 14400,
 	}
 
-	_, err = r.TimeTrackingsRepo.CreateTimeTracking(timeTracking)
+	createdTimeTracking, err := r.TimeTrackingsRepo.CreateTimeTracking(&timeTracking)
 	if err != nil {
 		log.Printf("failed to insert time tracking: %v\n", err)
 		return nil, err
 	}
 
-	return timeTracking.ID.Hex(), nil
+	return createdTimeTracking, nil
 }
 
 func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {

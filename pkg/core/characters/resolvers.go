@@ -39,7 +39,7 @@ func (r *CharactersResolver) GetCharacterByID(params graphql.ResolveParams) (int
 }
 
 func (r *CharactersResolver) GetCharactersByUserID(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	user, ok := params.Context.Value(auth.UserKey).(*coredb.User)
 	if !ok {
 		return nil, fmt.Errorf("user not found")
 	}
@@ -64,14 +64,14 @@ func (r *CharactersResolver) GetAllCharacters(params graphql.ResolveParams) (int
 }
 
 func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (interface{}, error) {
-	user := params.Context.Value(auth.UserKey).(coredb.User)
+	user := params.Context.Value(auth.UserKey).(*coredb.User)
 	name := params.Args["name"].(string)
 	gender, err := strconv.ParseBool(params.Args["gender"].(string))
 	if err != nil {
 		return nil, err
 	}
 
-	var tags []string
+	tags := []string{}
 	if tagsList, ok := params.Args["tags"].([]interface{}); ok {
 		tags = convertListToSlice(tagsList)
 	}
@@ -92,13 +92,13 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 		return nil, err
 	}
 
-	_, err = r.CharactersRepo.CreateCharacter(character)
+	createdCharacter, err := r.CharactersRepo.CreateCharacter(&character)
 	if err != nil {
 		log.Printf("failed to create character: %v\n", err)
 		return nil, err
 	}
 
-	return character.ID.Hex(), nil
+	return createdCharacter, nil
 }
 
 func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (interface{}, error) {
@@ -131,17 +131,17 @@ func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (inte
 		character.Tags = convertListToSlice(tags)
 	}
 
-	err = ValidateCharacter(character)
+	err = ValidateCharacter(*character)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = r.CharactersRepo.UpdateCharacter(character)
+	updatedCharacter, err := r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return character.ID.Hex(), nil
+	return updatedCharacter, nil
 }
 
 func (r *CharactersResolver) DeleteCharacter(params graphql.ResolveParams) (interface{}, error) {
@@ -152,12 +152,12 @@ func (r *CharactersResolver) DeleteCharacter(params graphql.ResolveParams) (inte
 		return nil, err
 	}
 
-	_, err = r.CharactersRepo.DeleteCharacter(objectID)
+	deletedCharacter, err := r.CharactersRepo.DeleteCharacter(objectID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete character: %v", err)
 	}
 
-	return id, nil
+	return deletedCharacter, nil
 }
 
 func (r *CharactersResolver) ResetCharacter(params graphql.ResolveParams) (interface{}, error) {
@@ -177,10 +177,10 @@ func (r *CharactersResolver) ResetCharacter(params graphql.ResolveParams) (inter
 	character.TotalFocusedTime = 0
 	character.CustomMetrics = []coredb.CustomMetric{}
 
-	_, err = r.CharactersRepo.UpdateCharacter(character)
+	updatedCharacter, err := r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete character: %v", err)
+		return nil, fmt.Errorf("failed to reset character: %v", err)
 	}
 
-	return id, nil
+	return updatedCharacter, nil
 }

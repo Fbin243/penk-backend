@@ -20,14 +20,14 @@ func NewCharactersRepo() *CharactersRepo {
 	return &CharactersRepo{db.GetCharactersCollection()}
 }
 
-func (r *CharactersRepo) GetCharacterByID(id primitive.ObjectID) (Character, error) {
+func (r *CharactersRepo) GetCharacterByID(id primitive.ObjectID) (*Character, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	character := Character{}
 	err := r.FindOne(ctx, bson.M{"_id": id}).Decode(&character)
 
-	return character, err
+	return &character, err
 }
 
 func (r *CharactersRepo) GetCharactersByUserID(userID primitive.ObjectID) ([]Character, error) {
@@ -72,51 +72,53 @@ func (r *CharactersRepo) GetAllCharacters() ([]Character, error) {
 	return characters, nil
 }
 
-func (r *CharactersRepo) CreateCharacter(character Character) (*mongo.InsertOneResult, error) {
+func (r *CharactersRepo) CreateCharacter(character *Character) (*Character, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	result, err := r.InsertOne(ctx, character)
+	_, err := r.InsertOne(ctx, character)
 
-	return result, err
+	return character, err
 }
 
-func (r *CharactersRepo) UpdateCharacter(character Character) (*mongo.UpdateResult, error) {
+func (r *CharactersRepo) UpdateCharacter(character *Character) (*Character, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	result, err := r.UpdateOne(ctx, bson.M{"_id": character.ID}, bson.M{"$set": character})
+	err := r.FindOneAndUpdate(ctx, bson.M{"_id": character.ID}, bson.M{"$set": character}).Decode(character)
 
-	return result, err
+	return character, err
 }
 
-func (r *CharactersRepo) DeleteCharacter(id primitive.ObjectID) (*mongo.DeleteResult, error) {
+func (r *CharactersRepo) DeleteCharacter(id primitive.ObjectID) (*Character, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	result, err := r.DeleteOne(ctx, bson.M{"_id": id})
+	character := &Character{}
+	err := r.FindOneAndDelete(ctx, bson.M{"_id": id}).Decode(character)
 
-	return result, err
+	return character, err
 }
 
-func (r *CharactersRepo) AddCustomMetric(characterID primitive.ObjectID, metric CustomMetric) (*mongo.UpdateResult, error) {
+func (r *CharactersRepo) CreateCustomMetric(characterID primitive.ObjectID, metric *CustomMetric) (*CustomMetric, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	result, err := r.UpdateOne(ctx, bson.M{"_id": characterID}, bson.M{"$push": bson.M{"custom_metrics": metric}})
+	err := r.FindOneAndUpdate(ctx, bson.M{"_id": characterID}, bson.M{"$push": bson.M{"custom_metrics": metric}}).Decode(metric)
 
-	return result, err
+	return metric, err
 }
 
-func (r *CharactersRepo) DeleteCustomMetric(characterID primitive.ObjectID, metricID primitive.ObjectID) (*mongo.UpdateResult, error) {
+func (r *CharactersRepo) DeleteCustomMetric(characterID primitive.ObjectID, metricID primitive.ObjectID) (*CustomMetric, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	result, err := r.UpdateOne(ctx, bson.M{"_id": characterID}, bson.M{
+	metric := &CustomMetric{}
+	err := r.FindOneAndUpdate(ctx, bson.M{"_id": characterID}, bson.M{
 		"$pull": bson.M{
 			"custom_metrics": bson.M{"_id": metricID},
 		},
-	})
+	}).Decode(metric)
 
-	return result, err
+	return metric, err
 }

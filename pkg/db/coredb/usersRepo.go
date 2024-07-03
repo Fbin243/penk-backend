@@ -37,26 +37,30 @@ func NewUsersRepo() *UsersRepo {
 	return &UsersRepo{usersCollection}
 }
 
-func (r *UsersRepo) GetUserByFirebaseUID(firebaseUID string) (User, error) {
+func (r *UsersRepo) GetUserByFirebaseUID(firebaseUID string) (*User, error) {
 	var user User
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	err := r.FindOne(ctx, bson.M{"firebase_uid": firebaseUID}).Decode(&user)
 
+	return &user, err
+}
+
+func (r *UsersRepo) CreateNewUser(user *User) (*User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := r.InsertOne(ctx, user)
+
 	return user, err
 }
 
-func (r *UsersRepo) CreateNewUser(user User) (*mongo.InsertOneResult, error) {
+func (r *UsersRepo) UpdateUserByID(id primitive.ObjectID, user *User) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	return r.InsertOne(ctx, user)
-}
+	err := r.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.M{"$set": user}).Decode(user)
 
-func (r *UsersRepo) UpdateUserByID(id primitive.ObjectID, user User) (*mongo.UpdateResult, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	return r.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": user})
+	return user, err
 }

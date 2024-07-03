@@ -23,7 +23,7 @@ type CharactersMutation struct {
 func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 	return &CharactersMutation{
 		CreateCharacter: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        characterType,
 			Description: "Create a character",
 			Args: graphql.FieldConfigArgument{
 				"name": &graphql.ArgumentConfig{
@@ -39,7 +39,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.CreateCharacter,
 		},
 		UpdateCharacter: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        characterType,
 			Description: "Update a character",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
@@ -58,7 +58,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.UpdateCharacter,
 		},
 		DeleteCharacter: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        characterType,
 			Description: "Delete a character",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
@@ -68,7 +68,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.DeleteCharacter,
 		},
 		ResetCharacter: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        characterType,
 			Description: "Reset a character",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
@@ -78,7 +78,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.ResetCharacter,
 		},
 		CreateCustomMetric: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        customMetricType,
 			Description: "Create a Custom Metric",
 			Args: graphql.FieldConfigArgument{
 				"characterID": &graphql.ArgumentConfig{
@@ -91,13 +91,13 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 					Type: graphql.String,
 				},
 				"style": &graphql.ArgumentConfig{
-					Type: metricStyleTypeInput,
+					Type: metricStyleInput,
 				},
 			},
 			Resolve: r.CreateCustomMetric,
 		},
 		UpdateCustomMetric: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        customMetricType,
 			Description: "Update a Custom Metric",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
@@ -113,13 +113,13 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 					Type: graphql.String,
 				},
 				"style": &graphql.ArgumentConfig{
-					Type: metricStyleTypeInput,
+					Type: metricStyleInput,
 				},
 			},
 			Resolve: r.UpdateCustomMetric,
 		},
 		ResetCustomMetric: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        customMetricType,
 			Description: "Reset a custom metric",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
@@ -132,7 +132,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.ResetCustomMetric,
 		},
 		DeleteCustomMetric: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        customMetricType,
 			Description: "Delete a custom metric",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
@@ -145,7 +145,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.DeleteCustomMetric,
 		},
 		CreateMetricProperty: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        metricPropertyType,
 			Description: "Create a metric property",
 			Args: graphql.FieldConfigArgument{
 				"characterID": &graphql.ArgumentConfig{
@@ -170,7 +170,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.CreateMetricProperty,
 		},
 		UpdateMetricProperty: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        metricPropertyType,
 			Description: "Update a metric property",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
@@ -198,7 +198,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.UpdateMetricProperty,
 		},
 		DeleteMetricProperty: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        metricPropertyType,
 			Description: "Delete a metric property",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{

@@ -12,12 +12,12 @@ type UsersMutation struct {
 func InitUserMutation(r *UsersResolver) *UsersMutation {
 	return &UsersMutation{
 		RegisterAccount: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        userType,
 			Description: "Register a new account",
 			Resolve:     r.RegisterAccount,
 		},
 		UpdateAccount: &graphql.Field{
-			Type:        graphql.ID,
+			Type:        userType,
 			Description: "Update an account",
 			Args: graphql.FieldConfigArgument{
 				"name": &graphql.ArgumentConfig{

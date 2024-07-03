@@ -59,12 +59,12 @@ func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (i
 		return nil, err
 	}
 
-	_, err = r.CharactersRepo.AddCustomMetric(character.ID, customMetric)
+	createdCustomMetric, err := r.CharactersRepo.CreateCustomMetric(character.ID, &customMetric)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create custom metric: %v", err)
 	}
 
-	return customMetric.ID.Hex(), nil
+	return createdCustomMetric, nil
 }
 
 func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
@@ -86,14 +86,17 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 	}
 
 	found := false
+	updatedMetric := coredb.CustomMetric{}
 	for i, cm := range character.CustomMetrics {
 		if cm.ID == metricObjectID {
 			if name, ok := params.Args["name"].(string); ok {
 				cm.Name = name
 			}
+
 			if description, ok := params.Args["description"].(string); ok {
 				cm.Description = description
 			}
+
 			if style, ok := params.Args["style"].(map[string]interface{}); ok {
 				cm.Style = coredb.MetricStyle{
 					Color: style["color"].(string),
@@ -107,6 +110,7 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 			}
 
 			character.CustomMetrics[i] = cm
+			updatedMetric = cm
 			found = true
 			break
 		}
@@ -121,7 +125,7 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 		return nil, fmt.Errorf("failed to update custom metric: %v", err)
 	}
 
-	return metricID, nil
+	return &updatedMetric, nil
 }
 
 func (r *CharactersResolver) DeleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {
@@ -143,16 +147,12 @@ func (r *CharactersResolver) DeleteCustomMetric(params graphql.ResolveParams) (i
 		return nil, fmt.Errorf("invalid metric ID: %v", err)
 	}
 
-	result, err := r.CharactersRepo.DeleteCustomMetric(objectID, metricObjectID)
+	deletedCustomMetric, err := r.CharactersRepo.DeleteCustomMetric(objectID, metricObjectID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete metric: %v", err)
 	}
 
-	if result.ModifiedCount == 0 {
-		return nil, fmt.Errorf("metric not found or already deleted")
-	}
-
-	return metricID, nil
+	return deletedCustomMetric, nil
 }
 
 func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
@@ -174,6 +174,7 @@ func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (in
 	}
 
 	found := false
+	resetMetric := coredb.CustomMetric{}
 	for i, metric := range character.CustomMetrics {
 		if metric.ID == metricObjectID {
 			metric.Description = ""
@@ -182,6 +183,7 @@ func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (in
 			metric.Properties = []coredb.MetricProperty{}
 
 			character.CustomMetrics[i] = metric
+			resetMetric = metric
 			found = true
 			break
 		}
@@ -196,7 +198,7 @@ func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (in
 		return nil, fmt.Errorf("failed to reset custom metric: %v", err)
 	}
 
-	return metricID, nil
+	return &resetMetric, nil
 }
 
 func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) (interface{}, error) {
@@ -226,27 +228,27 @@ func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) 
 	}
 
 	found := false
-	metricPropertyID := primitive.NewObjectID()
+	var createdProperty coredb.MetricProperty
 	for i, cm := range character.CustomMetrics {
 		if cm.ID == metricObjectID {
 			if len(character.CustomMetrics[i].Properties) >= int(character.CustomMetrics[i].LimitedPropertyNumber) {
 				return nil, fmt.Errorf("metric properties creation limit reached")
 			}
 
-			metricProperty := coredb.MetricProperty{
-				ID:    metricPropertyID,
+			createdProperty = coredb.MetricProperty{
+				ID:    primitive.NewObjectID(),
 				Name:  propName,
 				Type:  propType,
 				Value: castType(propType, propValue),
 				Unit:  propUnit,
 			}
 
-			err = ValidateMetricProperty(metricProperty)
+			err = ValidateMetricProperty(createdProperty)
 			if err != nil {
 				return nil, err
 			}
 
-			character.CustomMetrics[i].Properties = append(character.CustomMetrics[i].Properties, metricProperty)
+			character.CustomMetrics[i].Properties = append(character.CustomMetrics[i].Properties, createdProperty)
 			found = true
 			break
 		}
@@ -261,7 +263,7 @@ func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("failed to create metric property: %v", err)
 	}
 
-	return metricPropertyID.Hex(), nil
+	return &createdProperty, nil
 }
 
 func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) (interface{}, error) {
@@ -290,6 +292,7 @@ func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) 
 
 	foundForMetric := false
 	foundForProperty := false
+	updatedProperty := coredb.MetricProperty{}
 	for i, cm := range character.CustomMetrics {
 		if cm.ID == metricObjectID {
 			for j, prop := range character.CustomMetrics[i].Properties {
@@ -316,6 +319,7 @@ func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) 
 					}
 
 					character.CustomMetrics[i].Properties[j] = prop
+					updatedProperty = prop
 					foundForProperty = true
 					break
 				}
@@ -334,17 +338,12 @@ func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("metric property not found")
 	}
 
-	err = ValidateCharacter(character)
-	if err != nil {
-		return nil, err
-	}
-
 	_, err = r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update metric property: %v", err)
 	}
 
-	return metricPropID, nil
+	return &updatedProperty, nil
 }
 
 func (r *CharactersResolver) DeleteMetricProperty(params graphql.ResolveParams) (interface{}, error) {
@@ -373,10 +372,12 @@ func (r *CharactersResolver) DeleteMetricProperty(params graphql.ResolveParams) 
 
 	foundForMetric := false
 	foundForProperty := false
+	deletedMetricProperty := coredb.MetricProperty{}
 	for i, cm := range character.CustomMetrics {
 		if cm.ID == metricObjectID {
 			for j, prop := range character.CustomMetrics[i].Properties {
 				if prop.ID == metricPropObjectID {
+					deletedMetricProperty = prop
 					character.CustomMetrics[i].Properties = append(character.CustomMetrics[i].Properties[:j], character.CustomMetrics[i].Properties[j+1:]...)
 					foundForProperty = true
 					break
@@ -401,5 +402,5 @@ func (r *CharactersResolver) DeleteMetricProperty(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("failed to remove metric property: %v", err)
 	}
 
-	return metricPropID, nil
+	return &deletedMetricProperty, nil
 }

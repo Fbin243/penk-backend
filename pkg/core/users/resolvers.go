@@ -28,7 +28,7 @@ func (r *UsersResolver) RegisterAccount(params graphql.ResolveParams) (interface
 		return nil, err
 	}
 
-	user := coredb.User{
+	user := &coredb.User{
 		ID:          primitive.NewObjectID(),
 		Name:        authProfile.Name,
 		Email:       authProfile.Email,
@@ -38,7 +38,7 @@ func (r *UsersResolver) RegisterAccount(params graphql.ResolveParams) (interface
 		UpdatedAt:   time.Now(),
 	}
 
-	err = ValidateUser(user)
+	err = ValidateUser(*user)
 	if err != nil {
 		return nil, err
 	}
@@ -49,11 +49,11 @@ func (r *UsersResolver) RegisterAccount(params graphql.ResolveParams) (interface
 		return nil, err
 	}
 
-	return user.ID.Hex(), nil
+	return user, nil
 }
 
 func (r *UsersResolver) GetUserByToken(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	user, ok := params.Context.Value(auth.UserKey).(*coredb.User)
 	if !ok {
 		return nil, fmt.Errorf("user not found")
 	}
@@ -62,7 +62,7 @@ func (r *UsersResolver) GetUserByToken(params graphql.ResolveParams) (interface{
 }
 
 func (r *UsersResolver) UpdateAccount(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	user, ok := params.Context.Value(auth.UserKey).(*coredb.User)
 	if !ok {
 		return nil, fmt.Errorf("user not found")
 	}
@@ -86,16 +86,16 @@ func (r *UsersResolver) UpdateAccount(params graphql.ResolveParams) (interface{}
 
 	user.UpdatedAt = time.Now()
 
-	err := ValidateUser(user)
+	err := ValidateUser(*user)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = r.UsersRepo.UpdateUserByID(user.ID, user)
+	updatedUser, err := r.UsersRepo.UpdateUserByID(user.ID, user)
 	if err != nil {
 		log.Printf("failed to update user: %v\n", err)
 		return nil, err
 	}
 
-	return user.ID.Hex(), nil
+	return updatedUser, nil
 }

@@ -19,12 +19,12 @@ func NewTimeTrackingsRepo() *TimeTrackingsRepo {
 	return &TimeTrackingsRepo{db.GetTimeTrackingsCollection()}
 }
 
-func (r *TimeTrackingsRepo) GetTimeTrackingByID(id primitive.ObjectID) (TimeTracking, error) {
+func (r *TimeTrackingsRepo) GetTimeTrackingByID(id primitive.ObjectID) (*TimeTracking, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var timeTracking TimeTracking
-	err := r.FindOne(ctx, bson.M{"_id": id}).Decode(&timeTracking)
+	timeTracking := &TimeTracking{}
+	err := r.FindOne(ctx, bson.M{"_id": id}).Decode(timeTracking)
 
 	return timeTracking, err
 }
@@ -44,29 +44,30 @@ func (r *TimeTrackingsRepo) GetTimeTrackingsByCharacterID(characterID primitive.
 	return timeTrackings, err
 }
 
-func (r *TimeTrackingsRepo) CreateTimeTracking(timeTracking TimeTracking) (*mongo.InsertOneResult, error) {
+func (r *TimeTrackingsRepo) CreateTimeTracking(timeTracking *TimeTracking) (*TimeTracking, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	insertResult, err := r.InsertOne(ctx, timeTracking)
+	_, err := r.InsertOne(ctx, timeTracking)
 
-	return insertResult, err
+	return timeTracking, err
 }
 
-func (r *TimeTrackingsRepo) UpdateTimeTracking(timeTracking TimeTracking) (*mongo.UpdateResult, error) {
+func (r *TimeTrackingsRepo) UpdateTimeTracking(timeTracking *TimeTracking) (*TimeTracking, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	updateResult, err := r.UpdateOne(ctx, bson.M{"_id": timeTracking.ID}, bson.M{"$set": timeTracking})
+	err := r.FindOneAndUpdate(ctx, bson.M{"_id": timeTracking.ID}, bson.M{"$set": timeTracking}).Decode(timeTracking)
 
-	return updateResult, err
+	return timeTracking, err
 }
 
-func (r *TimeTrackingsRepo) DeleteTimeTracking(id primitive.ObjectID) (*mongo.DeleteResult, error) {
+func (r *TimeTrackingsRepo) DeleteTimeTracking(id primitive.ObjectID) (*TimeTracking, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	deleteResult, err := r.DeleteOne(ctx, bson.M{"_id": id})
+	deletedTimeTracking := &TimeTracking{}
+	err := r.FindOneAndDelete(ctx, bson.M{"_id": id}).Decode(deletedTimeTracking)
 
-	return deleteResult, err
+	return deletedTimeTracking, err
 }
