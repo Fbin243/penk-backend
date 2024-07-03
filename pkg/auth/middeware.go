@@ -68,7 +68,7 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 			return
 		}
 
-		c.Request = c.Request.WithContext(context.WithValue(reqCtx, UserKey, user))
+		c.Request = c.Request.WithContext(context.WithValue(reqCtx, UserKey, *user))
 	}
 	c.Next()
 }

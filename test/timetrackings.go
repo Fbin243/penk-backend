@@ -11,12 +11,12 @@ import (
 
 func startTimeTracking(t *testing.T, ctx *TestContext, trackWithMetric bool) {
 	gqlQuery := fmt.Sprintf(`mutation { 
-		createTimeTracking(characterID: "%s")
+		createTimeTracking(characterID: "%s") {id}
 	}`, ctx.IdCharacter)
 
 	if trackWithMetric {
 		gqlQuery = fmt.Sprintf(`mutation { 
-			createTimeTracking(characterID: "%s", customMetricID: "%s")
+			createTimeTracking(characterID: "%s", customMetricID: "%s") {id}
 		}`, ctx.IdCharacter, ctx.IdCustomMetric)
 	}
 
@@ -31,7 +31,7 @@ func startTimeTracking(t *testing.T, ctx *TestContext, trackWithMetric bool) {
 		Assert(jsonpath.NotPresent("$.errors")).
 		End().JSON(&responseBody)
 
-	ctx.IdTimeTracking = responseBody["data"].(map[string]interface{})["createTimeTracking"].(string)
+	ctx.IdTimeTracking = responseBody["data"].(map[string]interface{})["createTimeTracking"].(map[string]interface{})["id"].(string)
 	logResponse(responseBody)
 }
 
@@ -42,7 +42,7 @@ func stopTimeTracking(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			updateTimeTracking(id: "%s")
+			updateTimeTracking(id: "%s") {id}
 		}`, ctx.IdTimeTracking)).
 		Expect(t).
 		Status(http.StatusOK).

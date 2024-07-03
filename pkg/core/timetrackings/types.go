@@ -14,7 +14,7 @@ var timeTrackingType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if timeTracking, ok := p.Source.(*coredb.TimeTracking); ok {
+				if timeTracking, ok := p.Source.(coredb.TimeTracking); ok {
 					return timeTracking.ID.Hex(), nil
 				}
 
@@ -24,7 +24,7 @@ var timeTrackingType = graphql.NewObject(graphql.ObjectConfig{
 		"characterID": &graphql.Field{
 			Type: graphql.String,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if timeTracking, ok := p.Source.(*coredb.TimeTracking); ok {
+				if timeTracking, ok := p.Source.(coredb.TimeTracking); ok {
 					return timeTracking.CharacterID.Hex(), nil
 				}
 
@@ -34,7 +34,7 @@ var timeTrackingType = graphql.NewObject(graphql.ObjectConfig{
 		"customMetricID": &graphql.Field{
 			Type: graphql.String,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if timeTracking, ok := p.Source.(*coredb.TimeTracking); ok {
+				if timeTracking, ok := p.Source.(coredb.TimeTracking); ok {
 					if timeTracking.CustomMetricID.IsZero() {
 						return nil, nil
 					}

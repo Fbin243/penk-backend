@@ -35,11 +35,11 @@ func (r *CharactersResolver) GetCharacterByID(params graphql.ResolveParams) (int
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	return character, nil
+	return *character, nil
 }
 
 func (r *CharactersResolver) GetCharactersByUserID(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(*coredb.User)
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
 		return nil, fmt.Errorf("user not found")
 	}
@@ -64,7 +64,11 @@ func (r *CharactersResolver) GetAllCharacters(params graphql.ResolveParams) (int
 }
 
 func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (interface{}, error) {
-	user := params.Context.Value(auth.UserKey).(*coredb.User)
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
+	}
+
 	name := params.Args["name"].(string)
 	gender, err := strconv.ParseBool(params.Args["gender"].(string))
 	if err != nil {
@@ -98,7 +102,7 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 		return nil, err
 	}
 
-	return createdCharacter, nil
+	return *createdCharacter, nil
 }
 
 func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (interface{}, error) {
@@ -141,7 +145,7 @@ func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (inte
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return updatedCharacter, nil
+	return *updatedCharacter, nil
 }
 
 func (r *CharactersResolver) DeleteCharacter(params graphql.ResolveParams) (interface{}, error) {
@@ -157,7 +161,7 @@ func (r *CharactersResolver) DeleteCharacter(params graphql.ResolveParams) (inte
 		return nil, fmt.Errorf("failed to delete character: %v", err)
 	}
 
-	return deletedCharacter, nil
+	return *deletedCharacter, nil
 }
 
 func (r *CharactersResolver) ResetCharacter(params graphql.ResolveParams) (interface{}, error) {
@@ -182,5 +186,5 @@ func (r *CharactersResolver) ResetCharacter(params graphql.ResolveParams) (inter
 		return nil, fmt.Errorf("failed to reset character: %v", err)
 	}
 
-	return updatedCharacter, nil
+	return *updatedCharacter, nil
 }

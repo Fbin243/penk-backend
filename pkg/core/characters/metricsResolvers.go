@@ -64,7 +64,7 @@ func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (i
 		return nil, fmt.Errorf("failed to create custom metric: %v", err)
 	}
 
-	return createdCustomMetric, nil
+	return *createdCustomMetric, nil
 }
 
 func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
@@ -125,7 +125,7 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 		return nil, fmt.Errorf("failed to update custom metric: %v", err)
 	}
 
-	return &updatedMetric, nil
+	return updatedMetric, nil
 }
 
 func (r *CharactersResolver) DeleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {
@@ -152,7 +152,7 @@ func (r *CharactersResolver) DeleteCustomMetric(params graphql.ResolveParams) (i
 		return nil, fmt.Errorf("failed to delete metric: %v", err)
 	}
 
-	return deletedCustomMetric, nil
+	return *deletedCustomMetric, nil
 }
 
 func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
@@ -198,7 +198,7 @@ func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (in
 		return nil, fmt.Errorf("failed to reset custom metric: %v", err)
 	}
 
-	return &resetMetric, nil
+	return resetMetric, nil
 }
 
 func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) (interface{}, error) {
@@ -263,7 +263,7 @@ func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("failed to create metric property: %v", err)
 	}
 
-	return &createdProperty, nil
+	return createdProperty, nil
 }
 
 func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) (interface{}, error) {
@@ -343,7 +343,7 @@ func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("failed to update metric property: %v", err)
 	}
 
-	return &updatedProperty, nil
+	return updatedProperty, nil
 }
 
 func (r *CharactersResolver) DeleteMetricProperty(params graphql.ResolveParams) (interface{}, error) {
@@ -402,5 +402,5 @@ func (r *CharactersResolver) DeleteMetricProperty(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("failed to remove metric property: %v", err)
 	}
 
-	return &deletedMetricProperty, nil
+	return deletedMetricProperty, nil
 }

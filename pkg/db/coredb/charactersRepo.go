@@ -104,7 +104,7 @@ func (r *CharactersRepo) CreateCustomMetric(characterID primitive.ObjectID, metr
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := r.FindOneAndUpdate(ctx, bson.M{"_id": characterID}, bson.M{"$push": bson.M{"custom_metrics": metric}}).Decode(metric)
+	_, err := r.UpdateOne(ctx, bson.M{"_id": characterID}, bson.M{"$push": bson.M{"custom_metrics": *metric}})
 
 	return metric, err
 }

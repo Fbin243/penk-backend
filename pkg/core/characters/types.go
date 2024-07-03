@@ -26,7 +26,7 @@ var metricPropertyType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if property, ok := p.Source.(*coredb.MetricProperty); ok {
+				if property, ok := p.Source.(coredb.MetricProperty); ok {
 					return property.ID.Hex(), nil
 				}
 
@@ -54,7 +54,7 @@ var customMetricType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if metric, ok := p.Source.(*coredb.CustomMetric); ok {
+				if metric, ok := p.Source.(coredb.CustomMetric); ok {
 					return metric.ID.Hex(), nil
 				}
 
@@ -88,7 +88,7 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if character, ok := p.Source.(*coredb.Character); ok {
+				if character, ok := p.Source.(coredb.Character); ok {
 					return character.ID.Hex(), nil
 				}
 
@@ -98,7 +98,7 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 		"userID": &graphql.Field{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if character, ok := p.Source.(*coredb.Character); ok {
+				if character, ok := p.Source.(coredb.Character); ok {
 					return character.UserID.Hex(), nil
 				}
 

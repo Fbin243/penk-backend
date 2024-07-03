@@ -18,14 +18,14 @@ func createNewCharacter(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(`mutation {
-			createCharacter(name: "Test Character", gender: "true")
+			createCharacter(name: "Test Character", gender: "true") {id}
 		}`).
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
 		End().JSON(&responseBody)
 
-	ctx.IdCharacter = responseBody["data"].(map[string]interface{})["createCharacter"].(string)
+	ctx.IdCharacter = responseBody["data"].(map[string]interface{})["createCharacter"].(map[string]interface{})["id"].(string)
 
 	logResponse(responseBody)
 }
@@ -37,14 +37,14 @@ func createCustomMetrics(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			createCustomMetric(name: "Test metric 1", characterID: "%s") 
+			createCustomMetric(name: "Test metric 1", characterID: "%s") {id}
 		}`, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
 		End().JSON(&responseBody)
 
-	ctx.IdCustomMetric = responseBody["data"].(map[string]interface{})["createCustomMetric"].(string)
+	ctx.IdCustomMetric = responseBody["data"].(map[string]interface{})["createCustomMetric"].(map[string]interface{})["id"].(string)
 	logResponse(responseBody)
 
 	// Create another custom metric with full information -> success
@@ -53,7 +53,7 @@ func createCustomMetrics(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			createCustomMetric(name: "Test metric 2", characterID: "%s", description: "Test metric description", style: {color: "#000000", icon: "icon.png"})
+			createCustomMetric(name: "Test metric 2", characterID: "%s", description: "Test metric description", style: {color: "#000000", icon: "icon.png"}) {id}
 		}`, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
@@ -68,7 +68,7 @@ func createCustomMetrics(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			createCustomMetric(name: "Test metric 3", characterID: "%s")
+			createCustomMetric(name: "Test metric 3", characterID: "%s") {id}
 		}`, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
@@ -85,14 +85,14 @@ func createProperties(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			createMetricProperty(metricID: "%s", characterID: "%s", name: "Test property 1", type: "Number", value: "10", unit: "kg")
+			createMetricProperty(metricID: "%s", characterID: "%s", name: "Test property 1", type: "Number", value: "10", unit: "kg") {id}
 		}`, ctx.IdCustomMetric, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
 		End().JSON(&responseBody)
 
-	ctx.IdProperty = responseBody["data"].(map[string]interface{})["createMetricProperty"].(string)
+	ctx.IdProperty = responseBody["data"].(map[string]interface{})["createMetricProperty"].(map[string]interface{})["id"].(string)
 	logResponse(responseBody)
 
 	// Create the second --> success
@@ -101,7 +101,7 @@ func createProperties(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			createMetricProperty(metricID: "%s", characterID: "%s", name: "Test property 2", type: "Number", value: "20", unit: "l")
+			createMetricProperty(metricID: "%s", characterID: "%s", name: "Test property 2", type: "Number", value: "20", unit: "l") {id}
 		}`, ctx.IdCustomMetric, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
@@ -116,7 +116,7 @@ func createProperties(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			createMetricProperty(metricID: "%s", characterID: "%s", name: "Test property 3", type: "Number", value: "30", unit: "m")
+			createMetricProperty(metricID: "%s", characterID: "%s", name: "Test property 3", type: "Number", value: "30", unit: "m") {id}
 		}`, ctx.IdCustomMetric, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
@@ -136,7 +136,7 @@ func getUserCharacters(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(`query { 
-			userCharacters { id limitedMetricNumber name gender tags totalFocusTime userID customMetrics { description id limitedPropertyNumber name time properties { id name type unit value } style { color icon } } }
+			userCharacters { id limitedMetricNumber name gender tags totalFocusedTime userID customMetrics { description id limitedPropertyNumber name time properties { id name type unit value } style { color icon } } }
 		}`).
 		Expect(t).
 		Status(http.StatusOK).
@@ -156,7 +156,7 @@ func updateCharacter(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			updateCharacter(id: "%s", name: "Updated Character")
+			updateCharacter(id: "%s", name: "Updated Character") {id}
 		}`, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
@@ -173,7 +173,7 @@ func updateCustomMetric(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			updateCustomMetric(id: "%s", characterID: "%s" ,name: "Updated Metric")
+			updateCustomMetric(id: "%s", characterID: "%s" ,name: "Updated Metric") {id}
 		}`, ctx.IdCustomMetric, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
@@ -190,7 +190,7 @@ func updateProperty(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			updateMetricProperty(id: "%s", metricID: "%s", characterID: "%s", name: "Updated property", value: "50")
+			updateMetricProperty(id: "%s", metricID: "%s", characterID: "%s", name: "Updated property", value: "50") {id}
 		}`, ctx.IdProperty, ctx.IdCustomMetric, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
@@ -207,7 +207,7 @@ func deleteProperty(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			deleteMetricProperty(id: "%s", metricID: "%s", characterID: "%s")
+			deleteMetricProperty(id: "%s", metricID: "%s", characterID: "%s") {id}
 		}`, ctx.IdProperty, ctx.IdCustomMetric, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
@@ -224,7 +224,7 @@ func deleteCustomMetric(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			deleteCustomMetric(id: "%s", characterID: "%s")
+			deleteCustomMetric(id: "%s", characterID: "%s") {id}
 		}`, ctx.IdCustomMetric, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
@@ -241,7 +241,7 @@ func deleteCharacter(t *testing.T, ctx *TestContext) {
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(fmt.Sprintf(`mutation { 
-			deleteCharacter(id: "%s")
+			deleteCharacter(id: "%s") {id}
 		}`, ctx.IdCharacter)).
 		Expect(t).
 		Status(http.StatusOK).
