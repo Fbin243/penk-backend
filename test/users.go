@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -18,20 +17,9 @@ func registerNewUser(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(func(r1 *http.Response, r2 *http.Request) error {
-			data, err := decodeResponseData(r1)
-			if err != nil {
-				return err
-			}
+		End().JSON(&responseBody)
 
-			if idUser, ok := data["registerAccount"].(string); ok {
-				ctx.IdUser = idUser
-				return nil
-			}
-
-			return fmt.Errorf("failed to register a new user")
-		}).
-		End()
+	logResponse(responseBody)
 }
 
 func getUserInfo(t *testing.T, ctx *TestContext) {
@@ -46,6 +34,7 @@ func getUserInfo(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(logResponseData).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 }

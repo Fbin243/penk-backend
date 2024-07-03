@@ -23,20 +23,11 @@ func createNewCharacter(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(func(r1 *http.Response, r2 *http.Request) error {
-			data, err := decodeResponseData(r1)
-			if err != nil {
-				return err
-			}
+		End().JSON(&responseBody)
 
-			if idCharacter, ok := data["createCharacter"].(string); ok {
-				ctx.IdCharacter = idCharacter
-				return nil
-			}
+	ctx.IdCharacter = responseBody["data"].(map[string]interface{})["createCharacter"].(string)
 
-			return fmt.Errorf("failed to create a new character")
-		}).
-		End()
+	logResponse(responseBody)
 }
 
 func createCustomMetrics(t *testing.T, ctx *TestContext) {
@@ -51,20 +42,10 @@ func createCustomMetrics(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(func(r1 *http.Response, r2 *http.Request) error {
-			data, err := decodeResponseData(r1)
-			if err != nil {
-				return err
-			}
+		End().JSON(&responseBody)
 
-			if idCustomMetric, ok := data["createCustomMetric"].(string); ok {
-				ctx.IdCustomMetric = idCustomMetric
-				return nil
-			}
-
-			return fmt.Errorf("failed to create a custom metric")
-		}).
-		End()
+	ctx.IdCustomMetric = responseBody["data"].(map[string]interface{})["createCustomMetric"].(string)
+	logResponse(responseBody)
 
 	// Create another custom metric with full information -> success
 	apitest.New().
@@ -77,7 +58,9 @@ func createCustomMetrics(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 
 	// Create the third custom metric to reach the limit -> failed
 	apitest.New().
@@ -90,7 +73,9 @@ func createCustomMetrics(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.Present("$.errors")).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 }
 
 func createProperties(t *testing.T, ctx *TestContext) {
@@ -105,20 +90,10 @@ func createProperties(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(func(r1 *http.Response, r2 *http.Request) error {
-			data, err := decodeResponseData(r1)
-			if err != nil {
-				return err
-			}
+		End().JSON(&responseBody)
 
-			if idProperty, ok := data["createMetricProperty"].(string); ok {
-				ctx.IdProperty = idProperty
-				return nil
-			}
-
-			return fmt.Errorf("failed to create a property")
-		}).
-		End()
+	ctx.IdProperty = responseBody["data"].(map[string]interface{})["createMetricProperty"].(string)
+	logResponse(responseBody)
 
 	// Create the second --> success
 	apitest.New().
@@ -131,7 +106,9 @@ func createProperties(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 
 	// Create the third --> failed
 	apitest.New().
@@ -144,7 +121,9 @@ func createProperties(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.Present("$.errors")).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 }
 
 /**
@@ -162,8 +141,9 @@ func getUserCharacters(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(logResponseData).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 }
 
 /**
@@ -181,8 +161,9 @@ func updateCharacter(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(logResponseData).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 }
 
 func updateCustomMetric(t *testing.T, ctx *TestContext) {
@@ -197,8 +178,9 @@ func updateCustomMetric(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(logResponseData).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 }
 
 func updateProperty(t *testing.T, ctx *TestContext) {
@@ -213,8 +195,9 @@ func updateProperty(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(logResponseData).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 }
 
 func deleteProperty(t *testing.T, ctx *TestContext) {
@@ -229,8 +212,9 @@ func deleteProperty(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(logResponseData).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 }
 
 func deleteCustomMetric(t *testing.T, ctx *TestContext) {
@@ -245,8 +229,9 @@ func deleteCustomMetric(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(logResponseData).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 }
 
 func deleteCharacter(t *testing.T, ctx *TestContext) {
@@ -261,6 +246,7 @@ func deleteCharacter(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(logResponseData).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 }

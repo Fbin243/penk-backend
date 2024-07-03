@@ -29,21 +29,10 @@ func startTimeTracking(t *testing.T, ctx *TestContext, trackWithMetric bool) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(func(r1 *http.Response, r2 *http.Request) error {
-			data, err := decodeResponseData(r1)
-			if err != nil {
-				return err
-			}
+		End().JSON(&responseBody)
 
-			if idTimeTracking, ok := data["createTimeTracking"].(string); ok {
-				ctx.IdTimeTracking = idTimeTracking
-				return nil
-			}
-
-			return fmt.Errorf("failed to create a time tracking")
-		}).
-		Assert(logResponseData).
-		End()
+	ctx.IdTimeTracking = responseBody["data"].(map[string]interface{})["createTimeTracking"].(string)
+	logResponse(responseBody)
 }
 
 func stopTimeTracking(t *testing.T, ctx *TestContext) {
@@ -58,6 +47,7 @@ func stopTimeTracking(t *testing.T, ctx *TestContext) {
 		Expect(t).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		Assert(logResponseData).
-		End()
+		End().JSON(&responseBody)
+
+	logResponse(responseBody)
 }

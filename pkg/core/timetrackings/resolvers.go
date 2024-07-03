@@ -96,13 +96,13 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 	if int32(duration) < timeTracking.MinDurationTime {
 		duration = 0
 		r.TimeTrackingsRepo.DeleteTimeTracking(timeTrackingOID)
-		fmt.Printf("the period time is less than 10 min, so the time tracking will be deleted")
+		log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
 		return timeTrackingID, nil
 	}
 
 	if int32(duration) > timeTracking.MaxDurationTime {
 		duration = float64(timeTracking.MaxDurationTime)
-		fmt.Printf("the period time is more than 4 hours, so the time tracking will be limited to 4 hours")
+		log.Printf("the period time is more than 4 hours, so the time tracking will be limited to 4 hours")
 	}
 
 	character.TotalFocusedTime += int32(duration)
