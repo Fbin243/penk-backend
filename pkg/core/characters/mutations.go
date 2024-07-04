@@ -30,7 +30,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 					Type: graphql.NewNonNull(graphql.String),
 				},
 				"gender": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.Boolean),
 				},
 				"tags": &graphql.ArgumentConfig{
 					Type: graphql.NewList(graphql.String),
@@ -48,9 +48,10 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 				"name": &graphql.ArgumentConfig{
 					Type: graphql.String,
 				},
-				"gender": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
+				// TODO: It may be added later
+				// "gender": &graphql.ArgumentConfig{
+				// 	Type: graphql.Boolean,
+				// },
 				"tags": &graphql.ArgumentConfig{
 					Type: graphql.NewList(graphql.String),
 				},

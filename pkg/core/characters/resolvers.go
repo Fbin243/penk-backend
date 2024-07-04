@@ -3,7 +3,6 @@ package characters
 import (
 	"fmt"
 	"log"
-	"strconv"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
@@ -70,10 +69,7 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 	}
 
 	name := params.Args["name"].(string)
-	gender, err := strconv.ParseBool(params.Args["gender"].(string))
-	if err != nil {
-		return nil, err
-	}
+	gender := params.Args["gender"].(bool)
 
 	tags := []string{}
 	if tagsList, ok := params.Args["tags"].([]interface{}); ok {
@@ -91,7 +87,7 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 		LimitedMetricNumber: 2,
 	}
 
-	err = ValidateCharacter(character)
+	err := ValidateCharacter(character)
 	if err != nil {
 		return nil, err
 	}
@@ -122,14 +118,10 @@ func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (inte
 		character.Name = name
 	}
 
-	if gender, ok := params.Args["gender"].(string); ok {
-		genderBool, err := strconv.ParseBool(gender)
-		if err != nil {
-			return nil, err
-		}
-
-		character.Gender = genderBool
-	}
+	// TODO: It may be added later
+	// if gender, ok := params.Args["gender"].(bool); ok {
+	// 	character.Gender = gender
+	// }
 
 	if tags, ok := params.Args["tags"].([]interface{}); ok {
 		character.Tags = convertListToSlice(tags)
