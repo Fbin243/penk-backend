@@ -47,9 +47,27 @@ var timeTrackingType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"startTime": &graphql.Field{
 			Type: graphql.Int,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if timeTracking, ok := p.Source.(coredb.TimeTracking); ok {
+					return timeTracking.StartTime.Unix(), nil
+				}
+
+				return nil, fmt.Errorf("failed to convert time tracking start time to Unix")
+			},
 		},
 		"endTime": &graphql.Field{
 			Type: graphql.Int,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if timeTracking, ok := p.Source.(coredb.TimeTracking); ok {
+					if timeTracking.EndTime.IsZero() {
+						return nil, nil
+					}
+
+					return timeTracking.EndTime.Unix(), nil
+				}
+
+				return nil, fmt.Errorf("failed to convert time tracking end time to Unix")
+			},
 		},
 	},
 })

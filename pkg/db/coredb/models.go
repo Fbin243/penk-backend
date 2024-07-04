@@ -9,7 +9,7 @@ import (
 type User struct {
 	ID                 primitive.ObjectID `json:"id" bson:"_id"`
 	Name               string             `json:"name" bson:"name" validate:"required,min=1,max=50"`
-	Email              string             `json:"email" bson:"email"`
+	Email              string             `json:"email" bson:"email" validate:"required,email"`
 	FirebaseUID        string             `json:"firebaseUID" bson:"firebase_uid"`
 	ImageURL           string             `json:"imageURL" bson:"image_url"`
 	CurrentCharacterID primitive.ObjectID `json:"currentCharacterID" bson:"current_character_id"`
@@ -37,7 +37,7 @@ type CustomMetric struct {
 	Description           string             `json:"description" bson:"description" validate:"omitempty,max=255"`
 	Time                  int32              `json:"time" bson:"time"`
 	Style                 MetricStyle        `json:"style" bson:"style"`
-	Properties            []MetricProperty   `json:"properties" bson:"properties"`
+	Properties            []MetricProperty   `json:"properties" bson:"properties" validate:"omitempty,dive"`
 	LimitedPropertyNumber int32              `json:"limitedPropertyNumber" bson:"limited_property_number"`
 }
 
@@ -48,7 +48,7 @@ type Character struct {
 	Gender              bool               `json:"gender" bson:"gender"`
 	Tags                []string           `json:"tags" bson:"tags" validate:"omitempty,tags_valid"`
 	TotalFocusedTime    int32              `json:"totalFocusedTime" bson:"total_focused_time"`
-	CustomMetrics       []CustomMetric     `json:"customMetrics" bson:"custom_metrics"`
+	CustomMetrics       []CustomMetric     `json:"customMetrics" bson:"custom_metrics" validate:"omitempty,dive"`
 	LimitedMetricNumber int32              `json:"limitedMetricNumber" bson:"limited_metric_number"`
 }
 

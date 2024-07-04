@@ -4,3 +4,4 @@ firebase-admin.*.json
 
 tmp/
 .vscode
+cover.out

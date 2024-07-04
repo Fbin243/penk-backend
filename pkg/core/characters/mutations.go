@@ -79,7 +79,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 		},
 		CreateCustomMetric: &graphql.Field{
 			Type:        customMetricType,
-			Description: "Create a Custom Metric",
+			Description: "Create a custom metric",
 			Args: graphql.FieldConfigArgument{
 				"characterID": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
