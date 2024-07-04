@@ -46,12 +46,13 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 		if err != nil {
 			log.Printf("invalid id token: %v\n", err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid id token"})
+			return
 		}
 
 		user, err := m.userRepo.GetUserByFirebaseUID(profile.UID)
 		if err != nil {
 			log.Printf("user has not registered, so register it\n")
-			user := coredb.User{
+			newUser := coredb.User{
 				ID:          primitive.NewObjectID(),
 				Name:        profile.Name,
 				Email:       profile.Email,
@@ -61,7 +62,7 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 				UpdatedAt:   time.Now(),
 			}
 
-			createdUser, err := m.userRepo.CreateNewUser(&user)
+			createdUser, err := m.userRepo.CreateNewUser(&newUser)
 			if err != nil {
 				log.Printf("failed to insert user: %v\n", err)
 				c.AbortWithStatusJSON(http.StatusInternalServerError, "failed to register new user")

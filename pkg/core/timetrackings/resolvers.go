@@ -43,7 +43,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 	timeTrackings, _ := r.TimeTrackingsRepo.GetTimeTrackingsByCharacterID(characterOID)
 	for _, timeTracking := range timeTrackings {
 		if timeTracking.EndTime.IsZero() {
-			return nil, fmt.Errorf("time tracking is already started")
+			return nil, fmt.Errorf("focused session is already started")
 		}
 	}
 
@@ -77,14 +77,20 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 		return nil, fmt.Errorf("time tracking not found: %v", err)
 	}
 
-	timeTracking.EndTime = time.Now()
+	if !timeTracking.EndTime.IsZero() {
+		return nil, fmt.Errorf("focused session is already ended")
+	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	duration := timeTracking.EndTime.Sub(timeTracking.StartTime).Seconds()
+	duration := params.Args["duration"].(int32)
+	err = ValidateDuration(timeTracking.StartTime, duration)
+	if err != nil {
+		return nil, err
+	}
 
 	// JUST FOR TESTING
 	// duration = 599 // Test for the min duration time
@@ -93,7 +99,7 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 	// duration = 14400 // Test for the max duration time
 	// duration = 14401 // Test for the max duration time
 
-	if int32(duration) < timeTracking.MinDurationTime {
+	if duration < timeTracking.MinDurationTime {
 		duration = 0
 		_, err := r.TimeTrackingsRepo.DeleteTimeTracking(timeTrackingOID)
 		if err != nil {
@@ -104,12 +110,14 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 		return *timeTracking, nil
 	}
 
-	if int32(duration) > timeTracking.MaxDurationTime {
-		duration = float64(timeTracking.MaxDurationTime)
+	if duration > timeTracking.MaxDurationTime {
+		duration = int32(timeTracking.MaxDurationTime)
 		log.Printf("the period time is more than 4 hours, so the time tracking will be limited to 4 hours")
 	}
 
-	character.TotalFocusedTime += int32(duration)
+	timeTracking.EndTime = timeTracking.StartTime.Add(time.Duration(duration) * time.Second)
+
+	character.TotalFocusedTime += duration
 	if !timeTracking.CustomMetricID.IsZero() {
 		for i, customMetric := range character.CustomMetrics {
 			if customMetric.ID == timeTracking.CustomMetricID {

@@ -37,15 +37,16 @@ func (r *UsersResolver) UpdateAccount(params graphql.ResolveParams) (interface{}
 		return nil, fmt.Errorf("user not found")
 	}
 
-	if name, ok := params.Args["name"].(string); ok {
+	input := params.Args["input"].(map[string]interface{})
+	if name, ok := input["name"].(string); ok {
 		user.Name = name
 	}
 
-	if imageURL, ok := params.Args["imageURL"].(string); ok {
+	if imageURL, ok := input["imageURL"].(string); ok {
 		user.ImageURL = imageURL
 	}
 
-	if currentCharacterID, ok := params.Args["currentCharacterID"].(string); ok {
+	if currentCharacterID, ok := input["currentCharacterID"].(string); ok {
 		currentCharacterOID, err := primitive.ObjectIDFromHex(currentCharacterID)
 		if err != nil {
 			return nil, err

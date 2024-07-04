@@ -68,26 +68,39 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 		return nil, fmt.Errorf("user not found")
 	}
 
-	name := params.Args["name"].(string)
-	gender := params.Args["gender"].(bool)
+	// TODO: Check if the user has already created 2 characters, maybe changed later
+	characters, err := r.CharactersRepo.GetCharactersByUserID(user.ID)
+	if err != nil {
+		log.Printf("failed to find user's character: %v\n", err)
+		return nil, err
+	}
 
-	tags := []string{}
-	if tagsList, ok := params.Args["tags"].([]interface{}); ok {
-		tags = convertListToSlice(tagsList)
+	if len(characters) >= 2 {
+		return nil, fmt.Errorf("user have already created 2 characters")
 	}
 
 	character := coredb.Character{
 		ID:                  primitive.NewObjectID(),
 		UserID:              user.ID,
-		Name:                name,
-		Gender:              gender,
-		Tags:                tags,
 		TotalFocusedTime:    0,
 		CustomMetrics:       []coredb.CustomMetric{},
 		LimitedMetricNumber: 2,
 	}
 
-	err := ValidateCharacter(character)
+	input := params.Args["input"].(map[string]interface{})
+	if name, ok := input["name"].(string); ok {
+		character.Name = name
+	}
+
+	if gender, ok := input["gender"].(bool); ok {
+		character.Gender = gender
+	}
+
+	if tags, ok := input["tags"].([]interface{}); ok {
+		character.Tags = convertListToSlice(tags)
+	}
+
+	err = ValidateCharacter(character)
 	if err != nil {
 		return nil, err
 	}
@@ -114,16 +127,17 @@ func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (inte
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	if name, ok := params.Args["name"].(string); ok {
+	input := params.Args["input"].(map[string]interface{})
+	if name, ok := input["name"].(string); ok {
 		character.Name = name
 	}
 
 	// TODO: It may be added later
-	// if gender, ok := params.Args["gender"].(bool); ok {
+	// if gender, ok := input["gender"].(bool); ok {
 	// 	character.Gender = gender
 	// }
 
-	if tags, ok := params.Args["tags"].([]interface{}); ok {
+	if tags, ok := input["tags"].([]interface{}); ok {
 		character.Tags = convertListToSlice(tags)
 	}
 

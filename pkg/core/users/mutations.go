@@ -14,14 +14,8 @@ func InitUserMutation(r *UsersResolver) *UsersMutation {
 			Type:        userType,
 			Description: "Update an account",
 			Args: graphql.FieldConfigArgument{
-				"name": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"imageURL": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"currentCharacterID": &graphql.ArgumentConfig{
-					Type: graphql.String,
+				"input": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(userInputType),
 				},
 			},
 			Resolve: r.UpdateAccount,

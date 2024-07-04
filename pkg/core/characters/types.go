@@ -8,80 +8,6 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-var metricStyleType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "MetricStyle",
-	Fields: graphql.Fields{
-		"color": &graphql.Field{
-			Type: graphql.String,
-		},
-		"icon": &graphql.Field{
-			Type: graphql.String,
-		},
-	},
-})
-
-var metricPropertyType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "MetricProperty",
-	Fields: graphql.Fields{
-		"id": &graphql.Field{
-			Type: graphql.ID,
-			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if property, ok := p.Source.(coredb.MetricProperty); ok {
-					return property.ID.Hex(), nil
-				}
-
-				return nil, fmt.Errorf("failed to convert property ObjectID to Hex")
-			},
-		},
-		"name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"type": &graphql.Field{
-			Type: graphql.String,
-		},
-		"value": &graphql.Field{
-			Type: graphql.String,
-		},
-		"unit": &graphql.Field{
-			Type: graphql.String,
-		},
-	},
-})
-
-var customMetricType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "CustomMetric",
-	Fields: graphql.Fields{
-		"id": &graphql.Field{
-			Type: graphql.ID,
-			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if metric, ok := p.Source.(coredb.CustomMetric); ok {
-					return metric.ID.Hex(), nil
-				}
-
-				return nil, fmt.Errorf("failed to convert custom metric ObjectID to Hex")
-			},
-		},
-		"name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"description": &graphql.Field{
-			Type: graphql.String,
-		},
-		"time": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"style": &graphql.Field{
-			Type: metricStyleType,
-		},
-		"properties": &graphql.Field{
-			Type: graphql.NewList(metricPropertyType),
-		},
-		"limitedPropertyNumber": &graphql.Field{
-			Type: graphql.Int,
-		},
-	},
-})
-
 var characterType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Character",
 	Fields: graphql.Fields{
@@ -126,13 +52,138 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var metricStyleInput = graphql.NewInputObject(graphql.InputObjectConfig{
+var customMetricType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "CustomMetric",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.ID,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if metric, ok := p.Source.(coredb.CustomMetric); ok {
+					return metric.ID.Hex(), nil
+				}
+
+				return nil, fmt.Errorf("failed to convert custom metric ObjectID to Hex")
+			},
+		},
+		"name": &graphql.Field{
+			Type: graphql.String,
+		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
+		"time": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"style": &graphql.Field{
+			Type: metricStyleType,
+		},
+		"properties": &graphql.Field{
+			Type: graphql.NewList(metricPropertyType),
+		},
+		"limitedPropertyNumber": &graphql.Field{
+			Type: graphql.Int,
+		},
+	},
+})
+
+var metricStyleType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "MetricStyle",
+	Fields: graphql.Fields{
+		"color": &graphql.Field{
+			Type: graphql.String,
+		},
+		"icon": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
+var metricPropertyType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "MetricProperty",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.ID,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if property, ok := p.Source.(coredb.MetricProperty); ok {
+					return property.ID.Hex(), nil
+				}
+
+				return nil, fmt.Errorf("failed to convert property ObjectID to Hex")
+			},
+		},
+		"name": &graphql.Field{
+			Type: graphql.String,
+		},
+		"type": &graphql.Field{
+			Type: graphql.String,
+		},
+		"value": &graphql.Field{
+			Type: graphql.String,
+		},
+		"unit": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
+/**
+ * Input types
+ */
+var characterInputType = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "CharacterInput",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"gender": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
+		"tags": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.String),
+		},
+	},
+})
+
+var customMetricInputType = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "CustomMetricInput",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"description": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"style": &graphql.InputObjectFieldConfig{
+			Type: metricStyleInputType,
+		},
+	},
+})
+
+var metricStyleInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "MetricStyleInput",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"color": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"icon": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+	},
+})
+
+var metricPropertyInputType = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "MetricPropertyInput",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"type": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"value": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"unit": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 	},

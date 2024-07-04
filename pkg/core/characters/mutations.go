@@ -26,14 +26,8 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Type:        characterType,
 			Description: "Create a character",
 			Args: graphql.FieldConfigArgument{
-				"name": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
-				},
-				"gender": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.Boolean),
-				},
-				"tags": &graphql.ArgumentConfig{
-					Type: graphql.NewList(graphql.String),
+				"input": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(characterInputType),
 				},
 			},
 			Resolve: r.CreateCharacter,
@@ -85,14 +79,8 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 				"characterID": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
-				"name": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
-				},
-				"description": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"style": &graphql.ArgumentConfig{
-					Type: metricStyleInput,
+				"input": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(customMetricInputType),
 				},
 			},
 			Resolve: r.CreateCustomMetric,
@@ -107,14 +95,8 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 				"characterID": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
-				"name": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"description": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"style": &graphql.ArgumentConfig{
-					Type: metricStyleInput,
+				"input": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(customMetricInputType),
 				},
 			},
 			Resolve: r.UpdateCustomMetric,
@@ -155,17 +137,8 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 				"metricID": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
-				"name": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
-				},
-				"type": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
-				},
-				"value": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
-				},
-				"unit": &graphql.ArgumentConfig{
-					Type: graphql.String,
+				"input": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(metricPropertyInputType),
 				},
 			},
 			Resolve: r.CreateMetricProperty,
@@ -183,17 +156,8 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 				"metricID": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
-				"name": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"type": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"value": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				"unit": &graphql.ArgumentConfig{
-					Type: graphql.String,
+				"input": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(metricPropertyInputType),
 				},
 			},
 			Resolve: r.UpdateMetricProperty,

@@ -55,3 +55,18 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var userInputType = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "UserInput",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"imageURL": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"currentCharacterID": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+	},
+})

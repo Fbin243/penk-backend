@@ -31,6 +31,9 @@ func InitTimeTrackingsMutation(r *TimeTrackingsResolver) *TimeTrackingsMutation 
 				"id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
+				"duration": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.Int),
+				},
 			},
 			Resolve: r.UpdateTimeTracking,
 		},
