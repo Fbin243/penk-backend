@@ -49,17 +49,3 @@ func GetProfileByIDToken(idToken string) (*Profile, error) {
 
 	return &authProfile, nil
 }
-
-func GetProfileByContext(ctx context.Context) (*Profile, error) {
-	untypedProfile := ctx.Value(ProfileKey)
-	if untypedProfile == nil {
-		return nil, ErrorProfileNotFound
-	}
-
-	profile, ok := untypedProfile.(*Profile)
-	if !ok {
-		return nil, ErrorCannotParseProfile
-	}
-
-	return profile, nil
-}

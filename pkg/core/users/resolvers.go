@@ -22,36 +22,6 @@ func NewUsersResolver(usersRepo *coredb.UsersRepo) *UsersResolver {
 	}
 }
 
-func (r *UsersResolver) RegisterAccount(params graphql.ResolveParams) (interface{}, error) {
-	authProfile, err := auth.GetProfileByContext(params.Context)
-	if err != nil {
-		return nil, err
-	}
-
-	user := coredb.User{
-		ID:          primitive.NewObjectID(),
-		Name:        authProfile.Name,
-		Email:       authProfile.Email,
-		FirebaseUID: authProfile.UID,
-		ImageURL:    "",
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-	}
-
-	err = ValidateUser(user)
-	if err != nil {
-		return nil, err
-	}
-
-	createdUser, err := r.UsersRepo.CreateNewUser(&user)
-	if err != nil {
-		log.Printf("failed to insert user: %v\n", err)
-		return nil, err
-	}
-
-	return *createdUser, nil
-}
-
 func (r *UsersResolver) GetUserByToken(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {

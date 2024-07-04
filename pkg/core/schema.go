@@ -39,8 +39,7 @@ func InitSchema() graphql.Schema {
 	rootMutation := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootMutation",
 		Fields: graphql.Fields{
-			"registerAccount": usersMutation.RegisterAccount,
-			"updateAccount":   usersMutation.UpdateAccount,
+			"updateAccount": usersMutation.UpdateAccount,
 
 			"createCharacter": charactersMutation.CreateCharacter,
 			"updateCharacter": charactersMutation.UpdateCharacter,
