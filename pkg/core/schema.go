@@ -19,7 +19,7 @@ func InitSchema() graphql.Schema {
 		usersQuery    = users.InitUserQuery(usersResolver)
 		usersMutation = users.InitUserMutation(usersResolver)
 
-		charactersResolver = characters.NewCharactersResolver(charactersRepo)
+		charactersResolver = characters.NewCharactersResolver(charactersRepo, usersRepo)
 		charactersQuery    = characters.InitCharacterQuery(charactersResolver)
 		charactersMutation = characters.InitCharacterMutation(charactersResolver)
 

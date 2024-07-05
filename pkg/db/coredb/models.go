@@ -45,7 +45,8 @@ type Character struct {
 	ID                  primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	UserID              primitive.ObjectID `json:"userID,omitempty" bson:"user_id,omitempty"`
 	Name                string             `json:"name" bson:"name" validate:"required,min=1,max=50"`
-	Gender              bool               `json:"gender" bson:"gender" validate:"required"`
+	Gender              bool               `json:"gender" bson:"gender"`
+	Avatar              string             `json:"avatar" bson:"avatar"`
 	Tags                []string           `json:"tags" bson:"tags" validate:"omitempty,tags_valid"`
 	TotalFocusedTime    int32              `json:"totalFocusedTime" bson:"total_focused_time"`
 	CustomMetrics       []CustomMetric     `json:"customMetrics" bson:"custom_metrics" validate:"omitempty,dive"`

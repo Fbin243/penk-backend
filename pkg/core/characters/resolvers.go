@@ -13,11 +13,13 @@ import (
 
 type CharactersResolver struct {
 	CharactersRepo *coredb.CharactersRepo
+	UsersRepo      *coredb.UsersRepo
 }
 
-func NewCharactersResolver(charactersRepo *coredb.CharactersRepo) *CharactersResolver {
+func NewCharactersResolver(charactersRepo *coredb.CharactersRepo, usersRepo *coredb.UsersRepo) *CharactersResolver {
 	return &CharactersResolver{
 		CharactersRepo: charactersRepo,
+		UsersRepo:      usersRepo,
 	}
 }
 
@@ -96,6 +98,10 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 		character.Gender = gender
 	}
 
+	if avatar, ok := input["avatar"].(string); ok {
+		character.Avatar = avatar
+	}
+
 	if tags, ok := input["tags"].([]interface{}); ok {
 		character.Tags = convertListToSlice(tags)
 	}
@@ -109,6 +115,13 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 	if err != nil {
 		log.Printf("failed to create character: %v\n", err)
 		return nil, err
+	}
+
+	// TODO: Character has been created, so set the current character of the user to it
+	user.CurrentCharacterID = createdCharacter.ID
+	_, err = r.UsersRepo.UpdateUserByID(user.ID, &user)
+	if err != nil {
+		log.Printf("failed to update current character: %v\n", err)
 	}
 
 	return *createdCharacter, nil
@@ -136,6 +149,10 @@ func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (inte
 	// if gender, ok := input["gender"].(bool); ok {
 	// 	character.Gender = gender
 	// }
+
+	if avatar, ok := input["avatar"].(string); ok {
+		character.Avatar = avatar
+	}
 
 	if tags, ok := input["tags"].([]interface{}); ok {
 		character.Tags = convertListToSlice(tags)

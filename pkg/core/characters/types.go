@@ -37,6 +37,9 @@ var characterType = graphql.NewObject(graphql.ObjectConfig{
 		"gender": &graphql.Field{
 			Type: graphql.Boolean,
 		},
+		"avatar": &graphql.Field{
+			Type: graphql.String,
+		},
 		"tags": &graphql.Field{
 			Type: graphql.NewList(graphql.String),
 		},
@@ -137,6 +140,9 @@ var characterInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 		},
 		"gender": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
+		},
+		"avatar": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 		"tags": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(graphql.String),
