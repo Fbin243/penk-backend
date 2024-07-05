@@ -78,6 +78,5 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 		return
 	}
 
-	log.Println("id token is missing")
-	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "id token token is missing"})
+	c.Next()
 }
