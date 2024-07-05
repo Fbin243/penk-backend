@@ -16,8 +16,8 @@ type CharactersRepo struct {
 	*mongo.Collection
 }
 
-func NewCharactersRepo() *CharactersRepo {
-	return &CharactersRepo{db.GetCharactersCollection()}
+func NewCharactersRepo(mongodb *mongo.Database) *CharactersRepo {
+	return &CharactersRepo{mongodb.Collection(db.CharacterCollection)}
 }
 
 func (r *CharactersRepo) GetCharacterByID(id primitive.ObjectID) (*Character, error) {
@@ -34,7 +34,7 @@ func (r *CharactersRepo) GetCharactersByUserID(userID primitive.ObjectID) ([]Cha
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := db.GetCharactersCollection().Find(ctx, bson.M{"user_id": userID})
+	cursor, err := r.Find(ctx, bson.M{"user_id": userID})
 	if err != nil {
 		return nil, err
 	}

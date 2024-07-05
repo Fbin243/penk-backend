@@ -4,6 +4,7 @@ import (
 	"tenkhours/pkg/core/characters"
 	"tenkhours/pkg/core/timetrackings"
 	"tenkhours/pkg/core/users"
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 
 	"github.com/graphql-go/graphql"
@@ -11,9 +12,9 @@ import (
 
 func InitSchema() graphql.Schema {
 	var (
-		usersRepo         = coredb.NewUsersRepo()
-		charactersRepo    = coredb.NewCharactersRepo()
-		timeTrackingsRepo = coredb.NewTimeTrackingsRepo()
+		usersRepo         = coredb.NewUsersRepo(db.GetDB())
+		charactersRepo    = coredb.NewCharactersRepo(db.GetDB())
+		timeTrackingsRepo = coredb.NewTimeTrackingsRepo(db.GetDB())
 
 		usersResolver = users.NewUsersResolver(usersRepo)
 		usersQuery    = users.InitUserQuery(usersResolver)

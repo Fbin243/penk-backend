@@ -15,8 +15,8 @@ type TimeTrackingsRepo struct {
 	*mongo.Collection
 }
 
-func NewTimeTrackingsRepo() *TimeTrackingsRepo {
-	return &TimeTrackingsRepo{db.GetTimeTrackingsCollection()}
+func NewTimeTrackingsRepo(mongodb *mongo.Database) *TimeTrackingsRepo {
+	return &TimeTrackingsRepo{mongodb.Collection(db.TimeTrackingsCollection)}
 }
 
 func (r *TimeTrackingsRepo) GetTimeTrackingByID(id primitive.ObjectID) (*TimeTracking, error) {

@@ -17,8 +17,8 @@ type UsersRepo struct {
 	*mongo.Collection
 }
 
-func NewUsersRepo() *UsersRepo {
-	usersCollection := db.GetUsersCollection()
+func NewUsersRepo(mongodb *mongo.Database) *UsersRepo {
+	usersCollection := mongodb.Collection(db.UserCollection)
 	_, err := usersCollection.Indexes().CreateMany(context.TODO(), []mongo.IndexModel{
 		{
 			Keys:    bson.D{{Key: "email", Value: 1}},

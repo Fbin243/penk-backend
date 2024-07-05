@@ -19,6 +19,19 @@ var (
 	FindOneAndUpdateOptions = options.FindOneAndUpdate().SetReturnDocument(options.After)
 )
 
+func InitDBFromURL(connectionURI string, dbName string) *mongo.Database {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connectionURI))
+	if err != nil {
+		log.Printf("failed to connect to database: %v", err)
+		log.Fatal(err)
+	}
+
+	return client.Database(dbName)
+}
+
 func GetDB() *mongo.Database {
 	if db != nil {
 		return db
@@ -47,16 +60,4 @@ func GetDB() *mongo.Database {
 	db = client.Database(mongoDatabase)
 
 	return db
-}
-
-func GetUsersCollection() *mongo.Collection {
-	return GetDB().Collection(UserCollection)
-}
-
-func GetCharactersCollection() *mongo.Collection {
-	return GetDB().Collection(CharacterCollection)
-}
-
-func GetTimeTrackingsCollection() *mongo.Collection {
-	return GetDB().Collection(TimeTrackingsCollection)
 }
