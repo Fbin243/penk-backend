@@ -3,6 +3,7 @@ package characters
 import (
 	"fmt"
 
+	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
 
 	"github.com/graphql-go/graphql"
@@ -10,6 +11,11 @@ import (
 )
 
 func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
+	}
+
 	characterID := params.Args["characterID"].(string)
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
@@ -19,6 +25,10 @@ func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (i
 	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
+	}
+
+	if character.UserID != user.ID {
+		return nil, fmt.Errorf("permission denied")
 	}
 
 	if len(character.CustomMetrics) >= int(character.LimitedMetricNumber) {
@@ -67,6 +77,11 @@ func (r *CharactersResolver) CreateCustomMetric(params graphql.ResolveParams) (i
 }
 
 func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
+	}
+
 	metricID := params.Args["id"].(string)
 	metricOID, err := primitive.ObjectIDFromHex(metricID)
 	if err != nil {
@@ -81,7 +96,11 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 
 	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
-		return nil, fmt.Errorf("character not found: %v", err)
+		return nil, fmt.Errorf("failed to get character: %v", err)
+	}
+
+	if character.UserID != user.ID {
+		return nil, fmt.Errorf("permission denied")
 	}
 
 	found := false
@@ -120,7 +139,7 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 	}
 
 	if !found {
-		return nil, fmt.Errorf("custom metric not found")
+		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
@@ -132,22 +151,42 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 }
 
 func (r *CharactersResolver) DeleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {
-	metricID := params.Args["id"].(string)
-	characterID := params.Args["characterID"].(string)
-
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get object id: %v", err)
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
 	}
 
-	_, err = r.CharactersRepo.GetCharacterByID(characterOID)
+	characterID := params.Args["characterID"].(string)
+	characterOID, err := primitive.ObjectIDFromHex(characterID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid character id: %v", err)
+	}
+
+	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
 
+	if character.UserID != user.ID {
+		return nil, fmt.Errorf("permission denied")
+	}
+
+	metricID := params.Args["id"].(string)
 	metricOID, err := primitive.ObjectIDFromHex(metricID)
 	if err != nil {
-		return nil, fmt.Errorf("invalid metric ID: %v", err)
+		return nil, fmt.Errorf("invalid metric id: %v", err)
+	}
+
+	found := false
+	for _, cm := range character.CustomMetrics {
+		if cm.ID == metricOID {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
 	deletedCustomMetric, err := r.CharactersRepo.DeleteCustomMetric(characterOID, metricOID)
@@ -159,10 +198,9 @@ func (r *CharactersResolver) DeleteCustomMetric(params graphql.ResolveParams) (i
 }
 
 func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
-	metricID := params.Args["id"].(string)
-	metricOID, err := primitive.ObjectIDFromHex(metricID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric ID: %v", err)
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
 	}
 
 	characterID := params.Args["characterID"].(string)
@@ -171,9 +209,19 @@ func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (in
 		return nil, fmt.Errorf("invalid character ID: %v", err)
 	}
 
+	if characterOID != user.ID {
+		return nil, fmt.Errorf("permission denied")
+	}
+
 	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
+	}
+
+	metricID := params.Args["id"].(string)
+	metricOID, err := primitive.ObjectIDFromHex(metricID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid metric ID: %v", err)
 	}
 
 	found := false
@@ -193,7 +241,7 @@ func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (in
 	}
 
 	if !found {
-		return nil, fmt.Errorf("custom metric not found")
+		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
@@ -205,10 +253,9 @@ func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (in
 }
 
 func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) (interface{}, error) {
-	metricID := params.Args["metricID"].(string)
-	metricOID, err := primitive.ObjectIDFromHex(metricID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric ID: %v", err)
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
 	}
 
 	characterID := params.Args["characterID"].(string)
@@ -220,6 +267,16 @@ func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) 
 	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
+	}
+
+	if character.UserID != user.ID {
+		return nil, fmt.Errorf("permission denied")
+	}
+
+	metricID := params.Args["metricID"].(string)
+	metricOID, err := primitive.ObjectIDFromHex(metricID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid metric ID: %v", err)
 	}
 
 	metricProperty := coredb.MetricProperty{
@@ -262,7 +319,7 @@ func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) 
 	}
 
 	if !found {
-		return nil, fmt.Errorf("custom metric is not belong to the character")
+		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
@@ -274,16 +331,9 @@ func (r *CharactersResolver) CreateMetricProperty(params graphql.ResolveParams) 
 }
 
 func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) (interface{}, error) {
-	metricPropID := params.Args["id"].(string)
-	metricPropOID, err := primitive.ObjectIDFromHex(metricPropID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric property ID: %v", err)
-	}
-
-	metricID := params.Args["metricID"].(string)
-	metricOID, err := primitive.ObjectIDFromHex(metricID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric ID: %v", err)
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
 	}
 
 	characterID := params.Args["characterID"].(string)
@@ -292,9 +342,25 @@ func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("invalid character ID: %v", err)
 	}
 
+	metricID := params.Args["metricID"].(string)
+	metricOID, err := primitive.ObjectIDFromHex(metricID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid metric ID: %v", err)
+	}
+
+	metricPropID := params.Args["id"].(string)
+	metricPropOID, err := primitive.ObjectIDFromHex(metricPropID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid metric property ID: %v", err)
+	}
+
 	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
+	}
+
+	if character.UserID != user.ID {
+		return nil, fmt.Errorf("permission denied")
 	}
 
 	foundForMetric := false
@@ -339,11 +405,11 @@ func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) 
 	}
 
 	if !foundForMetric {
-		return nil, fmt.Errorf("custom metric is not belong to the character")
+		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
 	if !foundForProperty {
-		return nil, fmt.Errorf("metric property is not belong to the metric")
+		return nil, fmt.Errorf("metric property does not belong to the metric")
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
@@ -355,16 +421,9 @@ func (r *CharactersResolver) UpdateMetricProperty(params graphql.ResolveParams) 
 }
 
 func (r *CharactersResolver) DeleteMetricProperty(params graphql.ResolveParams) (interface{}, error) {
-	metricPropID := params.Args["id"].(string)
-	metricPropOID, err := primitive.ObjectIDFromHex(metricPropID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric property ID: %v", err)
-	}
-
-	metricID := params.Args["metricID"].(string)
-	metricOID, err := primitive.ObjectIDFromHex(metricID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric ID: %v", err)
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
 	}
 
 	characterID := params.Args["characterID"].(string)
@@ -373,9 +432,25 @@ func (r *CharactersResolver) DeleteMetricProperty(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("invalid character ID: %v", err)
 	}
 
+	metricID := params.Args["metricID"].(string)
+	metricOID, err := primitive.ObjectIDFromHex(metricID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid metric ID: %v", err)
+	}
+
+	metricPropID := params.Args["id"].(string)
+	metricPropOID, err := primitive.ObjectIDFromHex(metricPropID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid metric property ID: %v", err)
+	}
+
 	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
+	}
+
+	if character.UserID != user.ID {
+		return nil, fmt.Errorf("permission denied")
 	}
 
 	foundForMetric := false
@@ -398,11 +473,11 @@ func (r *CharactersResolver) DeleteMetricProperty(params graphql.ResolveParams) 
 	}
 
 	if !foundForMetric {
-		return nil, fmt.Errorf("custom metric is not belong to the character")
+		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
 	if !foundForProperty {
-		return nil, fmt.Errorf("metric property is not belong to the metric")
+		return nil, fmt.Errorf("metric property does not belong to the metric")
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)

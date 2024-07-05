@@ -39,15 +39,8 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 				"id": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.String),
 				},
-				"name": &graphql.ArgumentConfig{
-					Type: graphql.String,
-				},
-				// TODO: It may be added later
-				// "gender": &graphql.ArgumentConfig{
-				// 	Type: graphql.Boolean,
-				// },
-				"tags": &graphql.ArgumentConfig{
-					Type: graphql.NewList(graphql.String),
+				"input": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(characterInputType),
 				},
 			},
 			Resolve: r.UpdateCharacter,

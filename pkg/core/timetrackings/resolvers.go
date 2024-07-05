@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
 
 	"github.com/graphql-go/graphql"
@@ -24,10 +25,24 @@ func NewTimeTrackingsResolver(timeTrackingsRepo *coredb.TimeTrackingsRepo, chara
 }
 
 func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
+	}
+
 	characterID := params.Args["characterID"].(string)
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
 		return nil, err
+	}
+
+	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get character: %v", err)
+	}
+
+	if character.UserID != user.ID {
+		return nil, fmt.Errorf("permission denied")
 	}
 
 	customMetricID, ok := params.Args["customMetricID"].(string)
@@ -36,6 +51,18 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		customMetricOID, err = primitive.ObjectIDFromHex(customMetricID)
 		if err != nil {
 			return nil, err
+		}
+
+		found := false
+		for _, customMetric := range character.CustomMetrics {
+			if customMetric.ID == customMetricOID {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			return nil, fmt.Errorf("custom metric does not belong to the character")
 		}
 	}
 
@@ -66,6 +93,11 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 }
 
 func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
+	}
+
 	timeTrackingID := params.Args["id"].(string)
 	timeTrackingOID, err := primitive.ObjectIDFromHex(timeTrackingID)
 	if err != nil {
@@ -74,11 +106,7 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 
 	timeTracking, err := r.TimeTrackingsRepo.GetTimeTrackingByID(timeTrackingOID)
 	if err != nil {
-		return nil, fmt.Errorf("time tracking not found: %v", err)
-	}
-
-	if !timeTracking.EndTime.IsZero() {
-		return nil, fmt.Errorf("focused session is already ended")
+		return nil, fmt.Errorf("failed to get time tracking: %v", err)
 	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
@@ -86,7 +114,16 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	duration := params.Args["duration"].(int32)
+	if character.UserID != user.ID {
+		return nil, fmt.Errorf("permission denied")
+	}
+
+	if !timeTracking.EndTime.IsZero() {
+		return nil, fmt.Errorf("focused session is already ended")
+	}
+
+	intDuration := params.Args["duration"].(int)
+	duration := int32(intDuration)
 	err = ValidateDuration(timeTracking.StartTime, duration)
 	if err != nil {
 		return nil, err
