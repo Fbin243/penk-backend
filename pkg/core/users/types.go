@@ -63,10 +63,12 @@ var userInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"imageURL": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type:        graphql.String,
+			Description: "URL of the user's image",
 		},
 		"currentCharacterID": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type:        graphql.String,
+			Description: "ID of the character is being chosen",
 		},
 	},
 })

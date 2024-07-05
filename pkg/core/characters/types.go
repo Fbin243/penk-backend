@@ -139,13 +139,16 @@ var characterInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"gender": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
+			Type:        graphql.Boolean,
+			Description: "Male is true, Female is false. If not specified, it is false by default",
 		},
 		"avatar": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type:        graphql.String,
+			Description: "URL or file path of the character's avatar",
 		},
 		"tags": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewList(graphql.String),
+			Type:        graphql.NewList(graphql.String),
+			Description: "List of string tags that describe the character",
 		},
 	},
 })
@@ -160,7 +163,8 @@ var customMetricInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"style": &graphql.InputObjectFieldConfig{
-			Type: metricStyleInputType,
+			Type:        metricStyleInputType,
+			Description: "Visual style of the metric that be displayed on screen",
 		},
 	},
 })
@@ -169,10 +173,12 @@ var metricStyleInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "MetricStyleInput",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"color": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type:        graphql.String,
+			Description: "Color in Hex format",
 		},
 		"icon": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type:        graphql.String,
+			Description: "URL or file path of the icon",
 		},
 	},
 })
@@ -184,13 +190,16 @@ var metricPropertyInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"type": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type:        graphql.String,
+			Description: "Data type of the property",
 		},
 		"value": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type:        graphql.String,
+			Description: "Specific value of the property type",
 		},
 		"unit": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type:        graphql.String,
+			Description: "Unit of the property value",
 		},
 	},
 })
