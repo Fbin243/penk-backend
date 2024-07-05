@@ -35,19 +35,19 @@ func TestValidateUser(t *testing.T) {
 			hasError: false,
 		},
 		{
-			name: "invalid user (empty name)",
-			user: func() coredb.User {
-				user.Name = ""
-				return user
-			}(),
+			name: "empty name",
+			user: func(u coredb.User) coredb.User {
+				u.Name = ""
+				return u
+			}(user),
 			hasError: true,
 		},
 		{
-			name: "invalid user (name too long)",
-			user: func() coredb.User {
-				user.Name = "This is a very long name that exceeds the maximum allowed length of fifty characters"
-				return user
-			}(),
+			name: "name too long",
+			user: func(u coredb.User) coredb.User {
+				u.Name = "This is a very long name that exceeds the maximum allowed length of fifty characters"
+				return u
+			}(user),
 			hasError: true,
 		},
 	}
