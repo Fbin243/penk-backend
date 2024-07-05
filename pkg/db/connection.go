@@ -16,6 +16,7 @@ var (
 	UserCollection          = "users"
 	CharacterCollection     = "character"
 	TimeTrackingsCollection = "time_trackings"
+	FindOneAndUpdateOptions = options.FindOneAndUpdate().SetReturnDocument(options.After)
 )
 
 func GetDB() *mongo.Database {

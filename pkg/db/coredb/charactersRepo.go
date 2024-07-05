@@ -85,7 +85,7 @@ func (r *CharactersRepo) UpdateCharacter(character *Character) (*Character, erro
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := r.FindOneAndUpdate(ctx, bson.M{"_id": character.ID}, bson.M{"$set": character}).Decode(character)
+	err := r.FindOneAndUpdate(ctx, bson.M{"_id": character.ID}, bson.M{"$set": character}, db.FindOneAndUpdateOptions).Decode(character)
 
 	return character, err
 }

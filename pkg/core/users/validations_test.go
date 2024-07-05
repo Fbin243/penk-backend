@@ -17,47 +17,37 @@ func TestValidateUser(t *testing.T) {
 		hasError bool
 	}
 
+	user := coredb.User{
+		ID:                 primitive.NewObjectID(),
+		Name:               "John Doe",
+		Email:              "john@example.com",
+		FirebaseUID:        "someFirebaseUID",
+		ImageURL:           "http://example.com/image.png",
+		CurrentCharacterID: primitive.NewObjectID(),
+		CreatedAt:          time.Now(),
+		UpdatedAt:          time.Now(),
+	}
+
 	tests := []testCase{
 		{
-			name: "valid user",
-			user: coredb.User{
-				ID:                 primitive.NewObjectID(),
-				Name:               "John Doe",
-				Email:              "john@example.com",
-				FirebaseUID:        "someFirebaseUID",
-				ImageURL:           "http://example.com/image.png",
-				CurrentCharacterID: primitive.NewObjectID(),
-				CreatedAt:          time.Now(),
-				UpdatedAt:          time.Now(),
-			},
+			name:     "valid user",
+			user:     user,
 			hasError: false,
 		},
 		{
 			name: "invalid user (empty name)",
-			user: coredb.User{
-				ID:                 primitive.NewObjectID(),
-				Name:               "",
-				Email:              "john@example.com",
-				FirebaseUID:        "someFirebaseUID",
-				ImageURL:           "http://example.com/image.png",
-				CurrentCharacterID: primitive.NewObjectID(),
-				CreatedAt:          time.Now(),
-				UpdatedAt:          time.Now(),
-			},
+			user: func() coredb.User {
+				user.Name = ""
+				return user
+			}(),
 			hasError: true,
 		},
 		{
 			name: "invalid user (name too long)",
-			user: coredb.User{
-				ID:                 primitive.NewObjectID(),
-				Name:               "This is a very long name that exceeds the maximum allowed length of fifty characters",
-				Email:              "john@example.com",
-				FirebaseUID:        "someFirebaseUID",
-				ImageURL:           "http://example.com/image.png",
-				CurrentCharacterID: primitive.NewObjectID(),
-				CreatedAt:          time.Now(),
-				UpdatedAt:          time.Now(),
-			},
+			user: func() coredb.User {
+				user.Name = "This is a very long name that exceeds the maximum allowed length of fifty characters"
+				return user
+			}(),
 			hasError: true,
 		},
 	}

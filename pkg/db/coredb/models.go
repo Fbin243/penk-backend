@@ -21,9 +21,9 @@ type User struct {
 type MetricProperty struct {
 	ID    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name  string             `json:"name" bson:"name" validate:"required,min=1,max=50"`
-	Type  string             `json:"type" bson:"type"`
-	Value any                `json:"value" bson:"value"`
-	Unit  string             `json:"unit" bson:"unit" validate:"min=0,max=10"`
+	Type  string             `json:"type" bson:"type" validate:"required,min=1,max=20"`
+	Value any                `json:"value" bson:"value" validate:"required"`
+	Unit  string             `json:"unit" bson:"unit" validate:"omitempty,min=1,max=10"`
 }
 
 type MetricStyle struct {

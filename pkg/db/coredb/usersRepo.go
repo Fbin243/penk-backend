@@ -60,7 +60,7 @@ func (r *UsersRepo) UpdateUserByID(id primitive.ObjectID, user *User) (*User, er
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := r.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.M{"$set": user}).Decode(user)
+	err := r.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.M{"$set": user}, db.FindOneAndUpdateOptions).Decode(user)
 
 	return user, err
 }
