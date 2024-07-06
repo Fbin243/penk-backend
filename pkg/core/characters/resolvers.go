@@ -134,7 +134,7 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 
 	// TODO: Character has been created, so set the current character of the user to it
 	user.CurrentCharacterID = createdCharacter.ID
-	_, err = r.UsersRepo.UpdateUserByID(user.ID, &user)
+	_, err = r.UsersRepo.UpdateUser(&user)
 	if err != nil {
 		log.Printf("failed to update current character: %v\n", err)
 	}

@@ -62,7 +62,7 @@ func (r *UsersResolver) UpdateAccount(params graphql.ResolveParams) (interface{}
 		return nil, err
 	}
 
-	updatedUser, err := r.UsersRepo.UpdateUserByID(user.ID, &user)
+	updatedUser, err := r.UsersRepo.UpdateUser(&user)
 	if err != nil {
 		log.Printf("failed to update user: %v\n", err)
 		return nil, err

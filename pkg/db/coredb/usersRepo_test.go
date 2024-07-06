@@ -3,54 +3,49 @@ package coredb
 import (
 	"testing"
 
-	"tenkhours/pkg/db"
-
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var (
-	testdb    = db.InitDBFromURL("mongodb://localhost:27017", "test")
-	usersRepo = NewUsersRepo(testdb)
-)
+type userInputType struct {
+	Name               string
+	ImageURL           string
+	CurrentCharacterID primitive.ObjectID
+}
 
-func TestGetUserByFirebaseUID(t *testing.T) {
-	user := &User{
-		ID:          primitive.NewObjectID(),
-		FirebaseUID: primitive.NewObjectID().Hex(),
-		Email:       primitive.NewObjectID().Hex() + "@gmail.com",
+var userInput = &userInputType{
+	Name:               "example",
+	ImageURL:           "https://example.com",
+	CurrentCharacterID: primitive.NewObjectID(),
+}
+
+func newUserFromInput(input *userInputType) *User {
+	return &User{
+		ID:                 primitive.NewObjectID(),
+		Email:              primitive.NewObjectID().Hex() + "@gmail.com",
+		FirebaseUID:        primitive.NewObjectID().Hex(),
+		Name:               input.Name,
+		ImageURL:           input.ImageURL,
+		CurrentCharacterID: input.CurrentCharacterID,
 	}
+}
 
-	_, err := usersRepo.CreateNewUser(user)
-	if err != nil {
-		t.Logf("failed to create user: %v\n", err)
-	}
-
-	queriedUser, err := usersRepo.GetUserByFirebaseUID(user.FirebaseUID)
-	assert.Nil(t, err)
-	assert.Equal(t, *user, *queriedUser)
+func assertWithUserInput(t *testing.T, user *User, input *userInputType) {
+	assert.Equal(t, user.Name, input.Name)
+	assert.Equal(t, user.ImageURL, input.ImageURL)
+	assert.Equal(t, user.CurrentCharacterID, input.CurrentCharacterID)
 }
 
 func TestCreateNewUser(t *testing.T) {
-	user := &User{
-		ID:          primitive.NewObjectID(),
-		Name:        "example",
-		Email:       primitive.NewObjectID().Hex() + "@gmail.com",
-		FirebaseUID: primitive.NewObjectID().Hex(),
-	}
+	user := newUserFromInput(userInput)
 
 	createdUser, err := usersRepo.CreateNewUser(user)
 	assert.Nil(t, err)
-	assert.Equal(t, *user, *createdUser)
+	assertWithUserInput(t, createdUser, userInput)
 }
 
 func TestCreateSameUser(t *testing.T) {
-	user := &User{
-		ID:          primitive.NewObjectID(),
-		Name:        "example",
-		Email:       primitive.NewObjectID().Hex() + "@gmail.com",
-		FirebaseUID: primitive.NewObjectID().Hex(),
-	}
+	user := newUserFromInput(userInput)
 
 	_, err := usersRepo.CreateNewUser(user)
 	assert.Nil(t, err)
@@ -59,27 +54,34 @@ func TestCreateSameUser(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestUpdateUser(t *testing.T) {
-	user := &User{
-		ID:                 primitive.NewObjectID(),
-		Name:               "example",
-		Email:              primitive.NewObjectID().Hex() + "@gmail.com",
-		FirebaseUID:        primitive.NewObjectID().Hex(),
-		ImageURL:           "https://example.com",
-		CurrentCharacterID: primitive.NewObjectID(),
-	}
+func TestGetUserByFirebaseUID(t *testing.T) {
+	user := newUserFromInput(userInput)
 
 	_, err := usersRepo.CreateNewUser(user)
 	assert.Nil(t, err)
 
-	newCurrentCharacterID := primitive.NewObjectID()
-	user.Name = "updated"
-	user.ImageURL = "https://updated.com"
-	user.CurrentCharacterID = newCurrentCharacterID
-
-	updatedUser, err := usersRepo.UpdateUserByID(user.ID, user)
+	queriedUser, err := usersRepo.GetUserByFirebaseUID(user.FirebaseUID)
 	assert.Nil(t, err)
-	assert.Equal(t, updatedUser.Name, "updated")
-	assert.Equal(t, updatedUser.ImageURL, "https://updated.com")
-	assert.Equal(t, updatedUser.CurrentCharacterID, newCurrentCharacterID)
+	assert.Equal(t, *queriedUser, *user)
+}
+
+func TestUpdateUser(t *testing.T) {
+	user := newUserFromInput(userInput)
+
+	_, err := usersRepo.CreateNewUser(user)
+	assert.Nil(t, err)
+
+	updateInput := &userInputType{
+		Name:               "updated",
+		ImageURL:           "https://updated.com",
+		CurrentCharacterID: primitive.NewObjectID(),
+	}
+
+	user.Name = updateInput.Name
+	user.ImageURL = updateInput.ImageURL
+	user.CurrentCharacterID = updateInput.CurrentCharacterID
+
+	updatedUser, err := usersRepo.UpdateUser(user)
+	assert.Nil(t, err)
+	assertWithUserInput(t, updatedUser, updateInput)
 }
