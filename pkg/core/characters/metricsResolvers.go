@@ -1,6 +1,7 @@
 package characters
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"tenkhours/pkg/auth"
@@ -148,6 +149,56 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 	}
 
 	return updatedMetric, nil
+}
+
+func (r *CharactersResolver) UpdateMetricList(params graphql.ResolveParams) (interface{}, error) {
+	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	if !ok {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	characterID := params.Args["characterID"].(string)
+	characterOID, err := primitive.ObjectIDFromHex(characterID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid character ID: %v", err)
+	}
+
+	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get character: %v", err)
+	}
+
+	if character.UserID != user.ID {
+		return nil, fmt.Errorf("permission denied")
+	}
+
+	metricsInterface := params.Args["metrics"].([]interface{})
+	metricsJSON, err := json.Marshal(metricsInterface)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal metrics: %v", err)
+	}
+
+	var metrics []coredb.CustomMetric
+	err = json.Unmarshal(metricsJSON, &metrics)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal metrics: %v", err)
+	}
+
+	for _, metric := range metrics {
+		err = ValidateCustomMetric(metric)
+		if err != nil {
+			return nil, fmt.Errorf("invalid metric: %v", err)
+		}
+	}
+
+	character.CustomMetrics = metrics
+
+	_, err = r.CharactersRepo.UpdateCharacter(character)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update custom metrics: %v", err)
+	}
+
+	return character.CustomMetrics, nil
 }
 
 func (r *CharactersResolver) DeleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {

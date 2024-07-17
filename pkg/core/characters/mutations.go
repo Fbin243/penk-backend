@@ -12,6 +12,7 @@ type CharactersMutation struct {
 
 	CreateCustomMetric *graphql.Field
 	UpdateCustomMetric *graphql.Field
+	UpdateMetricsList  *graphql.Field
 	DeleteCustomMetric *graphql.Field
 	ResetCustomMetric  *graphql.Field
 
@@ -93,6 +94,22 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 				},
 			},
 			Resolve: r.UpdateCustomMetric,
+		},
+		UpdateMetricsList: &graphql.Field{
+			Type:        graphql.NewList(customMetricType),
+			Description: "Update a Custom Metric",
+			Args: graphql.FieldConfigArgument{
+				"id": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"characterID": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"input": &graphql.ArgumentConfig{
+					Type: graphql.NewList(customMetricInputType),
+				},
+			},
+			Resolve: r.UpdateMetricList,
 		},
 		ResetCustomMetric: &graphql.Field{
 			Type:        customMetricType,
