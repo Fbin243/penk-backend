@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
@@ -58,8 +57,8 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 				Email:       profile.Email,
 				FirebaseUID: profile.UID,
 				ImageURL:    "",
-				CreatedAt:   time.Now(),
-				UpdatedAt:   time.Now(),
+				CreatedAt:   utils.Now(),
+				UpdatedAt:   utils.Now(),
 			}
 
 			createdUser, err := m.userRepo.CreateNewUser(&newUser)

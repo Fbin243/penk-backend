@@ -1,6 +1,8 @@
 package analyticsdb
 
 import (
+	"time"
+
 	"tenkhours/pkg/db/coredb"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,7 +15,7 @@ type Metadata struct {
 
 type Snapshot struct {
 	ID        primitive.ObjectID `json:"id" bson:"_id"`
-	Timestamp string             `json:"timestamp" bson:"timestamp"`
+	Timestamp time.Time          `json:"timestamp" bson:"timestamp"`
 	Metadata  Metadata           `json:"metadata" bson:"metadata"`
 	Character coredb.Character   `json:"character" bson:"character"`
 	Asset     interface{}        `json:"asset" bson:"asset"`

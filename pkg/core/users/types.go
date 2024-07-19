@@ -47,6 +47,12 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 				return nil, fmt.Errorf("failed to convert current character ObjectID to Hex")
 			},
 		},
+		"availableSnapshots": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"autoSnapshot": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 		"createdAt": &graphql.Field{
 			Type: graphql.DateTime,
 		},
@@ -69,6 +75,10 @@ var userInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 		"currentCharacterID": &graphql.InputObjectFieldConfig{
 			Type:        graphql.String,
 			Description: "ID of the character is being chosen",
+		},
+		"autoSnapshot": &graphql.InputObjectFieldConfig{
+			Type:        graphql.Boolean,
+			Description: "Whether the user has enabled auto snapshot, default is true",
 		},
 	},
 })

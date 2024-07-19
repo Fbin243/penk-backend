@@ -3,10 +3,10 @@ package users
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/pkg/utils"
 
 	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -55,7 +55,11 @@ func (r *UsersResolver) UpdateAccount(params graphql.ResolveParams) (interface{}
 		user.CurrentCharacterID = currentCharacterOID
 	}
 
-	user.UpdatedAt = time.Now()
+	if autoSnapshot, ok := input["autoSnapshot"].(bool); ok {
+		user.AutoSnapshot = autoSnapshot
+	}
+
+	user.UpdatedAt = utils.Now()
 
 	err := ValidateUser(user)
 	if err != nil {
