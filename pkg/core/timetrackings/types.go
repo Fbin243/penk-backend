@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/pkg/utils"
 
 	"github.com/graphql-go/graphql"
 )
@@ -18,7 +19,7 @@ var timeTrackingType = graphql.NewObject(graphql.ObjectConfig{
 					return timeTracking.ID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to convert time tracking ObjectID to Hex")
+				return nil, utils.ErrorConvertOIDToHex
 			},
 		},
 		"characterID": &graphql.Field{
@@ -28,7 +29,7 @@ var timeTrackingType = graphql.NewObject(graphql.ObjectConfig{
 					return timeTracking.CharacterID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to convert character ObjectID to Hex")
+				return nil, utils.ErrorConvertOIDToHex
 			},
 		},
 		"customMetricID": &graphql.Field{
@@ -42,7 +43,7 @@ var timeTrackingType = graphql.NewObject(graphql.ObjectConfig{
 					return timeTracking.CustomMetricID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to convert custom metric ObjectID to Hex")
+				return nil, utils.ErrorConvertOIDToHex
 			},
 		},
 		"startTime": &graphql.Field{

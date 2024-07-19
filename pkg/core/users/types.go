@@ -1,9 +1,8 @@
 package users
 
 import (
-	"fmt"
-
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/pkg/utils"
 
 	"github.com/graphql-go/graphql"
 )
@@ -18,7 +17,7 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 					return user.ID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to convert user ObjectID to Hex")
+				return nil, utils.ErrorConvertOIDToHex
 			},
 		},
 		"name": &graphql.Field{
@@ -44,7 +43,7 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 					return user.CurrentCharacterID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to convert current character ObjectID to Hex")
+				return nil, utils.ErrorConvertOIDToHex
 			},
 		},
 		"availableSnapshots": &graphql.Field{
