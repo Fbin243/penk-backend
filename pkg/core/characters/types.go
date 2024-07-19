@@ -8,7 +8,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-var characterType = graphql.NewObject(graphql.ObjectConfig{
+var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Character",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{

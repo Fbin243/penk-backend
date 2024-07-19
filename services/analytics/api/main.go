@@ -26,15 +26,15 @@ func NewApp() *App {
 }
 
 func (app *App) InitRouter() {
-	log.Println("--> Hello from Core service")
+	log.Println("--> Hello from Analytics service")
 
 	app.Engine.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
 
-	app.Engine.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Core service is running!")
+	app.Engine.GET("/analytics", func(c *gin.Context) {
+		c.String(http.StatusOK, "Analytics service is running!")
 	})
 
 	authMiddleware := auth.NewMiddleware(coredb.NewUsersRepo(db.GetDB()))

@@ -19,8 +19,8 @@ type Middleware struct {
 	userRepo *coredb.UsersRepo
 }
 
-func NewMiddleware() *Middleware {
-	return &Middleware{userRepo: coredb.NewUsersRepo()}
+func NewMiddleware(userRepo *coredb.UsersRepo) *Middleware {
+	return &Middleware{userRepo}
 }
 
 func (m *Middleware) CheckRequestBody(c *gin.Context) {
