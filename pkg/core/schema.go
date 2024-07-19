@@ -12,9 +12,9 @@ import (
 
 func InitSchema() graphql.Schema {
 	var (
-		usersRepo         = coredb.NewUsersRepo(db.GetDB())
-		charactersRepo    = coredb.NewCharactersRepo(db.GetDB())
-		timeTrackingsRepo = coredb.NewTimeTrackingsRepo(db.GetDB())
+		usersRepo         = coredb.NewUsersRepo(db.GetDBManager().DB)
+		charactersRepo    = coredb.NewCharactersRepo(db.GetDBManager().DB)
+		timeTrackingsRepo = coredb.NewTimeTrackingsRepo(db.GetDBManager().DB)
 
 		usersResolver = users.NewUsersResolver(usersRepo)
 		usersQuery    = users.InitUserQuery(usersResolver)

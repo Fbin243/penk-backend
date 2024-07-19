@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type SnapshotsRepo struct {
@@ -57,6 +58,21 @@ func (r *SnapshotsRepo) GetSnapshotsByCharacterID(characterID primitive.ObjectID
 	}
 
 	return snapshots, nil
+}
+
+func (r *SnapshotsRepo) GetLatestSnapshotByCharacterID(characterID primitive.ObjectID) (*Snapshot, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var snapshot *Snapshot
+
+	opts := options.FindOne().SetSort(bson.M{"timestamp": -1})
+	err := r.FindOne(ctx, bson.M{"metadata.character_id": characterID}, opts).Decode(snapshot)
+	if err != nil {
+		return nil, err
+	}
+
+	return snapshot, nil
 }
 
 func (r *SnapshotsRepo) CreateSnapshot(snapshot *Snapshot) (*Snapshot, error) {

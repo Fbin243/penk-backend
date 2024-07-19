@@ -1,7 +1,6 @@
 package users
 
 import (
-	"fmt"
 	"log"
 
 	"tenkhours/pkg/auth"
@@ -25,7 +24,7 @@ func NewUsersResolver(usersRepo *coredb.UsersRepo) *UsersResolver {
 func (r *UsersResolver) GetUserByToken(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	return user, nil
@@ -34,7 +33,7 @@ func (r *UsersResolver) GetUserByToken(params graphql.ResolveParams) (interface{
 func (r *UsersResolver) UpdateAccount(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	input := params.Args["input"].(map[string]interface{})

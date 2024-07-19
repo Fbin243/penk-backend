@@ -28,7 +28,7 @@ func NewTimeTrackingsResolver(timeTrackingsRepo *coredb.TimeTrackingsRepo, chara
 func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	characterID := params.Args["characterID"].(string)
@@ -43,7 +43,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 	}
 
 	if character.UserID != user.ID {
-		return nil, fmt.Errorf("permission denied")
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	customMetricID, ok := params.Args["customMetricID"].(string)
@@ -96,7 +96,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	timeTrackingID := params.Args["id"].(string)
@@ -116,7 +116,7 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 	}
 
 	if character.UserID != user.ID {
-		return nil, fmt.Errorf("permission denied")
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	if !timeTracking.EndTime.IsZero() {
