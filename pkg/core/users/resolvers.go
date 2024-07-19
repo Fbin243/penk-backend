@@ -1,7 +1,7 @@
 package users
 
 import (
-	"log"
+	"fmt"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
@@ -67,8 +67,7 @@ func (r *UsersResolver) UpdateAccount(params graphql.ResolveParams) (interface{}
 
 	updatedUser, err := r.UsersRepo.UpdateUser(&user)
 	if err != nil {
-		log.Printf("failed to update user: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to update user: %v", err)
 	}
 
 	return *updatedUser, nil

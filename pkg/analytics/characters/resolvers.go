@@ -1,4 +1,4 @@
-package analytics
+package characters
 
 import (
 	"context"
@@ -15,8 +15,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
-
-var DBClient = db.GetDBManager().Client
 
 type CharactersResolver struct {
 	SnapshotsRepo  *analyticsdb.SnapshotsRepo
@@ -106,7 +104,11 @@ func (r *CharactersResolver) CreateNewSnapshot(params graphql.ResolveParams) (in
 
 	// Compare with the latest snapshot
 	latestSnapshot, err := r.SnapshotsRepo.GetLatestSnapshotByCharacterID(characterOID)
-	if reflect.DeepEqual(latestSnapshot.Character, *character) {
+	if err != nil {
+		if err != mongo.ErrNoDocuments {
+			return nil, err
+		}
+	} else if reflect.DeepEqual(latestSnapshot.Character, *character) {
 		return nil, fmt.Errorf("no changes detected")
 	}
 
@@ -121,7 +123,7 @@ func (r *CharactersResolver) CreateNewSnapshot(params graphql.ResolveParams) (in
 		Asset:     nil,
 	}
 
-	session, err := DBClient.StartSession()
+	session, err := db.GetDBManager().Client.StartSession()
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +143,7 @@ func (r *CharactersResolver) CreateNewSnapshot(params graphql.ResolveParams) (in
 			return nil, fmt.Errorf("failed to update user: %v", err)
 		}
 
-		return snapshot, nil
+		return *snapshot, nil
 	}
 
 	return session.WithTransaction(context.TODO(), callback)

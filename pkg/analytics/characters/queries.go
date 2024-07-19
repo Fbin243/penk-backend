@@ -1,4 +1,4 @@
-package analytics
+package characters
 
 import (
 	"github.com/graphql-go/graphql"

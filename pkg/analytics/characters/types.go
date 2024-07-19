@@ -1,4 +1,4 @@
-package analytics
+package characters
 
 import (
 	"tenkhours/pkg/core/characters"
@@ -39,8 +39,8 @@ var metadataType = graphql.NewObject(graphql.ObjectConfig{
 		"userID": &graphql.Field{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if snapshot, ok := p.Source.(analyticsdb.Snapshot); ok {
-					return snapshot.Metadata.UserID.Hex(), nil
+				if metadata, ok := p.Source.(analyticsdb.Metadata); ok {
+					return metadata.UserID.Hex(), nil
 				}
 
 				return nil, utils.ErrorConvertOIDToHex
@@ -49,8 +49,8 @@ var metadataType = graphql.NewObject(graphql.ObjectConfig{
 		"characterID": &graphql.Field{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if snapshot, ok := p.Source.(analyticsdb.Snapshot); ok {
-					return snapshot.Metadata.CharacterID.Hex(), nil
+				if snapshot, ok := p.Source.(analyticsdb.Metadata); ok {
+					return snapshot.CharacterID.Hex(), nil
 				}
 
 				return nil, utils.ErrorConvertOIDToHex

@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"tenkhours/pkg/analytics"
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/core"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
@@ -52,7 +52,7 @@ func (app *App) InitRouter() {
 
 		result := graphql.Do(graphql.Params{
 			Context:        c.Request.Context(),
-			Schema:         core.InitSchema(),
+			Schema:         analytics.InitSchema(),
 			RequestString:  postData.Query,
 			VariableValues: postData.Variables,
 			OperationName:  postData.Operation,

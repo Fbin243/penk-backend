@@ -52,13 +52,15 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 		if err != nil {
 			log.Printf("user has not registered, so register it\n")
 			newUser := coredb.User{
-				ID:          primitive.NewObjectID(),
-				Name:        profile.Name,
-				Email:       profile.Email,
-				FirebaseUID: profile.UID,
-				ImageURL:    "",
-				CreatedAt:   utils.Now(),
-				UpdatedAt:   utils.Now(),
+				ID:                 primitive.NewObjectID(),
+				Name:               profile.Name,
+				Email:              profile.Email,
+				FirebaseUID:        profile.UID,
+				ImageURL:           "",
+				CreatedAt:          utils.Now(),
+				UpdatedAt:          utils.Now(),
+				AutoSnapshot:       true,
+				AvailableSnapshots: 2,
 			}
 
 			createdUser, err := m.userRepo.CreateNewUser(&newUser)

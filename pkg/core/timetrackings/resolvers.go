@@ -86,8 +86,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 
 	createdTimeTracking, err := r.TimeTrackingsRepo.CreateTimeTracking(&timeTracking)
 	if err != nil {
-		log.Printf("failed to insert time tracking: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to create time tracking: %v", err)
 	}
 
 	return *createdTimeTracking, nil

@@ -64,7 +64,7 @@ func (r *SnapshotsRepo) GetLatestSnapshotByCharacterID(characterID primitive.Obj
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var snapshot *Snapshot
+	snapshot := &Snapshot{}
 
 	opts := options.FindOne().SetSort(bson.M{"timestamp": -1})
 	err := r.FindOne(ctx, bson.M{"metadata.character_id": characterID}, opts).Decode(snapshot)

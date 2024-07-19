@@ -14,6 +14,10 @@ var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if character, ok := p.Source.(coredb.Character); ok {
+					if character.ID.IsZero() {
+						return nil, nil
+					}
+
 					return character.ID.Hex(), nil
 				}
 
@@ -24,6 +28,10 @@ var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if character, ok := p.Source.(coredb.Character); ok {
+					if character.ID.IsZero() {
+						return nil, nil
+					}
+
 					return character.UserID.Hex(), nil
 				}
 

@@ -2,7 +2,6 @@ package characters
 
 import (
 	"fmt"
-	"log"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
@@ -55,8 +54,7 @@ func (r *CharactersResolver) GetCharactersByUserID(params graphql.ResolveParams)
 
 	characters, err := r.CharactersRepo.GetCharactersByUserID(user.ID)
 	if err != nil {
-		log.Printf("failed to find character: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to find characters: %v", err)
 	}
 
 	return characters, nil
@@ -72,8 +70,7 @@ func (r *CharactersResolver) GetAllCharacters(params graphql.ResolveParams) (int
 
 	characters, err := r.CharactersRepo.GetAllCharacters()
 	if err != nil {
-		log.Printf("failed to find characters: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to find characters: %v", err)
 	}
 
 	return characters, nil
@@ -88,8 +85,7 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 	// TODO: Check if the user has already created 2 characters, maybe changed later
 	characters, err := r.CharactersRepo.GetCharactersByUserID(user.ID)
 	if err != nil {
-		log.Printf("failed to find user's character: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to find characters: %v", err)
 	}
 
 	if len(characters) >= 2 {
@@ -128,15 +124,14 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 
 	createdCharacter, err := r.CharactersRepo.CreateCharacter(&character)
 	if err != nil {
-		log.Printf("failed to create character: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to create character: %v", err)
 	}
 
 	// TODO: Character has been created, so set the current character of the user to it
 	user.CurrentCharacterID = createdCharacter.ID
 	_, err = r.UsersRepo.UpdateUser(&user)
 	if err != nil {
-		log.Printf("failed to update current character: %v\n", err)
+		return nil, fmt.Errorf("failed to update user: %v", err)
 	}
 
 	return *createdCharacter, nil
