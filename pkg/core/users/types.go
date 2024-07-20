@@ -1,6 +1,10 @@
 package users
 
 import (
+	"fmt"
+
+	"tenkhours/pkg/core/characters"
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
 
@@ -44,6 +48,23 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 				}
 
 				return nil, utils.ErrorConvertOIDToHex
+			},
+		},
+		"characters": &graphql.Field{
+			Type: graphql.NewList(characters.CharacterType),
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if user, ok := p.Source.(coredb.User); ok {
+					// Find characters by user ID
+					charactersRepo := coredb.NewCharactersRepo(db.GetDBManager().DB)
+					characters, err := charactersRepo.GetCharactersByUserID(user.ID)
+					if err != nil {
+						return nil, err
+					}
+
+					return characters, nil
+				}
+
+				return nil, fmt.Errorf("failed to get characters by user ID")
 			},
 		},
 		"availableSnapshots": &graphql.Field{
