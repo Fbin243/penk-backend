@@ -15,7 +15,7 @@ var (
 	UserCollection          = "users"
 	CharacterCollection     = "character"
 	TimeTrackingsCollection = "time_trackings"
-	AnalyticsCollection     = "analytics"
+	SnapshotsCollection     = "snapshots"
 	FindOneAndUpdateOptions = options.FindOneAndUpdate().SetReturnDocument(options.After)
 )
 
@@ -63,8 +63,8 @@ func InitDBManagerFromEnv() *DatabaseManager {
 
 	db := client.Database(mongoDatabase)
 
-	// TODO: Create time series collection for analytics (Temporarily)
-	db.CreateCollection(ctx, AnalyticsCollection,
+	// TODO: Create time series collection for snapshots (Temporarily)
+	db.CreateCollection(ctx, SnapshotsCollection,
 		options.CreateCollection().
 			SetTimeSeriesOptions(
 				options.TimeSeries().

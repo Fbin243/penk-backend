@@ -17,7 +17,7 @@ type SnapshotsRepo struct {
 }
 
 func NewSnapshotRepo(mongodb *mongo.Database) *SnapshotsRepo {
-	return &SnapshotsRepo{mongodb.Collection(db.AnalyticsCollection)}
+	return &SnapshotsRepo{mongodb.Collection(db.SnapshotsCollection)}
 }
 
 func (r *SnapshotsRepo) GetSnapshotsByUserID(userID primitive.ObjectID) ([]Snapshot, error) {
