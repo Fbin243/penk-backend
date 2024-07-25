@@ -122,3 +122,26 @@ func (r *CharactersRepo) DeleteCustomMetric(characterID primitive.ObjectID, metr
 
 	return metric, err
 }
+
+func (r *CharactersRepo) CreateMetricProperty(characterID primitive.ObjectID, metricID primitive.ObjectID, property *MetricProperty) (*MetricProperty, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := r.UpdateOne(ctx, bson.M{"_id": characterID, "custom_metrics._id": metricID}, bson.M{"$push": bson.M{"custom_metrics.$.properties": *property}})
+
+	return property, err
+}
+
+func (r *CharactersRepo) DeleteMetricProperty(characterID primitive.ObjectID, metricID primitive.ObjectID, propertyID primitive.ObjectID) (*MetricProperty, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	property := &MetricProperty{}
+	err := r.FindOneAndUpdate(ctx, bson.M{"_id": characterID, "custom_metrics._id": metricID}, bson.M{
+		"$pull": bson.M{
+			"custom_metrics.$.properties": bson.M{"_id": propertyID},
+		},
+	}).Decode(property)
+
+	return property, err
+}
