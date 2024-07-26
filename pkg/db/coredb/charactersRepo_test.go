@@ -1,9 +1,11 @@
 package coredb
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -155,6 +157,59 @@ func TestGetCharactersByUserID(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(characters))
 	assert.Equal(t, *character, characters[0])
+}
+
+func setupMultipleCharactersTest(t *testing.T) ([]*Character, func()) {
+	_, err := charactersRepo.Collection.DeleteMany(context.Background(), bson.M{})
+	if err != nil {
+		t.Fatalf("Failed to clean up characters collection: %v", err)
+	}
+
+	character1 := newCharacterFromInput(charInput)
+	character2 := newCharacterFromInput(&characterInputType{
+		Name:   "example2",
+		Avatar: "https://example2.com",
+		Gender: false,
+		Tags:   []string{"#tag3"},
+	})
+
+	_, err = charactersRepo.CreateCharacter(character1)
+	if err != nil {
+		t.Fatalf("Failed to create character 1: %v", err)
+	}
+
+	_, err = charactersRepo.CreateCharacter(character2)
+	if err != nil {
+		t.Fatalf("Failed to create character 2: %v", err)
+	}
+
+	cleanup := func() {
+		_, err := charactersRepo.DeleteCharacter(character1.ID)
+		if err != nil {
+			t.Fatalf("Failed to delete character 1: %v", err)
+		}
+
+		_, err = charactersRepo.DeleteCharacter(character2.ID)
+		if err != nil {
+			t.Fatalf("Failed to delete character 2: %v", err)
+		}
+	}
+
+	return []*Character{character1, character2}, cleanup
+}
+
+func TestGetAllCharacters(t *testing.T) {
+	characters, cleanup := setupMultipleCharactersTest(t)
+	defer cleanup()
+
+	retrievedCharacters, err := charactersRepo.GetAllCharacters()
+	assert.Nil(t, err)
+
+	assert.Equal(t, len(characters), len(retrievedCharacters))
+
+	for _, char := range characters {
+		assert.Contains(t, retrievedCharacters, *char)
+	}
 }
 
 func TestUpdateCharacter(t *testing.T) {
