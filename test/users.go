@@ -1,57 +1,95 @@
 package test
 
 import (
+	"fmt"
 	"net/http"
-	"testing"
 
 	"github.com/steinfletcher/apitest"
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
 )
 
-func registerNewUser(t *testing.T, ctx *TestContext) {
-	apitest.New().
-		EnableNetworking(cli).
-		Post(url).
-		Header("Authorization", "Bearer "+IdToken).
-		GraphQLQuery(`mutation { registerAccount {id} }`).
-		Expect(t).
-		Status(http.StatusOK).
-		Assert(jsonpath.NotPresent("$.errors")).
-		End().JSON(&responseBody)
+var response = &Map{}
 
-	logResponse(responseBody)
-}
+func getUserInfo(ctx *Context) error {
+	testingT, ok := (*ctx)["testingT"].(apitest.TestingT)
+	if !ok {
+		return ErrNotFoundTestingT
+	}
 
-func getUserInfo(t *testing.T, ctx *TestContext) {
-	// Get the user by ID -> success
 	apitest.New().
 		EnableNetworking(cli).
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(`query { 
-			user {createdAt currentCharacterID email firebaseUID id imageURL name updatedAt}
+			user {
+				autoSnapshot
+				availableSnapshots
+				createdAt
+				currentCharacterID
+				email
+				firebaseUID
+				id
+				imageURL
+				name
+				updatedAt
+			}
 		}`).
-		Expect(t).
+		Expect(testingT).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		End().JSON(&responseBody)
+		End().JSON(&response)
 
-	logResponse(responseBody)
+	response.log()
+	return nil
 }
 
-func updateUser(t *testing.T, ctx *TestContext) {
-	// Update the user's info -> success
+func updateUser(ctx *Context) error {
+	testingT, ok := (*ctx)["testingT"].(apitest.TestingT)
+	if !ok {
+		return ErrNotFoundTestingT
+	}
+
+	updateInfo := Map{
+		"name":               "Update name",
+		"imageURL":           "update.png",
+		"currentCharacterID": "669a2bbc53e6629a2931e1be",
+		"autoSnapshot":       false,
+	}
+
 	apitest.New().
 		EnableNetworking(cli).
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
-		GraphQLQuery(`mutation { 
-			updateAccount(name: "new name new namenew namenew namenew", currentCharacterID: "111111111111111111111111") {id}
-		}`).
-		Expect(t).
+		GraphQLQuery(fmt.Sprintf(`mutation {
+			updateAccount(
+				input: {
+					name: "%s"
+					imageURL: "%s"
+					currentCharacterID: "%s"
+					autoSnapshot: %t
+				}
+			) {
+				autoSnapshot
+				availableSnapshots
+				createdAt
+				currentCharacterID
+				email
+				firebaseUID
+				id
+				imageURL
+				name
+				updatedAt
+			}
+		}`, updateInfo["name"], updateInfo["imageURL"], updateInfo["currentCharacterID"], updateInfo["autoSnapshot"])).
+		Expect(testingT).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
-		End().JSON(&responseBody)
+		Assert(jsonpath.Equal("$.data.updateAccount.name", updateInfo["name"])).
+		Assert(jsonpath.Equal("$.data.updateAccount.imageURL", updateInfo["imageURL"])).
+		Assert(jsonpath.Equal("$.data.updateAccount.currentCharacterID", updateInfo["currentCharacterID"])).
+		Assert(jsonpath.Equal("$.data.updateAccount.autoSnapshot", updateInfo["autoSnapshot"])).
+		End().JSON(&response)
 
-	logResponse(responseBody)
+	response.log()
+	return nil
 }
