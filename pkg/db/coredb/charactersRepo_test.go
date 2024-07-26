@@ -191,7 +191,7 @@ func TestCreateCustomMetric(t *testing.T) {
 	assertWithMetricInput(t, createdMetric, metricInput1)
 }
 
-func TestDeleteCustomMetric(t *testing.T) {
+func TestUpdateCustomMetric(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 	_, err := charactersRepo.CreateCharacter(character)
 	assert.Nil(t, err)
@@ -200,9 +200,32 @@ func TestDeleteCustomMetric(t *testing.T) {
 	_, err = charactersRepo.CreateCustomMetric(character.ID, metric)
 	assert.Nil(t, err)
 
-	deletedMetric, err := charactersRepo.DeleteCustomMetric(character.ID, metric.ID)
+	updateInput := &metricInputType{
+		Name:        "Updated Metric",
+		Description: "Updated description",
+		Style: styleInputType{
+			Color: "green",
+			Icon:  "updatedIcon",
+		},
+		Properties: []MetricProperty{
+			{
+				ID:    primitive.NewObjectID(),
+				Name:  "Updated Property",
+				Type:  "int",
+				Value: 20,
+				Unit:  "updatedUnits",
+			},
+		},
+	}
+
+	metric.Name = updateInput.Name
+	metric.Description = updateInput.Description
+	metric.Style = MetricStyle(updateInput.Style)
+	metric.Properties = updateInput.Properties
+
+	updatedMetric, err := charactersRepo.UpdateCustomMetric(character.ID, metric)
 	assert.Nil(t, err)
-	assertWithMetricInput(t, deletedMetric, metricInput1)
+	assertWithMetricInput(t, updatedMetric, updateInput)
 }
 
 func TestAddMetricProperty(t *testing.T) {
@@ -218,18 +241,16 @@ func TestAddMetricProperty(t *testing.T) {
 		ID:    primitive.NewObjectID(),
 		Name:  "New Property",
 		Type:  "int",
-		Value: 100,
+		Value: 200,
 		Unit:  "units",
 	}
 
-	metric.Properties = append(metric.Properties, property)
-
-	updatedMetric, err := charactersRepo.UpdateCharacter(character)
+	createdProperty, err := charactersRepo.CreateMetricProperty(character.ID, metric.ID, &property)
 	assert.Nil(t, err)
-	assert.Equal(t, updatedMetric.CustomMetrics[0].Properties, metric.Properties)
+	assert.Equal(t, createdProperty, &property)
 }
 
-func TestRemoveMetricProperty(t *testing.T) {
+func TestUpdateMetricProperty(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 	_, err := charactersRepo.CreateCharacter(character)
 	assert.Nil(t, err)
@@ -240,23 +261,24 @@ func TestRemoveMetricProperty(t *testing.T) {
 
 	property := MetricProperty{
 		ID:    primitive.NewObjectID(),
-		Name:  "New Property",
+		Name:  "Property 1",
 		Type:  "int",
-		Value: 100,
+		Value: 10,
 		Unit:  "units",
 	}
 
-	metric.Properties = append(metric.Properties, property)
-
-	// Update the metric with the new property
-	updatedMetric, err := charactersRepo.UpdateCharacter(character)
+	_, err = charactersRepo.CreateMetricProperty(character.ID, metric.ID, &property)
 	assert.Nil(t, err)
-	assert.Equal(t, updatedMetric.CustomMetrics[0].Properties, metric.Properties)
 
-	// Now remove the property
-	metric.Properties = metric.Properties[:len(metric.Properties)-1]
+	updateProperty := MetricProperty{
+		ID:    property.ID,
+		Name:  "Updated Property",
+		Type:  "float",
+		Value: 15.5,
+		Unit:  "updatedUnits",
+	}
 
-	updatedMetric, err = charactersRepo.UpdateCharacter(character)
+	updatedProperty, err := charactersRepo.UpdateMetricProperty(character.ID, metric.ID, &updateProperty)
 	assert.Nil(t, err)
-	assert.Equal(t, updatedMetric.CustomMetrics[0].Properties, metric.Properties)
+	assert.Equal(t, updatedProperty, &updateProperty)
 }

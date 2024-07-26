@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type CharactersRepo struct {
@@ -109,18 +110,45 @@ func (r *CharactersRepo) CreateCustomMetric(characterID primitive.ObjectID, metr
 	return metric, err
 }
 
+func (r *CharactersRepo) UpdateCustomMetric(characterID primitive.ObjectID, metric *CustomMetric) (*CustomMetric, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := r.UpdateOne(ctx, bson.M{"_id": characterID, "custom_metrics._id": metric.ID}, bson.M{"$set": bson.M{
+		"custom_metrics.$.name":        metric.Name,
+		"custom_metrics.$.description": metric.Description,
+		"custom_metrics.$.style":       metric.Style,
+		"custom_metrics.$.properties":  metric.Properties,
+	}})
+
+	return metric, err
+}
+
 func (r *CharactersRepo) DeleteCustomMetric(characterID primitive.ObjectID, metricID primitive.ObjectID) (*CustomMetric, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	metric := &CustomMetric{}
-	err := r.FindOneAndUpdate(ctx, bson.M{"_id": characterID}, bson.M{
-		"$pull": bson.M{
-			"custom_metrics": bson.M{"_id": metricID},
-		},
-	}).Decode(metric)
+	character := &Character{}
+	err := r.FindOne(ctx, bson.M{"_id": characterID}).Decode(character)
+	if err != nil {
+		return nil, err
+	}
 
-	return metric, err
+	var deletedMetric *CustomMetric
+	for i, metric := range character.CustomMetrics {
+		if metric.ID == metricID {
+			deletedMetric = &metric
+			character.CustomMetrics = append(character.CustomMetrics[:i], character.CustomMetrics[i+1:]...)
+			break
+		}
+	}
+
+	if deletedMetric == nil {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	_, err = r.UpdateOne(ctx, bson.M{"_id": characterID}, bson.M{"$set": bson.M{"custom_metrics": character.CustomMetrics}})
+	return deletedMetric, err
 }
 
 func (r *CharactersRepo) CreateMetricProperty(characterID primitive.ObjectID, metricID primitive.ObjectID, property *MetricProperty) (*MetricProperty, error) {
@@ -128,6 +156,26 @@ func (r *CharactersRepo) CreateMetricProperty(characterID primitive.ObjectID, me
 	defer cancel()
 
 	_, err := r.UpdateOne(ctx, bson.M{"_id": characterID, "custom_metrics._id": metricID}, bson.M{"$push": bson.M{"custom_metrics.$.properties": *property}})
+
+	return property, err
+}
+
+func (r *CharactersRepo) UpdateMetricProperty(characterID primitive.ObjectID, metricID primitive.ObjectID, property *MetricProperty) (*MetricProperty, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := r.UpdateOne(ctx, bson.M{"_id": characterID, "custom_metrics._id": metricID, "custom_metrics.properties._id": property.ID}, bson.M{
+		"$set": bson.M{
+			"custom_metrics.$.properties.$[property].name":  property.Name,
+			"custom_metrics.$.properties.$[property].type":  property.Type,
+			"custom_metrics.$.properties.$[property].value": property.Value,
+			"custom_metrics.$.properties.$[property].unit":  property.Unit,
+		},
+	}, &options.UpdateOptions{
+		ArrayFilters: &options.ArrayFilters{
+			Filters: []interface{}{bson.M{"property._id": property.ID}},
+		},
+	})
 
 	return property, err
 }
