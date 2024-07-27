@@ -2,4 +2,4 @@ package test
 
 import "fmt"
 
-var ErrNotFoundTestingT = fmt.Errorf("testingT not found in the context")
+var ErrNotFoundInContext = fmt.Errorf("error not found in the context")

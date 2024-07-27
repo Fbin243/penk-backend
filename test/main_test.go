@@ -10,7 +10,7 @@ func TestUserFlow(t *testing.T) {
 		ctx: &Context{
 			"testingT": t,
 		},
-		firstNode: NewFirstNode(getUserInfo, updateUser),
+		firstNode: NewFirstNode(getUserInfo, updateUser, createNewCharacter),
 	}
 
 	err := p.Exec()

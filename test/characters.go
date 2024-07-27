@@ -10,19 +10,58 @@ import (
 func createNewCharacter(ctx *Context) error {
 	testingT, ok := (*ctx)["testingT"].(apitest.TestingT)
 	if !ok {
-		return ErrNotFoundTestingT
+		return ErrNotFoundInContext
+	}
+
+	userID, ok := (*ctx)["userID"].(string)
+	if !ok {
+		return ErrNotFoundInContext
+	}
+
+	query := `
+	mutation CreateCharacter($name: String!, $gender: Boolean, $avatar: String!, $tags: [String]) {
+		createCharacter(
+			input: { 
+				name: $name, 
+				gender: $gender, 
+				avatar: $avatar, 
+				tags: $tags 
+			}
+		) {
+			avatar
+			gender
+			id
+			limitedMetricNumber
+			name
+			tags
+			totalFocusedTime
+			userID
+		}
+	}`
+
+	variables := Map{
+		"name":   "Conan",
+		"gender": true,
+		"avatar": "avatar.png",
+		"tags":   []interface{}{"#Kid", "#Detective"},
 	}
 
 	apitest.New().
 		EnableNetworking(cli).
 		Post(url).
 		Header("Authorization", "Bearer "+IdToken).
-		GraphQLQuery(`mutation {
-			createCharacter(name: "Test Character", gender: "true") {id}
-		}`).
+		GraphQLQuery(query, variables).
 		Expect(testingT).
 		Status(http.StatusOK).
 		Assert(jsonpath.NotPresent("$.errors")).
+		Assert(jsonpath.Equal("$.data.createCharacter.name", variables["name"])).
+		Assert(jsonpath.Equal("$.data.createCharacter.avatar", variables["avatar"])).
+		Assert(jsonpath.Equal("$.data.createCharacter.gender", variables["gender"])).
+		Assert(jsonpath.Equal("$.data.createCharacter.tags", variables["tags"])).
+		Assert(jsonpath.Present("$.data.createCharacter.id")).
+		Assert(jsonpath.Equal("$.data.createCharacter.limitedMetricNumber", float64(2))).
+		Assert(jsonpath.Equal("$.data.createCharacter.totalFocusedTime", float64(0))).
+		Assert(jsonpath.Equal("$.data.createCharacter.userID", userID)).
 		End().JSON(response)
 
 	response.log()
