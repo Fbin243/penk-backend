@@ -2,11 +2,10 @@ package users
 
 import (
 	"fmt"
-	"log"
-	"time"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/pkg/utils"
 
 	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -25,7 +24,7 @@ func NewUsersResolver(usersRepo *coredb.UsersRepo) *UsersResolver {
 func (r *UsersResolver) GetUserByToken(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	return user, nil
@@ -34,7 +33,7 @@ func (r *UsersResolver) GetUserByToken(params graphql.ResolveParams) (interface{
 func (r *UsersResolver) UpdateAccount(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	input := params.Args["input"].(map[string]interface{})
@@ -55,7 +54,11 @@ func (r *UsersResolver) UpdateAccount(params graphql.ResolveParams) (interface{}
 		user.CurrentCharacterID = currentCharacterOID
 	}
 
-	user.UpdatedAt = time.Now()
+	if autoSnapshot, ok := input["autoSnapshot"].(bool); ok {
+		user.AutoSnapshot = autoSnapshot
+	}
+
+	user.UpdatedAt = utils.Now()
 
 	err := ValidateUser(user)
 	if err != nil {
@@ -64,8 +67,7 @@ func (r *UsersResolver) UpdateAccount(params graphql.ResolveParams) (interface{}
 
 	updatedUser, err := r.UsersRepo.UpdateUser(&user)
 	if err != nil {
-		log.Printf("failed to update user: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to update user: %v", err)
 	}
 
 	return *updatedUser, nil

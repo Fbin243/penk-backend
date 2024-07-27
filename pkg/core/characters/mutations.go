@@ -23,7 +23,7 @@ type CharactersMutation struct {
 func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 	return &CharactersMutation{
 		CreateCharacter: &graphql.Field{
-			Type:        characterType,
+			Type:        CharacterType,
 			Description: "Create a character",
 			Args: graphql.FieldConfigArgument{
 				"input": &graphql.ArgumentConfig{
@@ -33,7 +33,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.CreateCharacter,
 		},
 		UpdateCharacter: &graphql.Field{
-			Type:        characterType,
+			Type:        CharacterType,
 			Description: "Update a character",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
@@ -46,7 +46,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.UpdateCharacter,
 		},
 		DeleteCharacter: &graphql.Field{
-			Type:        characterType,
+			Type:        CharacterType,
 			Description: "Delete a character",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
@@ -56,7 +56,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.DeleteCharacter,
 		},
 		ResetCharacter: &graphql.Field{
-			Type:        characterType,
+			Type:        CharacterType,
 			Description: "Reset a character",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{

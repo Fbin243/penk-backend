@@ -2,7 +2,6 @@ package characters
 
 import (
 	"fmt"
-	"log"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
@@ -26,7 +25,7 @@ func NewCharactersResolver(charactersRepo *coredb.CharactersRepo, usersRepo *cor
 func (r *CharactersResolver) GetCharacterByID(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	id := params.Args["id"].(string)
@@ -41,7 +40,7 @@ func (r *CharactersResolver) GetCharacterByID(params graphql.ResolveParams) (int
 	}
 
 	if character.UserID != user.ID {
-		return nil, fmt.Errorf("permission denied")
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	return *character, nil
@@ -50,13 +49,12 @@ func (r *CharactersResolver) GetCharacterByID(params graphql.ResolveParams) (int
 func (r *CharactersResolver) GetCharactersByUserID(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	characters, err := r.CharactersRepo.GetCharactersByUserID(user.ID)
 	if err != nil {
-		log.Printf("failed to find character: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to find characters: %v", err)
 	}
 
 	return characters, nil
@@ -65,15 +63,14 @@ func (r *CharactersResolver) GetCharactersByUserID(params graphql.ResolveParams)
 func (r *CharactersResolver) GetAllCharacters(params graphql.ResolveParams) (interface{}, error) {
 	_, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	// TODO: Check if the user is admin ...
 
 	characters, err := r.CharactersRepo.GetAllCharacters()
 	if err != nil {
-		log.Printf("failed to find characters: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to find characters: %v", err)
 	}
 
 	return characters, nil
@@ -82,14 +79,13 @@ func (r *CharactersResolver) GetAllCharacters(params graphql.ResolveParams) (int
 func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	// TODO: Check if the user has already created 2 characters, maybe changed later
 	characters, err := r.CharactersRepo.GetCharactersByUserID(user.ID)
 	if err != nil {
-		log.Printf("failed to find user's character: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to find characters: %v", err)
 	}
 
 	if len(characters) >= 2 {
@@ -128,15 +124,14 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 
 	createdCharacter, err := r.CharactersRepo.CreateCharacter(&character)
 	if err != nil {
-		log.Printf("failed to create character: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to create character: %v", err)
 	}
 
 	// TODO: Character has been created, so set the current character of the user to it
 	user.CurrentCharacterID = createdCharacter.ID
 	_, err = r.UsersRepo.UpdateUser(&user)
 	if err != nil {
-		log.Printf("failed to update current character: %v\n", err)
+		return nil, fmt.Errorf("failed to update user: %v", err)
 	}
 
 	return *createdCharacter, nil
@@ -145,7 +140,7 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	id := params.Args["id"].(string)
@@ -160,7 +155,7 @@ func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (inte
 	}
 
 	if character.UserID != user.ID {
-		return nil, fmt.Errorf("permission denied")
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	input := params.Args["input"].(map[string]interface{})
@@ -197,7 +192,7 @@ func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (inte
 func (r *CharactersResolver) DeleteCharacter(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	id := params.Args["id"].(string)
@@ -207,7 +202,7 @@ func (r *CharactersResolver) DeleteCharacter(params graphql.ResolveParams) (inte
 	}
 
 	if objectID != user.ID {
-		return nil, fmt.Errorf("permission denied")
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	deletedCharacter, err := r.CharactersRepo.DeleteCharacter(objectID)
@@ -221,7 +216,7 @@ func (r *CharactersResolver) DeleteCharacter(params graphql.ResolveParams) (inte
 func (r *CharactersResolver) ResetCharacter(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	id := params.Args["id"].(string)
@@ -231,7 +226,7 @@ func (r *CharactersResolver) ResetCharacter(params graphql.ResolveParams) (inter
 	}
 
 	if objectID != user.ID {
-		return nil, fmt.Errorf("permission denied")
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(objectID)

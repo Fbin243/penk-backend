@@ -1,34 +1,41 @@
 package characters
 
 import (
-	"fmt"
-
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/pkg/utils"
 
 	"github.com/graphql-go/graphql"
 )
 
-var characterType = graphql.NewObject(graphql.ObjectConfig{
+var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Character",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if character, ok := p.Source.(coredb.Character); ok {
+					if character.ID.IsZero() {
+						return nil, nil
+					}
+
 					return character.ID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to convert character ObjectID to Hex")
+				return nil, utils.ErrorConvertOIDToHex
 			},
 		},
 		"userID": &graphql.Field{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if character, ok := p.Source.(coredb.Character); ok {
+					if character.ID.IsZero() {
+						return nil, nil
+					}
+
 					return character.UserID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to convert user ObjectID to Hex")
+				return nil, utils.ErrorConvertOIDToHex
 			},
 		},
 		"name": &graphql.Field{
@@ -65,7 +72,7 @@ var customMetricType = graphql.NewObject(graphql.ObjectConfig{
 					return metric.ID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to convert custom metric ObjectID to Hex")
+				return nil, utils.ErrorConvertOIDToHex
 			},
 		},
 		"name": &graphql.Field{
@@ -111,7 +118,7 @@ var metricPropertyType = graphql.NewObject(graphql.ObjectConfig{
 					return property.ID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to convert property ObjectID to Hex")
+				return nil, utils.ErrorConvertOIDToHex
 			},
 		},
 		"name": &graphql.Field{

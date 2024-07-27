@@ -7,6 +7,7 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/pkg/utils"
 
 	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -27,7 +28,7 @@ func NewTimeTrackingsResolver(timeTrackingsRepo *coredb.TimeTrackingsRepo, chara
 func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	characterID := params.Args["characterID"].(string)
@@ -42,7 +43,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 	}
 
 	if character.UserID != user.ID {
-		return nil, fmt.Errorf("permission denied")
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	customMetricID, ok := params.Args["customMetricID"].(string)
@@ -78,15 +79,14 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		ID:              primitive.NewObjectID(),
 		CharacterID:     characterOID,
 		CustomMetricID:  customMetricOID,
-		StartTime:       time.Now(),
+		StartTime:       utils.Now(),
 		MinDurationTime: 600,
 		MaxDurationTime: 14400,
 	}
 
 	createdTimeTracking, err := r.TimeTrackingsRepo.CreateTimeTracking(&timeTracking)
 	if err != nil {
-		log.Printf("failed to insert time tracking: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to create time tracking: %v", err)
 	}
 
 	return *createdTimeTracking, nil
@@ -95,7 +95,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	timeTrackingID := params.Args["id"].(string)
@@ -115,7 +115,7 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 	}
 
 	if character.UserID != user.ID {
-		return nil, fmt.Errorf("permission denied")
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	if !timeTracking.EndTime.IsZero() {

@@ -7,12 +7,14 @@ import (
 )
 
 type User struct {
-	ID                 primitive.ObjectID `json:"id" bson:"_id"`
+	ID                 primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name               string             `json:"name" bson:"name" validate:"required,min=1,max=50"`
 	Email              string             `json:"email" bson:"email" validate:"required,email"`
 	FirebaseUID        string             `json:"firebaseUID" bson:"firebase_uid"`
 	ImageURL           string             `json:"imageURL" bson:"image_url"`
 	CurrentCharacterID primitive.ObjectID `json:"currentCharacterID" bson:"current_character_id"`
+	AvailableSnapshots int32              `json:"availableSnapshots" bson:"available_snapshots"`
+	AutoSnapshot       bool               `json:"autoSnapshot" bson:"auto_snapshot"`
 	CreatedAt          time.Time          `json:"createdAt" bson:"created_at"`
 	UpdatedAt          time.Time          `json:"updatedAt" bson:"updated_at"`
 }
@@ -55,8 +57,8 @@ type Character struct {
 
 type TimeTracking struct {
 	ID              primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	CharacterID     primitive.ObjectID `json:"characterID" bson:"character_id"`
-	CustomMetricID  primitive.ObjectID `json:"customMetricID" bson:"custom_metric_id"`
+	CharacterID     primitive.ObjectID `json:"characterID,omitempty" bson:"character_id,omitempty"`
+	CustomMetricID  primitive.ObjectID `json:"customMetricID,omitempty" bson:"custom_metric_id,omitempty"`
 	StartTime       time.Time          `json:"startTime" bson:"start_time"`
 	EndTime         time.Time          `json:"endTime" bson:"end_time"`
 	MinDurationTime int32              `json:"minDurationTime" bson:"min_duration_time"`

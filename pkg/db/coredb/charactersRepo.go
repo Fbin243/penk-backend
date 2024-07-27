@@ -2,7 +2,7 @@ package coredb
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"time"
 
 	"tenkhours/pkg/db"
@@ -57,15 +57,13 @@ func (r *CharactersRepo) GetAllCharacters() ([]Character, error) {
 	var characters []Character
 	cursor, err := r.Find(ctx, primitive.M{})
 	if err != nil {
-		log.Printf("failed to fetch characters: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to find characters: %v", err)
 	}
 
 	defer cursor.Close(ctx)
 
 	err = cursor.All(ctx, &characters)
 	if err != nil {
-		log.Printf("failed to decode characters: %v\n", err)
 		return nil, err
 	}
 
