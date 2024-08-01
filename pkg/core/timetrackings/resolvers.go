@@ -177,6 +177,7 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 	if duration > timeTracking.MaxDurationTime {
 		duration = int32(timeTracking.MaxDurationTime)
 		log.Printf("the period time is more than 4 hours, so the time tracking will be limited to 4 hours")
+		endTime = timeTracking.StartTime.Add(14400)
 	}
 
 	timeTracking.EndTime = endTime
