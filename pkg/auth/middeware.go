@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
 
@@ -20,7 +21,7 @@ type Middleware struct {
 }
 
 func NewMiddleware() *Middleware {
-	return &Middleware{userRepo: coredb.NewUsersRepo()}
+	return &Middleware{userRepo: coredb.NewUsersRepo(db.GetDB())}
 }
 
 func (m *Middleware) CheckRequestBody(c *gin.Context) {
