@@ -201,7 +201,12 @@ func (r *CharactersResolver) DeleteCharacter(params graphql.ResolveParams) (inte
 		return nil, err
 	}
 
-	if objectID != user.ID {
+	character, err := r.CharactersRepo.GetCharacterByID(objectID)
+	if err != nil {
+		return nil, fmt.Errorf("character not found: %v", err)
+	}
+
+	if character.UserID != user.ID {
 		return nil, auth.ErrorPermissionDenied
 	}
 

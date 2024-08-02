@@ -1,18 +1,52 @@
 package test
 
 import (
-	"log"
+	"context"
 	"testing"
+
+	"tenkhours/pineline"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUserFlow(t *testing.T) {
-	p := &PineLine{
-		ctx: &Context{
-			"testingT": t,
-		},
-		firstNode: NewFirstNode(getUserInfo, updateUser, createNewCharacter),
-	}
+	ctx := context.WithValue(context.Background(), TestingT, t)
 
-	err := p.Exec()
-	log.Print(err)
+	p := pineline.Pineline(
+		getUser(),
+		saveToContext(UserID, "$.data.user.id"),
+		logResponse,
+
+		updateUser(),
+		logResponse,
+
+		createNewCharacter(false),
+		saveToContext(CharacterID, "$.data.createCharacter.id"),
+		logResponse,
+
+		createNewCharacter(false),
+		logResponse,
+
+		createNewCharacter(true),
+		logResponse,
+
+		updateCharacter(),
+		logResponse,
+
+		createCustomMetric(false),
+		logResponse,
+
+		createCustomMetric(false),
+		logResponse,
+
+		createCustomMetric(true),
+		logResponse,
+
+		deleteCharacter(),
+		logResponse,
+	)
+
+	err := p(&ctx)
+	assert.Empty(t, err)
+	logResponse(&ctx)
 }

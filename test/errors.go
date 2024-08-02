@@ -2,4 +2,6 @@ package test
 
 import "fmt"
 
-var ErrNotFoundInContext = fmt.Errorf("error not found in the context")
+func ErrNotFoundInContext(key ContextKey) error {
+	return fmt.Errorf("%s is not found in context at stage", key)
+}
