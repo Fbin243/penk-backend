@@ -4,78 +4,38 @@ import (
 	"context"
 
 	"tenkhours/pineline"
+	"tenkhours/test/assertions"
+	"tenkhours/test/query"
+	"tenkhours/test/variables"
 )
 
 func getUser(expectError bool) pineline.Stage {
 	return queryGraphQL(func(ctx *context.Context) (*QueryParams, error) {
-		assertionChain := assertionChainSuccess.End()
+		assertion := assertions.AssertionSuccess
 		if expectError {
-			assertionChain = assertionChainError.End()
+			assertion = assertions.AssertionError
 		}
 
 		return &QueryParams{
-			Query: `query { 
-				user {
-					autoSnapshot
-					availableSnapshots
-					createdAt
-					currentCharacterID
-					email
-					firebaseUID
-					id
-					imageURL
-					name
-					updatedAt
-				}
-			}`,
-			AssertionChain: assertionChain,
+			Query:     query.User,
+			Assertion: assertion.End(),
 		}, nil
 	})
 }
 
 func updateUser(expectError bool) pineline.Stage {
 	return queryGraphQL(func(ctx *context.Context) (*QueryParams, error) {
-		variables := map[string]interface{}{
-			"name":               "Update name",
-			"imageURL":           "update.png",
-			"currentCharacterID": "669a2bbc53e6629a2931e1be",
-			"autoSnapshot":       false,
-		}
+		variables := variables.UpdateAccount
 
-		assertionChain := assertionChainSuccess.
-			Equal("$.data.updateAccount.name", variables["name"]).
-			Equal("$.data.updateAccount.imageURL", variables["imageURL"]).
-			Equal("$.data.updateAccount.currentCharacterID", variables["currentCharacterID"]).
-			Equal("$.data.updateAccount.autoSnapshot", variables["autoSnapshot"]).
-			End()
+		assertion := assertions.UpdateAccount
 		if expectError {
-			assertionChain = assertionChainError.End()
+			assertion = assertions.AssertionError
 		}
 
 		return &QueryParams{
-			Query: `mutation UpdateAccount($name: String, $imageURL: String, $currentCharacterID: String, $autoSnapshot: Boolean) {
-				updateAccount(
-					input: {
-						name: $name
-						imageURL: $imageURL
-						currentCharacterID: $currentCharacterID
-						autoSnapshot: $autoSnapshot
-					}
-				) {
-					autoSnapshot
-					availableSnapshots
-					createdAt
-					currentCharacterID
-					email
-					firebaseUID
-					id
-					imageURL
-					name
-					updatedAt
-				}
-			}`,
-			Variables:      variables,
-			AssertionChain: assertionChain,
+			Query:     query.UpdateAccount,
+			Variables: variables,
+			Assertion: assertion.End(),
 		}, nil
 	})
 }

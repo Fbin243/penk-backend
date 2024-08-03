@@ -14,39 +14,43 @@ func TestUserFlow(t *testing.T) {
 
 	p := pineline.Pineline(
 		getUser(false),
-		saveToContext(UserID, "$.data.user.id"),
+		saveToContext(User, "$.data.user"),
 		logResponse,
 
 		updateUser(false),
 		logResponse,
 
-		createNewCharacter(false),
-		saveToContext(CharacterID, "$.data.createCharacter.id"),
+		createCharacter(false),
+		saveToContext(Character1, "$.data.createCharacter"),
 		logResponse,
 
-		createNewCharacter(false),
+		createCharacter(false),
+		saveToContext(Character2, "$.data.createCharacter"),
 		logResponse,
 
-		createNewCharacter(true),
+		createCharacter(true),
 		logResponse,
 
-		updateCharacter(false),
+		updateCharacter(Character1, false),
 		logResponse,
 
-		createCustomMetric(false),
+		createCustomMetric(Character1, false),
 		logResponse,
 
-		createCustomMetric(false),
+		createCustomMetric(Character1, false),
 		logResponse,
 
-		createCustomMetric(true),
+		createCustomMetric(Character1, true),
 		logResponse,
 
-		deleteCharacter(true),
+		deleteCharacter(Character2, false),
 		logResponse,
 	)
 
 	err := p(&ctx)
+	if err != nil {
+		logResponse(&ctx)
+	}
+
 	assert.Empty(t, err)
-	logResponse(&ctx)
 }

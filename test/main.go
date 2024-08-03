@@ -10,15 +10,10 @@ import (
 	"tenkhours/pineline"
 
 	"github.com/steinfletcher/apitest"
-	jsonpath "github.com/steinfletcher/apitest-jsonpath"
-	jspath "github.com/yalp/jsonpath"
+	"github.com/yalp/jsonpath"
 )
 
-var (
-	response              = map[string]interface{}{}
-	assertionChainSuccess = jsonpath.Chain().NotPresent("$.errors")
-	assertionChainError   = jsonpath.Chain().Present("$.errors")
-)
+var response = map[string]interface{}{}
 
 func logResponse(ctx *context.Context) error {
 	jsonData, err := json.MarshalIndent(response, "", "  ")
@@ -27,18 +22,22 @@ func logResponse(ctx *context.Context) error {
 	}
 
 	log.Printf("--> Response: %v\n", string(jsonData))
+
+	// Reset response
+	response = map[string]interface{}{}
+
 	return nil
 }
 
 type QueryParams struct {
-	Query          string
-	Variables      map[string]interface{}
-	AssertionChain func(*http.Response, *http.Request) error
+	Query     string
+	Variables map[string]interface{}
+	Assertion func(*http.Response, *http.Request) error
 }
 
 func saveToContext(key ContextKey, jsonPath string) pineline.Stage {
 	return func(ctx *context.Context) error {
-		value, err := jspath.Read(response, jsonPath)
+		value, err := jsonpath.Read(response, jsonPath)
 		if err != nil {
 			return err
 		}
@@ -67,7 +66,7 @@ func queryGraphQL(queryParamsFunc func(ctx *context.Context) (*QueryParams, erro
 			GraphQLQuery(queryParams.Query, queryParams.Variables).
 			Expect(testingT).
 			Status(http.StatusOK).
-			Assert(queryParams.AssertionChain).
+			Assert(queryParams.Assertion).
 			End().
 			JSON(&response)
 
