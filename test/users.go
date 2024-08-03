@@ -4,12 +4,15 @@ import (
 	"context"
 
 	"tenkhours/pineline"
-
-	jsonpath "github.com/steinfletcher/apitest-jsonpath"
 )
 
-func getUser() pineline.Stage {
+func getUser(expectError bool) pineline.Stage {
 	return queryGraphQL(func(ctx *context.Context) (*QueryParams, error) {
+		assertionChain := assertionChainSuccess.End()
+		if expectError {
+			assertionChain = assertionChainError.End()
+		}
+
 		return &QueryParams{
 			Query: `query { 
 				user {
@@ -25,18 +28,28 @@ func getUser() pineline.Stage {
 					updatedAt
 				}
 			}`,
-			AssertionChain: jsonpath.Chain().NotPresent("$.errors").End(),
+			AssertionChain: assertionChain,
 		}, nil
 	})
 }
 
-func updateUser() pineline.Stage {
+func updateUser(expectError bool) pineline.Stage {
 	return queryGraphQL(func(ctx *context.Context) (*QueryParams, error) {
 		variables := map[string]interface{}{
 			"name":               "Update name",
 			"imageURL":           "update.png",
 			"currentCharacterID": "669a2bbc53e6629a2931e1be",
 			"autoSnapshot":       false,
+		}
+
+		assertionChain := assertionChainSuccess.
+			Equal("$.data.updateAccount.name", variables["name"]).
+			Equal("$.data.updateAccount.imageURL", variables["imageURL"]).
+			Equal("$.data.updateAccount.currentCharacterID", variables["currentCharacterID"]).
+			Equal("$.data.updateAccount.autoSnapshot", variables["autoSnapshot"]).
+			End()
+		if expectError {
+			assertionChain = assertionChainError.End()
 		}
 
 		return &QueryParams{
@@ -61,13 +74,8 @@ func updateUser() pineline.Stage {
 					updatedAt
 				}
 			}`,
-			Variables: variables,
-			AssertionChain: jsonpath.Chain().NotPresent("$.errors").
-				Equal("$.data.updateAccount.name", variables["name"]).
-				Equal("$.data.updateAccount.imageURL", variables["imageURL"]).
-				Equal("$.data.updateAccount.currentCharacterID", variables["currentCharacterID"]).
-				Equal("$.data.updateAccount.autoSnapshot", variables["autoSnapshot"]).
-				End(),
+			Variables:      variables,
+			AssertionChain: assertionChain,
 		}, nil
 	})
 }

@@ -13,11 +13,11 @@ func TestUserFlow(t *testing.T) {
 	ctx := context.WithValue(context.Background(), TestingT, t)
 
 	p := pineline.Pineline(
-		getUser(),
+		getUser(false),
 		saveToContext(UserID, "$.data.user.id"),
 		logResponse,
 
-		updateUser(),
+		updateUser(false),
 		logResponse,
 
 		createNewCharacter(false),
@@ -30,7 +30,7 @@ func TestUserFlow(t *testing.T) {
 		createNewCharacter(true),
 		logResponse,
 
-		updateCharacter(),
+		updateCharacter(false),
 		logResponse,
 
 		createCustomMetric(false),
@@ -42,7 +42,7 @@ func TestUserFlow(t *testing.T) {
 		createCustomMetric(true),
 		logResponse,
 
-		deleteCharacter(),
+		deleteCharacter(true),
 		logResponse,
 	)
 

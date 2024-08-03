@@ -10,10 +10,15 @@ import (
 	"tenkhours/pineline"
 
 	"github.com/steinfletcher/apitest"
-	"github.com/yalp/jsonpath"
+	jsonpath "github.com/steinfletcher/apitest-jsonpath"
+	jspath "github.com/yalp/jsonpath"
 )
 
-var response = map[string]interface{}{}
+var (
+	response              = map[string]interface{}{}
+	assertionChainSuccess = jsonpath.Chain().NotPresent("$.errors")
+	assertionChainError   = jsonpath.Chain().Present("$.errors")
+)
 
 func logResponse(ctx *context.Context) error {
 	jsonData, err := json.MarshalIndent(response, "", "  ")
@@ -33,7 +38,7 @@ type QueryParams struct {
 
 func saveToContext(key ContextKey, jsonPath string) pineline.Stage {
 	return func(ctx *context.Context) error {
-		value, err := jsonpath.Read(response, jsonPath)
+		value, err := jspath.Read(response, jsonPath)
 		if err != nil {
 			return err
 		}
