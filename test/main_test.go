@@ -5,51 +5,55 @@ import (
 	"testing"
 
 	"tenkhours/pineline"
+	"tenkhours/test/common"
+	"tenkhours/test/core/characters"
+	"tenkhours/test/core/characters/metrics"
+	"tenkhours/test/core/users"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestUserFlow(t *testing.T) {
-	ctx := context.WithValue(context.Background(), TestingT, t)
+	ctx := context.WithValue(context.Background(), common.TestingT, t)
 
 	p := pineline.Pineline(
-		getUser(false),
-		saveToContext(User, "$.data.user"),
-		logResponse,
+		users.GetUser(false),
+		common.SaveToContext(common.User, "$.data.user"),
+		common.LogResponse,
 
-		updateUser(false),
-		logResponse,
+		users.UpdateUser(false),
+		common.LogResponse,
 
-		createCharacter(false),
-		saveToContext(Character1, "$.data.createCharacter"),
-		logResponse,
+		characters.CreateCharacter(false),
+		common.SaveToContext(common.Character1, "$.data.createCharacter"),
+		common.LogResponse,
 
-		createCharacter(false),
-		saveToContext(Character2, "$.data.createCharacter"),
-		logResponse,
+		characters.CreateCharacter(false),
+		common.SaveToContext(common.Character2, "$.data.createCharacter"),
+		common.LogResponse,
 
-		createCharacter(true),
-		logResponse,
+		characters.CreateCharacter(true),
+		common.LogResponse,
 
-		updateCharacter(Character1, false),
-		logResponse,
+		characters.UpdateCharacter(common.Character1, false),
+		common.LogResponse,
 
-		createCustomMetric(Character1, false),
-		logResponse,
+		metrics.CreateCustomMetric(common.Character1, false),
+		common.LogResponse,
 
-		createCustomMetric(Character1, false),
-		logResponse,
+		metrics.CreateCustomMetric(common.Character1, false),
+		common.LogResponse,
 
-		createCustomMetric(Character1, true),
-		logResponse,
+		metrics.CreateCustomMetric(common.Character1, true),
+		common.LogResponse,
 
-		deleteCharacter(Character2, false),
-		logResponse,
+		characters.DeleteCharacter(common.Character2, false),
+		common.LogResponse,
 	)
 
 	err := p(&ctx)
 	if err != nil {
-		logResponse(&ctx)
+		common.LogResponse(&ctx)
 	}
 
 	assert.Empty(t, err)

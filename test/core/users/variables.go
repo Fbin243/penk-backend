@@ -1,6 +1,6 @@
-package variables
+package users
 
-var UpdateAccount = map[string]interface{}{
+var UpdateAccountVariable = map[string]interface{}{
 	"name":               "Update name",
 	"imageURL":           "update.png",
 	"currentCharacterID": "669a2bbc53e6629a2931e1be",

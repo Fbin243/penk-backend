@@ -1,13 +1,13 @@
-package variables
+package characters
 
-var CreateCharacter = map[string]interface{}{
+var CreateCharacterVariable = map[string]interface{}{
 	"name":   "Character name",
 	"gender": false,
 	"avatar": "avatar.png",
 	"tags":   []interface{}{"#Tag1", "#Tag2"},
 }
 
-var UpdateCharacter = func(idCharacter interface{}) map[string]interface{} {
+var UpdateCharacterVariable = func(idCharacter interface{}) map[string]interface{} {
 	return map[string]interface{}{
 		"id":     idCharacter,
 		"name":   "Update name",

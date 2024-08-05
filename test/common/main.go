@@ -1,4 +1,4 @@
-package test
+package common
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 
 var response = map[string]interface{}{}
 
-func logResponse(ctx *context.Context) error {
+func LogResponse(ctx *context.Context) error {
 	jsonData, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		return err
@@ -35,7 +35,7 @@ type QueryParams struct {
 	Assertion func(*http.Response, *http.Request) error
 }
 
-func saveToContext(key ContextKey, jsonPath string) pineline.Stage {
+func SaveToContext(key ContextKey, jsonPath string) pineline.Stage {
 	return func(ctx *context.Context) error {
 		value, err := jsonpath.Read(response, jsonPath)
 		if err != nil {
@@ -47,7 +47,7 @@ func saveToContext(key ContextKey, jsonPath string) pineline.Stage {
 	}
 }
 
-func queryGraphQL(queryParamsFunc func(ctx *context.Context) (*QueryParams, error)) pineline.Stage {
+func QueryGraphQL(queryParamsFunc func(ctx *context.Context) (*QueryParams, error)) pineline.Stage {
 	return func(ctx *context.Context) error {
 		testingT, ok := (*ctx).Value(TestingT).(apitest.TestingT)
 		if !ok {
