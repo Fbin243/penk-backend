@@ -2,36 +2,46 @@ package users
 
 import (
 	"context"
+	"log"
 
-	"tenkhours/pineline"
 	"tenkhours/test/common"
 )
 
-func GetUser(expectError bool) pineline.Stage {
-	return common.QueryGraphQL(func(ctx *context.Context) (*common.QueryParams, error) {
-		assertion := NewUserAssertion
-		if expectError {
-			assertion = common.AssertionError
-		}
-
-		return &common.QueryParams{
-			Query:     UserQuery,
-			Assertion: assertion.End(),
-		}, nil
-	})
+type GetUserStage struct {
+	common.Metadata
 }
 
-func UpdateUser(expectError bool) pineline.Stage {
-	return common.QueryGraphQL(func(ctx *context.Context) (*common.QueryParams, error) {
-		assertion := UpdateAccountAssertion
-		if expectError {
-			assertion = common.AssertionError
-		}
+func (s GetUserStage) Exec(ctx *context.Context) error {
+	log.Println("--> Stage: ", s.Name)
 
-		return &common.QueryParams{
+	assertion := NewUserAssertion
+	if s.ExpectError {
+		assertion = common.AssertionError
+	}
+
+	return common.QueryGraphQL(ctx,
+		&common.QueryParams{
+			Query:     UserQuery,
+			Assertion: assertion.End(),
+		})
+}
+
+type UpdateUserStage struct {
+	common.Metadata
+}
+
+func (s UpdateUserStage) Exec(ctx *context.Context) error {
+	log.Println("--> Stage: ", s.Name)
+
+	assertion := UpdateAccountAssertion
+	if s.ExpectError {
+		assertion = common.AssertionError
+	}
+
+	return common.QueryGraphQL(ctx,
+		&common.QueryParams{
 			Query:     UpdateAccountQuery,
 			Variables: UpdateAccountVariable,
 			Assertion: assertion.End(),
-		}, nil
-	})
+		})
 }

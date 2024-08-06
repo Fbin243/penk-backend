@@ -7,3 +7,4 @@ tmp/
 cover.out
 /aside
 .vscode
+.DS_Store

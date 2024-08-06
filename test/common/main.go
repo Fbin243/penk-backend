@@ -3,19 +3,30 @@ package common
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-
-	"tenkhours/pineline"
 
 	"github.com/steinfletcher/apitest"
 	"github.com/yalp/jsonpath"
 )
 
+type Metadata struct {
+	Name        string
+	ExpectError bool
+}
+
 var response = map[string]interface{}{}
 
-func LogResponse(ctx *context.Context) error {
+type SwitchUrlStage struct {
+	NewUrl string
+}
+
+func (s SwitchUrlStage) Exec(ctx *context.Context) error {
+	url = s.NewUrl
+	return nil
+}
+
+func LogResponse() error {
 	jsonData, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		return err
@@ -23,9 +34,21 @@ func LogResponse(ctx *context.Context) error {
 
 	log.Printf("--> Response: %v\n", string(jsonData))
 
-	// Reset response
-	response = map[string]interface{}{}
+	return nil
+}
 
+type SaveToContextStage struct {
+	Key      ContextKey
+	JsonPath string
+}
+
+func (s SaveToContextStage) Exec(ctx *context.Context) error {
+	value, err := jsonpath.Read(response, s.JsonPath)
+	if err != nil {
+		return err
+	}
+
+	*ctx = context.WithValue(*ctx, s.Key, value)
 	return nil
 }
 
@@ -35,41 +58,27 @@ type QueryParams struct {
 	Assertion func(*http.Response, *http.Request) error
 }
 
-func SaveToContext(key ContextKey, jsonPath string) pineline.Stage {
-	return func(ctx *context.Context) error {
-		value, err := jsonpath.Read(response, jsonPath)
-		if err != nil {
-			return err
-		}
-
-		*ctx = context.WithValue(*ctx, key, value)
-		return nil
+func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
+	testingT, ok := (*ctx).Value(TestingT).(apitest.TestingT)
+	if !ok {
+		return ErrNotFoundInContext(TestingT)
 	}
-}
 
-func QueryGraphQL(queryParamsFunc func(ctx *context.Context) (*QueryParams, error)) pineline.Stage {
-	return func(ctx *context.Context) error {
-		testingT, ok := (*ctx).Value(TestingT).(apitest.TestingT)
-		if !ok {
-			return ErrNotFoundInContext(TestingT)
-		}
+	// Reset response
+	response = map[string]interface{}{}
 
-		queryParams, err := queryParamsFunc(ctx)
-		if err != nil {
-			return fmt.Errorf("failed to make query params")
-		}
+	apitest.New().
+		EnableNetworking(cli).
+		Post(url).
+		Header("Authorization", "Bearer "+IdToken).
+		GraphQLQuery(q.Query, q.Variables).
+		Expect(testingT).
+		Status(http.StatusOK).
+		Assert(q.Assertion).
+		End().
+		JSON(&response)
 
-		apitest.New().
-			EnableNetworking(cli).
-			Post(url).
-			Header("Authorization", "Bearer "+IdToken).
-			GraphQLQuery(queryParams.Query, queryParams.Variables).
-			Expect(testingT).
-			Status(http.StatusOK).
-			Assert(queryParams.Assertion).
-			End().
-			JSON(&response)
+	LogResponse()
 
-		return nil
-	}
+	return nil
 }

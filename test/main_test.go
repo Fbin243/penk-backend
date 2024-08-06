@@ -17,43 +17,88 @@ func TestUserFlow(t *testing.T) {
 	ctx := context.WithValue(context.Background(), common.TestingT, t)
 
 	p := pineline.Pineline(
-		users.GetUser(false),
-		common.SaveToContext(common.User, "$.data.user"),
-		common.LogResponse,
+		users.GetUserStage{
+			Metadata: common.Metadata{
+				Name: "Create a new user",
+			},
+		},
+		common.SaveToContextStage{
+			Key:      common.User,
+			JsonPath: "$.data.user",
+		},
 
-		users.UpdateUser(false),
-		common.LogResponse,
+		users.UpdateUserStage{
+			Metadata: common.Metadata{
+				Name: "Update user info",
+			},
+		},
 
-		characters.CreateCharacter(false),
-		common.SaveToContext(common.Character1, "$.data.createCharacter"),
-		common.LogResponse,
+		characters.CreateCharacterStage{
+			Metadata: common.Metadata{
+				Name: "Create the first character",
+			},
+		},
+		common.SaveToContextStage{
+			Key:      common.Character1,
+			JsonPath: "$.data.createCharacter",
+		},
 
-		characters.CreateCharacter(false),
-		common.SaveToContext(common.Character2, "$.data.createCharacter"),
-		common.LogResponse,
+		characters.CreateCharacterStage{
+			Metadata: common.Metadata{
+				Name: "Create the second character",
+			},
+		},
+		common.SaveToContextStage{
+			Key:      common.Character2,
+			JsonPath: "$.data.createCharacter",
+		},
 
-		characters.CreateCharacter(true),
-		common.LogResponse,
+		characters.CreateCharacterStage{
+			Metadata: common.Metadata{
+				Name:        "Create the third character",
+				ExpectError: true,
+			},
+		},
 
-		characters.UpdateCharacter(common.Character1, false),
-		common.LogResponse,
+		characters.UpdateCharacterStage{
+			Metadata: common.Metadata{
+				Name: "Update info of the first character",
+			},
+			CharacterKey: common.Character1,
+		},
 
-		metrics.CreateCustomMetric(common.Character1, false),
-		common.LogResponse,
+		metrics.CreateCustomMetricStage{
+			Metadata: common.Metadata{
+				Name: "Create the first metric",
+			},
+			CharacterKey: common.Character1,
+		},
 
-		metrics.CreateCustomMetric(common.Character1, false),
-		common.LogResponse,
+		metrics.CreateCustomMetricStage{
+			Metadata: common.Metadata{
+				Name: "Create the second metric",
+			},
 
-		metrics.CreateCustomMetric(common.Character1, true),
-		common.LogResponse,
+			CharacterKey: common.Character1,
+		},
 
-		characters.DeleteCharacter(common.Character2, false),
-		common.LogResponse,
+		metrics.CreateCustomMetricStage{
+			Metadata: common.Metadata{
+				Name:        "Create the third metric",
+				ExpectError: false,
+			},
+
+			CharacterKey: common.Character1,
+		},
+
+		common.SwitchUrlStage{
+			NewUrl: common.AnalyticsUrl,
+		},
 	)
 
 	err := p(&ctx)
 	if err != nil {
-		common.LogResponse(&ctx)
+		common.LogResponse()
 	}
 
 	assert.Empty(t, err)

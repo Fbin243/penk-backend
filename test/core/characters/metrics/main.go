@@ -2,30 +2,32 @@ package metrics
 
 import (
 	"context"
+	"log"
 
-	"tenkhours/pineline"
 	"tenkhours/test/common"
 )
 
-/**
- * * Create a new custom metric
- */
-func CreateCustomMetric(characterKey common.ContextKey, expectError bool) pineline.Stage {
-	return common.QueryGraphQL(func(ctx *context.Context) (*common.QueryParams, error) {
-		character, ok := (*ctx).Value(characterKey).(map[string]interface{})
-		if !ok {
-			return nil, common.ErrNotFoundInContext(characterKey)
-		}
+type CreateCustomMetricStage struct {
+	common.Metadata
+	CharacterKey common.ContextKey // The key to the character in the context
+}
 
-		assertion := CreateCustomMetricAssertion
-		if expectError {
-			assertion = common.AssertionError
-		}
+func (s CreateCustomMetricStage) Exec(ctx *context.Context) error {
+	log.Println("--> Stage: ", s.Name)
+	character, ok := (*ctx).Value(s.CharacterKey).(map[string]interface{})
+	if !ok {
+		return common.ErrNotFoundInContext(s.CharacterKey)
+	}
 
-		return &common.QueryParams{
+	assertion := CreateCustomMetricAssertion
+	if s.ExpectError {
+		assertion = common.AssertionError
+	}
+
+	return common.QueryGraphQL(ctx,
+		&common.QueryParams{
 			Query:     CreateCustomMetricQuery,
 			Variables: CreateCustomMetricVariable(character["id"]),
 			Assertion: assertion.End(),
-		}, nil
-	})
+		})
 }

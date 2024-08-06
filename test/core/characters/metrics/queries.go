@@ -1,6 +1,6 @@
 package metrics
 
-var CreateCustomMetricQuery = `mutation CreateCustomMetric($characterID: String!, $name: String, $style: MetricStyleInput, $description: String) {
+var CreateCustomMetricQuery = `mutation CreateCustomMetric($characterID: ID!, $name: String, $style: MetricStyleInput, $description: String) {
 	createCustomMetric(
 		characterID: $characterID
 		input: {
