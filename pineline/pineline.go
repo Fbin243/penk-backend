@@ -4,12 +4,14 @@ import (
 	"context"
 )
 
-type Stage func(ctx *context.Context) error
+type Stage interface {
+	Exec(ctx *context.Context) error
+}
 
-func Pineline(stages ...Stage) Stage {
+func Pineline(stages ...Stage) func(ctx *context.Context) error {
 	return func(ctx *context.Context) error {
 		for _, stage := range stages {
-			err := stage(ctx)
+			err := stage.Exec(ctx)
 			if err != nil {
 				return err
 			}
