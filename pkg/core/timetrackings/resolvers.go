@@ -32,9 +32,9 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		return nil, fmt.Errorf("user not found")
 	}
 
-	clientStartTime, ok := params.Args["clientStartTime"].(time.Time)
+	clientStartTime, ok := params.Args["startTime"].(time.Time)
 	if !ok {
-		return nil, fmt.Errorf("clientStartTime is not a valid datetime")
+		return nil, fmt.Errorf("Failed to get client start time")
 	}
 
 	duration := serverStartTime.Sub(clientStartTime)
