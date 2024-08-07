@@ -38,10 +38,6 @@ func InitTimeTrackingsMutation(r *TimeTrackingsResolver) *TimeTrackingsMutation 
 					Type:        graphql.NewNonNull(graphql.String),
 					Description: "ID of time tracking to update",
 				},
-				"clientEndTime": &graphql.ArgumentConfig{
-					Type:        graphql.NewNonNull(graphql.DateTime),
-					Description: "Client end time",
-				},
 			},
 			Resolve: r.UpdateTimeTracking,
 		},

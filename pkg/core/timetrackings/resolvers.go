@@ -108,26 +108,10 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 }
 
 func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
-	serverEndTime := time.Now()
+	endTime := time.Now()
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
 		return nil, fmt.Errorf("user not found")
-	}
-
-	clientEndTime, ok := params.Args["clientEndTime"].(time.Time)
-	if !ok {
-		return nil, fmt.Errorf("clientStartTime is not a valid datetime")
-	}
-
-	delayTime := serverEndTime.Sub(clientEndTime)
-	seconds := delayTime.Seconds()
-
-	// Check timeout if delay of client and server is 5 second
-	var endTime time.Time
-	if seconds > 5 {
-		endTime = clientEndTime
-	} else if seconds < 0 {
-		endTime = serverEndTime
 	}
 
 	timeTrackingID := params.Args["id"].(string)
