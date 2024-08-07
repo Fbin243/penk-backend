@@ -5,9 +5,11 @@ import (
 	"testing"
 
 	"tenkhours/pineline"
+	analytics_characters "tenkhours/test/analytics/characters"
 	"tenkhours/test/common"
 	"tenkhours/test/core/characters"
 	"tenkhours/test/core/characters/metrics"
+
 	"tenkhours/test/core/users"
 
 	"github.com/stretchr/testify/assert"
@@ -19,80 +21,123 @@ func TestUserFlow(t *testing.T) {
 	p := pineline.Pineline(
 		users.GetUserStage{
 			Metadata: common.Metadata{
-				Name: "Create a new user",
+				Describe: "Create a new user",
 			},
+			CreateNewUser: true,
 		},
+
 		common.SaveToContextStage{
 			Key:      common.User,
-			JsonPath: "$.data.user",
+			JsonPath: "data.user",
 		},
 
 		users.UpdateUserStage{
 			Metadata: common.Metadata{
-				Name: "Update user info",
+				Describe: "Update user info",
 			},
 		},
 
 		characters.CreateCharacterStage{
 			Metadata: common.Metadata{
-				Name: "Create the first character",
+				Describe: "Create the first character",
 			},
 		},
+
 		common.SaveToContextStage{
-			Key:      common.Character1,
-			JsonPath: "$.data.createCharacter",
+			Key:      common.AnotherCharacter,
+			JsonPath: "data.createCharacter",
 		},
 
 		characters.CreateCharacterStage{
 			Metadata: common.Metadata{
-				Name: "Create the second character",
+				Describe: "Create the second character",
 			},
 		},
+
 		common.SaveToContextStage{
-			Key:      common.Character2,
-			JsonPath: "$.data.createCharacter",
+			Key:      common.CurrentCharacter,
+			JsonPath: "data.createCharacter",
 		},
 
 		characters.CreateCharacterStage{
 			Metadata: common.Metadata{
-				Name:        "Create the third character",
+				Describe:    "Create the third character",
 				ExpectError: true,
 			},
 		},
 
 		characters.UpdateCharacterStage{
 			Metadata: common.Metadata{
-				Name: "Update info of the first character",
+				Describe: "Update info of the current character",
 			},
-			CharacterKey: common.Character1,
+			CharacterKey: common.CurrentCharacter,
 		},
 
 		metrics.CreateCustomMetricStage{
 			Metadata: common.Metadata{
-				Name: "Create the first metric",
+				Describe: "Create the first metric",
 			},
-			CharacterKey: common.Character1,
+			CharacterKey: common.CurrentCharacter,
 		},
 
 		metrics.CreateCustomMetricStage{
 			Metadata: common.Metadata{
-				Name: "Create the second metric",
+				Describe: "Create the second metric",
 			},
-
-			CharacterKey: common.Character1,
+			CharacterKey: common.CurrentCharacter,
 		},
 
 		metrics.CreateCustomMetricStage{
 			Metadata: common.Metadata{
-				Name:        "Create the third metric",
-				ExpectError: false,
+				Describe:    "Create the third metric",
+				ExpectError: true,
 			},
-
-			CharacterKey: common.Character1,
+			CharacterKey: common.CurrentCharacter,
 		},
 
-		common.SwitchUrlStage{
-			NewUrl: common.AnalyticsUrl,
+		users.GetUserStage{
+			Metadata: common.Metadata{
+				Describe: "Get updated user info after add characters, metrics, etc..",
+			},
+		},
+
+		common.SaveToContextStage{
+			Key:      common.User,
+			JsonPath: "data.user",
+		},
+
+		analytics_characters.CreateSnapshotStage{
+			Metadata: common.Metadata{
+				Describe: "Create a snapshot for the current character",
+			},
+			CharacterKey: common.CurrentCharacter,
+		},
+
+		common.SaveToContextStage{
+			Key:      common.Snapshot,
+			JsonPath: "data.createSnapshot",
+		},
+
+		analytics_characters.GetCharacterSnapshotsStage{
+			Metadata: common.Metadata{
+				Describe: "Get all snapshots of the current character after add a new snapshot for it",
+			},
+			SnapshotKey:    common.Snapshot,
+			HasOneSnapshot: true,
+		},
+
+		analytics_characters.CreateSnapshotStage{
+			Metadata: common.Metadata{
+				Describe: "Create a snapshot for another character",
+			},
+			CharacterKey: common.AnotherCharacter,
+		},
+
+		analytics_characters.GetUserSnapshotsStage{
+			Metadata: common.Metadata{
+				Describe: "Get all snapshots of the user after add a new snapshot for each of characters, so we have 2 snapshots",
+			},
+			HasTwoSnapshots: true,
 		},
 	)
 

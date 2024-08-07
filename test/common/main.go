@@ -3,31 +3,24 @@ package common
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 
 	"github.com/steinfletcher/apitest"
-	"github.com/yalp/jsonpath"
+	"github.com/tidwall/gjson"
 )
 
 type Metadata struct {
-	Name        string
+	Describe    string
 	ExpectError bool
 }
 
-var response = map[string]interface{}{}
-
-type SwitchUrlStage struct {
-	NewUrl string
-}
-
-func (s SwitchUrlStage) Exec(ctx *context.Context) error {
-	url = s.NewUrl
-	return nil
-}
+var jsonResponse string
 
 func LogResponse() error {
-	jsonData, err := json.MarshalIndent(response, "", "  ")
+	jsonData, err := json.MarshalIndent(gjson.Parse(jsonResponse).Value(), "", "  ")
 	if err != nil {
 		return err
 	}
@@ -37,22 +30,33 @@ func LogResponse() error {
 	return nil
 }
 
+func ReadResponseJson(res *http.Response) string {
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal("failed to read response json")
+	}
+	defer res.Body.Close()
+
+	return string(body)
+}
+
 type SaveToContextStage struct {
 	Key      ContextKey
 	JsonPath string
 }
 
 func (s SaveToContextStage) Exec(ctx *context.Context) error {
-	value, err := jsonpath.Read(response, s.JsonPath)
-	if err != nil {
-		return err
+	value := gjson.Get(jsonResponse, s.JsonPath)
+	if !value.Exists() {
+		return fmt.Errorf("failed to get value with path %s", s.JsonPath)
 	}
 
-	*ctx = context.WithValue(*ctx, s.Key, value)
+	*ctx = context.WithValue(*ctx, s.Key, value.Raw)
 	return nil
 }
 
 type QueryParams struct {
+	Url       string
 	Query     string
 	Variables map[string]interface{}
 	Assertion func(*http.Response, *http.Request) error
@@ -61,23 +65,20 @@ type QueryParams struct {
 func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
 	testingT, ok := (*ctx).Value(TestingT).(apitest.TestingT)
 	if !ok {
-		return ErrNotFoundInContext(TestingT)
+		return ErrNotFound(TestingT)
 	}
 
-	// Reset response
-	response = map[string]interface{}{}
-
-	apitest.New().
+	result := apitest.New().
 		EnableNetworking(cli).
-		Post(url).
+		Post(q.Url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(q.Query, q.Variables).
 		Expect(testingT).
 		Status(http.StatusOK).
 		Assert(q.Assertion).
-		End().
-		JSON(&response)
+		End()
 
+	jsonResponse = ReadResponseJson(result.Response)
 	LogResponse()
 
 	return nil

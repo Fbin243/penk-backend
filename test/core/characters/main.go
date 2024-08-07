@@ -5,6 +5,9 @@ import (
 	"log"
 
 	"tenkhours/test/common"
+
+	jsonpath "github.com/steinfletcher/apitest-jsonpath"
+	"github.com/tidwall/gjson"
 )
 
 type CreateCharacterStage struct {
@@ -12,22 +15,40 @@ type CreateCharacterStage struct {
 }
 
 func (s CreateCharacterStage) Exec(ctx *context.Context) error {
-	log.Println("--> Stage: ", s.Name)
+	log.Println("--> Stage: ", s.Describe)
 
-	user, ok := (*ctx).Value(common.User).(map[string]interface{})
+	user, ok := (*ctx).Value(common.User).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(common.User)
+		return common.ErrNotFound(common.User)
 	}
 
-	assertion := CreateCharacterAssertion(user["id"])
+	variables := map[string]interface{}{
+		"name":   "Character name",
+		"gender": false,
+		"avatar": "avatar.png",
+		"tags":   []interface{}{"#Tag1", "#Tag2"},
+	}
+
+	assertion := jsonpath.Chain().NotPresent("$.errors").
+		Present("$.data.createCharacter.id").
+		Equal("$.data.createCharacter.name", variables["name"]).
+		Equal("$.data.createCharacter.avatar", variables["avatar"]).
+		Equal("$.data.createCharacter.gender", variables["gender"]).
+		Equal("$.data.createCharacter.tags", variables["tags"]).
+		Equal("$.data.createCharacter.limitedMetricNumber", float64(2)).
+		Equal("$.data.createCharacter.totalFocusedTime", float64(0)).
+		Equal("$.data.createCharacter.userID", gjson.Get(user, "id").Value()).
+		Equal("$.data.createCharacter.customMetrics", []interface{}{})
+
 	if s.ExpectError {
 		assertion = common.AssertionError
 	}
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
+			Url:       common.CoreUrl,
 			Query:     CreateCharacterQuery,
-			Variables: CreateCharacterVariable,
+			Variables: variables,
 			Assertion: assertion.End(),
 		})
 }
@@ -38,22 +59,36 @@ type UpdateCharacterStage struct {
 }
 
 func (s UpdateCharacterStage) Exec(ctx *context.Context) error {
-	log.Println("--> Stage: ", s.Name)
+	log.Println("--> Stage: ", s.Describe)
 
-	character, ok := (*ctx).Value(s.CharacterKey).(map[string]interface{})
+	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFound(s.CharacterKey)
 	}
 
-	assertion := UpdateCharacterAssertion(character["id"])
+	variables := map[string]interface{}{
+		"id":     gjson.Get(character, "id").Value(),
+		"name":   "Update name",
+		"gender": true,
+		"avatar": "update-avatar.png",
+		"tags":   []interface{}{"#update_tag_1", "#update_tag_2"},
+	}
+
+	assertion := jsonpath.Chain().NotPresent("$.errors").
+		Equal("$.data.updateCharacter.id", variables["id"]).
+		Equal("$.data.updateCharacter.name", variables["name"]).
+		Equal("$.data.updateCharacter.avatar", variables["avatar"]).
+		Equal("$.data.updateCharacter.tags", variables["tags"])
+
 	if s.ExpectError {
 		assertion = common.AssertionError
 	}
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
+			Url:       common.CoreUrl,
 			Query:     UpdateCharacterQuery,
-			Variables: UpdateCharacterVariable(character["id"]),
+			Variables: variables,
 			Assertion: assertion.End(),
 		})
 }
@@ -64,11 +99,15 @@ type DeleteCharacterStage struct {
 }
 
 func (s DeleteCharacterStage) Exec(ctx *context.Context) error {
-	log.Println("--> Stage: ", s.Name)
+	log.Println("--> Stage: ", s.Describe)
 
-	character, ok := (*ctx).Value(s.CharacterKey).(map[string]interface{})
+	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFound(s.CharacterKey)
+	}
+
+	variables := map[string]interface{}{
+		"id": gjson.Get(character, "id").Value(),
 	}
 
 	assertion := common.AssertionSuccess
@@ -78,10 +117,9 @@ func (s DeleteCharacterStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Query: DeleteCharacterQuery,
-			Variables: map[string]interface{}{
-				"id": character["id"],
-			},
+			Url:       common.CoreUrl,
+			Query:     DeleteCharacterQuery,
+			Variables: variables,
 			Assertion: assertion.End(),
 		})
 }

@@ -16,7 +16,7 @@ func InitCharacterQuery(r *CharactersResolver) *CharactersQuery {
 			Description: "Get all snapshots of a character",
 			Args: graphql.FieldConfigArgument{
 				"characterID": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
 			Resolve: r.GetSnapshotsByCharacterID,
