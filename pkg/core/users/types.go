@@ -3,7 +3,10 @@ package users
 import (
 	"fmt"
 
+	"tenkhours/pkg/core/characters"
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/pkg/utils"
 
 	"github.com/graphql-go/graphql"
 )
@@ -18,7 +21,7 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 					return user.ID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to convert user ObjectID to Hex")
+				return nil, utils.ErrorConvertOIDToHex
 			},
 		},
 		"name": &graphql.Field{
@@ -44,8 +47,31 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 					return user.CurrentCharacterID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to convert current character ObjectID to Hex")
+				return nil, utils.ErrorConvertOIDToHex
 			},
+		},
+		"characters": &graphql.Field{
+			Type: graphql.NewList(characters.CharacterType),
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if user, ok := p.Source.(coredb.User); ok {
+					// Find characters by user ID
+					charactersRepo := coredb.NewCharactersRepo(db.GetDBManager().DB)
+					characters, err := charactersRepo.GetCharactersByUserID(user.ID)
+					if err != nil {
+						return nil, err
+					}
+
+					return characters, nil
+				}
+
+				return nil, fmt.Errorf("failed to get characters by user ID")
+			},
+		},
+		"availableSnapshots": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"autoSnapshot": &graphql.Field{
+			Type: graphql.Boolean,
 		},
 		"createdAt": &graphql.Field{
 			Type: graphql.DateTime,
@@ -69,6 +95,10 @@ var userInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 		"currentCharacterID": &graphql.InputObjectFieldConfig{
 			Type:        graphql.String,
 			Description: "ID of the character is being chosen",
+		},
+		"autoSnapshot": &graphql.InputObjectFieldConfig{
+			Type:        graphql.Boolean,
+			Description: "Whether the user has enabled auto snapshot, default is true",
 		},
 	},
 })

@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"tenkhours/pkg/analytics"
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/core"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
@@ -26,15 +26,15 @@ func NewApp() *App {
 }
 
 func (app *App) InitRouter() {
-	log.Println("--> Hello from Core service")
+	log.Println("--> Hello from Analytics service")
 
 	app.Engine.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
 
-	app.Engine.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Core service is running!")
+	app.Engine.GET("/analytics", func(c *gin.Context) {
+		c.String(http.StatusOK, "Analytics service is running!")
 	})
 
 	authMiddleware := auth.NewMiddleware(coredb.NewUsersRepo(db.GetDBManager().DB))
@@ -52,7 +52,7 @@ func (app *App) InitRouter() {
 
 		result := graphql.Do(graphql.Params{
 			Context:        c.Request.Context(),
-			Schema:         core.InitSchema(),
+			Schema:         analytics.InitSchema(),
 			RequestString:  postData.Query,
 			VariableValues: postData.Variables,
 			OperationName:  postData.Operation,

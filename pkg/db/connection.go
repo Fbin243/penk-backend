@@ -12,14 +12,19 @@ import (
 )
 
 var (
-	db                      *mongo.Database
 	UserCollection          = "users"
 	CharacterCollection     = "character"
 	TimeTrackingsCollection = "time_trackings"
+	SnapshotsCollection     = "snapshots"
 	FindOneAndUpdateOptions = options.FindOneAndUpdate().SetReturnDocument(options.After)
 )
 
-func InitDBFromURL(connectionURI string, dbName string) *mongo.Database {
+type DatabaseManager struct {
+	DB     *mongo.Database
+	Client *mongo.Client
+}
+
+func InitDBManagerFromURL(connectionURI string, dbName string) *DatabaseManager {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
@@ -29,14 +34,13 @@ func InitDBFromURL(connectionURI string, dbName string) *mongo.Database {
 		log.Fatal(err)
 	}
 
-	return client.Database(dbName)
+	return &DatabaseManager{
+		DB:     client.Database(dbName),
+		Client: client,
+	}
 }
 
-func GetDB() *mongo.Database {
-	if db != nil {
-		return db
-	}
-
+func InitDBManagerFromEnv() *DatabaseManager {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
@@ -57,7 +61,30 @@ func GetDB() *mongo.Database {
 		log.Fatal(err)
 	}
 
-	db = client.Database(mongoDatabase)
+	db := client.Database(mongoDatabase)
 
-	return db
+	// TODO: Create time series collection for snapshots (Temporarily)
+	db.CreateCollection(ctx, SnapshotsCollection,
+		options.CreateCollection().
+			SetTimeSeriesOptions(
+				options.TimeSeries().
+					SetTimeField("timestamp").
+					SetMetaField("metadata"),
+			),
+	)
+
+	return &DatabaseManager{
+		DB:     db,
+		Client: client,
+	}
+}
+
+var dbManager *DatabaseManager
+
+func GetDBManager() *DatabaseManager {
+	if dbManager != nil {
+		return dbManager
+	}
+
+	return InitDBManagerFromEnv()
 }

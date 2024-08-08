@@ -14,7 +14,7 @@ type CharactersQuery struct {
 func InitCharacterQuery(r *CharactersResolver) *CharactersQuery {
 	return &CharactersQuery{
 		Character: &graphql.Field{
-			Type:        characterType,
+			Type:        CharacterType,
 			Description: "Get a character by ID",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
@@ -24,12 +24,12 @@ func InitCharacterQuery(r *CharactersResolver) *CharactersQuery {
 			Resolve: r.GetCharacterByID,
 		},
 		Characters: &graphql.Field{
-			Type:        graphql.NewList(characterType),
+			Type:        graphql.NewList(CharacterType),
 			Description: "Get all characters",
 			Resolve:     r.GetAllCharacters,
 		},
 		UserCharacters: &graphql.Field{
-			Type:        graphql.NewList(characterType),
+			Type:        graphql.NewList(CharacterType),
 			Description: "Get all characters of a user",
 			Resolve:     r.GetCharactersByUserID,
 		},
