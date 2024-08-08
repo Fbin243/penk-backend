@@ -9,17 +9,10 @@ package test
 // 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
 // )
 
-<<<<<<< HEAD
-func startTimeTracking(t *testing.T, ctx *TestContext, trackWithMetric bool) {
-	gqlQuery := fmt.Sprintf(`mutation { 
-		createTimeTracking(characterID: "%s", startTime: time.Now()) {id}
-	}`, ctx.IdCharacter)
-=======
 // func startTimeTracking(t *testing.T, ctx *TestContext, trackWithMetric bool) {
 // 	gqlQuery := fmt.Sprintf(`mutation {
-// 		createTimeTracking(characterID: "%s") {id}
+// 		createTimeTracking(characterID: "%s", startTime: time.Now()) {id}
 // 	}`, ctx.IdCharacter)
->>>>>>> dev
 
 // 	if trackWithMetric {
 // 		gqlQuery = fmt.Sprintf(`mutation {

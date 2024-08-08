@@ -7,7 +7,6 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
-	"tenkhours/pkg/utils"
 
 	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -94,11 +93,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		ID:              primitive.NewObjectID(),
 		CharacterID:     characterOID,
 		CustomMetricID:  customMetricOID,
-<<<<<<< HEAD
 		StartTime:       clientStartTime,
-=======
-		StartTime:       utils.Now(),
->>>>>>> dev
 		MinDurationTime: 600,
 		MaxDurationTime: 14400,
 	}
