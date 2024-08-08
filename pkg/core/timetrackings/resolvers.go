@@ -26,9 +26,24 @@ func NewTimeTrackingsResolver(timeTrackingsRepo *coredb.TimeTrackingsRepo, chara
 }
 
 func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
+	serverStartTime := time.Now()
+
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
+	}
+
+	clientStartTime, ok := params.Args["startTime"].(time.Time)
+	if !ok {
+		return nil, fmt.Errorf("Failed to get client start time")
+	}
+
+	duration := serverStartTime.Sub(clientStartTime)
+	seconds := duration.Seconds()
+
+	// Check timeout if delay of client and server is 5 second
+	if seconds > 5 {
+		return nil, fmt.Errorf("Server timeout")
 	}
 
 	characterID := params.Args["characterID"].(string)
@@ -79,7 +94,11 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		ID:              primitive.NewObjectID(),
 		CharacterID:     characterOID,
 		CustomMetricID:  customMetricOID,
+<<<<<<< HEAD
+		StartTime:       clientStartTime,
+=======
 		StartTime:       utils.Now(),
+>>>>>>> dev
 		MinDurationTime: 600,
 		MaxDurationTime: 14400,
 	}
@@ -93,9 +112,26 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 }
 
 func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
+	serverEndTime := time.Now()
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
+	}
+
+	clientEndTime, ok := params.Args["clientEndTime"].(time.Time)
+	if !ok {
+		return nil, fmt.Errorf("clientStartTime is not a valid datetime")
+	}
+
+	delayTime := serverEndTime.Sub(clientEndTime)
+	seconds := delayTime.Seconds()
+
+	// Check timeout if delay of client and server is 5 second
+	var endTime time.Time
+	if seconds > 5 {
+		endTime = clientEndTime
+	} else if seconds < 0 {
+		endTime = serverEndTime
 	}
 
 	timeTrackingID := params.Args["id"].(string)
@@ -122,12 +158,7 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 		return nil, fmt.Errorf("focused session is already ended")
 	}
 
-	intDuration := params.Args["duration"].(int)
-	duration := int32(intDuration)
-	err = ValidateDuration(timeTracking.StartTime, duration)
-	if err != nil {
-		return nil, err
-	}
+	duration := int32(endTime.Sub(timeTracking.StartTime).Seconds())
 
 	// JUST FOR TESTING
 	// duration = 599 // Test for the min duration time
@@ -152,7 +183,7 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 		log.Printf("the period time is more than 4 hours, so the time tracking will be limited to 4 hours")
 	}
 
-	timeTracking.EndTime = timeTracking.StartTime.Add(time.Duration(duration) * time.Second)
+	timeTracking.EndTime = endTime
 
 	character.TotalFocusedTime += duration
 	if !timeTracking.CustomMetricID.IsZero() {
