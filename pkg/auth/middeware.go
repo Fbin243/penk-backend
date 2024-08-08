@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 
-	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
 
@@ -19,8 +18,8 @@ type Middleware struct {
 	userRepo *coredb.UsersRepo
 }
 
-func NewMiddleware() *Middleware {
-	return &Middleware{userRepo: coredb.NewUsersRepo(db.GetDB())}
+func NewMiddleware(userRepo *coredb.UsersRepo) *Middleware {
+	return &Middleware{userRepo: userRepo}
 }
 
 func (m *Middleware) CheckRequestBody(c *gin.Context) {
