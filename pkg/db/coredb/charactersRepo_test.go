@@ -175,23 +175,23 @@ func setupMultipleCharactersTest(t *testing.T) ([]*Character, func()) {
 
 	_, err = charactersRepo.CreateCharacter(character1)
 	if err != nil {
-		t.Fatalf("Failed to create character 1: %v", err)
+		t.Fatalf("failed to create character 1: %v", err)
 	}
 
 	_, err = charactersRepo.CreateCharacter(character2)
 	if err != nil {
-		t.Fatalf("Failed to create character 2: %v", err)
+		t.Fatalf("failed to create character 2: %v", err)
 	}
 
 	cleanup := func() {
 		_, err := charactersRepo.DeleteCharacter(character1.ID)
 		if err != nil {
-			t.Fatalf("Failed to delete character 1: %v", err)
+			t.Fatalf("failed to delete character 1: %v", err)
 		}
 
 		_, err = charactersRepo.DeleteCharacter(character2.ID)
 		if err != nil {
-			t.Fatalf("Failed to delete character 2: %v", err)
+			t.Fatalf("failed to delete character 2: %v", err)
 		}
 	}
 

@@ -128,27 +128,13 @@ func (r *CharactersRepo) DeleteCustomMetric(characterID primitive.ObjectID, metr
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	character := &Character{}
-	err := r.FindOne(ctx, bson.M{"_id": characterID}).Decode(character)
-	if err != nil {
-		return nil, err
-	}
-
-	var deletedMetric *CustomMetric
-	for i, metric := range character.CustomMetrics {
-		if metric.ID == metricID {
-			deletedMetric = &metric
-			character.CustomMetrics = append(character.CustomMetrics[:i], character.CustomMetrics[i+1:]...)
-			break
-		}
-	}
-
-	if deletedMetric == nil {
-		return nil, mongo.ErrNoDocuments
-	}
-
-	_, err = r.UpdateOne(ctx, bson.M{"_id": characterID}, bson.M{"$set": bson.M{"custom_metrics": character.CustomMetrics}})
-	return deletedMetric, err
+	metric := &CustomMetric{}
+	err := r.FindOneAndUpdate(ctx, bson.M{"_id": characterID}, bson.M{
+		"$pull": bson.M{
+			"custom_metrics": bson.M{"_id": metricID},
+		},
+	}).Decode(metric)
+	return metric, err
 }
 
 func (r *CharactersRepo) CreateMetricProperty(characterID primitive.ObjectID, metricID primitive.ObjectID, property *MetricProperty) (*MetricProperty, error) {
