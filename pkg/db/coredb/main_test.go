@@ -17,7 +17,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	testdb = db.InitDBFromURL("mongodb://localhost:27017", "test")
+	testdb = db.InitDBManagerFromURL("mongodb://localhost:27017", "test").DB
 	usersRepo = NewUsersRepo(testdb)
 	charactersRepo = NewCharactersRepo(testdb)
 	timeTrackingsRepo = NewTimeTrackingsRepo(testdb)

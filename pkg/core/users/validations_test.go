@@ -2,9 +2,9 @@ package users
 
 import (
 	"testing"
-	"time"
 
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/pkg/utils"
 
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -24,8 +24,8 @@ func TestValidateUser(t *testing.T) {
 		FirebaseUID:        "someFirebaseUID",
 		ImageURL:           "http://example.com/image.png",
 		CurrentCharacterID: primitive.NewObjectID(),
-		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
+		CreatedAt:          utils.Now(),
+		UpdatedAt:          utils.Now(),
 	}
 
 	tests := []testCase{

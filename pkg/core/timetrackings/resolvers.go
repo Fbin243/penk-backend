@@ -7,6 +7,7 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/pkg/utils"
 
 	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -29,7 +30,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	clientStartTime, ok := params.Args["clientStartTime"].(time.Time)
@@ -57,7 +58,7 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 	}
 
 	if character.UserID != user.ID {
-		return nil, fmt.Errorf("permission denied")
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	customMetricID, ok := params.Args["customMetricID"].(string)
@@ -93,15 +94,18 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		ID:              primitive.NewObjectID(),
 		CharacterID:     characterOID,
 		CustomMetricID:  customMetricOID,
+<<<<<<< HEAD
 		StartTime:       clientStartTime,
+=======
+		StartTime:       utils.Now(),
+>>>>>>> dev
 		MinDurationTime: 600,
 		MaxDurationTime: 14400,
 	}
 
 	createdTimeTracking, err := r.TimeTrackingsRepo.CreateTimeTracking(&timeTracking)
 	if err != nil {
-		log.Printf("failed to insert time tracking: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to create time tracking: %v", err)
 	}
 
 	return *createdTimeTracking, nil
@@ -111,7 +115,7 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 	serverEndTime := time.Now()
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, auth.ErrorUnauthorized
 	}
 
 	clientEndTime, ok := params.Args["clientEndTime"].(time.Time)
@@ -147,7 +151,7 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 	}
 
 	if character.UserID != user.ID {
-		return nil, fmt.Errorf("permission denied")
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	if !timeTracking.EndTime.IsZero() {

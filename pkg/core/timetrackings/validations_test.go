@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"tenkhours/pkg/utils"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,25 +20,25 @@ func TestValidateDuration(t *testing.T) {
 	tests := []testCase{
 		{
 			name:      "valid duration less than time since start",
-			startTime: time.Now().Add(-time.Hour),
+			startTime: utils.Now().Add(-time.Hour),
 			duration:  60 * 30,
 			hasError:  false,
 		},
 		{
 			name:      "valid duration equal to time since start",
-			startTime: time.Now().Add(-time.Hour),
+			startTime: utils.Now().Add(-time.Hour),
 			duration:  60 * 60,
 			hasError:  false,
 		},
 		{
 			name:      "negative duration",
-			startTime: time.Now(),
+			startTime: utils.Now(),
 			duration:  -10,
 			hasError:  true,
 		},
 		{
 			name:      "duration longer than time since start",
-			startTime: time.Now().Add(-time.Hour),
+			startTime: utils.Now().Add(-time.Hour),
 			duration:  60*60 + 1,
 			hasError:  true,
 		},
