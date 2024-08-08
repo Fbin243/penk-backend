@@ -166,6 +166,9 @@ var customMetricInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type:        metricStyleInputType,
 			Description: "Visual style of the metric that be displayed on screen",
 		},
+		"properties": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(metricPropertyInputType),
+		},
 	},
 })
 

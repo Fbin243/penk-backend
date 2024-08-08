@@ -92,9 +92,6 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 				"input": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(customMetricInputType),
 				},
-				"properties": &graphql.ArgumentConfig{
-					Type: graphql.NewList(metricPropertyInputType),
-				},
 			},
 			Resolve: r.UpdateCustomMetric,
 		},
