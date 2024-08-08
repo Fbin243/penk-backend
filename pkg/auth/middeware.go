@@ -19,7 +19,7 @@ type Middleware struct {
 }
 
 func NewMiddleware(userRepo *coredb.UsersRepo) *Middleware {
-	return &Middleware{userRepo}
+	return &Middleware{userRepo: userRepo}
 }
 
 func (m *Middleware) CheckRequestBody(c *gin.Context) {

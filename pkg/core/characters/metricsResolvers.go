@@ -126,6 +126,32 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 				}
 			}
 
+			if props, ok := input["properties"].([]interface{}); ok {
+				var properties []coredb.MetricProperty
+				for _, prop := range props {
+					if propMap, ok := prop.(map[string]interface{}); ok {
+						var mp coredb.MetricProperty
+						if id, ok := propMap["id"].(string); ok {
+							mp.ID, _ = primitive.ObjectIDFromHex(id)
+						}
+						if name, ok := propMap["name"].(string); ok {
+							mp.Name = name
+						}
+						if typ, ok := propMap["type"].(string); ok {
+							mp.Type = typ
+						}
+						if value, ok := propMap["value"]; ok {
+							mp.Value = value
+						}
+						if unit, ok := propMap["unit"].(string); ok {
+							mp.Unit = unit
+						}
+						properties = append(properties, mp)
+					}
+				}
+				cm.Properties = properties
+			}
+
 			err = ValidateCustomMetric(cm)
 			if err != nil {
 				return nil, err

@@ -23,6 +23,10 @@ func InitTimeTrackingsMutation(r *TimeTrackingsResolver) *TimeTrackingsMutation 
 					Type:        graphql.String,
 					Description: "ID custom metric to track time for",
 				},
+				"startTime": &graphql.ArgumentConfig{
+					Type:        graphql.NewNonNull(graphql.DateTime),
+					Description: "Start time",
+				},
 			},
 			Resolve: r.CreateTimeTracking,
 		},
@@ -33,10 +37,6 @@ func InitTimeTrackingsMutation(r *TimeTrackingsResolver) *TimeTrackingsMutation 
 				"id": &graphql.ArgumentConfig{
 					Type:        graphql.NewNonNull(graphql.String),
 					Description: "ID of time tracking to update",
-				},
-				"duration": &graphql.ArgumentConfig{
-					Type:        graphql.NewNonNull(graphql.Int),
-					Description: "Duration in seconds",
 				},
 			},
 			Resolve: r.UpdateTimeTracking,
