@@ -50,12 +50,10 @@ func InitSchema() graphql.Schema {
 
 			"createCustomMetric": charactersMutation.CreateCustomMetric,
 			"updateCustomMetric": charactersMutation.UpdateCustomMetric,
-			"updateMetricsList":  charactersMutation.UpdateMetricsList,
 			"deleteCustomMetric": charactersMutation.DeleteCustomMetric,
 			"resetCustomMetric":  charactersMutation.ResetCustomMetric,
 
 			"createMetricProperty": charactersMutation.CreateMetricProperty,
-			"updateMetricProperty": charactersMutation.UpdateMetricProperty,
 			"deleteMetricProperty": charactersMutation.DeleteMetricProperty,
 
 			"createTimeTracking": timeTrackingsMutation.CreateTimeTracking,
