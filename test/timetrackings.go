@@ -11,7 +11,7 @@ package test
 
 // func startTimeTracking(t *testing.T, ctx *TestContext, trackWithMetric bool) {
 // 	gqlQuery := fmt.Sprintf(`mutation {
-// 		createTimeTracking(characterID: "%s") {id}
+// 		createTimeTracking(characterID: "%s", startTime: time.Now()) {id}
 // 	}`, ctx.IdCharacter)
 
 // 	if trackWithMetric {
