@@ -1,0 +1,21 @@
+package common
+
+import (
+	"net/http"
+	"net/http/cookiejar"
+	"time"
+)
+
+const (
+	CoreUrl      = "http://localhost:8080/graphql"
+	AnalyticsUrl = "http://localhost:8081/graphql"
+)
+
+var (
+	cookieJar, _ = cookiejar.New(nil)
+	cli          = &http.Client{
+		Timeout: time.Second * 20,
+		Jar:     cookieJar,
+	}
+	IdToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjFkYmUwNmI1ZDdjMmE3YzA0NDU2MzA2MWZmMGZlYTM3NzQwYjg2YmMiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiTmd1eeG7hW4gVGhhbmggQsOsbmggKDIxMTI3MjMyKSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKaGZlMDBhZHJJTWM4Z1lfN3J1UG96SlNqUFpxaXd1QjJFZmF4X2pfZUZudlg3VEJFPXM5Ni1jIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL3RlbmstaG91cnMtc2xlZXAiLCJhdWQiOiJ0ZW5rLWhvdXJzLXNsZWVwIiwiYXV0aF90aW1lIjoxNzIzMDM2MjY2LCJ1c2VyX2lkIjoicDRvcXRmdXZ1VVVtVFg1eUhxY2NJRnFwODlBMiIsInN1YiI6InA0b3F0ZnV2dVVVbVRYNXlIcWNjSUZxcDg5QTIiLCJpYXQiOjE3MjMwMzYyNjYsImV4cCI6MTcyMzAzOTg2NiwiZW1haWwiOiJudGJpbmgyMUBjbGMuZml0dXMuZWR1LnZuIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZ29vZ2xlLmNvbSI6WyIxMDc3MDI0NzEwMDQyNDQxNDAzMzAiXSwiZW1haWwiOlsibnRiaW5oMjFAY2xjLmZpdHVzLmVkdS52biJdfSwic2lnbl9pbl9wcm92aWRlciI6Imdvb2dsZS5jb20ifX0.MsTbAXnDUqxrgXlSSqgLO1cBpeXVOdc40ex6vGt75OJFiLYTA-k1erQU4v628-3NMH9JNxZJo6Rxhvn86o_Je6JSZP8q7YSAnOBc6IPLwvlEBf-D_HqPJu9o4jciyDSIXIZakoB91JbDxadqlZvFni8HDUHWGZ1Ir0W7emjlXvlsoSqlsJ-5HOAr52DYyE8w0ydaZMSr7JVwAVzKInShdIN-50XUHJfyf9ypr18IgItHW2olet55nVz6mjctDSXLtD4jZR0Nhg9Slh7snIMnVo0MhE890Gp9geWwVPVhEoS93dOrgoFymtoKUQYtssMilkFVzljNK7E05YS-sanYkA"
+)

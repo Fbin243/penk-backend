@@ -32,9 +32,15 @@ func (r *SnapshotsRepo) GetSnapshotsByUserID(userID primitive.ObjectID) ([]Snaps
 	defer cursor.Close(ctx)
 
 	var snapshots []Snapshot
-	err = cursor.All(ctx, &snapshots)
-	if err != nil {
-		return nil, err
+	for cursor.Next(ctx) {
+		var snapshot Snapshot
+		if err := cursor.Decode(&snapshot); err != nil {
+			return nil, err
+		}
+
+		snapshot.Character.ID = snapshot.Metadata.CharacterID
+		snapshot.Character.UserID = snapshot.Metadata.UserID
+		snapshots = append(snapshots, snapshot)
 	}
 
 	return snapshots, nil
@@ -52,9 +58,15 @@ func (r *SnapshotsRepo) GetSnapshotsByCharacterID(characterID primitive.ObjectID
 	defer cursor.Close(ctx)
 
 	var snapshots []Snapshot
-	err = cursor.All(ctx, &snapshots)
-	if err != nil {
-		return nil, err
+	for cursor.Next(ctx) {
+		var snapshot Snapshot
+		if err := cursor.Decode(&snapshot); err != nil {
+			return nil, err
+		}
+
+		snapshot.Character.ID = snapshot.Metadata.CharacterID
+		snapshot.Character.UserID = snapshot.Metadata.UserID
+		snapshots = append(snapshots, snapshot)
 	}
 
 	return snapshots, nil

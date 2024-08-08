@@ -38,7 +38,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Description: "Update a character",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 				"input": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(characterInputType),
@@ -51,7 +51,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Description: "Delete a character",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
 			Resolve: r.DeleteCharacter,
@@ -61,7 +61,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Description: "Reset a character",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
 			Resolve: r.ResetCharacter,
@@ -71,7 +71,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Description: "Create a custom metric",
 			Args: graphql.FieldConfigArgument{
 				"characterID": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 				"input": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(customMetricInputType),
@@ -84,10 +84,10 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Description: "Update a Custom Metric",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 				"characterID": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 				"input": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(customMetricInputType),
@@ -101,10 +101,10 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Description: "Reset a custom metric",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 				"characterID": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
 			Resolve: r.ResetCustomMetric,
@@ -114,10 +114,10 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Description: "Delete a custom metric",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 				"characterID": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
 			Resolve: r.DeleteCustomMetric,
@@ -127,10 +127,10 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Description: "Create a metric property",
 			Args: graphql.FieldConfigArgument{
 				"characterID": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 				"metricID": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 				"input": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(metricPropertyInputType),
@@ -138,19 +138,18 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			},
 			Resolve: r.CreateMetricProperty,
 		},
-
 		DeleteMetricProperty: &graphql.Field{
 			Type:        metricPropertyType,
 			Description: "Delete a metric property",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 				"characterID": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 				"metricID": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
 			Resolve: r.DeleteMetricProperty,

@@ -143,6 +143,10 @@ func (r *CharactersResolver) CreateNewSnapshot(params graphql.ResolveParams) (in
 			return nil, fmt.Errorf("failed to update user: %v", err)
 		}
 
+		// Restore characterID and userID
+		snapshot.Character.UserID = user.ID
+		snapshot.Character.ID = characterOID
+
 		return *snapshot, nil
 	}
 
