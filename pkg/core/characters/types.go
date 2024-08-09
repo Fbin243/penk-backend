@@ -1,6 +1,8 @@
 package characters
 
 import (
+	"fmt"
+
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
 
@@ -11,7 +13,7 @@ var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Character",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
-			Type: graphql.ID,
+			Type: graphql.NewNonNull(graphql.ID),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if character, ok := p.Source.(coredb.Character); ok {
 					if character.ID.IsZero() {
@@ -25,7 +27,7 @@ var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"userID": &graphql.Field{
-			Type: graphql.ID,
+			Type: graphql.NewNonNull(graphql.ID),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if character, ok := p.Source.(coredb.Character); ok {
 					if character.ID.IsZero() {
@@ -39,25 +41,35 @@ var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"name": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.NewNonNull(graphql.String),
 		},
 		"gender": &graphql.Field{
-			Type: graphql.Boolean,
+			Type: graphql.NewNonNull(graphql.Boolean),
 		},
 		"avatar": &graphql.Field{
 			Type: graphql.String,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if character, ok := p.Source.(coredb.Character); ok {
+					if character.Avatar == "" {
+						return nil, nil
+					}
+
+					return character.Avatar, nil
+				}
+				return nil, fmt.Errorf("failed to resolve avatar")
+			},
 		},
 		"tags": &graphql.Field{
-			Type: graphql.NewList(graphql.String),
+			Type: graphql.NewNonNull(graphql.NewList(graphql.String)),
 		},
 		"totalFocusedTime": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"customMetrics": &graphql.Field{
-			Type: graphql.NewList(customMetricType),
+			Type: graphql.NewNonNull(graphql.NewList(customMetricType)),
 		},
 		"limitedMetricNumber": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 })
@@ -66,7 +78,7 @@ var customMetricType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "CustomMetric",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
-			Type: graphql.ID,
+			Type: graphql.NewNonNull(graphql.ID),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if metric, ok := p.Source.(coredb.CustomMetric); ok {
 					return metric.ID.Hex(), nil
@@ -76,22 +88,32 @@ var customMetricType = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"name": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.NewNonNull(graphql.String),
 		},
 		"description": &graphql.Field{
 			Type: graphql.String,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if customMetric, ok := p.Source.(coredb.CustomMetric); ok {
+					if customMetric.Description == "" {
+						return nil, nil
+					}
+
+					return customMetric.Description, nil
+				}
+				return nil, fmt.Errorf("failed to resolve description")
+			},
 		},
 		"time": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"style": &graphql.Field{
-			Type: metricStyleType,
+			Type: graphql.NewNonNull(metricStyleType),
 		},
 		"properties": &graphql.Field{
-			Type: graphql.NewList(metricPropertyType),
+			Type: graphql.NewNonNull(graphql.NewList(metricPropertyType)),
 		},
 		"limitedPropertyNumber": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 })
@@ -101,9 +123,30 @@ var metricStyleType = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"color": &graphql.Field{
 			Type: graphql.String,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if style, ok := p.Source.(coredb.MetricStyle); ok {
+					if style.Color == "" {
+						return nil, nil
+					}
+
+					return style.Color, nil
+				}
+				return nil, fmt.Errorf("failed to resolve color")
+			},
 		},
 		"icon": &graphql.Field{
 			Type: graphql.String,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if style, ok := p.Source.(coredb.MetricStyle); ok {
+					if style.Icon == "" {
+						return nil, nil
+					}
+
+					return style.Icon, nil
+				}
+
+				return nil, fmt.Errorf("failed to resolve icon")
+			},
 		},
 	},
 })
@@ -112,7 +155,7 @@ var metricPropertyType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "MetricProperty",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
-			Type: graphql.ID,
+			Type: graphql.NewNonNull(graphql.ID),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if property, ok := p.Source.(coredb.MetricProperty); ok {
 					return property.ID.Hex(), nil
@@ -122,16 +165,27 @@ var metricPropertyType = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"name": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.NewNonNull(graphql.String),
 		},
 		"type": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.NewNonNull(graphql.String),
 		},
 		"value": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.NewNonNull(graphql.String),
 		},
 		"unit": &graphql.Field{
 			Type: graphql.String,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				if property, ok := p.Source.(coredb.MetricProperty); ok {
+					if property.Unit == "" {
+						return nil, nil
+					}
+
+					return property.Unit, nil
+				}
+
+				return nil, fmt.Errorf("failed to resolve unit")
+			},
 		},
 	},
 })
@@ -174,7 +228,8 @@ var customMetricInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 			Description: "Visual style of the metric that be displayed on screen",
 		},
 		"properties": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewList(metricPropertyInputType),
+			Type:        graphql.NewList(metricPropertyInputType),
+			Description: "List of properties that describe the metric",
 		},
 	},
 })

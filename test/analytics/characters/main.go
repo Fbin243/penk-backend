@@ -23,12 +23,12 @@ func (s CreateSnapshotStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	user, ok := (*ctx).Value(common.User).(string)
 	if !ok {
-		return common.ErrNotFound(common.User)
+		return common.ErrNotFoundInContext(common.User)
 	}
 
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFound(s.CharacterKey)
+		return common.ErrNotFoundInContext(s.CharacterKey)
 	}
 
 	characterId := gjson.Get(character, "id").Value()
@@ -63,12 +63,12 @@ func (s GetCharacterSnapshotsStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	testingT, ok := (*ctx).Value(common.TestingT).(apitest.TestingT)
 	if !ok {
-		return common.ErrNotFound(common.TestingT)
+		return common.ErrNotFoundInContext(common.TestingT)
 	}
 
 	snapshot, ok := (*ctx).Value(s.SnapshotKey).(string)
 	if !ok {
-		return common.ErrNotFound(s.SnapshotKey)
+		return common.ErrNotFoundInContext(s.SnapshotKey)
 	}
 
 	variables := map[string]interface{}{
@@ -81,9 +81,13 @@ func (s GetCharacterSnapshotsStage) Exec(ctx *context.Context) error {
 		assertion = func(res *http.Response, req *http.Request) error {
 			json := common.ReadResponseJson(res)
 
-			assert.Empty(testingT, gjson.Get(json, "errors").Value())
-			assert.Equal(testingT, gjson.Get(json, "data.characterSnapshots.#").Int(), int64(1))
-			assert.Equal(testingT, gjson.Get(json, "data.characterSnapshots.0").Value(), gjson.Parse(snapshot).Value())
+			passed := assert.Empty(testingT, gjson.Get(json, "errors").Value()) &&
+				assert.Equal(testingT, gjson.Get(json, "data.characterSnapshots.#").Int(), int64(1)) &&
+				assert.Equal(testingT, gjson.Get(json, "data.characterSnapshots.0").Value(), gjson.Parse(snapshot).Value())
+
+			if !passed {
+				return fmt.Errorf("assertion failed")
+			}
 
 			return nil
 		}
@@ -111,12 +115,12 @@ func (s GetUserSnapshotsStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	testingT, ok := (*ctx).Value(common.TestingT).(apitest.TestingT)
 	if !ok {
-		return common.ErrNotFound(common.TestingT)
+		return common.ErrNotFoundInContext(common.TestingT)
 	}
 
 	user, ok := (*ctx).Value(common.User).(string)
 	if !ok {
-		return common.ErrNotFound(common.User)
+		return common.ErrNotFoundInContext(common.User)
 	}
 
 	variables := map[string]interface{}{
@@ -129,8 +133,12 @@ func (s GetUserSnapshotsStage) Exec(ctx *context.Context) error {
 		assertion = func(res *http.Response, req *http.Request) error {
 			json := common.ReadResponseJson(res)
 
-			assert.Empty(testingT, gjson.Get(json, "errors").Value())
-			assert.Equal(testingT, gjson.Get(json, "data.userSnapshots.#").Int(), int64(2))
+			passed := assert.Empty(testingT, gjson.Get(json, "errors").Value()) &&
+				assert.Equal(testingT, gjson.Get(json, "data.userSnapshots.#").Int(), int64(2))
+
+			if !passed {
+				return fmt.Errorf("assertion failed")
+			}
 
 			return nil
 		}

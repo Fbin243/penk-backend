@@ -16,7 +16,6 @@ type GetUserStage struct {
 
 func (s GetUserStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
-
 	assertion := common.AssertionSuccess
 
 	if s.CreateNewUser {
@@ -47,7 +46,6 @@ type UpdateUserStage struct {
 
 func (s UpdateUserStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
-
 	variables := map[string]interface{}{
 		"name":               "Update name",
 		"imageURL":           "update.png",

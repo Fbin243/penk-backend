@@ -13,7 +13,7 @@ var timeTrackingType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "TimeTracking",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
-			Type: graphql.ID,
+			Type: graphql.NewNonNull(graphql.ID),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if timeTracking, ok := p.Source.(coredb.TimeTracking); ok {
 					return timeTracking.ID.Hex(), nil
@@ -23,7 +23,7 @@ var timeTrackingType = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"characterID": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.NewNonNull(graphql.ID),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if timeTracking, ok := p.Source.(coredb.TimeTracking); ok {
 					return timeTracking.CharacterID.Hex(), nil
@@ -32,8 +32,8 @@ var timeTrackingType = graphql.NewObject(graphql.ObjectConfig{
 				return nil, utils.ErrorConvertOIDToHex
 			},
 		},
-		"customMetricID": &graphql.Field{
-			Type: graphql.String,
+		"metricID": &graphql.Field{
+			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if timeTracking, ok := p.Source.(coredb.TimeTracking); ok {
 					if timeTracking.CustomMetricID.IsZero() {
@@ -47,27 +47,20 @@ var timeTrackingType = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"startTime": &graphql.Field{
-			Type: graphql.Int,
-			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if timeTracking, ok := p.Source.(coredb.TimeTracking); ok {
-					return timeTracking.StartTime.Unix(), nil
-				}
-
-				return nil, fmt.Errorf("failed to convert time tracking start time to Unix")
-			},
+			Type: graphql.NewNonNull(graphql.DateTime),
 		},
 		"endTime": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.DateTime,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if timeTracking, ok := p.Source.(coredb.TimeTracking); ok {
 					if timeTracking.EndTime.IsZero() {
 						return nil, nil
 					}
 
-					return timeTracking.EndTime.Unix(), nil
+					return timeTracking.EndTime, nil
 				}
 
-				return nil, fmt.Errorf("failed to convert time tracking end time to Unix")
+				return nil, fmt.Errorf("failed to get endTime")
 			},
 		},
 	},

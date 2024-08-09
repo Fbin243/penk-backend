@@ -2,6 +2,7 @@ package coredb
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"tenkhours/pkg/db"
@@ -23,16 +24,13 @@ func (r *TimeTrackingsRepo) GetTimeTrackingByID(id primitive.ObjectID) (*TimeTra
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	timeTracking := &TimeTracking{}
-	err := r.FindOne(ctx, bson.M{"_id": id}).Decode(timeTracking)
+	timeTracking := TimeTracking{}
+	err := r.FindOne(ctx, bson.M{"_id": id}).Decode(&timeTracking)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, nil
-		}
 		return nil, err
 	}
 
-	return timeTracking, nil
+	return &timeTracking, nil
 }
 
 func (r *TimeTrackingsRepo) GetTimeTrackingsByCharacterID(characterID primitive.ObjectID) ([]TimeTracking, error) {
@@ -80,14 +78,14 @@ func (r *TimeTrackingsRepo) UpdateTimeTracking(timeTracking *TimeTracking) (*Tim
 		"max_duration_time": timeTracking.MaxDurationTime,
 	}}
 
-	err := r.FindOneAndUpdate(ctx, filter, update).Decode(timeTracking)
+	log.Print("end_time", timeTracking.EndTime)
+
+	err := r.FindOneAndUpdate(ctx, filter, update, db.FindOneAndUpdateOptions).Decode(timeTracking)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, nil
-		}
 		return nil, err
 	}
 
+	log.Print("end_time", timeTracking.EndTime)
 	return timeTracking, nil
 }
 
@@ -98,9 +96,6 @@ func (r *TimeTrackingsRepo) DeleteTimeTracking(id primitive.ObjectID) (*TimeTrac
 	deletedTimeTracking := &TimeTracking{}
 	err := r.FindOneAndDelete(ctx, bson.M{"_id": id}).Decode(deletedTimeTracking)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, nil
-		}
 		return nil, err
 	}
 

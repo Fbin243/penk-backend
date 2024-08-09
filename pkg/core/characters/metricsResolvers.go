@@ -128,25 +128,37 @@ func (r *CharactersResolver) UpdateCustomMetric(params graphql.ResolveParams) (i
 
 			if props, ok := input["properties"].([]interface{}); ok {
 				var properties []coredb.MetricProperty
-				for _, prop := range props {
+				for j, prop := range props {
 					if propMap, ok := prop.(map[string]interface{}); ok {
-						var mp coredb.MetricProperty
-						if id, ok := propMap["id"].(string); ok {
-							mp.ID, _ = primitive.ObjectIDFromHex(id)
+						var metricProperty coredb.MetricProperty
+						if len(cm.Properties) > j {
+							metricProperty.ID = cm.Properties[j].ID
+						} else {
+							metricProperty.ID = primitive.NewObjectID()
 						}
 						if name, ok := propMap["name"].(string); ok {
-							mp.Name = name
+							metricProperty.Name = name
 						}
-						if typ, ok := propMap["type"].(string); ok {
-							mp.Type = typ
+						if metricType, ok := propMap["type"].(string); ok {
+							metricProperty.Type = metricType
 						}
 						if value, ok := propMap["value"]; ok {
-							mp.Value = value
+							metricProperty.Value = value
 						}
 						if unit, ok := propMap["unit"].(string); ok {
-							mp.Unit = unit
+							metricProperty.Unit = unit
 						}
-						properties = append(properties, mp)
+
+						err = ValidateMetricProperty(metricProperty)
+						if err != nil {
+							return nil, err
+						}
+
+						if len(properties) >= int(character.CustomMetrics[i].LimitedPropertyNumber) {
+							return nil, fmt.Errorf("metric properties creation limit reached")
+						}
+
+						properties = append(properties, metricProperty)
 					}
 				}
 				cm.Properties = properties
@@ -235,13 +247,13 @@ func (r *CharactersResolver) ResetCustomMetric(params graphql.ResolveParams) (in
 		return nil, fmt.Errorf("invalid character ID: %v", err)
 	}
 
-	if characterOID != user.ID {
-		return nil, auth.ErrorPermissionDenied
-	}
-
 	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
+	}
+
+	if character.UserID != user.ID {
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	metricID := params.Args["id"].(string)

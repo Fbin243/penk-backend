@@ -16,10 +16,9 @@ type CreateCharacterStage struct {
 
 func (s CreateCharacterStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
-
 	user, ok := (*ctx).Value(common.User).(string)
 	if !ok {
-		return common.ErrNotFound(common.User)
+		return common.ErrNotFoundInContext(common.User)
 	}
 
 	variables := map[string]interface{}{
@@ -60,10 +59,9 @@ type UpdateCharacterStage struct {
 
 func (s UpdateCharacterStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
-
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFound(s.CharacterKey)
+		return common.ErrNotFoundInContext(s.CharacterKey)
 	}
 
 	variables := map[string]interface{}{
@@ -100,10 +98,9 @@ type DeleteCharacterStage struct {
 
 func (s DeleteCharacterStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
-
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFound(s.CharacterKey)
+		return common.ErrNotFoundInContext(s.CharacterKey)
 	}
 
 	variables := map[string]interface{}{

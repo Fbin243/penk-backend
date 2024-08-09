@@ -19,7 +19,7 @@ func (s CreateCustomMetricStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFound(s.CharacterKey)
+		return common.ErrNotFoundInContext(s.CharacterKey)
 	}
 
 	variables := map[string]interface{}{
@@ -53,11 +53,157 @@ func (s CreateCustomMetricStage) Exec(ctx *context.Context) error {
 		})
 }
 
-// map[string]interface{}{
-// 	"name":        "Update metric name",
-// 	"description": "This is the updated custom metric description",
-// 	"style": map[string]interface{}{
-// 		"color": "#123456",
-// 		"icon":  "update_icon.png",
-// 	},
-// }
+type UpdateCustomMetricStage struct {
+	common.Metadata
+	CharacterKey    common.ContextKey
+	CustomMetricKey common.ContextKey
+}
+
+func (s UpdateCustomMetricStage) Exec(ctx *context.Context) error {
+	log.Println("--> Stage: ", s.Describe)
+	character, ok := (*ctx).Value(s.CharacterKey).(string)
+	if !ok {
+		return common.ErrNotFoundInContext(s.CharacterKey)
+	}
+
+	customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
+	if !ok {
+		return common.ErrNotFoundInContext(s.CustomMetricKey)
+	}
+
+	variables := map[string]interface{}{
+		"id":          gjson.Get(customMetric, "id").Value(),
+		"characterID": gjson.Get(character, "id").Value(),
+		"name":        "Update metric name",
+		"description": "This is the updated custom metric description",
+		"style": map[string]interface{}{
+			"color": "#123456",
+			"icon":  "update_icon.png",
+		},
+		"properties": []interface{}{
+			map[string]interface{}{
+				"name":  "property 1",
+				"type":  "type 1",
+				"value": "value 1",
+				"unit":  "unit 1",
+			},
+			map[string]interface{}{
+				"name":  "property 1",
+				"type":  "type 1",
+				"value": "value 1",
+				"unit":  "unit 1",
+			},
+		},
+	}
+
+	assertion := jsonpath.Chain().
+		Present("data.updateCustomMetric.id").
+		Equal("data.updateCustomMetric.name", variables["name"]).
+		Equal("data.updateCustomMetric.description", variables["description"]).
+		Equal("data.updateCustomMetric.style", variables["style"]).
+		Equal("data.updateCustomMetric.properties", variables["properties"]).
+		NotEqual("data.updateCustomMetric.time", nil).
+		NotEqual("data.updateCustomMetric.limitedPropertyNumber", nil)
+
+	if s.ExpectError {
+		assertion = common.AssertionError
+	}
+
+	return common.QueryGraphQL(ctx,
+		&common.QueryParams{
+			Url:       common.CoreUrl,
+			Query:     UpdateCustomMetricQuery,
+			Variables: variables,
+			Assertion: assertion.End(),
+		})
+}
+
+type DeleteCustomMetricStage struct {
+	common.Metadata
+	CharacterKey    common.ContextKey
+	CustomMetricKey common.ContextKey
+}
+
+func (s DeleteCustomMetricStage) Exec(ctx *context.Context) error {
+	log.Println("--> Stage: ", s.Describe)
+	character, ok := (*ctx).Value(s.CharacterKey).(string)
+	if !ok {
+		return common.ErrNotFoundInContext(s.CharacterKey)
+	}
+
+	customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
+	if !ok {
+		return common.ErrNotFoundInContext(s.CustomMetricKey)
+	}
+
+	variables := map[string]interface{}{
+		"id":          gjson.Get(customMetric, "id").Value(),
+		"characterID": gjson.Get(character, "id").Value(),
+	}
+
+	assertion := common.AssertionSuccess
+
+	if s.ExpectError {
+		assertion = common.AssertionError
+	}
+
+	return common.QueryGraphQL(ctx,
+		&common.QueryParams{
+			Url:       common.CoreUrl,
+			Query:     UpdateCustomMetricQuery,
+			Variables: variables,
+			Assertion: assertion.End(),
+		})
+}
+
+type ResetCustomMetricStage struct {
+	common.Metadata
+	CharacterKey    common.ContextKey
+	CustomMetricKey common.ContextKey
+}
+
+func (s ResetCustomMetricStage) Exec(ctx *context.Context) error {
+	log.Println("--> Stage: ", s.Describe)
+	character, ok := (*ctx).Value(s.CharacterKey).(string)
+	if !ok {
+		return common.ErrNotFoundInContext(s.CharacterKey)
+	}
+
+	customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
+	if !ok {
+		return common.ErrNotFoundInContext(s.CustomMetricKey)
+	}
+
+	variables := map[string]interface{}{
+		"id":          gjson.Get(customMetric, "id").Value(),
+		"characterID": gjson.Get(character, "id").Value(),
+	}
+
+	afterReset := map[string]interface{}{
+		"description": nil,
+		"style": map[string]interface{}{
+			"color": nil,
+			"icon":  nil,
+		},
+		"time":       float64(0),
+		"properties": []interface{}{},
+	}
+
+	assertion := jsonpath.Chain().NotPresent("$.errors").
+		Equal("$.data.resetCustomMetric.id", variables["id"]).
+		Equal("$.data.resetCustomMetric.description", afterReset["description"]).
+		Equal("$.data.resetCustomMetric.style", afterReset["style"]).
+		Equal("$.data.resetCustomMetric.time", afterReset["time"])
+
+	if s.ExpectError {
+		assertion = common.AssertionError
+	}
+
+	return common.QueryGraphQL(ctx,
+		&common.QueryParams{
+			Url:       common.CoreUrl,
+			Query:     ResetCustomMetricQuery,
+			Variables: variables,
+			Assertion: assertion.End(),
+		})
+}

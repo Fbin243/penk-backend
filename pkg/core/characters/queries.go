@@ -18,7 +18,7 @@ func InitCharacterQuery(r *CharactersResolver) *CharactersQuery {
 			Description: "Get a character by ID",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(graphql.String),
+					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
 			Resolve: r.GetCharacterByID,

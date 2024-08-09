@@ -9,6 +9,8 @@ import (
 	"tenkhours/test/common"
 	"tenkhours/test/core/characters"
 	"tenkhours/test/core/characters/metrics"
+	"tenkhours/test/core/characters/metrics/properties"
+	"tenkhours/test/core/timetrackings"
 
 	"tenkhours/test/core/users"
 
@@ -36,6 +38,8 @@ func TestUserFlow(t *testing.T) {
 				Describe: "Update user info",
 			},
 		},
+
+		// --------- CHARACTER -----------
 
 		characters.CreateCharacterStage{
 			Metadata: common.Metadata{
@@ -66,6 +70,43 @@ func TestUserFlow(t *testing.T) {
 			},
 		},
 
+		// --------- TIME TRACKING WITHOUT METRIC -----------
+
+		timetrackings.CreateTimeTrackingStage{
+			Metadata: common.Metadata{
+				Describe: "Start a new tracking session of the current character",
+			},
+			CharacterKey: common.CurrentCharacter,
+		},
+
+		common.SaveToContextStage{
+			Key:      common.TimeTracking,
+			JsonPath: "data.createTimeTracking",
+		},
+
+		timetrackings.CreateTimeTrackingStage{
+			Metadata: common.Metadata{
+				Describe:    "Start an existing session again",
+				ExpectError: true,
+			},
+			CharacterKey: common.CurrentCharacter,
+		},
+
+		timetrackings.UpdateTimeTracking{
+			Metadata: common.Metadata{
+				Describe: "End an existing tracking session of the current character",
+			},
+			TimeTrackingKey: common.TimeTracking,
+		},
+
+		timetrackings.UpdateTimeTracking{
+			Metadata: common.Metadata{
+				Describe:    "End an finished session again",
+				ExpectError: true,
+			},
+			TimeTrackingKey: common.TimeTracking,
+		},
+
 		characters.UpdateCharacterStage{
 			Metadata: common.Metadata{
 				Describe: "Update info of the current character",
@@ -73,11 +114,18 @@ func TestUserFlow(t *testing.T) {
 			CharacterKey: common.CurrentCharacter,
 		},
 
+		// --------- CUSTOM METRIC -----------
+
 		metrics.CreateCustomMetricStage{
 			Metadata: common.Metadata{
 				Describe: "Create the first metric",
 			},
 			CharacterKey: common.CurrentCharacter,
+		},
+
+		common.SaveToContextStage{
+			Key:      common.FirstCustomMetric,
+			JsonPath: "data.createCustomMetric",
 		},
 
 		metrics.CreateCustomMetricStage{
@@ -87,12 +135,116 @@ func TestUserFlow(t *testing.T) {
 			CharacterKey: common.CurrentCharacter,
 		},
 
+		common.SaveToContextStage{
+			Key:      common.SecondCustomMetric,
+			JsonPath: "data.createCustomMetric",
+		},
+
 		metrics.CreateCustomMetricStage{
 			Metadata: common.Metadata{
 				Describe:    "Create the third metric",
 				ExpectError: true,
 			},
 			CharacterKey: common.CurrentCharacter,
+		},
+
+		metrics.UpdateCustomMetricStage{
+			Metadata: common.Metadata{
+				Describe: "Update info for the first custom metric",
+			},
+			CustomMetricKey: common.FirstCustomMetric,
+			CharacterKey:    common.CurrentCharacter,
+		},
+
+		metrics.ResetCustomMetricStage{
+			Metadata: common.Metadata{
+				Describe: "Reset the second custom metric",
+			},
+			CustomMetricKey: common.SecondCustomMetric,
+			CharacterKey:    common.CurrentCharacter,
+		},
+
+		// --------- TIME TRACKING WITH METRIC -----------
+
+		timetrackings.CreateTimeTrackingStage{
+			Metadata: common.Metadata{
+				Describe: "Start a new tracking session of the current character with the first custom metric",
+			},
+			CharacterKey:    common.CurrentCharacter,
+			CustomMetricKey: common.FirstCustomMetric,
+			TrackWithMetric: true,
+		},
+
+		common.SaveToContextStage{
+			Key:      common.TimeTracking,
+			JsonPath: "data.createTimeTracking",
+		},
+
+		timetrackings.UpdateTimeTracking{
+			Metadata: common.Metadata{
+				Describe: "End an existing tracking session of the current character with the first custom metric",
+			},
+			CustomMetricKey: common.FirstCustomMetric,
+			TimeTrackingKey: common.TimeTracking,
+			TrackWithMetric: true,
+		},
+
+		// --------- CUSTOM METRIC PROPERTY -----------
+
+		properties.CreateMetricPropertyStage{
+			Metadata: common.Metadata{
+				Describe: "Create the first property for the second metric",
+			},
+			CharacterKey:    common.CurrentCharacter,
+			CustomMetricKey: common.SecondCustomMetric,
+		},
+
+		properties.CreateMetricPropertyStage{
+			Metadata: common.Metadata{
+				Describe: "Create the second property for the second metric",
+			},
+			CharacterKey:    common.CurrentCharacter,
+			CustomMetricKey: common.SecondCustomMetric,
+		},
+
+		common.SaveToContextStage{
+			Key:      common.MetricProperty,
+			JsonPath: "data.createMetricProperty",
+		},
+
+		properties.CreateMetricPropertyStage{
+			Metadata: common.Metadata{
+				Describe:    "Create the third property for the second metric",
+				ExpectError: true,
+			},
+			CharacterKey:    common.CurrentCharacter,
+			CustomMetricKey: common.SecondCustomMetric,
+		},
+
+		properties.UpdateMetricPropertyStage{
+			Metadata: common.Metadata{
+				Describe: "Update the second property of the second metric",
+			},
+			CharacterKey:      common.CurrentCharacter,
+			CustomMetricKey:   common.SecondCustomMetric,
+			MetricPropertyKey: common.MetricProperty,
+		},
+
+		properties.DeleteMetricPropertyStage{
+			Metadata: common.Metadata{
+				Describe: "Delete the second property of the second metric",
+			},
+			CharacterKey:      common.CurrentCharacter,
+			CustomMetricKey:   common.SecondCustomMetric,
+			MetricPropertyKey: common.MetricProperty,
+		},
+
+		metrics.DeleteCustomMetricStage{
+			Metadata: common.Metadata{
+				Describe: "Delete the second custom metric",
+			},
+			CustomMetricKey: common.SecondCustomMetric,
+			CharacterKey:    common.CurrentCharacter,
 		},
 
 		users.GetUserStage{
@@ -105,6 +257,8 @@ func TestUserFlow(t *testing.T) {
 			Key:      common.User,
 			JsonPath: "data.user",
 		},
+
+		// --------- SNAPSHOT -----------
 
 		analytics_characters.CreateSnapshotStage{
 			Metadata: common.Metadata{
@@ -138,6 +292,13 @@ func TestUserFlow(t *testing.T) {
 				Describe: "Get all snapshots of the user after add a new snapshot for each of characters, so we have 2 snapshots",
 			},
 			HasTwoSnapshots: true,
+		},
+
+		characters.DeleteCharacterStage{
+			Metadata: common.Metadata{
+				Describe: "Delete another character",
+			},
+			CharacterKey: common.AnotherCharacter,
 		},
 	)
 

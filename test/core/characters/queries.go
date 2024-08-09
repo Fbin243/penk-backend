@@ -1,6 +1,7 @@
 package characters
 
-var CreateCharacterQuery = `mutation CreateCharacter($name: String!, $gender: Boolean, $avatar: String!, $tags: [String]) {
+var CreateCharacterQuery = `
+mutation CreateCharacter($name: String!, $gender: Boolean, $avatar: String, $tags: [String]) {
 	createCharacter(
 		input: { 
 			name: $name, 
@@ -38,7 +39,8 @@ var CreateCharacterQuery = `mutation CreateCharacter($name: String!, $gender: Bo
 	}
 }`
 
-var UpdateCharacterQuery = `mutation UpdateCharacter($id: ID!, $avatar: String, $gender: Boolean, $name: String, $tags: [String]) {
+var UpdateCharacterQuery = `
+mutation UpdateCharacter($id: ID!, $avatar: String, $gender: Boolean, $name: String, $tags: [String]) {
 	updateCharacter(
 		id: $id
 		input: {
@@ -56,7 +58,8 @@ var UpdateCharacterQuery = `mutation UpdateCharacter($id: ID!, $avatar: String, 
 	}
 }`
 
-var DeleteCharacterQuery = `mutation DeleteCharacter($id: ID!) {
+var DeleteCharacterQuery = `
+mutation DeleteCharacter($id: ID!) {
 	deleteCharacter(id: $id) {
 		avatar
 		gender

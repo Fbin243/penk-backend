@@ -65,7 +65,7 @@ type QueryParams struct {
 func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
 	testingT, ok := (*ctx).Value(TestingT).(apitest.TestingT)
 	if !ok {
-		return ErrNotFound(TestingT)
+		return ErrNotFoundInContext(TestingT)
 	}
 
 	result := apitest.New().

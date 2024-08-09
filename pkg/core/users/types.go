@@ -15,7 +15,7 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "User",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
-			Type: graphql.ID,
+			Type: graphql.NewNonNull(graphql.ID),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if user, ok := p.Source.(coredb.User); ok {
 					return user.ID.Hex(), nil
@@ -25,16 +25,16 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"name": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.NewNonNull(graphql.String),
 		},
 		"email": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.NewNonNull(graphql.String),
 		},
 		"firebaseUID": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.NewNonNull(graphql.String),
 		},
 		"imageURL": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.NewNonNull(graphql.String),
 		},
 		"currentCharacterID": &graphql.Field{
 			Type: graphql.ID,
@@ -51,7 +51,7 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"characters": &graphql.Field{
-			Type: graphql.NewList(characters.CharacterType),
+			Type: graphql.NewNonNull(graphql.NewList(characters.CharacterType)),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if user, ok := p.Source.(coredb.User); ok {
 					// Find characters by user ID
@@ -68,20 +68,21 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"availableSnapshots": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"autoSnapshot": &graphql.Field{
-			Type: graphql.Boolean,
+			Type: graphql.NewNonNull(graphql.Boolean),
 		},
 		"createdAt": &graphql.Field{
-			Type: graphql.DateTime,
+			Type: graphql.NewNonNull(graphql.DateTime),
 		},
 		"updatedAt": &graphql.Field{
-			Type: graphql.DateTime,
+			Type: graphql.NewNonNull(graphql.DateTime),
 		},
 	},
 })
 
+// Input type
 var userInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "UserInput",
 	Fields: graphql.InputObjectConfigFieldMap{
