@@ -146,7 +146,7 @@ func (r *TimeTrackingsResolver) UpdateTimeTracking(params graphql.ResolveParams)
 
 	// JUST FOR TESTING
 	// duration = 599 // Test for the min duration time
-	duration = 600 // Test for the min duration time
+	// duration = 600 // Test for the min duration time
 	// duration = 601 // Test for the min duration time
 	// duration = 14400 // Test for the max duration time
 	// duration = 14401 // Test for the max duration time

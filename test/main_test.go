@@ -300,6 +300,12 @@ func TestUserFlow(t *testing.T) {
 			},
 			CharacterKey: common.AnotherCharacter,
 		},
+
+		users.GetUserStage{
+			Metadata: common.Metadata{
+				Describe: "Get updated user info for reviewing after performing flow",
+			},
+		},
 	)
 
 	err := p(&ctx)
