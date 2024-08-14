@@ -6,7 +6,6 @@ query UserSnapshots {
         id
         timestamp
         character {
-            avatar
             gender
             id
             limitedMetricNumber
@@ -43,7 +42,6 @@ query CharacterSnapshots ($characterID: ID!) {
         id
         timestamp
         character {
-            avatar
             gender
             id
             limitedMetricNumber
@@ -81,7 +79,6 @@ mutation CreateSnapshot ($characterID: ID!) {
         id
         timestamp
         character {
-            avatar
             gender
             id
             limitedMetricNumber

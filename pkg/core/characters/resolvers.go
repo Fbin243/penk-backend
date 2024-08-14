@@ -109,10 +109,6 @@ func (r *CharactersResolver) CreateCharacter(params graphql.ResolveParams) (inte
 		character.Gender = gender
 	}
 
-	if avatar, ok := input["avatar"].(string); ok {
-		character.Avatar = avatar
-	}
-
 	if tags, ok := input["tags"].([]interface{}); ok {
 		character.Tags = convertListToSlice(tags)
 	}
@@ -167,10 +163,6 @@ func (r *CharactersResolver) UpdateCharacter(params graphql.ResolveParams) (inte
 	// if gender, ok := input["gender"].(bool); ok {
 	// 	character.Gender = gender
 	// }
-
-	if avatar, ok := input["avatar"].(string); ok {
-		character.Avatar = avatar
-	}
 
 	if tags, ok := input["tags"].([]interface{}); ok {
 		character.Tags = convertListToSlice(tags)
