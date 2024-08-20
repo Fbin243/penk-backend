@@ -11,7 +11,7 @@ type UsersQuery struct {
 func InitUserQuery(r *UsersResolver) *UsersQuery {
 	return &UsersQuery{
 		User: &graphql.Field{
-			Type:        userType,
+			Type:        graphql.NewNonNull(userType),
 			Description: "Get a user by token",
 			Resolve:     r.GetUserByToken,
 		},
