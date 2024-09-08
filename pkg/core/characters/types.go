@@ -53,7 +53,7 @@ var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"customMetrics": &graphql.Field{
-			Type: graphql.NewNonNull(graphql.NewList(customMetricType)),
+			Type: graphql.NewNonNull(graphql.NewList(graphql.NewNonNull(customMetricType))),
 		},
 		"limitedMetricNumber": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.Int),

@@ -9,7 +9,9 @@ import (
 	"tenkhours/pkg/db/coredb"
 
 	"github.com/graphql-go/graphql"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type TimeTrackingsResolver struct {
@@ -24,6 +26,30 @@ func NewTimeTrackingsResolver(timeTrackingsRepo *coredb.TimeTrackingsRepo, chara
 	}
 }
 
+func (r *TimeTrackingsResolver) GetCurrentTimeTracking(params graphql.ResolveParams) (interface{}, error) {
+	characterID := params.Args["characterID"].(string)
+	characterOID, err := primitive.ObjectIDFromHex(characterID)
+	if err != nil {
+		return nil, err
+	}
+
+	filter := bson.M{
+		"character_id": characterOID,
+		"end_time":     bson.M{"$exists": false},
+	}
+
+	var result coredb.TimeTracking
+	err = r.TimeTrackingsRepo.FindOne(params.Context, filter).Decode(&result)
+	if err == mongo.ErrNoDocuments {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	serverStartTime := time.Now()
 
@@ -36,6 +62,9 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 	if !ok {
 		return nil, fmt.Errorf("failed to get client start time")
 	}
+
+	fmt.Println("--> server", serverStartTime.Local().String())
+	fmt.Println("--> client", clientStartTime.Local().String())
 
 	duration := serverStartTime.Sub(clientStartTime)
 	seconds := duration.Seconds()

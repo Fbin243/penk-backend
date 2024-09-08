@@ -26,15 +26,17 @@ func InitSchema() graphql.Schema {
 		charactersMutation = characters.InitCharacterMutation(charactersResolver)
 
 		timeTrackingsResolver = timetrackings.NewTimeTrackingsResolver(timeTrackingsRepo, charactersRepo)
+		timeTrackingsQuery    = timetrackings.InitTimeTrackingsQuery(timeTrackingsResolver)
 		timeTrackingsMutation = timetrackings.InitTimeTrackingsMutation(timeTrackingsResolver)
 	)
 
 	rootQuery := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootQuery",
 		Fields: graphql.Fields{
-			"user":           usersQuery.User,
-			"userCharacters": charactersQuery.UserCharacters,
-			"characters":     charactersQuery.Characters,
+			"user":                usersQuery.User,
+			"userCharacters":      charactersQuery.UserCharacters,
+			"characters":          charactersQuery.Characters,
+			"currentTimeTracking": timeTrackingsQuery.CurrentTimeTracking,
 		},
 	})
 
