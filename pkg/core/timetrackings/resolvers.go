@@ -63,9 +63,6 @@ func (r *TimeTrackingsResolver) CreateTimeTracking(params graphql.ResolveParams)
 		return nil, fmt.Errorf("failed to get client start time")
 	}
 
-	fmt.Println("--> server", serverStartTime.Local().String())
-	fmt.Println("--> client", clientStartTime.Local().String())
-
 	duration := serverStartTime.Sub(clientStartTime)
 	seconds := duration.Seconds()
 
