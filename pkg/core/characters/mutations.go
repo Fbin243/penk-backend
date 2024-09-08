@@ -24,7 +24,7 @@ type CharactersMutation struct {
 func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 	return &CharactersMutation{
 		CreateCharacter: &graphql.Field{
-			Type:        CharacterType,
+			Type:        graphql.NewNonNull(CharacterType),
 			Description: "Create a character",
 			Args: graphql.FieldConfigArgument{
 				"input": &graphql.ArgumentConfig{
@@ -34,7 +34,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.CreateCharacter,
 		},
 		UpdateCharacter: &graphql.Field{
-			Type:        CharacterType,
+			Type:        graphql.NewNonNull(CharacterType),
 			Description: "Update a character",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{
@@ -67,7 +67,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.ResetCharacter,
 		},
 		CreateCustomMetric: &graphql.Field{
-			Type:        customMetricType,
+			Type:        graphql.NewNonNull(customMetricType),
 			Description: "Create a custom metric",
 			Args: graphql.FieldConfigArgument{
 				"characterID": &graphql.ArgumentConfig{
@@ -80,7 +80,7 @@ func InitCharacterMutation(r *CharactersResolver) *CharactersMutation {
 			Resolve: r.CreateCustomMetric,
 		},
 		UpdateCustomMetric: &graphql.Field{
-			Type:        customMetricType,
+			Type:        graphql.NewNonNull(customMetricType),
 			Description: "Update a Custom Metric",
 			Args: graphql.FieldConfigArgument{
 				"id": &graphql.ArgumentConfig{

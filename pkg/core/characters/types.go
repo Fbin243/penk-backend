@@ -46,19 +46,6 @@ var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 		"gender": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.Boolean),
 		},
-		"avatar": &graphql.Field{
-			Type: graphql.String,
-			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if character, ok := p.Source.(coredb.Character); ok {
-					if character.Avatar == "" {
-						return nil, nil
-					}
-
-					return character.Avatar, nil
-				}
-				return nil, fmt.Errorf("failed to resolve avatar")
-			},
-		},
 		"tags": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.NewList(graphql.String)),
 		},
@@ -66,7 +53,7 @@ var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"customMetrics": &graphql.Field{
-			Type: graphql.NewNonNull(graphql.NewList(customMetricType)),
+			Type: graphql.NewNonNull(graphql.NewList(graphql.NewNonNull(customMetricType))),
 		},
 		"limitedMetricNumber": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.Int),
@@ -202,10 +189,6 @@ var characterInputType = graphql.NewInputObject(graphql.InputObjectConfig{
 		"gender": &graphql.InputObjectFieldConfig{
 			Type:        graphql.Boolean,
 			Description: "Male is true, Female is false. If not specified, it is false by default",
-		},
-		"avatar": &graphql.InputObjectFieldConfig{
-			Type:        graphql.String,
-			Description: "URL or file path of the character's avatar",
 		},
 		"tags": &graphql.InputObjectFieldConfig{
 			Type:        graphql.NewList(graphql.String),

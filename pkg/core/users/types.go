@@ -51,7 +51,7 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 			},
 		},
 		"characters": &graphql.Field{
-			Type: graphql.NewNonNull(graphql.NewList(characters.CharacterType)),
+			Type: graphql.NewNonNull(graphql.NewList(graphql.NewNonNull(characters.CharacterType))),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if user, ok := p.Source.(coredb.User); ok {
 					// Find characters by user ID

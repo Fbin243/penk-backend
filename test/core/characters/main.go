@@ -24,14 +24,12 @@ func (s CreateCharacterStage) Exec(ctx *context.Context) error {
 	variables := map[string]interface{}{
 		"name":   "Character name",
 		"gender": false,
-		"avatar": "avatar.png",
 		"tags":   []interface{}{"#Tag1", "#Tag2"},
 	}
 
 	assertion := jsonpath.Chain().NotPresent("$.errors").
 		Present("$.data.createCharacter.id").
 		Equal("$.data.createCharacter.name", variables["name"]).
-		Equal("$.data.createCharacter.avatar", variables["avatar"]).
 		Equal("$.data.createCharacter.gender", variables["gender"]).
 		Equal("$.data.createCharacter.tags", variables["tags"]).
 		Equal("$.data.createCharacter.limitedMetricNumber", float64(2)).
@@ -68,14 +66,12 @@ func (s UpdateCharacterStage) Exec(ctx *context.Context) error {
 		"id":     gjson.Get(character, "id").Value(),
 		"name":   "Update name",
 		"gender": true,
-		"avatar": "update-avatar.png",
 		"tags":   []interface{}{"#update_tag_1", "#update_tag_2"},
 	}
 
 	assertion := jsonpath.Chain().NotPresent("$.errors").
 		Equal("$.data.updateCharacter.id", variables["id"]).
 		Equal("$.data.updateCharacter.name", variables["name"]).
-		Equal("$.data.updateCharacter.avatar", variables["avatar"]).
 		Equal("$.data.updateCharacter.tags", variables["tags"])
 
 	if s.ExpectError {

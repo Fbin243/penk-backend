@@ -13,7 +13,6 @@ var UserQuery = `query {
         name
         updatedAt
         characters {
-            avatar
             gender
             id
             limitedMetricNumber

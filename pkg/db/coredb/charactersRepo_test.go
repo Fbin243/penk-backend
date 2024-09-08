@@ -11,7 +11,6 @@ import (
 
 type characterInputType struct {
 	Name   string
-	Avatar string
 	Gender bool
 	Tags   []string
 }
@@ -30,7 +29,6 @@ type metricInputType struct {
 
 var charInput = &characterInputType{
 	Name:   "example",
-	Avatar: "https://example.com",
 	Gender: true,
 	Tags:   []string{"#tag1", "#tag2"},
 }
@@ -40,7 +38,6 @@ func newCharacterFromInput(input *characterInputType) *Character {
 		ID:                  primitive.NewObjectID(),
 		UserID:              primitive.NewObjectID(),
 		Name:                input.Name,
-		Avatar:              input.Avatar,
 		Tags:                input.Tags,
 		Gender:              input.Gender,
 		TotalFocusedTime:    0,
@@ -51,7 +48,6 @@ func newCharacterFromInput(input *characterInputType) *Character {
 
 func assertWithCharInput(t *testing.T, character *Character, input *characterInputType) {
 	assert.Equal(t, character.Name, input.Name)
-	assert.Equal(t, character.Avatar, input.Avatar)
 	assert.Equal(t, character.Gender, input.Gender)
 	assert.Equal(t, character.Tags, input.Tags)
 }
@@ -168,7 +164,6 @@ func setupMultipleCharactersTest(t *testing.T) ([]*Character, func()) {
 	character1 := newCharacterFromInput(charInput)
 	character2 := newCharacterFromInput(&characterInputType{
 		Name:   "example2",
-		Avatar: "https://example2.com",
 		Gender: false,
 		Tags:   []string{"#tag3"},
 	})
@@ -220,14 +215,12 @@ func TestUpdateCharacter(t *testing.T) {
 
 	updateInput := &characterInputType{
 		Name:   "updated",
-		Avatar: "https://updated.com",
 		Gender: false,
 		Tags:   []string{"#updatedTag1"},
 	}
 
 	character.Name = updateInput.Name
 	character.Gender = updateInput.Gender
-	character.Avatar = updateInput.Avatar
 	character.Tags = updateInput.Tags
 
 	updatedCharacter, err := charactersRepo.UpdateCharacter(character)
