@@ -9,9 +9,7 @@ import (
 	"tenkhours/pkg/db/coredb"
 
 	"github.com/graphql-go/graphql"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type TimeTrackingsResolver struct {
@@ -33,17 +31,8 @@ func (r *TimeTrackingsResolver) GetCurrentTimeTracking(params graphql.ResolvePar
 		return nil, err
 	}
 
-	filter := bson.M{
-		"character_id": characterOID,
-		"end_time":     bson.M{"$exists": false},
-	}
-
-	var result coredb.TimeTracking
-	err = r.TimeTrackingsRepo.FindOne(params.Context, filter).Decode(&result)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	}
-	if err != nil {
+	result, err := r.TimeTrackingsRepo.GetCurrentTimeTrackingByCharacterID(characterOID)
+	if (err != nil) {
 		return nil, err
 	}
 

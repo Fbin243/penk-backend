@@ -52,6 +52,27 @@ func (r *TimeTrackingsRepo) GetTimeTrackingsByCharacterID(characterID primitive.
 	return timeTrackings, nil
 }
 
+func (r *TimeTrackingsRepo) GetCurrentTimeTrackingByCharacterID(characterID primitive.ObjectID) (*TimeTracking, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{
+		"character_id": characterID,
+		"end_time":         bson.M{"$exists": false},
+	}
+
+	var timeTracking TimeTracking
+	err := r.FindOne(ctx, filter).Decode(&timeTracking)
+	if err == mongo.ErrNoDocuments {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &timeTracking, nil
+}
+
 func (r *TimeTrackingsRepo) CreateTimeTracking(timeTracking *TimeTracking) (*TimeTracking, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -77,8 +98,6 @@ func (r *TimeTrackingsRepo) UpdateTimeTracking(timeTracking *TimeTracking) (*Tim
 		"min_duration_time": timeTracking.MinDurationTime,
 		"max_duration_time": timeTracking.MaxDurationTime,
 	}}
-
-	log.Print("end_time", timeTracking.EndTime)
 
 	err := r.FindOneAndUpdate(ctx, filter, update, db.FindOneAndUpdateOptions).Decode(timeTracking)
 	if err != nil {
