@@ -16,7 +16,7 @@ type UsersHandler struct {
 	UsersRepo *coredb.UsersRepo
 }
 
-func NewUsersResolver(usersRepo *coredb.UsersRepo) *UsersHandler {
+func NewUsersHandler(usersRepo *coredb.UsersRepo) *UsersHandler {
 	return &UsersHandler{
 		UsersRepo: usersRepo,
 	}

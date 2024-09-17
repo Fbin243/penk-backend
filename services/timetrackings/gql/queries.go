@@ -1,7 +1,7 @@
 package gql
 
 import (
-	"tenkhours/pkg/core"
+	"tenkhours/pkg/timetrackings"
 
 	"github.com/graphql-go/graphql"
 )
@@ -10,7 +10,7 @@ type TimeTrackingsQuery struct {
 	CurrentTimeTracking *graphql.Field
 }
 
-func InitTimeTrackingsQuery(r *core.TimeTrackingsHandler) *TimeTrackingsQuery {
+func InitTimeTrackingsQuery(r *timetrackings.TimeTrackingsHandler) *TimeTrackingsQuery {
 	return &TimeTrackingsQuery{
 		CurrentTimeTracking: &graphql.Field{
 			Type:        timeTrackingType,

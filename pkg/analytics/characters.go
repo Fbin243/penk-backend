@@ -16,21 +16,21 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type CharactersResolver struct {
+type CharactersHandler struct {
 	SnapshotsRepo  *analyticsdb.SnapshotsRepo
 	CharactersRepo *coredb.CharactersRepo
 	UsersRepo      *coredb.UsersRepo
 }
 
-func NewCharactersResolver(snapshotsRepo *analyticsdb.SnapshotsRepo, charactersRepo *coredb.CharactersRepo, usersRepo *coredb.UsersRepo) *CharactersResolver {
-	return &CharactersResolver{
+func NewCharactersHandler(snapshotsRepo *analyticsdb.SnapshotsRepo, charactersRepo *coredb.CharactersRepo, usersRepo *coredb.UsersRepo) *CharactersHandler {
+	return &CharactersHandler{
 		SnapshotsRepo:  snapshotsRepo,
 		CharactersRepo: charactersRepo,
 		UsersRepo:      usersRepo,
 	}
 }
 
-func (r *CharactersResolver) GetSnapshotsByUserID(params graphql.ResolveParams) (interface{}, error) {
+func (r *CharactersHandler) GetSnapshotsByUserID(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -44,7 +44,7 @@ func (r *CharactersResolver) GetSnapshotsByUserID(params graphql.ResolveParams) 
 	return snapshots, nil
 }
 
-func (r *CharactersResolver) GetSnapshotsByCharacterID(params graphql.ResolveParams) (interface{}, error) {
+func (r *CharactersHandler) GetSnapshotsByCharacterID(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -73,7 +73,7 @@ func (r *CharactersResolver) GetSnapshotsByCharacterID(params graphql.ResolvePar
 	return snapshots, nil
 }
 
-func (r *CharactersResolver) CreateNewSnapshot(params graphql.ResolveParams) (interface{}, error) {
+func (r *CharactersHandler) CreateNewSnapshot(params graphql.ResolveParams) (interface{}, error) {
 	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
 	if !ok {
 		return nil, auth.ErrorUnauthorized

@@ -1,10 +1,10 @@
 package gql
 
 import (
-	"tenkhours/pkg/core"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/db/timetrackingsdb"
+	"tenkhours/pkg/timetrackings"
 
 	"github.com/graphql-go/graphql"
 )
@@ -15,7 +15,7 @@ func InitSchema() graphql.Schema {
 		charactersRepo    = coredb.NewCharactersRepo(db)
 		timeTrackingsRepo = timetrackingsdb.NewTimeTrackingsRepo(db)
 
-		timeTrackingsResolver = core.NewTimeTrackingsResolver(timeTrackingsRepo, charactersRepo)
+		timeTrackingsResolver = timetrackings.NewTimeTrackingsHandler(timeTrackingsRepo, charactersRepo)
 		timeTrackingsQuery    = InitTimeTrackingsQuery(timeTrackingsResolver)
 		timeTrackingsMutation = InitTimeTrackingsMutation(timeTrackingsResolver)
 	)

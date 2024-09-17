@@ -11,7 +11,7 @@ type CharactersQuery struct {
 	UserSnapshots      *graphql.Field
 }
 
-func InitCharacterQuery(r *analytics.CharactersResolver) *CharactersQuery {
+func InitCharacterQuery(r *analytics.CharactersHandler) *CharactersQuery {
 	return &CharactersQuery{
 		CharacterSnapshots: &graphql.Field{
 			Type:        graphql.NewList(snapshotType),

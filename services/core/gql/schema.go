@@ -10,15 +10,15 @@ import (
 
 func InitSchema() graphql.Schema {
 	var (
-		db                = db.GetDBManager().DB
-		usersRepo         = coredb.NewUsersRepo(db)
-		charactersRepo    = coredb.NewCharactersRepo(db)
+		db             = db.GetDBManager().DB
+		usersRepo      = coredb.NewUsersRepo(db)
+		charactersRepo = coredb.NewCharactersRepo(db)
 
-		usersResolver = core.NewUsersResolver(usersRepo)
+		usersResolver = core.NewUsersHandler(usersRepo)
 		usersQuery    = InitUserQuery(usersResolver)
-		usersMutation =InitUserMutation(usersResolver)
+		usersMutation = InitUserMutation(usersResolver)
 
-		charactersResolver = core.NewCharactersResolver(charactersRepo, usersRepo)
+		charactersResolver = core.NewCharactersHandler(charactersRepo, usersRepo)
 		charactersQuery    = InitCharacterQuery(charactersResolver)
 		charactersMutation = InitCharacterMutation(charactersResolver)
 	)
@@ -26,9 +26,9 @@ func InitSchema() graphql.Schema {
 	rootQuery := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootQuery",
 		Fields: graphql.Fields{
-			"user":                usersQuery.User,
-			"userCharacters":      charactersQuery.UserCharacters,
-			"characters":          charactersQuery.Characters,
+			"user":           usersQuery.User,
+			"userCharacters": charactersQuery.UserCharacters,
+			"characters":     charactersQuery.Characters,
 		},
 	})
 

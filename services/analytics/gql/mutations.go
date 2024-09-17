@@ -10,7 +10,7 @@ type CharactersMutation struct {
 	CreateSnapshot *graphql.Field
 }
 
-func InitCharactersMutation(r *analytics.CharactersResolver) *CharactersMutation {
+func InitCharactersMutation(r *analytics.CharactersHandler) *CharactersMutation {
 	return &CharactersMutation{
 		CreateSnapshot: &graphql.Field{
 			Type: snapshotType,

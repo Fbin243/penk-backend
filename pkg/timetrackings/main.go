@@ -1,4 +1,4 @@
-package core
+package timetrackings
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ type TimeTrackingsHandler struct {
 	CharactersRepo    *coredb.CharactersRepo
 }
 
-func NewTimeTrackingsResolver(timeTrackingsRepo *timetrackingsdb.TimeTrackingsRepo, charactersRepo *coredb.CharactersRepo) *TimeTrackingsHandler {
+func NewTimeTrackingsHandler(timeTrackingsRepo *timetrackingsdb.TimeTrackingsRepo, charactersRepo *coredb.CharactersRepo) *TimeTrackingsHandler {
 	return &TimeTrackingsHandler{
 		TimeTrackingsRepo: timeTrackingsRepo,
 		CharactersRepo:    charactersRepo,

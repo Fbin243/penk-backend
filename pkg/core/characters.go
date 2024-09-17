@@ -16,7 +16,7 @@ type CharactersHandler struct {
 	UsersRepo      *coredb.UsersRepo
 }
 
-func NewCharactersResolver(charactersRepo *coredb.CharactersRepo, usersRepo *coredb.UsersRepo) *CharactersHandler {
+func NewCharactersHandler(charactersRepo *coredb.CharactersRepo, usersRepo *coredb.UsersRepo) *CharactersHandler {
 	return &CharactersHandler{
 		CharactersRepo: charactersRepo,
 		UsersRepo:      usersRepo,

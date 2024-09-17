@@ -1,7 +1,7 @@
 package gql
 
 import (
-	"tenkhours/pkg/core"
+	"tenkhours/pkg/timetrackings"
 
 	"github.com/graphql-go/graphql"
 )
@@ -11,7 +11,7 @@ type TimeTrackingsMutation struct {
 	UpdateTimeTracking *graphql.Field
 }
 
-func InitTimeTrackingsMutation(r *core.TimeTrackingsHandler) *TimeTrackingsMutation {
+func InitTimeTrackingsMutation(r *timetrackings.TimeTrackingsHandler) *TimeTrackingsMutation {
 	return &TimeTrackingsMutation{
 		CreateTimeTracking: &graphql.Field{
 			Type:        graphql.NewNonNull(timeTrackingType),

@@ -11,4 +11,5 @@ use (
 	./services/core
 	./services/timetrackings
 	./e2e
+	./pkg/timetrackings
 )
