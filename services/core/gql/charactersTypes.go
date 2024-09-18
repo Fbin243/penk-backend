@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"tenkhours/pkg/db/coredb"
-	"tenkhours/pkg/utils"
 
 	"github.com/graphql-go/graphql"
 )
@@ -23,7 +22,7 @@ var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 					return character.ID.Hex(), nil
 				}
 
-				return nil, utils.ErrorConvertOIDToHex
+				return nil, fmt.Errorf("failed to resolve Character id")
 			},
 		},
 		"userID": &graphql.Field{
@@ -37,7 +36,7 @@ var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 					return character.UserID.Hex(), nil
 				}
 
-				return nil, utils.ErrorConvertOIDToHex
+				return nil, fmt.Errorf("failed to resolve Character userID")
 			},
 		},
 		"name": &graphql.Field{
@@ -71,7 +70,7 @@ var customMetricType = graphql.NewObject(graphql.ObjectConfig{
 					return metric.ID.Hex(), nil
 				}
 
-				return nil, utils.ErrorConvertOIDToHex
+				return nil, fmt.Errorf("failed to resolve CustomMetric id")
 			},
 		},
 		"name": &graphql.Field{
@@ -148,7 +147,7 @@ var metricPropertyType = graphql.NewObject(graphql.ObjectConfig{
 					return property.ID.Hex(), nil
 				}
 
-				return nil, utils.ErrorConvertOIDToHex
+				return nil, fmt.Errorf("failed to resolve id")
 			},
 		},
 		"name": &graphql.Field{

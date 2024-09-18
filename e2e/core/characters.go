@@ -1,4 +1,4 @@
-package characters
+package core
 
 import (
 	"context"

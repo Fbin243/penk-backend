@@ -54,7 +54,7 @@ func (s CreateTimeTrackingStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
+			Url:       common.TimetrackingsUrl,
 			Query:     CreateTimeTrackingQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
@@ -103,7 +103,7 @@ func (s UpdateTimeTracking) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
+			Url:       common.TimetrackingsUrl,
 			Query:     UpdateTimeTrackingQuery,
 			Variables: variables,
 			Assertion: assertion.End(),

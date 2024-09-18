@@ -5,7 +5,6 @@ import (
 
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
-	"tenkhours/pkg/utils"
 
 	"github.com/graphql-go/graphql"
 )
@@ -20,7 +19,7 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 					return user.ID.Hex(), nil
 				}
 
-				return nil, utils.ErrorConvertOIDToHex
+				return nil, fmt.Errorf("failed to resolve User id")
 			},
 		},
 		"name": &graphql.Field{
@@ -46,7 +45,7 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 					return user.CurrentCharacterID.Hex(), nil
 				}
 
-				return nil, utils.ErrorConvertOIDToHex
+				return nil, fmt.Errorf("failed to resolve User currentCharacterID")
 			},
 		},
 		"characters": &graphql.Field{

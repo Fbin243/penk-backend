@@ -1,4 +1,4 @@
-package characters
+package analytics
 
 var UserSnapshotsQuery = `
 query UserSnapshots {

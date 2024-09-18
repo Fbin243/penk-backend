@@ -1,4 +1,4 @@
-package characters
+package core
 
 var CreateCharacterQuery = `
 mutation CreateCharacter($name: String!, $gender: Boolean, $tags: [String]) {

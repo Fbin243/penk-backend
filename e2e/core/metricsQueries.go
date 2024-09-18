@@ -1,4 +1,4 @@
-package metrics
+package core
 
 var CreateCustomMetricQuery = `
 mutation CreateCustomMetric($characterID: ID!, $name: String, $style: MetricStyleInput, $description: String) {

@@ -1,4 +1,4 @@
-package properties
+package core
 
 var CreateMetricPropertyQuery = `
 mutation CreateMetricProperty ($characterID: ID!, $metricID: ID!, $input: MetricPropertyInput!) {

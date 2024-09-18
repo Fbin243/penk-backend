@@ -2,14 +2,14 @@ go 1.22.3
 
 use (
 	.
-	./pkg/db
+	./e2e
+	./pkg/analytics
 	./pkg/auth
 	./pkg/core
-	./pkg/analytics
+	./pkg/db
+	./pkg/timetrackings
 	./pkg/utils
 	./services/analytics
 	./services/core
 	./services/timetrackings
-	./e2e
-	./pkg/timetrackings
 )

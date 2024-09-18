@@ -33,7 +33,7 @@ func (app *App) InitRouter() {
 		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
 
-	app.Engine.GET("/analytics", func(c *gin.Context) {
+	app.Engine.GET("/timetrackings", func(c *gin.Context) {
 		c.String(http.StatusOK, "Timetrackings service is running!")
 	})
 

@@ -5,13 +5,10 @@ import (
 	"testing"
 
 	"tenkhours/pineline"
-	analytics_characters "tenkhours/test/analytics/characters"
+	"tenkhours/test/analytics"
 	"tenkhours/test/common"
-	"tenkhours/test/core/characters"
-	"tenkhours/test/core/characters/metrics"
-	"tenkhours/test/core/characters/metrics/properties"
-	"tenkhours/test/core/timetrackings"
-	"tenkhours/test/core/users"
+	"tenkhours/test/core"
+	"tenkhours/test/timetrackings"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +17,10 @@ func TestUserFlow(t *testing.T) {
 	ctx := context.WithValue(context.Background(), common.TestingT, t)
 
 	p := pineline.Pineline(
-		users.GetUserStage{
+
+		// --------- USER -----------
+
+		core.GetUserStage{
 			Metadata: common.Metadata{
 				Describe: "Create a new user",
 			},
@@ -32,7 +32,7 @@ func TestUserFlow(t *testing.T) {
 			JsonPath: "data.user",
 		},
 
-		users.UpdateUserStage{
+		core.UpdateUserStage{
 			Metadata: common.Metadata{
 				Describe: "Update user info",
 			},
@@ -40,7 +40,7 @@ func TestUserFlow(t *testing.T) {
 
 		// --------- CHARACTER -----------
 
-		characters.CreateCharacterStage{
+		core.CreateCharacterStage{
 			Metadata: common.Metadata{
 				Describe: "Create the first character",
 			},
@@ -51,7 +51,7 @@ func TestUserFlow(t *testing.T) {
 			JsonPath: "data.createCharacter",
 		},
 
-		characters.CreateCharacterStage{
+		core.CreateCharacterStage{
 			Metadata: common.Metadata{
 				Describe: "Create the second character",
 			},
@@ -62,7 +62,7 @@ func TestUserFlow(t *testing.T) {
 			JsonPath: "data.createCharacter",
 		},
 
-		characters.CreateCharacterStage{
+		core.CreateCharacterStage{
 			Metadata: common.Metadata{
 				Describe:    "Create the third character",
 				ExpectError: true,
@@ -106,7 +106,7 @@ func TestUserFlow(t *testing.T) {
 			TimeTrackingKey: common.TimeTracking,
 		},
 
-		characters.UpdateCharacterStage{
+		core.UpdateCharacterStage{
 			Metadata: common.Metadata{
 				Describe: "Update info of the current character",
 			},
@@ -115,7 +115,7 @@ func TestUserFlow(t *testing.T) {
 
 		// --------- CUSTOM METRIC -----------
 
-		metrics.CreateCustomMetricStage{
+		core.CreateCustomMetricStage{
 			Metadata: common.Metadata{
 				Describe: "Create the first metric",
 			},
@@ -127,7 +127,7 @@ func TestUserFlow(t *testing.T) {
 			JsonPath: "data.createCustomMetric",
 		},
 
-		metrics.CreateCustomMetricStage{
+		core.CreateCustomMetricStage{
 			Metadata: common.Metadata{
 				Describe: "Create the second metric",
 			},
@@ -139,7 +139,7 @@ func TestUserFlow(t *testing.T) {
 			JsonPath: "data.createCustomMetric",
 		},
 
-		metrics.CreateCustomMetricStage{
+		core.CreateCustomMetricStage{
 			Metadata: common.Metadata{
 				Describe:    "Create the third metric",
 				ExpectError: true,
@@ -147,7 +147,7 @@ func TestUserFlow(t *testing.T) {
 			CharacterKey: common.CurrentCharacter,
 		},
 
-		metrics.UpdateCustomMetricStage{
+		core.UpdateCustomMetricStage{
 			Metadata: common.Metadata{
 				Describe: "Update info for the first custom metric",
 			},
@@ -155,7 +155,7 @@ func TestUserFlow(t *testing.T) {
 			CharacterKey:    common.CurrentCharacter,
 		},
 
-		metrics.ResetCustomMetricStage{
+		core.ResetCustomMetricStage{
 			Metadata: common.Metadata{
 				Describe: "Reset the second custom metric",
 			},
@@ -190,7 +190,7 @@ func TestUserFlow(t *testing.T) {
 
 		// --------- CUSTOM METRIC PROPERTY -----------
 
-		properties.CreateMetricPropertyStage{
+		core.CreateMetricPropertyStage{
 			Metadata: common.Metadata{
 				Describe: "Create the first property for the second metric",
 			},
@@ -198,7 +198,7 @@ func TestUserFlow(t *testing.T) {
 			CustomMetricKey: common.SecondCustomMetric,
 		},
 
-		properties.CreateMetricPropertyStage{
+		core.CreateMetricPropertyStage{
 			Metadata: common.Metadata{
 				Describe: "Create the second property for the second metric",
 			},
@@ -211,7 +211,7 @@ func TestUserFlow(t *testing.T) {
 			JsonPath: "data.createMetricProperty",
 		},
 
-		properties.CreateMetricPropertyStage{
+		core.CreateMetricPropertyStage{
 			Metadata: common.Metadata{
 				Describe:    "Create the third property for the second metric",
 				ExpectError: true,
@@ -220,7 +220,7 @@ func TestUserFlow(t *testing.T) {
 			CustomMetricKey: common.SecondCustomMetric,
 		},
 
-		properties.UpdateMetricPropertyStage{
+		core.UpdateMetricPropertyStage{
 			Metadata: common.Metadata{
 				Describe: "Update the second property of the second metric",
 			},
@@ -229,7 +229,7 @@ func TestUserFlow(t *testing.T) {
 			MetricPropertyKey: common.MetricProperty,
 		},
 
-		properties.DeleteMetricPropertyStage{
+		core.DeleteMetricPropertyStage{
 			Metadata: common.Metadata{
 				Describe: "Delete the second property of the second metric",
 			},
@@ -238,7 +238,7 @@ func TestUserFlow(t *testing.T) {
 			MetricPropertyKey: common.MetricProperty,
 		},
 
-		metrics.DeleteCustomMetricStage{
+		core.DeleteCustomMetricStage{
 			Metadata: common.Metadata{
 				Describe: "Delete the second custom metric",
 			},
@@ -246,7 +246,7 @@ func TestUserFlow(t *testing.T) {
 			CharacterKey:    common.CurrentCharacter,
 		},
 
-		users.GetUserStage{
+		core.GetUserStage{
 			Metadata: common.Metadata{
 				Describe: "Get updated user info after add characters, metrics, etc..",
 			},
@@ -259,7 +259,7 @@ func TestUserFlow(t *testing.T) {
 
 		// --------- SNAPSHOT -----------
 
-		analytics_characters.CreateSnapshotStage{
+		analytics.CreateSnapshotStage{
 			Metadata: common.Metadata{
 				Describe: "Create a snapshot for the current character",
 			},
@@ -271,7 +271,7 @@ func TestUserFlow(t *testing.T) {
 			JsonPath: "data.createSnapshot",
 		},
 
-		analytics_characters.GetCharacterSnapshotsStage{
+		analytics.GetCharacterSnapshotsStage{
 			Metadata: common.Metadata{
 				Describe: "Get all snapshots of the current character after add a new snapshot for it",
 			},
@@ -279,28 +279,28 @@ func TestUserFlow(t *testing.T) {
 			HasOneSnapshot: true,
 		},
 
-		analytics_characters.CreateSnapshotStage{
+		analytics.CreateSnapshotStage{
 			Metadata: common.Metadata{
 				Describe: "Create a snapshot for another character",
 			},
 			CharacterKey: common.AnotherCharacter,
 		},
 
-		analytics_characters.GetUserSnapshotsStage{
+		analytics.GetUserSnapshotsStage{
 			Metadata: common.Metadata{
 				Describe: "Get all snapshots of the user after add a new snapshot for each of characters, so we have 2 snapshots",
 			},
 			HasTwoSnapshots: true,
 		},
 
-		characters.DeleteCharacterStage{
+		core.DeleteCharacterStage{
 			Metadata: common.Metadata{
 				Describe: "Delete another character",
 			},
 			CharacterKey: common.AnotherCharacter,
 		},
 
-		users.GetUserStage{
+		core.GetUserStage{
 			Metadata: common.Metadata{
 				Describe: "Get updated user info for reviewing after performing flow",
 			},
