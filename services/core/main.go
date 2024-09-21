@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -10,9 +11,16 @@ import (
 )
 
 func main() {
-	if godotenv.Load(".env."+os.Getenv("TENK_ENV")) != nil {
-		log.Fatal("Error loading .env file")
+	env := os.Getenv("TENK_ENV")
+	if env == "" {
+		env = "development"
 	}
+
+	if godotenv.Load(".env."+env) != nil {
+		log.Fatal("Error loading .env." + env + " file")
+	}
+
+	fmt.Println("------------------Running in environment:", env)
 
 	app := api.NewApp()
 	app.InitRouter()

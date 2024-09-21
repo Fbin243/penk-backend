@@ -1,15 +1,17 @@
 SHELL := /bin/bash  # Use bash shell on Unix
 
+TENK_ENV ?= development
+
 core:
 ifeq ($(OS),Windows_NT)
-	set TENK_ENV=development && air -c ./tools/air-configs/core.air.toml
+	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/core.air.toml
 else
-	export TENK_ENV=development && air -c ./tools/air-configs/core.air.toml
+	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/core.air.toml
 endif
 
 analytics:
 ifeq ($(OS),Windows_NT)
-	set TENK_ENV=development && air -c ./tools/air-configs/analytics.air.toml
+	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/analytics.air.toml
 else
-	export TENK_ENV=development && air -c ./tools/air-configs/analytics.air.toml
+	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/analytics.air.toml
 endif
