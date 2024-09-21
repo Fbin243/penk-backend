@@ -15,3 +15,10 @@ ifeq ($(OS),Windows_NT)
 else
 	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/analytics.air.toml
 endif
+
+timetrackings:
+ifeq ($(OS),Windows_NT)
+	set TENK_ENV=development && air -c ./tools/air-configs/timetrackings.air.toml
+else
+	export TENK_ENV=development && air -c ./tools/air-configs/timetrackings.air.toml
+endif

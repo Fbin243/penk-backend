@@ -4,11 +4,11 @@ import (
 	"log"
 	"net/http"
 
-	"tenkhours/pkg/analytics"
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
+	"tenkhours/services/analytics/gql"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -52,7 +52,7 @@ func (app *App) InitRouter() {
 
 		result := graphql.Do(graphql.Params{
 			Context:        c.Request.Context(),
-			Schema:         analytics.InitSchema(),
+			Schema:         gql.InitSchema(),
 			RequestString:  postData.Query,
 			VariableValues: postData.Variables,
 			OperationName:  postData.Operation,

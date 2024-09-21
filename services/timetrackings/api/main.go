@@ -8,7 +8,7 @@ import (
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
-	"tenkhours/services/core/gql"
+	"tenkhours/services/timetrackings/gql"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -26,15 +26,15 @@ func NewApp() *App {
 }
 
 func (app *App) InitRouter() {
-	log.Println("--> Hello from Core service")
+	log.Println("--> Hello from Timetrackings service")
 
 	app.Engine.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
 
-	app.Engine.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Core service is running!")
+	app.Engine.GET("/timetrackings", func(c *gin.Context) {
+		c.String(http.StatusOK, "Timetrackings service is running!")
 	})
 
 	authMiddleware := auth.NewMiddleware(coredb.NewUsersRepo(db.GetDBManager().DB))
