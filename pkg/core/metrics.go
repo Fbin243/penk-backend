@@ -12,7 +12,7 @@ import (
 )
 
 func (r *CharactersHandler) CreateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -28,7 +28,7 @@ func (r *CharactersHandler) CreateCustomMetric(params graphql.ResolveParams) (in
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
 
-	if character.UserID != user.ID {
+	if character.ProfileID != profile.ID {
 		return nil, auth.ErrorPermissionDenied
 	}
 
@@ -78,7 +78,7 @@ func (r *CharactersHandler) CreateCustomMetric(params graphql.ResolveParams) (in
 }
 
 func (r *CharactersHandler) UpdateCustomMetric(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -100,7 +100,7 @@ func (r *CharactersHandler) UpdateCustomMetric(params graphql.ResolveParams) (in
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
 
-	if character.UserID != user.ID {
+	if character.ProfileID != profile.ID {
 		return nil, auth.ErrorPermissionDenied
 	}
 
@@ -190,7 +190,7 @@ func (r *CharactersHandler) UpdateCustomMetric(params graphql.ResolveParams) (in
 }
 
 func (r *CharactersHandler) DeleteCustomMetric(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -206,7 +206,7 @@ func (r *CharactersHandler) DeleteCustomMetric(params graphql.ResolveParams) (in
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
 
-	if character.UserID != user.ID {
+	if character.ProfileID != profile.ID {
 		return nil, auth.ErrorPermissionDenied
 	}
 
@@ -237,7 +237,7 @@ func (r *CharactersHandler) DeleteCustomMetric(params graphql.ResolveParams) (in
 }
 
 func (r *CharactersHandler) ResetCustomMetric(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -253,7 +253,7 @@ func (r *CharactersHandler) ResetCustomMetric(params graphql.ResolveParams) (int
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	if character.UserID != user.ID {
+	if character.ProfileID != profile.ID {
 		return nil, auth.ErrorPermissionDenied
 	}
 
@@ -292,7 +292,7 @@ func (r *CharactersHandler) ResetCustomMetric(params graphql.ResolveParams) (int
 }
 
 func (r *CharactersHandler) CreateMetricProperty(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -308,7 +308,7 @@ func (r *CharactersHandler) CreateMetricProperty(params graphql.ResolveParams) (
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	if character.UserID != user.ID {
+	if character.ProfileID != profile.ID {
 		return nil, auth.ErrorPermissionDenied
 	}
 
@@ -370,7 +370,7 @@ func (r *CharactersHandler) CreateMetricProperty(params graphql.ResolveParams) (
 }
 
 func (r *CharactersHandler) UpdateMetricProperty(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -398,7 +398,7 @@ func (r *CharactersHandler) UpdateMetricProperty(params graphql.ResolveParams) (
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	if character.UserID != user.ID {
+	if character.ProfileID != profile.ID {
 		return nil, auth.ErrorPermissionDenied
 	}
 
@@ -460,7 +460,7 @@ func (r *CharactersHandler) UpdateMetricProperty(params graphql.ResolveParams) (
 }
 
 func (r *CharactersHandler) DeleteMetricProperty(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -488,7 +488,7 @@ func (r *CharactersHandler) DeleteMetricProperty(params graphql.ResolveParams) (
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	if character.UserID != user.ID {
+	if character.ProfileID != profile.ID {
 		return nil, auth.ErrorPermissionDenied
 	}
 

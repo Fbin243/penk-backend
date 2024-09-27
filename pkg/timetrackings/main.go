@@ -43,7 +43,7 @@ func (r *TimeTrackingsHandler) GetCurrentTimeTracking(params graphql.ResolvePara
 func (r *TimeTrackingsHandler) CreateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
 	serverStartTime := time.Now()
 
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -72,7 +72,7 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
 
-	if character.UserID != user.ID {
+	if character.ProfileID != profile.ID {
 		return nil, auth.ErrorPermissionDenied
 	}
 
@@ -127,7 +127,7 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(params graphql.ResolveParams) 
 }
 
 func (r *TimeTrackingsHandler) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -150,7 +150,7 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
-	if character.UserID != user.ID {
+	if character.ProfileID != profile.ID {
 		return nil, auth.ErrorPermissionDenied
 	}
 
@@ -160,7 +160,7 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(params graphql.ResolveParams) 
 
 	duration := int32(endTime.Sub(timeTracking.StartTime).Seconds())
 
-	// JUST FOR TESTING
+	// TODO: TESTING
 	// duration = 599 // Test for the min duration time
 	// duration = 600 // Test for the min duration time
 	// duration = 601 // Test for the min duration time

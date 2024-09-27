@@ -15,11 +15,11 @@ import (
 )
 
 type Middleware struct {
-	userRepo *coredb.UsersRepo
+	profilesRepo *coredb.ProfilesRepo
 }
 
-func NewMiddleware(userRepo *coredb.UsersRepo) *Middleware {
-	return &Middleware{userRepo: userRepo}
+func NewMiddleware(profilesRepo *coredb.ProfilesRepo) *Middleware {
+	return &Middleware{profilesRepo}
 }
 
 func (m *Middleware) CheckRequestBody(c *gin.Context) {
@@ -41,21 +41,21 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 	authKey := c.Request.Header.Get("Authorization")
 	if strings.HasPrefix(authKey, "Bearer ") {
 		idToken := strings.Replace(authKey, "Bearer ", "", 1)
-		profile, err := GetProfileByIDToken(idToken)
+		firebaseProfile, err := GetProfileByIDToken(idToken)
 		if err != nil {
 			log.Printf("invalid id token: %v\n", err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid id token"})
 			return
 		}
 
-		user, err := m.userRepo.GetUserByFirebaseUID(profile.UID)
+		profile, err := m.profilesRepo.GetProfileByFirebaseUID(firebaseProfile.UID)
 		if err != nil {
-			log.Printf("user has not registered, so register it\n")
-			newUser := coredb.User{
+			log.Printf("user has not registered profile, so register it\n")
+			newProfile := coredb.Profile{
 				ID:                 primitive.NewObjectID(),
-				Name:               profile.Name,
-				Email:              profile.Email,
-				FirebaseUID:        profile.UID,
+				Name:               firebaseProfile.Name,
+				Email:              firebaseProfile.Email,
+				FirebaseUID:        firebaseProfile.UID,
 				ImageURL:           "",
 				CreatedAt:          utils.Now(),
 				UpdatedAt:          utils.Now(),
@@ -63,18 +63,18 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 				AvailableSnapshots: 2,
 			}
 
-			createdUser, err := m.userRepo.CreateNewUser(&newUser)
+			createdProfile, err := m.profilesRepo.CreateNewProfile(&newProfile)
 			if err != nil {
-				log.Printf("failed to insert user: %v\n", err)
-				c.AbortWithStatusJSON(http.StatusInternalServerError, "failed to register new user")
+				log.Printf("failed to insert new profile: %v\n", err)
+				c.AbortWithStatusJSON(http.StatusInternalServerError, "failed to register new profile")
 			}
 
-			c.Request = c.Request.WithContext(context.WithValue(reqCtx, UserKey, *createdUser))
+			c.Request = c.Request.WithContext(context.WithValue(reqCtx, ProfileKey, *createdProfile))
 			c.Next()
 			return
 		}
 
-		c.Request = c.Request.WithContext(context.WithValue(reqCtx, UserKey, *user))
+		c.Request = c.Request.WithContext(context.WithValue(reqCtx, ProfileKey, *profile))
 		c.Next()
 		return
 	}

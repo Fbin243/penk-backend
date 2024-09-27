@@ -14,7 +14,7 @@ var snapshot = &Snapshot{
 	ID:        primitive.NewObjectID(),
 	Timestamp: utils.Now(),
 	Metadata: Metadata{
-		UserID:      primitive.NewObjectID(),
+		ProfileID:   primitive.NewObjectID(),
 		CharacterID: primitive.NewObjectID(),
 	},
 	Character: coredb.Character{},
@@ -27,14 +27,14 @@ func TestCreateNewSnapshot(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestGetSnapshotsByUserID(t *testing.T) {
-	userID := primitive.NewObjectID()
-	snapshot.Metadata.UserID = userID
+func TestGetSnapshotsByProfileID(t *testing.T) {
+	profileID := primitive.NewObjectID()
+	snapshot.Metadata.ProfileID = profileID
 
 	_, err := snapshotsRepo.CreateSnapshot(snapshot)
 	assert.Nil(t, err)
 
-	queriedSnapshots, err := snapshotsRepo.GetSnapshotsByUserID(userID)
+	queriedSnapshots, err := snapshotsRepo.GetSnapshotsByProfileID(profileID)
 	assert.Nil(t, err)
 	assert.Len(t, queriedSnapshots, 1)
 	assert.Equal(t, *snapshot, queriedSnapshots[0])

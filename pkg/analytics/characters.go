@@ -19,24 +19,24 @@ import (
 type CharactersHandler struct {
 	SnapshotsRepo  *analyticsdb.SnapshotsRepo
 	CharactersRepo *coredb.CharactersRepo
-	UsersRepo      *coredb.UsersRepo
+	ProfilesRepo   *coredb.ProfilesRepo
 }
 
-func NewCharactersHandler(snapshotsRepo *analyticsdb.SnapshotsRepo, charactersRepo *coredb.CharactersRepo, usersRepo *coredb.UsersRepo) *CharactersHandler {
+func NewCharactersHandler(snapshotsRepo *analyticsdb.SnapshotsRepo, charactersRepo *coredb.CharactersRepo, profilesRepo *coredb.ProfilesRepo) *CharactersHandler {
 	return &CharactersHandler{
 		SnapshotsRepo:  snapshotsRepo,
 		CharactersRepo: charactersRepo,
-		UsersRepo:      usersRepo,
+		ProfilesRepo:   profilesRepo,
 	}
 }
 
-func (r *CharactersHandler) GetSnapshotsByUserID(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+func (r *CharactersHandler) GetSnapshotsByProfileID(params graphql.ResolveParams) (interface{}, error) {
+	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	snapshots, err := r.SnapshotsRepo.GetSnapshotsByUserID(user.ID)
+	snapshots, err := r.SnapshotsRepo.GetSnapshotsByProfileID(profile.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (r *CharactersHandler) GetSnapshotsByUserID(params graphql.ResolveParams) (
 }
 
 func (r *CharactersHandler) GetSnapshotsByCharacterID(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -61,7 +61,7 @@ func (r *CharactersHandler) GetSnapshotsByCharacterID(params graphql.ResolvePara
 		return nil, fmt.Errorf("failed to get character by ID")
 	}
 
-	if character.UserID != user.ID {
+	if character.ProfileID != profile.ID {
 		return nil, auth.ErrorPermissionDenied
 	}
 
@@ -74,7 +74,7 @@ func (r *CharactersHandler) GetSnapshotsByCharacterID(params graphql.ResolvePara
 }
 
 func (r *CharactersHandler) CreateNewSnapshot(params graphql.ResolveParams) (interface{}, error) {
-	user, ok := params.Context.Value(auth.UserKey).(coredb.User)
+	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -90,16 +90,16 @@ func (r *CharactersHandler) CreateNewSnapshot(params graphql.ResolveParams) (int
 		return nil, err
 	}
 
-	if character.UserID != user.ID {
+	if character.ProfileID != profile.ID {
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	if user.AvailableSnapshots <= 0 {
+	if profile.AvailableSnapshots <= 0 {
 		return nil, fmt.Errorf("no available snapshots")
 	}
 
-	// Set CharacterID and UserID to Nil to omit them
-	character.UserID = primitive.NilObjectID
+	// Set CharacterID and ProfileID to Nil to omit them
+	character.ProfileID = primitive.NilObjectID
 	character.ID = primitive.NilObjectID
 
 	// Compare with the latest snapshot
@@ -116,7 +116,7 @@ func (r *CharactersHandler) CreateNewSnapshot(params graphql.ResolveParams) (int
 		ID:        primitive.NewObjectID(),
 		Timestamp: utils.Now(),
 		Metadata: analyticsdb.Metadata{
-			UserID:      user.ID,
+			ProfileID:   profile.ID,
 			CharacterID: characterOID,
 		},
 		Character: *character,
@@ -137,14 +137,14 @@ func (r *CharactersHandler) CreateNewSnapshot(params graphql.ResolveParams) (int
 		}
 
 		// Decrement available snapshots
-		user.AvailableSnapshots--
-		_, err = r.UsersRepo.UpdateUser(&user)
+		profile.AvailableSnapshots--
+		_, err = r.ProfilesRepo.UpdateProfile(&profile)
 		if err != nil {
-			return nil, fmt.Errorf("failed to update user: %v", err)
+			return nil, fmt.Errorf("failed to update user profile: %v", err)
 		}
 
-		// Restore characterID and userID
-		snapshot.Character.UserID = user.ID
+		// Restore CharacterID and ProfileID
+		snapshot.Character.ProfileID = profile.ID
 		snapshot.Character.ID = characterOID
 
 		return *snapshot, nil

@@ -4,7 +4,7 @@ type ContextKey string
 
 const (
 	TestingT           ContextKey = "TestingT"
-	User               ContextKey = "User"
+	Profile            ContextKey = "Profile"
 	AnotherCharacter   ContextKey = "AnotherCharacter"
 	CurrentCharacter   ContextKey = "CurrentCharacter"
 	Snapshot           ContextKey = "Snapshot"

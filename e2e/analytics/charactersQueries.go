@@ -12,7 +12,7 @@ query UserSnapshots {
             name
             tags
             totalFocusedTime
-            userID
+            profileID
             customMetrics {
                 description
                 id
@@ -48,7 +48,7 @@ query CharacterSnapshots ($characterID: ID!) {
             name
             tags
             totalFocusedTime
-            userID
+            profileID
             customMetrics {
                 description
                 id
@@ -85,7 +85,7 @@ mutation CreateSnapshot ($characterID: ID!) {
             name
             tags
             totalFocusedTime
-            userID
+            profileID
             customMetrics {
                 description
                 id

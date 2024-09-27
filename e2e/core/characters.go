@@ -16,9 +16,9 @@ type CreateCharacterStage struct {
 
 func (s CreateCharacterStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
-	user, ok := (*ctx).Value(common.User).(string)
+	profile, ok := (*ctx).Value(common.Profile).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(common.User)
+		return common.ErrNotFoundInContext(common.Profile)
 	}
 
 	variables := map[string]interface{}{
@@ -34,7 +34,7 @@ func (s CreateCharacterStage) Exec(ctx *context.Context) error {
 		Equal("$.data.createCharacter.tags", variables["tags"]).
 		Equal("$.data.createCharacter.limitedMetricNumber", float64(2)).
 		Equal("$.data.createCharacter.totalFocusedTime", float64(0)).
-		Equal("$.data.createCharacter.userID", gjson.Get(user, "id").Value()).
+		Equal("$.data.createCharacter.profileID", gjson.Get(profile, "id").Value()).
 		Equal("$.data.createCharacter.customMetrics", []interface{}{})
 
 	if s.ExpectError {

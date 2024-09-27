@@ -18,7 +18,7 @@ func TestValidateCharacter(t *testing.T) {
 
 	character := coredb.Character{
 		ID:                  primitive.NewObjectID(),
-		UserID:              primitive.NewObjectID(),
+		ProfileID:           primitive.NewObjectID(),
 		Name:                "Hero",
 		Gender:              true,
 		Tags:                []string{"warrior", "legend"},

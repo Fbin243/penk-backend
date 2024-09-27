@@ -6,18 +6,18 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-type UsersMutation struct {
+type ProfilesMutation struct {
 	UpdateAccount *graphql.Field
 }
 
-func InitUserMutation(r *core.UsersHandler) *UsersMutation {
-	return &UsersMutation{
+func InitProfileMutation(r *core.ProfilesHandler) *ProfilesMutation {
+	return &ProfilesMutation{
 		UpdateAccount: &graphql.Field{
-			Type:        userType,
+			Type:        profileType,
 			Description: "Update an account",
 			Args: graphql.FieldConfigArgument{
 				"input": &graphql.ArgumentConfig{
-					Type: graphql.NewNonNull(userInputType),
+					Type: graphql.NewNonNull(profileInputType),
 				},
 			},
 			Resolve: r.UpdateAccount,

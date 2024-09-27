@@ -37,7 +37,7 @@ func (app *App) InitRouter() {
 		c.String(http.StatusOK, "Core service is running!")
 	})
 
-	authMiddleware := auth.NewMiddleware(coredb.NewUsersRepo(db.GetDBManager().DB))
+	authMiddleware := auth.NewMiddleware(coredb.NewProfilesRepo(db.GetDBManager().DB))
 
 	app.Engine.Use(authMiddleware.CheckRequestBody)
 

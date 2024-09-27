@@ -21,9 +21,9 @@ type CreateSnapshotStage struct {
 
 func (s CreateSnapshotStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
-	user, ok := (*ctx).Value(common.User).(string)
+	profile, ok := (*ctx).Value(common.Profile).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(common.User)
+		return common.ErrNotFoundInContext(common.Profile)
 	}
 
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
@@ -38,7 +38,7 @@ func (s CreateSnapshotStage) Exec(ctx *context.Context) error {
 	}
 
 	assertion := jsonpath.Chain().NotPresent("$.errors").
-		Equal("$.data.createSnapshot.character", gjson.Get(user, fmt.Sprintf(`characters.#(id==%s)`, characterId)).Value())
+		Equal("$.data.createSnapshot.character", gjson.Get(profile, fmt.Sprintf(`characters.#(id==%s)`, characterId)).Value())
 
 	if s.ExpectError {
 		assertion = common.AssertionError
@@ -118,13 +118,13 @@ func (s GetUserSnapshotsStage) Exec(ctx *context.Context) error {
 		return common.ErrNotFoundInContext(common.TestingT)
 	}
 
-	user, ok := (*ctx).Value(common.User).(string)
+	profile, ok := (*ctx).Value(common.Profile).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(common.User)
+		return common.ErrNotFoundInContext(common.Profile)
 	}
 
 	variables := map[string]interface{}{
-		"characterID": gjson.Get(user, "id").Value(),
+		"characterID": gjson.Get(profile, "id").Value(),
 	}
 
 	assertion := common.AssertionSuccess.End()

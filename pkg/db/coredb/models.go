@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type User struct {
+type Profile struct {
 	ID                 primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name               string             `json:"name" bson:"name" validate:"required,min=1,max=50"`
 	Email              string             `json:"email" bson:"email" validate:"required,email"`
@@ -45,7 +45,7 @@ type CustomMetric struct {
 
 type Character struct {
 	ID                  primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	UserID              primitive.ObjectID `json:"userID,omitempty" bson:"user_id,omitempty"`
+	ProfileID           primitive.ObjectID `json:"profileID,omitempty" bson:"profile_id,omitempty"`
 	Name                string             `json:"name" bson:"name" validate:"required,min=1,max=50"`
 	Gender              bool               `json:"gender" bson:"gender"`
 	Tags                []string           `json:"tags,omitempty" bson:"tags,omitempty" validate:"omitempty,tags_valid"`

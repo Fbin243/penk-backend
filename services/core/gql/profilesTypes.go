@@ -9,17 +9,17 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-var userType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "User",
+var profileType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Profile",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.ID),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if user, ok := p.Source.(coredb.User); ok {
-					return user.ID.Hex(), nil
+				if profile, ok := p.Source.(coredb.Profile); ok {
+					return profile.ID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to resolve User id")
+				return nil, fmt.Errorf("failed to resolve Profile id")
 			},
 		},
 		"name": &graphql.Field{
@@ -37,24 +37,24 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 		"currentCharacterID": &graphql.Field{
 			Type: graphql.ID,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if user, ok := p.Source.(coredb.User); ok {
-					if user.CurrentCharacterID.IsZero() {
+				if profile, ok := p.Source.(coredb.Profile); ok {
+					if profile.CurrentCharacterID.IsZero() {
 						return nil, nil
 					}
 
-					return user.CurrentCharacterID.Hex(), nil
+					return profile.CurrentCharacterID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to resolve User currentCharacterID")
+				return nil, fmt.Errorf("failed to resolve Profile currentCharacterID")
 			},
 		},
 		"characters": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.NewList(graphql.NewNonNull(CharacterType))),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				if user, ok := p.Source.(coredb.User); ok {
-					// Find characters by user ID
+				if profile, ok := p.Source.(coredb.Profile); ok {
+					// Find characters by profile ID
 					charactersRepo := coredb.NewCharactersRepo(db.GetDBManager().DB)
-					characters, err := charactersRepo.GetCharactersByUserID(user.ID)
+					characters, err := charactersRepo.GetCharactersByProfileID(profile.ID)
 					if err != nil {
 						return nil, err
 					}
@@ -62,7 +62,7 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 					return characters, nil
 				}
 
-				return nil, fmt.Errorf("failed to get characters by user ID")
+				return nil, fmt.Errorf("failed to get characters by profile id")
 			},
 		},
 		"availableSnapshots": &graphql.Field{
@@ -81,8 +81,8 @@ var userType = graphql.NewObject(graphql.ObjectConfig{
 })
 
 // Input type
-var userInputType = graphql.NewInputObject(graphql.InputObjectConfig{
-	Name: "UserInput",
+var profileInputType = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "ProfileInput",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"name": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

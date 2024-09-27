@@ -25,7 +25,7 @@ var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 				return nil, fmt.Errorf("failed to resolve Character id")
 			},
 		},
-		"userID": &graphql.Field{
+		"profileID": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.ID),
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				if character, ok := p.Source.(coredb.Character); ok {
@@ -33,10 +33,10 @@ var CharacterType = graphql.NewObject(graphql.ObjectConfig{
 						return nil, nil
 					}
 
-					return character.UserID.Hex(), nil
+					return character.ProfileID.Hex(), nil
 				}
 
-				return nil, fmt.Errorf("failed to resolve Character userID")
+				return nil, fmt.Errorf("failed to resolve Character profileID")
 			},
 		},
 		"name": &graphql.Field{

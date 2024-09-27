@@ -7,20 +7,20 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type userInputType struct {
+type profileInputType struct {
 	Name               string
 	ImageURL           string
 	CurrentCharacterID primitive.ObjectID
 }
 
-var userInput = &userInputType{
+var profileInput = &profileInputType{
 	Name:               "example",
 	ImageURL:           "https://example.com",
 	CurrentCharacterID: primitive.NewObjectID(),
 }
 
-func newUserFromInput(input *userInputType) *User {
-	return &User{
+func newProfileFromInput(input *profileInputType) *Profile {
+	return &Profile{
 		ID:                 primitive.NewObjectID(),
 		Email:              primitive.NewObjectID().Hex() + "@gmail.com",
 		FirebaseUID:        primitive.NewObjectID().Hex(),
@@ -30,58 +30,58 @@ func newUserFromInput(input *userInputType) *User {
 	}
 }
 
-func assertWithUserInput(t *testing.T, user *User, input *userInputType) {
-	assert.Equal(t, user.Name, input.Name)
-	assert.Equal(t, user.ImageURL, input.ImageURL)
-	assert.Equal(t, user.CurrentCharacterID, input.CurrentCharacterID)
+func assertWithProfileInput(t *testing.T, profile *Profile, input *profileInputType) {
+	assert.Equal(t, profile.Name, input.Name)
+	assert.Equal(t, profile.ImageURL, input.ImageURL)
+	assert.Equal(t, profile.CurrentCharacterID, input.CurrentCharacterID)
 }
 
-func TestCreateNewUser(t *testing.T) {
-	user := newUserFromInput(userInput)
+func TestCreateNewProfile(t *testing.T) {
+	profile := newProfileFromInput(profileInput)
 
-	createdUser, err := usersRepo.CreateNewUser(user)
+	createdProfile, err := profilesRepo.CreateNewProfile(profile)
 	assert.Nil(t, err)
-	assertWithUserInput(t, createdUser, userInput)
+	assertWithProfileInput(t, createdProfile, profileInput)
 }
 
-func TestCreateSameUser(t *testing.T) {
-	user := newUserFromInput(userInput)
+func TestCreateSameProfile(t *testing.T) {
+	profile := newProfileFromInput(profileInput)
 
-	_, err := usersRepo.CreateNewUser(user)
+	_, err := profilesRepo.CreateNewProfile(profile)
 	assert.Nil(t, err)
 
-	_, err = usersRepo.CreateNewUser(user)
+	_, err = profilesRepo.CreateNewProfile(profile)
 	assert.NotNil(t, err)
 }
 
-func TestGetUserByFirebaseUID(t *testing.T) {
-	user := newUserFromInput(userInput)
+func TestGetProfileByFirebaseUID(t *testing.T) {
+	profile := newProfileFromInput(profileInput)
 
-	_, err := usersRepo.CreateNewUser(user)
+	_, err := profilesRepo.CreateNewProfile(profile)
 	assert.Nil(t, err)
 
-	queriedUser, err := usersRepo.GetUserByFirebaseUID(user.FirebaseUID)
+	queriedProfile, err := profilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
 	assert.Nil(t, err)
-	assert.Equal(t, *queriedUser, *user)
+	assert.Equal(t, *queriedProfile, *profile)
 }
 
-func TestUpdateUser(t *testing.T) {
-	user := newUserFromInput(userInput)
+func TestUpdateProfile(t *testing.T) {
+	profile := newProfileFromInput(profileInput)
 
-	_, err := usersRepo.CreateNewUser(user)
+	_, err := profilesRepo.CreateNewProfile(profile)
 	assert.Nil(t, err)
 
-	updateInput := &userInputType{
+	updateInput := &profileInputType{
 		Name:               "updated",
 		ImageURL:           "https://updated.com",
 		CurrentCharacterID: primitive.NewObjectID(),
 	}
 
-	user.Name = updateInput.Name
-	user.ImageURL = updateInput.ImageURL
-	user.CurrentCharacterID = updateInput.CurrentCharacterID
+	profile.Name = updateInput.Name
+	profile.ImageURL = updateInput.ImageURL
+	profile.CurrentCharacterID = updateInput.CurrentCharacterID
 
-	updatedUser, err := usersRepo.UpdateUser(user)
+	updatedProfile, err := profilesRepo.UpdateProfile(profile)
 	assert.Nil(t, err)
-	assertWithUserInput(t, updatedUser, updateInput)
+	assertWithProfileInput(t, updatedProfile, updateInput)
 }

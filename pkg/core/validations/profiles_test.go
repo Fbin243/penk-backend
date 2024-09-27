@@ -10,14 +10,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func TestValidateUser(t *testing.T) {
+func TestValidateProfile(t *testing.T) {
 	type testCase struct {
 		name     string
-		user     coredb.User
+		profile  coredb.Profile
 		hasError bool
 	}
 
-	user := coredb.User{
+	profile := coredb.Profile{
 		ID:                 primitive.NewObjectID(),
 		Name:               "John Doe",
 		Email:              "john@example.com",
@@ -30,31 +30,31 @@ func TestValidateUser(t *testing.T) {
 
 	tests := []testCase{
 		{
-			name:     "valid user",
-			user:     user,
+			name:     "valid profile",
+			profile:  profile,
 			hasError: false,
 		},
 		{
 			name: "empty name",
-			user: func(u coredb.User) coredb.User {
+			profile: func(u coredb.Profile) coredb.Profile {
 				u.Name = ""
 				return u
-			}(user),
+			}(profile),
 			hasError: true,
 		},
 		{
 			name: "name too long",
-			user: func(u coredb.User) coredb.User {
+			profile: func(u coredb.Profile) coredb.Profile {
 				u.Name = "This is a very long name that exceeds the maximum allowed length of fifty characters"
 				return u
-			}(user),
+			}(profile),
 			hasError: true,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := ValidateUser(tc.user)
+			err := ValidateProfile(tc.profile)
 			if tc.hasError {
 				assert.Error(t, err)
 			} else {

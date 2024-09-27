@@ -11,14 +11,14 @@ import (
 func InitSchema() graphql.Schema {
 	var (
 		db             = db.GetDBManager().DB
-		usersRepo      = coredb.NewUsersRepo(db)
+		profilesRepo   = coredb.NewProfilesRepo(db)
 		charactersRepo = coredb.NewCharactersRepo(db)
 
-		usersResolver = core.NewUsersHandler(usersRepo)
-		usersQuery    = InitUserQuery(usersResolver)
-		usersMutation = InitUserMutation(usersResolver)
+		profilesResolver = core.NewProfilesHandler(profilesRepo)
+		profilesQuery    = InitProfileQuery(profilesResolver)
+		profilesMutation = InitProfileMutation(profilesResolver)
 
-		charactersResolver = core.NewCharactersHandler(charactersRepo, usersRepo)
+		charactersResolver = core.NewCharactersHandler(charactersRepo, profilesRepo)
 		charactersQuery    = InitCharacterQuery(charactersResolver)
 		charactersMutation = InitCharacterMutation(charactersResolver)
 	)
@@ -26,7 +26,7 @@ func InitSchema() graphql.Schema {
 	rootQuery := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootQuery",
 		Fields: graphql.Fields{
-			"user":           usersQuery.User,
+			"profile":        profilesQuery.Profile,
 			"userCharacters": charactersQuery.UserCharacters,
 			"characters":     charactersQuery.Characters,
 		},
@@ -35,7 +35,7 @@ func InitSchema() graphql.Schema {
 	rootMutation := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootMutation",
 		Fields: graphql.Fields{
-			"updateAccount": usersMutation.UpdateAccount,
+			"updateAccount": profilesMutation.UpdateAccount,
 
 			"createCharacter": charactersMutation.CreateCharacter,
 			"updateCharacter": charactersMutation.UpdateCharacter,

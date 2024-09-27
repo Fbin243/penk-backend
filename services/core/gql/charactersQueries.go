@@ -33,7 +33,7 @@ func InitCharacterQuery(r *core.CharactersHandler) *CharactersQuery {
 		UserCharacters: &graphql.Field{
 			Type:        graphql.NewList(CharacterType),
 			Description: "Get all characters of a user",
-			Resolve:     r.GetCharactersByUserID,
+			Resolve:     r.GetCharactersByProfileID,
 		},
 	}
 }

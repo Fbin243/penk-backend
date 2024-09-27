@@ -10,7 +10,7 @@ import (
 
 type Metadata struct {
 	CharacterID primitive.ObjectID `json:"characterID" bson:"character_id"`
-	UserID      primitive.ObjectID `json:"userID" bson:"user_id"`
+	ProfileID   primitive.ObjectID `json:"profileID" bson:"profile_id"`
 }
 
 type Snapshot struct {

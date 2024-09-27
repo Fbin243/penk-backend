@@ -11,13 +11,13 @@ import (
 
 var (
 	testdb         *mongo.Database
-	usersRepo      *UsersRepo
+	profilesRepo   *ProfilesRepo
 	charactersRepo *CharactersRepo
 )
 
 func TestMain(m *testing.M) {
 	testdb = db.InitDBManagerFromURL("mongodb://localhost:27017", "test").DB
-	usersRepo = NewUsersRepo(testdb)
+	profilesRepo = NewProfilesRepo(testdb)
 	charactersRepo = NewCharactersRepo(testdb)
 
 	code := m.Run()

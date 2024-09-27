@@ -13,10 +13,10 @@ func InitSchema() graphql.Schema {
 	var (
 		db             = db.GetDBManager().DB
 		snapshotsRepo  = analyticsdb.NewSnapshotRepo(db)
-		usersRepo      = coredb.NewUsersRepo(db)
+		profilesRepo   = coredb.NewProfilesRepo(db)
 		charactersRepo = coredb.NewCharactersRepo(db)
 
-		charactersResolver = analytics.NewCharactersHandler(snapshotsRepo, charactersRepo, usersRepo)
+		charactersResolver = analytics.NewCharactersHandler(snapshotsRepo, charactersRepo, profilesRepo)
 		charactersQuery    = InitCharacterQuery(charactersResolver)
 		charactersMutation = InitCharactersMutation(charactersResolver)
 	)

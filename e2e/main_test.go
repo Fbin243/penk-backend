@@ -20,21 +20,21 @@ func TestUserFlow(t *testing.T) {
 
 		// --------- USER -----------
 
-		core.GetUserStage{
+		core.GetProfileStage{
 			Metadata: common.Metadata{
-				Describe: "Create a new user",
+				Describe: "Create a new profile",
 			},
-			CreateNewUser: true,
+			CreateNewProfile: true,
 		},
 
 		common.SaveToContextStage{
-			Key:      common.User,
-			JsonPath: "data.user",
+			Key:      common.Profile,
+			JsonPath: "data.profile",
 		},
 
-		core.UpdateUserStage{
+		core.UpdateProfileStage{
 			Metadata: common.Metadata{
-				Describe: "Update user info",
+				Describe: "Update profile info",
 			},
 		},
 
@@ -246,15 +246,15 @@ func TestUserFlow(t *testing.T) {
 			CharacterKey:    common.CurrentCharacter,
 		},
 
-		core.GetUserStage{
+		core.GetProfileStage{
 			Metadata: common.Metadata{
-				Describe: "Get updated user info after add characters, metrics, etc..",
+				Describe: "Get updated profile info after add characters, metrics, etc..",
 			},
 		},
 
 		common.SaveToContextStage{
-			Key:      common.User,
-			JsonPath: "data.user",
+			Key:      common.Profile,
+			JsonPath: "data.profile",
 		},
 
 		// --------- SNAPSHOT -----------
@@ -300,9 +300,9 @@ func TestUserFlow(t *testing.T) {
 			CharacterKey: common.AnotherCharacter,
 		},
 
-		core.GetUserStage{
+		core.GetProfileStage{
 			Metadata: common.Metadata{
-				Describe: "Get updated user info for reviewing after performing flow",
+				Describe: "Get updated profile info for reviewing after performing flow",
 			},
 		},
 	)

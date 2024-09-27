@@ -1,7 +1,7 @@
 package core
 
-var UserQuery = `query { 
-	user {
+var ProfileQuery = `query { 
+	profile {
         autoSnapshot
         availableSnapshots
         createdAt
@@ -19,7 +19,7 @@ var UserQuery = `query {
             name
             tags
             totalFocusedTime
-            userID
+            profileID
             customMetrics {
                 description
                 id

@@ -20,11 +20,11 @@ func NewSnapshotRepo(mongodb *mongo.Database) *SnapshotsRepo {
 	return &SnapshotsRepo{mongodb.Collection(db.SnapshotsCollection)}
 }
 
-func (r *SnapshotsRepo) GetSnapshotsByUserID(userID primitive.ObjectID) ([]Snapshot, error) {
+func (r *SnapshotsRepo) GetSnapshotsByProfileID(profileID primitive.ObjectID) ([]Snapshot, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := r.Find(ctx, bson.M{"metadata.user_id": userID})
+	cursor, err := r.Find(ctx, bson.M{"metadata.profile_id": profileID})
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (r *SnapshotsRepo) GetSnapshotsByUserID(userID primitive.ObjectID) ([]Snaps
 		}
 
 		snapshot.Character.ID = snapshot.Metadata.CharacterID
-		snapshot.Character.UserID = snapshot.Metadata.UserID
+		snapshot.Character.ProfileID = snapshot.Metadata.ProfileID
 		snapshots = append(snapshots, snapshot)
 	}
 
@@ -65,7 +65,7 @@ func (r *SnapshotsRepo) GetSnapshotsByCharacterID(characterID primitive.ObjectID
 		}
 
 		snapshot.Character.ID = snapshot.Metadata.CharacterID
-		snapshot.Character.UserID = snapshot.Metadata.UserID
+		snapshot.Character.ProfileID = snapshot.Metadata.ProfileID
 		snapshots = append(snapshots, snapshot)
 	}
 

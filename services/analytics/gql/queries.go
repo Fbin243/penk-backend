@@ -26,7 +26,7 @@ func InitCharacterQuery(r *analytics.CharactersHandler) *CharactersQuery {
 		UserSnapshots: &graphql.Field{
 			Type:        graphql.NewList(snapshotType),
 			Description: "Get all snapshots of all user's character",
-			Resolve:     r.GetSnapshotsByUserID,
+			Resolve:     r.GetSnapshotsByProfileID,
 		},
 	}
 }

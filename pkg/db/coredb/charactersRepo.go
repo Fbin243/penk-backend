@@ -31,11 +31,11 @@ func (r *CharactersRepo) GetCharacterByID(id primitive.ObjectID) (*Character, er
 	return &character, err
 }
 
-func (r *CharactersRepo) GetCharactersByUserID(userID primitive.ObjectID) ([]Character, error) {
+func (r *CharactersRepo) GetCharactersByProfileID(profileID primitive.ObjectID) ([]Character, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := r.Find(ctx, bson.M{"user_id": userID})
+	cursor, err := r.Find(ctx, bson.M{"profile_id": profileID})
 	if err != nil {
 		return nil, err
 	}

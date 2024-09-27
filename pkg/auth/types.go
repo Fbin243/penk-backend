@@ -3,7 +3,7 @@ package auth
 type ContextKey int
 
 const (
-	UserKey ContextKey = iota
+	ProfileKey ContextKey = iota
 	PostDataKey
 )
 

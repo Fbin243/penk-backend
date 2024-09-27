@@ -36,7 +36,7 @@ var charInput = &characterInputType{
 func newCharacterFromInput(input *characterInputType) *Character {
 	return &Character{
 		ID:                  primitive.NewObjectID(),
-		UserID:              primitive.NewObjectID(),
+		ProfileID:           primitive.NewObjectID(),
 		Name:                input.Name,
 		Tags:                input.Tags,
 		Gender:              input.Gender,
@@ -143,13 +143,13 @@ func TestGetCharacterByID(t *testing.T) {
 	assertWithCharInput(t, queriedCharacter, charInput)
 }
 
-func TestGetCharactersByUserID(t *testing.T) {
+func TestGetCharactersByProfileID(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 
 	_, err := charactersRepo.CreateCharacter(character)
 	assert.Nil(t, err)
 
-	characters, err := charactersRepo.GetCharactersByUserID(character.UserID)
+	characters, err := charactersRepo.GetCharactersByProfileID(character.ProfileID)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(characters))
 	assert.Equal(t, *character, characters[0])

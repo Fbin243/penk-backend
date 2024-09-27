@@ -12,13 +12,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type UsersRepo struct {
+type ProfilesRepo struct {
 	*mongo.Collection
 }
 
-func NewUsersRepo(mongodb *mongo.Database) *UsersRepo {
-	usersCollection := mongodb.Collection(db.UserCollection)
-	_, err := usersCollection.Indexes().CreateMany(context.TODO(), []mongo.IndexModel{
+func NewProfilesRepo(mongodb *mongo.Database) *ProfilesRepo {
+	profilesCollection := mongodb.Collection(db.ProfileCollection)
+	_, err := profilesCollection.Indexes().CreateMany(context.TODO(), []mongo.IndexModel{
 		{
 			Keys:    bson.D{{Key: "email", Value: 1}},
 			Options: options.Index().SetUnique(true),
@@ -29,37 +29,37 @@ func NewUsersRepo(mongodb *mongo.Database) *UsersRepo {
 		},
 	})
 	if err != nil {
-		log.Println("failed to create indexes for users collection")
+		log.Println("failed to create indexes for profiles collection")
 		return nil
 	}
 
-	return &UsersRepo{usersCollection}
+	return &ProfilesRepo{profilesCollection}
 }
 
-func (r *UsersRepo) GetUserByFirebaseUID(firebaseUID string) (*User, error) {
-	var user User
+func (r *ProfilesRepo) GetProfileByFirebaseUID(firebaseUID string) (*Profile, error) {
+	var profile Profile
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := r.FindOne(ctx, bson.M{"firebase_uid": firebaseUID}).Decode(&user)
+	err := r.FindOne(ctx, bson.M{"firebase_uid": firebaseUID}).Decode(&profile)
 
-	return &user, err
+	return &profile, err
 }
 
-func (r *UsersRepo) CreateNewUser(user *User) (*User, error) {
+func (r *ProfilesRepo) CreateNewProfile(profile *Profile) (*Profile, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := r.InsertOne(ctx, user)
+	_, err := r.InsertOne(ctx, profile)
 
-	return user, err
+	return profile, err
 }
 
-func (r *UsersRepo) UpdateUser(user *User) (*User, error) {
+func (r *ProfilesRepo) UpdateProfile(profile *Profile) (*Profile, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := r.FindOneAndUpdate(ctx, bson.M{"_id": user.ID}, bson.M{"$set": user}, db.FindOneAndUpdateOptions).Decode(user)
+	err := r.FindOneAndUpdate(ctx, bson.M{"_id": profile.ID}, bson.M{"$set": profile}, db.FindOneAndUpdateOptions).Decode(profile)
 
-	return user, err
+	return profile, err
 }

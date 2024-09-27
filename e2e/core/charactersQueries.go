@@ -15,7 +15,7 @@ mutation CreateCharacter($name: String!, $gender: Boolean, $tags: [String]) {
         name
         tags
         totalFocusedTime
-        userID
+        profileID
         customMetrics {
             description
             id
@@ -63,6 +63,6 @@ mutation DeleteCharacter($id: ID!) {
 		name
 		tags
 		totalFocusedTime
-		userID
+		profileID
 	}
 }`

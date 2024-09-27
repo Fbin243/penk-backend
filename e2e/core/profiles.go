@@ -9,23 +9,23 @@ import (
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
 )
 
-type GetUserStage struct {
+type GetProfileStage struct {
 	common.Metadata
-	CreateNewUser bool
+	CreateNewProfile bool
 }
 
-func (s GetUserStage) Exec(ctx *context.Context) error {
+func (s GetProfileStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	assertion := common.AssertionSuccess
 
-	if s.CreateNewUser {
+	if s.CreateNewProfile {
 		assertion = jsonpath.Chain().NotPresent("$.errors").
-			Present("$.data.user.id").
-			Present("$.data.user.firebaseUID").
-			Equal("$.data.user.availableSnapshots", float64(2)).
-			Equal("$.data.user.autoSnapshot", true).
-			Equal("$.data.user.characters", []interface{}{}).
-			Equal("$.data.user.currentCharacterID", nil)
+			Present("$.data.profile.id").
+			Present("$.data.profile.firebaseUID").
+			Equal("$.data.profile.availableSnapshots", float64(2)).
+			Equal("$.data.profile.autoSnapshot", true).
+			Equal("$.data.profile.characters", []interface{}{}).
+			Equal("$.data.profile.currentCharacterID", nil)
 	}
 
 	if s.ExpectError {
@@ -35,16 +35,16 @@ func (s GetUserStage) Exec(ctx *context.Context) error {
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
 			Url:       common.CoreUrl,
-			Query:     UserQuery,
+			Query:     ProfileQuery,
 			Assertion: assertion.End(),
 		})
 }
 
-type UpdateUserStage struct {
+type UpdateProfileStage struct {
 	common.Metadata
 }
 
-func (s UpdateUserStage) Exec(ctx *context.Context) error {
+func (s UpdateProfileStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	variables := map[string]interface{}{
 		"name":               "Update name",

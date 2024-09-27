@@ -9,11 +9,12 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 var (
-	UserCollection          = "users"
-	CharacterCollection     = "character"
+	ProfileCollection       = "profiles"
+	CharacterCollection     = "characters"
 	TimeTrackingsCollection = "time_trackings"
 	SnapshotsCollection     = "snapshots"
 	FindOneAndUpdateOptions = options.FindOneAndUpdate().SetReturnDocument(options.After)
@@ -82,9 +83,17 @@ func InitDBManagerFromEnv() *DatabaseManager {
 var dbManager *DatabaseManager
 
 func GetDBManager() *DatabaseManager {
-	if dbManager != nil {
-		return dbManager
+	if dbManager == nil {
+		dbManager = InitDBManagerFromEnv()
 	}
 
-	return InitDBManagerFromEnv()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	err := dbManager.Client.Ping(ctx, readpref.Primary())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return dbManager
 }
