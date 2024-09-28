@@ -96,7 +96,7 @@ var customMetricType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.NewNonNull(metricStyleType),
 		},
 		"properties": &graphql.Field{
-			Type: graphql.NewNonNull(graphql.NewList(metricPropertyType)),
+			Type: graphql.NewNonNull(graphql.NewList(graphql.NewNonNull(metricPropertyType))),
 		},
 		"limitedPropertyNumber": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.Int),
