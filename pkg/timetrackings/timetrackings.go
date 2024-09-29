@@ -1,6 +1,7 @@
 package timetrackings
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -9,7 +10,6 @@ import (
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/db/timetrackingsdb"
 
-	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -25,11 +25,24 @@ func NewTimeTrackingsHandler(timeTrackingsRepo *timetrackingsdb.TimeTrackingsRep
 	}
 }
 
-func (r *TimeTrackingsHandler) GetCurrentTimeTracking(params graphql.ResolveParams) (interface{}, error) {
-	characterID := params.Args["characterID"].(string)
+func (r *TimeTrackingsHandler) GetCurrentTimeTracking(ctx context.Context, characterID string) (*timetrackingsdb.TimeTracking, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+	if !ok {
+		return nil, auth.ErrorUnauthorized
+	}
+
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
 		return nil, err
+	}
+
+	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	if err != nil {
+		return nil, err
+	}
+
+	if profile.ID != character.ProfileID {
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	result, err := r.TimeTrackingsRepo.GetCurrentTimeTrackingByCharacterID(characterOID)
@@ -40,16 +53,15 @@ func (r *TimeTrackingsHandler) GetCurrentTimeTracking(params graphql.ResolvePara
 	return result, nil
 }
 
-func (r *TimeTrackingsHandler) CreateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
-	serverStartTime := time.Now()
-
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, characterID string, metricID *string, startTime string) (*timetrackingsdb.TimeTracking, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	clientStartTime, ok := params.Args["startTime"].(time.Time)
-	if !ok {
+	serverStartTime := time.Now()
+	clientStartTime, err := time.Parse(time.RFC3339, startTime)
+	if err != nil {
 		return nil, fmt.Errorf("failed to get client start time")
 	}
 
@@ -61,7 +73,6 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("server timeout, failed to start a new session")
 	}
 
-	characterID := params.Args["characterID"].(string)
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
 		return nil, err
@@ -76,17 +87,16 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(params graphql.ResolveParams) 
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	customMetricID, ok := params.Args["metricID"].(string)
-	customMetricOID := primitive.ObjectID{}
-	if ok {
-		customMetricOID, err = primitive.ObjectIDFromHex(customMetricID)
+	metricOID := primitive.ObjectID{}
+	if metricID != nil {
+		metricOID, err = primitive.ObjectIDFromHex(*metricID)
 		if err != nil {
 			return nil, err
 		}
 
 		found := false
 		for _, customMetric := range character.CustomMetrics {
-			if customMetric.ID == customMetricOID {
+			if customMetric.ID == metricOID {
 				found = true
 				break
 			}
@@ -112,7 +122,7 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(params graphql.ResolveParams) 
 	timeTracking := timetrackingsdb.TimeTracking{
 		ID:              primitive.NewObjectID(),
 		CharacterID:     characterOID,
-		CustomMetricID:  customMetricOID,
+		CustomMetricID:  metricOID,
 		StartTime:       clientStartTime,
 		MinDurationTime: 600,
 		MaxDurationTime: 14400,
@@ -123,19 +133,18 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("failed to create time tracking: %v", err)
 	}
 
-	return *createdTimeTracking, nil
+	return createdTimeTracking, nil
 }
 
-func (r *TimeTrackingsHandler) UpdateTimeTracking(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id string) (*timetrackingsdb.TimeTracking, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
 	endTime := time.Now()
 
-	timeTrackingID := params.Args["id"].(string)
-	timeTrackingOID, err := primitive.ObjectIDFromHex(timeTrackingID)
+	timeTrackingOID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +184,7 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(params graphql.ResolveParams) 
 		}
 
 		log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
-		return *timeTracking, nil
+		return timeTracking, nil
 	}
 
 	if duration > timeTracking.MaxDurationTime {
@@ -205,5 +214,5 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(params graphql.ResolveParams) 
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return *timeTracking, nil
+	return timeTracking, nil
 }

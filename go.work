@@ -13,4 +13,5 @@ use (
 	./services/core
 	./services/core_v2
 	./services/timetrackings
+	./services/timetrackings_v2
 )

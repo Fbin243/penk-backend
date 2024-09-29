@@ -30,7 +30,7 @@ func InitTimeTrackingsMutation(r *timetrackings.TimeTrackingsHandler) *TimeTrack
 					Description: "The start time of new session in ISO 8601 format",
 				},
 			},
-			Resolve: r.CreateTimeTracking,
+			// Resolve: r.CreateTimeTracking,
 		},
 		UpdateTimeTracking: &graphql.Field{
 			Type:        graphql.NewNonNull(timeTrackingType),
@@ -41,7 +41,7 @@ func InitTimeTrackingsMutation(r *timetrackings.TimeTrackingsHandler) *TimeTrack
 					Description: "ID of time tracking to update",
 				},
 			},
-			Resolve: r.UpdateTimeTracking,
+			// Resolve: r.UpdateTimeTracking,
 		},
 	}
 }

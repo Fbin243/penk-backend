@@ -1,0 +1,20 @@
+type TimeTracking {
+  id: ID!
+  characterID: ID!
+  metricID: ID
+  startTime: String!
+  endTime: String
+}
+
+type Query {
+  # Get current time tracking (can be null)
+  currentTimeTracking(characterID: ID!): TimeTracking
+}
+
+type Mutation {
+  # Create a time tracking
+  createTimeTracking(characterID: ID!, metricID: ID, startTime: String!): TimeTracking!
+
+  # Update a time tracking
+  updateTimeTracking(id: ID!): TimeTracking!
+}

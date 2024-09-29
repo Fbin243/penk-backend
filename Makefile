@@ -29,3 +29,10 @@ ifeq ($(OS),Windows_NT)
 else
 	export TENK_ENV=development && air -c ./tools/air-configs/timetrackings.air.toml
 endif
+
+timetrackings_v2:
+ifeq ($(OS),Windows_NT)
+	set TENK_ENV=development && air -c ./tools/air-configs/timetrackings_v2.air.toml
+else
+	export TENK_ENV=development && air -c ./tools/air-configs/timetrackings_v2.air.toml
+endif

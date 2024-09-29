@@ -21,7 +21,7 @@ func InitTimeTrackingsQuery(r *timetrackings.TimeTrackingsHandler) *TimeTracking
 					Description: "ID character to track time for",
 				},
 			},
-			Resolve: r.GetCurrentTimeTracking,
+			// Resolve: r.GetCurrentTimeTracking,
 		},
 	}
 }
