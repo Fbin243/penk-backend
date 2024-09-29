@@ -20,7 +20,7 @@ func InitProfileMutation(r *core.ProfilesHandler) *ProfilesMutation {
 					Type: graphql.NewNonNull(profileInputType),
 				},
 			},
-			Resolve: r.UpdateAccount,
+			// Resolve: r.UpdateAccount,
 		},
 	}
 }

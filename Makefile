@@ -9,6 +9,13 @@ else
 	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/core.air.toml
 endif
 
+core_v2:
+ifeq ($(OS),Windows_NT)
+	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/core_v2.air.toml
+else
+	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/core_v2.air.toml
+endif
+
 analytics:
 ifeq ($(OS),Windows_NT)
 	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/analytics.air.toml

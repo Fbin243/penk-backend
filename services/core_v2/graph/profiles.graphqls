@@ -1,0 +1,21 @@
+type Profile {
+  id: ID!
+  name: String!
+  email: String!
+  firebaseUID: String!
+  imageURL: String!
+  currentCharacterID: ID
+  characters: [Character!]!
+  availableSnapshots: Int!
+  autoSnapshot: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+# Input Type for Profile
+input ProfileInput {
+  name: String
+  imageURL: String # URL of the user's image
+  currentCharacterID: String # ID of the character being chosen
+  autoSnapshot: Boolean # Whether the user has enabled auto snapshot, default is true
+}

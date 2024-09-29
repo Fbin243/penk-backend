@@ -126,7 +126,7 @@ func TestValidateCustomMetric(t *testing.T) {
 						ID:    primitive.NewObjectID(),
 						Name:  "",
 						Type:  "number",
-						Value: 10,
+						Value: "10",
 						Unit:  "kg",
 					},
 				}
@@ -159,7 +159,7 @@ func TestValidateMetricProperty(t *testing.T) {
 		ID:    primitive.NewObjectID(),
 		Name:  "Property",
 		Type:  "number",
-		Value: 10,
+		Value: "10",
 		Unit:  "kg",
 	}
 
@@ -196,7 +196,7 @@ func TestValidateMetricProperty(t *testing.T) {
 		{
 			name: "missing value",
 			property: func(p coredb.MetricProperty) coredb.MetricProperty {
-				p.Value = nil
+				p.Value = ""
 				return p
 			}(property),
 			hasError: true,

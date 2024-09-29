@@ -1,13 +1,14 @@
 package core
 
 import (
+	"context"
 	"fmt"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/core/validations"
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/services/core_v2/graph/model"
 
-	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -23,32 +24,8 @@ func NewCharactersHandler(charactersRepo *coredb.CharactersRepo, profilesRepo *c
 	}
 }
 
-func (r *CharactersHandler) GetCharacterByID(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
-	if !ok {
-		return nil, auth.ErrorUnauthorized
-	}
-
-	id := params.Args["id"].(string)
-	objectID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(objectID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get character: %v", err)
-	}
-
-	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
-	}
-
-	return *character, nil
-}
-
-func (r *CharactersHandler) GetCharactersByProfileID(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) GetCharactersByProfileID(ctx context.Context) ([]coredb.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -61,24 +38,8 @@ func (r *CharactersHandler) GetCharactersByProfileID(params graphql.ResolveParam
 	return characters, nil
 }
 
-func (r *CharactersHandler) GetAllCharacters(params graphql.ResolveParams) (interface{}, error) {
-	_, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
-	if !ok {
-		return nil, auth.ErrorUnauthorized
-	}
-
-	// TODO: Check if the user is admin ...
-
-	characters, err := r.CharactersRepo.GetAllCharacters()
-	if err != nil {
-		return nil, fmt.Errorf("failed to find characters: %v", err)
-	}
-
-	return characters, nil
-}
-
-func (r *CharactersHandler) CreateCharacter(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) CreateCharacter(ctx context.Context, input model.CharacterInput) (*coredb.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -101,17 +62,14 @@ func (r *CharactersHandler) CreateCharacter(params graphql.ResolveParams) (inter
 		LimitedMetricNumber: 2,
 	}
 
-	input := params.Args["input"].(map[string]interface{})
-	if name, ok := input["name"].(string); ok {
-		character.Name = name
+	if input.Name != nil {
+		character.Name = *input.Name
 	}
-
-	if gender, ok := input["gender"].(bool); ok {
-		character.Gender = gender
+	if input.Gender != nil {
+		character.Gender = *input.Gender
 	}
-
-	if tags, ok := input["tags"].([]interface{}); ok {
-		character.Tags = convertListToSlice(tags)
+	if input.Tags != nil {
+		character.Tags = input.Tags
 	}
 
 	err = validations.ValidateCharacter(character)
@@ -131,16 +89,15 @@ func (r *CharactersHandler) CreateCharacter(params graphql.ResolveParams) (inter
 		return nil, fmt.Errorf("failed to update user profile: %v", err)
 	}
 
-	return *createdCharacter, nil
+	return createdCharacter, nil
 }
 
-func (r *CharactersHandler) UpdateCharacter(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) UpdateCharacter(ctx context.Context, id string, input model.CharacterInput) (*coredb.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	id := params.Args["id"].(string)
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
@@ -155,18 +112,12 @@ func (r *CharactersHandler) UpdateCharacter(params graphql.ResolveParams) (inter
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	input := params.Args["input"].(map[string]interface{})
-	if name, ok := input["name"].(string); ok {
-		character.Name = name
+	if input.Name != nil {
+		character.Name = *input.Name
 	}
 
-	// TODO: It may be added later or not :)
-	// if gender, ok := input["gender"].(bool); ok {
-	// 	character.Gender = gender
-	// }
-
-	if tags, ok := input["tags"].([]interface{}); ok {
-		character.Tags = convertListToSlice(tags)
+	if input.Tags != nil {
+		character.Tags = input.Tags
 	}
 
 	err = validations.ValidateCharacter(*character)
@@ -179,16 +130,15 @@ func (r *CharactersHandler) UpdateCharacter(params graphql.ResolveParams) (inter
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return *updatedCharacter, nil
+	return updatedCharacter, nil
 }
 
-func (r *CharactersHandler) DeleteCharacter(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) DeleteCharacter(ctx context.Context, id string) (*coredb.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	id := params.Args["id"].(string)
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
@@ -208,16 +158,15 @@ func (r *CharactersHandler) DeleteCharacter(params graphql.ResolveParams) (inter
 		return nil, fmt.Errorf("failed to delete character: %v", err)
 	}
 
-	return *deletedCharacter, nil
+	return deletedCharacter, nil
 }
 
-func (r *CharactersHandler) ResetCharacter(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) ResetCharacter(ctx context.Context, id string) (*coredb.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	id := params.Args["id"].(string)
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
@@ -236,10 +185,10 @@ func (r *CharactersHandler) ResetCharacter(params graphql.ResolveParams) (interf
 	character.TotalFocusedTime = 0
 	character.CustomMetrics = []coredb.CustomMetric{}
 
-	updatedCharacter, err := r.CharactersRepo.UpdateCharacter(character)
+	resetCharacter, err := r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to reset character: %v", err)
 	}
 
-	return *updatedCharacter, nil
+	return resetCharacter, nil
 }

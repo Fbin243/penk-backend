@@ -1,0 +1,22 @@
+type Query {
+  characters: [Character!]!
+  profile: Profile!
+}
+
+type Mutation {
+  updateProfile(input: ProfileInput!): Profile!
+
+  createCharacter(input: CharacterInput!): Character!
+  updateCharacter(id: ID!, input: CharacterInput!): Character!
+  deleteCharacter(id: ID!): Character!
+  resetCharacter(id: ID!): Character!
+
+  createCustomMetric(characterID: ID!, input: CustomMetricInput!): CustomMetric!
+  updateCustomMetric(id: ID!, characterID: ID!, input: CustomMetricInput!): CustomMetric!
+  resetCustomMetric(id: ID!, characterID: ID!): CustomMetric!
+  deleteCustomMetric(id: ID!, characterID: ID!): CustomMetric!
+
+  createMetricProperty(characterID: ID!, metricID: ID!, input: MetricPropertyInput!): MetricProperty!
+  updateMetricProperty(id: ID!, characterID: ID!, metricID: ID!, input: MetricPropertyInput!): MetricProperty!
+  deleteMetricProperty(id: ID!, characterID: ID!, metricID: ID!): MetricProperty!
+}

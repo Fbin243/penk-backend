@@ -1,0 +1,58 @@
+type Character {
+  id: ID!
+  profileID: ID!
+  name: String!
+  gender: Boolean!
+  tags: [String!]!
+  totalFocusedTime: Int!
+  customMetrics: [CustomMetric!]!
+  limitedMetricNumber: Int!
+}
+
+type CustomMetric {
+  id: ID!
+  name: String!
+  description: String
+  time: Int!
+  style: MetricStyle!
+  properties: [MetricProperty!]!
+  limitedPropertyNumber: Int!
+}
+
+type MetricStyle {
+  color: String
+  icon: String
+}
+
+type MetricProperty {
+  id: ID!
+  name: String!
+  type: String!
+  value: String!
+  unit: String
+}
+
+input CharacterInput {
+  name: String
+  gender: Boolean # Male is true, Female is false. Defaults to false.
+  tags: [String!] # List of string tags that describe the character
+}
+
+input CustomMetricInput {
+  name: String
+  description: String
+  style: MetricStyleInput # Visual style of the metric displayed on screen
+  properties: [MetricPropertyInput!] # List of properties that describe the metric
+}
+
+input MetricStyleInput {
+  color: String # Color in Hex format
+  icon: String # URL or file path of the icon
+}
+
+input MetricPropertyInput {
+  name: String
+  type: String # Data type of the property
+  value: String # Specific value of the property type
+  unit: String # Unit of the property value
+}

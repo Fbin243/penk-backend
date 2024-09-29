@@ -15,7 +15,7 @@ func InitProfileQuery(r *core.ProfilesHandler) *ProfilesQuery {
 		Profile: &graphql.Field{
 			Type:        graphql.NewNonNull(profileType),
 			Description: "Get user's profile by token",
-			Resolve:     r.GetProfileByToken,
+			// Resolve:     r.GetProfileByToken,
 		},
 	}
 }

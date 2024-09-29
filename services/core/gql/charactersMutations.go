@@ -33,7 +33,7 @@ func InitCharacterMutation(r *core.CharactersHandler) *CharactersMutation {
 					Type: graphql.NewNonNull(characterInputType),
 				},
 			},
-			Resolve: r.CreateCharacter,
+			// Resolve: r.CreateCharacter,
 		},
 		UpdateCharacter: &graphql.Field{
 			Type:        graphql.NewNonNull(CharacterType),
@@ -46,7 +46,7 @@ func InitCharacterMutation(r *core.CharactersHandler) *CharactersMutation {
 					Type: graphql.NewNonNull(characterInputType),
 				},
 			},
-			Resolve: r.UpdateCharacter,
+			// Resolve: r.UpdateCharacter,
 		},
 		DeleteCharacter: &graphql.Field{
 			Type:        CharacterType,
@@ -56,7 +56,7 @@ func InitCharacterMutation(r *core.CharactersHandler) *CharactersMutation {
 					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
-			Resolve: r.DeleteCharacter,
+			// Resolve: r.DeleteCharacter,
 		},
 		ResetCharacter: &graphql.Field{
 			Type:        CharacterType,
@@ -66,7 +66,7 @@ func InitCharacterMutation(r *core.CharactersHandler) *CharactersMutation {
 					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
-			Resolve: r.ResetCharacter,
+			// Resolve: r.ResetCharacter,
 		},
 		CreateCustomMetric: &graphql.Field{
 			Type:        graphql.NewNonNull(customMetricType),
@@ -79,7 +79,7 @@ func InitCharacterMutation(r *core.CharactersHandler) *CharactersMutation {
 					Type: graphql.NewNonNull(customMetricInputType),
 				},
 			},
-			Resolve: r.CreateCustomMetric,
+			// Resolve: r.CreateCustomMetric,
 		},
 		UpdateCustomMetric: &graphql.Field{
 			Type:        graphql.NewNonNull(customMetricType),
@@ -95,7 +95,7 @@ func InitCharacterMutation(r *core.CharactersHandler) *CharactersMutation {
 					Type: graphql.NewNonNull(customMetricInputType),
 				},
 			},
-			Resolve: r.UpdateCustomMetric,
+			// Resolve: r.UpdateCustomMetric,
 		},
 		ResetCustomMetric: &graphql.Field{
 			Type:        customMetricType,
@@ -108,7 +108,7 @@ func InitCharacterMutation(r *core.CharactersHandler) *CharactersMutation {
 					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
-			Resolve: r.ResetCustomMetric,
+			// Resolve: r.ResetCustomMetric,
 		},
 		DeleteCustomMetric: &graphql.Field{
 			Type:        customMetricType,
@@ -121,7 +121,7 @@ func InitCharacterMutation(r *core.CharactersHandler) *CharactersMutation {
 					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
-			Resolve: r.DeleteCustomMetric,
+			// Resolve: r.DeleteCustomMetric,
 		},
 		CreateMetricProperty: &graphql.Field{
 			Type:        metricPropertyType,
@@ -137,7 +137,7 @@ func InitCharacterMutation(r *core.CharactersHandler) *CharactersMutation {
 					Type: graphql.NewNonNull(metricPropertyInputType),
 				},
 			},
-			Resolve: r.CreateMetricProperty,
+			// Resolve: r.CreateMetricProperty,
 		},
 		UpdateMetricProperty: &graphql.Field{
 			Type:        metricPropertyType,
@@ -156,7 +156,7 @@ func InitCharacterMutation(r *core.CharactersHandler) *CharactersMutation {
 					Type: graphql.NewNonNull(metricPropertyInputType),
 				},
 			},
-			Resolve: r.UpdateMetricProperty,
+			// Resolve: r.UpdateMetricProperty,
 		},
 		DeleteMetricProperty: &graphql.Field{
 			Type:        metricPropertyType,
@@ -172,7 +172,7 @@ func InitCharacterMutation(r *core.CharactersHandler) *CharactersMutation {
 					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
-			Resolve: r.DeleteMetricProperty,
+			// Resolve: r.DeleteMetricProperty,
 		},
 	}
 }
