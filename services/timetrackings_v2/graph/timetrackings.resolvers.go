@@ -6,9 +6,8 @@ package graph
 
 import (
 	"context"
-	"time"
-
 	"tenkhours/pkg/db/timetrackingsdb"
+	"time"
 )
 
 // CreateTimeTracking is the resolver for the createTimeTracking field.
@@ -70,8 +69,6 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 // TimeTracking returns TimeTrackingResolver implementation.
 func (r *Resolver) TimeTracking() TimeTrackingResolver { return &timeTrackingResolver{r} }
 
-type (
-	mutationResolver     struct{ *Resolver }
-	queryResolver        struct{ *Resolver }
-	timeTrackingResolver struct{ *Resolver }
-)
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
+type timeTrackingResolver struct{ *Resolver }

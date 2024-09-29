@@ -8,9 +8,10 @@ exec:
   package: graph
 
 # Uncomment to enable federation
-# federation:
-#   filename: graph/federation.go
-#   package: graph
+federation:
+  filename: graph/federation.go
+  package: graph
+  version: 2
 
 # Where should any generated models go?
 model:
@@ -29,7 +30,7 @@ resolver:
   # Optional: turn on use ` + "`" + `gqlgen:"fieldName"` + "`" + ` tags in your models
   # struct_tag: json
 
-  # Optional: turn on to use []Thing instead of []*Thing
+# Optional: turn on to use []Thing instead of []*Thing
 omit_slice_element_pointers: true
 
 # Optional: turn on to omit Is<Name>() methods to interface and unions

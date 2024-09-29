@@ -8,3 +8,4 @@ cover.out
 /aside
 .vscode
 .DS_Store
+node_modules
