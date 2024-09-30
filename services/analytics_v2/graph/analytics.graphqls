@@ -1,0 +1,11 @@
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@external", "@requires"])
+
+type Snapshot {
+  id: ID!
+  timestamp: String!
+  character: Character!
+}
+
+extend type Character @key(fields: "id") {
+  id: ID! @external
+}

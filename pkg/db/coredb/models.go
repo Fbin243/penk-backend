@@ -53,3 +53,6 @@ type Character struct {
 	CustomMetrics       []CustomMetric     `json:"customMetrics,omitempty" bson:"custom_metrics,omitempty" validate:"omitempty,dive"`
 	LimitedMetricNumber int32              `json:"limitedMetricNumber" bson:"limited_metric_number"`
 }
+
+// Make Character satisfy the Entity interface required by federation
+func (Character) IsEntity() {}

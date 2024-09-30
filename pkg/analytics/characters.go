@@ -11,7 +11,6 @@ import (
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
 
-	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -30,8 +29,8 @@ func NewCharactersHandler(snapshotsRepo *analyticsdb.SnapshotsRepo, charactersRe
 	}
 }
 
-func (r *CharactersHandler) GetSnapshotsByProfileID(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) GetSnapshotsByProfileID(ctx context.Context) ([]analyticsdb.Snapshot, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -44,13 +43,12 @@ func (r *CharactersHandler) GetSnapshotsByProfileID(params graphql.ResolveParams
 	return snapshots, nil
 }
 
-func (r *CharactersHandler) GetSnapshotsByCharacterID(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) GetSnapshotsByCharacterID(ctx context.Context, characterID string) ([]analyticsdb.Snapshot, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterID := params.Args["characterID"].(string)
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
 		return nil, err
@@ -73,13 +71,12 @@ func (r *CharactersHandler) GetSnapshotsByCharacterID(params graphql.ResolvePara
 	return snapshots, nil
 }
 
-func (r *CharactersHandler) CreateNewSnapshot(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID string) (*analyticsdb.Snapshot, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterID := params.Args["characterID"].(string)
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
 	if err != nil {
 		return nil, err
@@ -150,5 +147,10 @@ func (r *CharactersHandler) CreateNewSnapshot(params graphql.ResolveParams) (int
 		return *snapshot, nil
 	}
 
-	return session.WithTransaction(context.TODO(), callback)
+	result, err := session.WithTransaction(context.TODO(), callback)
+	if err != nil {
+		return nil, err
+	}
+
+	return result.(*analyticsdb.Snapshot), nil
 }

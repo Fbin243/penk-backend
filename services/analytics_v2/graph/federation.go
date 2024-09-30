@@ -80,26 +80,6 @@ func (ec *executionContext) __resolve_entities(ctx context.Context, representati
 		}()
 
 		switch typeName {
-		case "Character":
-			resolverName, err := entityResolverNameForCharacter(ctx, rep)
-			if err != nil {
-				return fmt.Errorf(`finding resolver for Entity "Character": %w`, err)
-			}
-			switch resolverName {
-
-			case "findCharacterByID":
-				id0, err := ec.unmarshalNID2string(ctx, rep["id"])
-				if err != nil {
-					return fmt.Errorf(`unmarshalling param 0 for findCharacterByID(): %w`, err)
-				}
-				entity, err := ec.resolvers.Entity().FindCharacterByID(ctx, id0)
-				if err != nil {
-					return fmt.Errorf(`resolving Entity "Character": %w`, err)
-				}
-
-				list[idx[i]] = entity
-				return nil
-			}
 
 		}
 		return fmt.Errorf("%w: %s", ErrUnknownType, typeName)
@@ -167,31 +147,4 @@ func (ec *executionContext) __resolve_entities(ctx context.Context, representati
 		g.Wait()
 		return list
 	}
-}
-
-func entityResolverNameForCharacter(ctx context.Context, rep map[string]interface{}) (string, error) {
-	for {
-		var (
-			m   map[string]interface{}
-			val interface{}
-			ok  bool
-		)
-		_ = val
-		// if all of the KeyFields values for this resolver are null,
-		// we shouldn't use use it
-		allNull := true
-		m = rep
-		val, ok = m["id"]
-		if !ok {
-			break
-		}
-		if allNull {
-			allNull = val == nil
-		}
-		if allNull {
-			break
-		}
-		return "findCharacterByID", nil
-	}
-	return "", fmt.Errorf("%w for Character", ErrTypeNotFound)
 }

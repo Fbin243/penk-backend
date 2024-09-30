@@ -24,6 +24,29 @@ func NewCharactersHandler(charactersRepo *coredb.CharactersRepo, profilesRepo *c
 	}
 }
 
+func (r *CharactersHandler) GetCharacterByID(ctx context.Context, id string) (*coredb.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+	if !ok {
+		return nil, auth.ErrorUnauthorized
+	}
+
+	characterOID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find character: %v", err)
+	}
+
+	if character.ProfileID != profile.ID {
+		return nil, auth.ErrorPermissionDenied
+	}
+
+	return character, nil
+}
+
 func (r *CharactersHandler) GetCharactersByProfileID(ctx context.Context) ([]coredb.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {

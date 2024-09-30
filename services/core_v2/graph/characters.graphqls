@@ -1,4 +1,6 @@
-type Character {
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@external", "@requires"])
+
+type Character @key(fields: "id") {
   id: ID!
   profileID: ID!
   name: String!

@@ -19,7 +19,7 @@ func InitCharactersMutation(r *analytics.CharactersHandler) *CharactersMutation 
 					Type: graphql.NewNonNull(graphql.ID),
 				},
 			},
-			Resolve: r.CreateNewSnapshot,
+			// Resolve: r.CreateNewSnapshot,
 		},
 	}
 }
