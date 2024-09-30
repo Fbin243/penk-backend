@@ -2,39 +2,61 @@
 
 package model
 
+// Input for creating or updating a character.
 type CharacterInput struct {
-	Name   *string  `json:"name,omitempty"`
-	Gender *bool    `json:"gender,omitempty"`
-	Tags   []string `json:"tags,omitempty"`
+	// The name of the character.
+	Name *string `json:"name,omitempty"`
+	// Male is true, Female is false. Defaults to false.
+	Gender *bool `json:"gender,omitempty"`
+	// List of string tags that describe the character.
+	Tags []string `json:"tags,omitempty"`
 }
 
+// Input for defining a custom metric.
 type CustomMetricInput struct {
-	Name        *string               `json:"name,omitempty"`
-	Description *string               `json:"description,omitempty"`
-	Style       *MetricStyleInput     `json:"style,omitempty"`
-	Properties  []MetricPropertyInput `json:"properties,omitempty"`
+	// The name of the custom metric.
+	Name *string `json:"name,omitempty"`
+	// Description of the custom metric.
+	Description *string `json:"description,omitempty"`
+	// Visual style of the metric displayed on screen.
+	Style *MetricStyleInput `json:"style,omitempty"`
+	// List of properties that describe the metric.
+	Properties []MetricPropertyInput `json:"properties,omitempty"`
 }
 
+// Input for defining a property of a custom metric.
 type MetricPropertyInput struct {
-	Name  *string `json:"name,omitempty"`
-	Type  *string `json:"type,omitempty"`
+	// Name of the property.
+	Name *string `json:"name,omitempty"`
+	// Data type of the property (String or Number).
+	Type *string `json:"type,omitempty"`
+	// Specific value of the property based on its data type.
 	Value *string `json:"value,omitempty"`
-	Unit  *string `json:"unit,omitempty"`
+	// Unit of the property value (e.g., seconds, meters, etc.).
+	Unit *string `json:"unit,omitempty"`
 }
 
+// Input for specifying the visual style of a metric.
 type MetricStyleInput struct {
+	// Color of the metric, in Hex format.
 	Color *string `json:"color,omitempty"`
-	Icon  *string `json:"icon,omitempty"`
+	// URL or file path of the icon for the metric.
+	Icon *string `json:"icon,omitempty"`
 }
 
 type Mutation struct {
 }
 
+// Input type for creating or updating a user profile.
 type ProfileInput struct {
-	Name               *string `json:"name,omitempty"`
-	ImageURL           *string `json:"imageURL,omitempty"`
+	// The name of the user.
+	Name *string `json:"name,omitempty"`
+	// URL of the user's image.
+	ImageURL *string `json:"imageURL,omitempty"`
+	// ID of the character currently being chosen by the user.
 	CurrentCharacterID *string `json:"currentCharacterID,omitempty"`
-	AutoSnapshot       *bool   `json:"autoSnapshot,omitempty"`
+	// Whether the user has enabled auto snapshot, default is true
+	AutoSnapshot *bool `json:"autoSnapshot,omitempty"`
 }
 
 type Query struct {

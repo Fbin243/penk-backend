@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-
 	"tenkhours/pkg/db/coredb"
 )
 

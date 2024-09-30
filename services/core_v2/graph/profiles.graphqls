@@ -12,10 +12,27 @@ type Profile {
   updatedAt: String!
 }
 
-# Input Type for Profile
+"""
+Input type for creating or updating a user profile.
+"""
 input ProfileInput {
+  """
+  The name of the user.
+  """
   name: String
-  imageURL: String # URL of the user's image
-  currentCharacterID: String # ID of the character being chosen
-  autoSnapshot: Boolean # Whether the user has enabled auto snapshot, default is true
+
+  """
+  URL of the user's image.
+  """
+  imageURL: String
+
+  """
+  ID of the character currently being chosen by the user.
+  """
+  currentCharacterID: String
+
+  """
+  Whether the user has enabled auto snapshot, default is true
+  """
+  autoSnapshot: Boolean
 }

@@ -34,27 +34,87 @@ type MetricProperty {
   unit: String
 }
 
+"""
+Input for creating or updating a character.
+"""
 input CharacterInput {
+  """
+  The name of the character.
+  """
   name: String
-  gender: Boolean # Male is true, Female is false. Defaults to false.
-  tags: [String!] # List of string tags that describe the character
+
+  """
+  Male is true, Female is false. Defaults to false.
+  """
+  gender: Boolean
+
+  """
+  List of string tags that describe the character.
+  """
+  tags: [String!]
 }
 
+"""
+Input for defining a custom metric.
+"""
 input CustomMetricInput {
+  """
+  The name of the custom metric.
+  """
   name: String
+
+  """
+  Description of the custom metric.
+  """
   description: String
-  style: MetricStyleInput # Visual style of the metric displayed on screen
-  properties: [MetricPropertyInput!] # List of properties that describe the metric
+
+  """
+  Visual style of the metric displayed on screen.
+  """
+  style: MetricStyleInput
+
+  """
+  List of properties that describe the metric.
+  """
+  properties: [MetricPropertyInput!]
 }
 
+"""
+Input for specifying the visual style of a metric.
+"""
 input MetricStyleInput {
-  color: String # Color in Hex format
-  icon: String # URL or file path of the icon
+  """
+  Color of the metric, in Hex format.
+  """
+  color: String
+
+  """
+  URL or file path of the icon for the metric.
+  """
+  icon: String
 }
 
+"""
+Input for defining a property of a custom metric.
+"""
 input MetricPropertyInput {
+  """
+  Name of the property.
+  """
   name: String
-  type: String # Data type of the property
-  value: String # Specific value of the property type
-  unit: String # Unit of the property value
+
+  """
+  Data type of the property (String or Number).
+  """
+  type: String
+
+  """
+  Specific value of the property based on its data type.
+  """
+  value: String
+
+  """
+  Unit of the property value (e.g., seconds, meters, etc.).
+  """
+  unit: String
 }

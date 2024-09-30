@@ -7,14 +7,18 @@ type TimeTracking {
 }
 
 type Query {
-  # Get current time tracking (can be null)
   currentTimeTracking(characterID: ID!): TimeTracking
 }
 
 type Mutation {
-  # Create a time tracking
-  createTimeTracking(characterID: ID!, metricID: ID, startTime: String!): TimeTracking!
+  createTimeTracking(
+    characterID: ID!
+    metricID: ID
+    """
+    Start time of the tracking session in RFC3339 format.
+    """
+    startTime: String!
+  ): TimeTracking!
 
-  # Update a time tracking
   updateTimeTracking(id: ID!): TimeTracking!
 }
