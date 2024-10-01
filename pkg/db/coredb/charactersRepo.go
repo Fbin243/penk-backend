@@ -27,8 +27,13 @@ func (r *CharactersRepo) GetCharacterByID(id primitive.ObjectID) (*Character, er
 
 	character := Character{}
 	err := r.FindOne(ctx, bson.M{"_id": id}).Decode(&character)
+	if err == mongo.ErrNoDocuments {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
 
-	return &character, err
+	return &character, nil
 }
 
 func (r *CharactersRepo) GetCharactersByProfileID(profileID primitive.ObjectID) ([]Character, error) {

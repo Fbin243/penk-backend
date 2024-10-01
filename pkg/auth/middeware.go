@@ -37,7 +37,6 @@ func (m *Middleware) CheckRequestBody(c *gin.Context) {
 
 func (m *Middleware) CheckAuth(c *gin.Context) {
 	reqCtx := c.Request.Context()
-
 	authKey := c.Request.Header.Get("Authorization")
 	if strings.HasPrefix(authKey, "Bearer ") {
 		idToken := strings.Replace(authKey, "Bearer ", "", 1)

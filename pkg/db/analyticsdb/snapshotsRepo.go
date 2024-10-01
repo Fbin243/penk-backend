@@ -2,6 +2,7 @@ package analyticsdb
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"tenkhours/pkg/db"
@@ -43,6 +44,8 @@ func (r *SnapshotsRepo) GetSnapshotsByProfileID(profileID primitive.ObjectID) ([
 		snapshots = append(snapshots, snapshot)
 	}
 
+	log.Printf("snapshots: %v\n", snapshots)
+
 	return snapshots, nil
 }
 
@@ -80,7 +83,9 @@ func (r *SnapshotsRepo) GetLatestSnapshotByCharacterID(characterID primitive.Obj
 
 	opts := options.FindOne().SetSort(bson.M{"timestamp": -1})
 	err := r.FindOne(ctx, bson.M{"metadata.character_id": characterID}, opts).Decode(snapshot)
-	if err != nil {
+	if err == mongo.ErrNoDocuments {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 

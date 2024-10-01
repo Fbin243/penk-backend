@@ -1,5 +1,5 @@
 const { ApolloServer } = require("apollo-server");
-const { ApolloGateway, IntrospectAndCompose } = require("@apollo/gateway");
+const { ApolloGateway, IntrospectAndCompose, RemoteGraphQLDataSource } = require("@apollo/gateway");
 
 const gateway = new ApolloGateway({
   supergraphSdl: new IntrospectAndCompose({
@@ -9,11 +9,23 @@ const gateway = new ApolloGateway({
       { name: "analytics", url: "http://localhost:8082/graphql" },
     ],
   }),
+  buildService({ name, url }) {
+    return new RemoteGraphQLDataSource({
+      url,
+      willSendRequest({ request, context }) {
+        request.http.headers.set("Authorization", context.token);
+      },
+    });
+  },
 });
 
 const server = new ApolloServer({
   gateway,
-
+  context: ({ req }) => {
+    return {
+      token: req.headers.authorization,
+    };
+  },
   subscriptions: false,
 });
 

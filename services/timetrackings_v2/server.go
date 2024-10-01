@@ -13,7 +13,6 @@ import (
 	"tenkhours/services/timetrackings_v2/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -52,10 +51,10 @@ func main() {
 		Resolvers: &graph.Resolver{TimeTrackingsHandler: timetrackingsHandler},
 	}))
 
-	app.GET("/", func(c *gin.Context) {
-		playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
-		playgroundHandler.ServeHTTP(c.Writer, c.Request)
-	})
+	// app.GET("/", func(c *gin.Context) {
+	// 	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
+	// 	playgroundHandler.ServeHTTP(c.Writer, c.Request)
+	// })
 
 	app.POST("/graphql", func(c *gin.Context) {
 		srv.ServeHTTP(c.Writer, c.Request)

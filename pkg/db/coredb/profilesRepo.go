@@ -37,13 +37,18 @@ func NewProfilesRepo(mongodb *mongo.Database) *ProfilesRepo {
 }
 
 func (r *ProfilesRepo) GetProfileByFirebaseUID(firebaseUID string) (*Profile, error) {
-	var profile Profile
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	var profile Profile
 	err := r.FindOne(ctx, bson.M{"firebase_uid": firebaseUID}).Decode(&profile)
+	if err == mongo.ErrNoDocuments {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
 
-	return &profile, err
+	return &profile, nil
 }
 
 func (r *ProfilesRepo) CreateNewProfile(profile *Profile) (*Profile, error) {

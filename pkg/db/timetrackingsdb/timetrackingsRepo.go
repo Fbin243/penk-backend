@@ -65,8 +65,7 @@ func (r *TimeTrackingsRepo) GetCurrentTimeTrackingByCharacterID(characterID prim
 	err := r.FindOne(ctx, filter).Decode(&timeTracking)
 	if err == mongo.ErrNoDocuments {
 		return nil, nil
-	}
-	if err != nil {
+	} else if err != nil {
 		return nil, err
 	}
 

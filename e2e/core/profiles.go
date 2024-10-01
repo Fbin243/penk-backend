@@ -66,7 +66,7 @@ func (s UpdateProfileStage) Exec(ctx *context.Context) error {
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
 			Url:       common.CoreUrl,
-			Query:     UpdateAccountQuery,
+			Query:     UpdateProfileQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
 		})
