@@ -62,6 +62,11 @@ func InitDBManagerFromEnv() *DatabaseManager {
 		log.Fatal(err)
 	}
 
+	err = client.Ping(ctx, readpref.Primary())
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	db := client.Database(mongoDatabase)
 
 	// TODO: Create time series collection for snapshots (Temporarily)
@@ -85,14 +90,6 @@ var dbManager *DatabaseManager
 func GetDBManager() *DatabaseManager {
 	if dbManager == nil {
 		dbManager = InitDBManagerFromEnv()
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	err := dbManager.Client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	return dbManager
