@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"tenkhours/cmd/gql"
+
 	"github.com/urfave/cli/v2"
 )
 
@@ -18,12 +20,16 @@ func main() {
 		},
 		Commands: []*cli.Command{
 			{
-				Name:    "add",
-				Aliases: []string{"a"},
-				Usage:   "add a task to the list",
+				Name:     "gql-setup",
+				Category: "gql",
+				Usage:    "Setup a gql boilerplate",
 				Action: func(cCtx *cli.Context) error {
-					fmt.Println("added task: ", cCtx.Args().First())
-					return nil
+					setupPath := cCtx.Args().First()
+					if setupPath == "" {
+						setupPath = "services/example"
+					}
+
+					return gql.SetupBoilerplate(setupPath)
 				},
 			},
 		},
