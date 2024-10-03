@@ -18,7 +18,7 @@ func (r *mutationResolver) CreateSnapshot(ctx context.Context, characterID strin
 		return nil, fmt.Errorf("failed to create snapshot: %v", err)
 	}
 
-	return mapModelToDto(snapshot), nil
+	return MapToSnapshotDto(snapshot), nil
 }
 
 // CharacterSnapshots is the resolver for the characterSnapshots field.
@@ -30,7 +30,7 @@ func (r *queryResolver) CharacterSnapshots(ctx context.Context, characterID stri
 
 	var res []model.Snapshot
 	for _, snapshot := range snapshots {
-		res = append(res, *mapModelToDto(&snapshot))
+		res = append(res, *MapToSnapshotDto(&snapshot))
 	}
 
 	return res, nil
@@ -45,7 +45,8 @@ func (r *queryResolver) UserSnapshots(ctx context.Context) ([]model.Snapshot, er
 
 	var res []model.Snapshot
 	for _, snapshot := range snapshots {
-		res = append(res, *mapModelToDto(&snapshot))
+		// log.Printf("Snapshot: %v", snapshot)
+		res = append(res, *MapToSnapshotDto(&snapshot))
 	}
 
 	return res, nil

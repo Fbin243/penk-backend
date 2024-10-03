@@ -2,11 +2,43 @@
 
 package model
 
-type Character struct {
-	ID string `json:"id"`
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
+type CharacterData struct {
+	ID               primitive.ObjectID `json:"id"`
+	ProfileID        primitive.ObjectID `json:"profileID"`
+	Name             string             `json:"name"`
+	Gender           bool               `json:"gender"`
+	Tags             []string           `json:"tags"`
+	TotalFocusedTime int                `json:"totalFocusedTime"`
+	CustomMetrics    []CustomMetricData `json:"customMetrics"`
 }
 
-func (Character) IsEntity() {}
+type CustomMetricData struct {
+	ID          primitive.ObjectID   `json:"id"`
+	Name        string               `json:"name"`
+	Description *string              `json:"description,omitempty"`
+	Time        int                  `json:"time"`
+	Style       *MetricStyleData     `json:"style"`
+	Properties  []MetricPropertyData `json:"properties"`
+}
+
+type MetricPropertyData struct {
+	ID    primitive.ObjectID `json:"id"`
+	Name  string             `json:"name"`
+	Type  string             `json:"type"`
+	Value string             `json:"value"`
+	Unit  *string            `json:"unit,omitempty"`
+}
+
+type MetricStyleData struct {
+	Color *string `json:"color,omitempty"`
+	Icon  *string `json:"icon,omitempty"`
+}
 
 type Mutation struct {
 }
@@ -15,7 +47,7 @@ type Query struct {
 }
 
 type Snapshot struct {
-	ID        string     `json:"id"`
-	Timestamp string     `json:"timestamp"`
-	Character *Character `json:"character"`
+	ID        primitive.ObjectID `json:"id"`
+	Timestamp time.Time          `json:"timestamp"`
+	Character *CharacterData     `json:"character"`
 }

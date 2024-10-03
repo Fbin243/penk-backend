@@ -101,10 +101,10 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID s
 
 	// Compare with the latest snapshot
 	latestSnapshot, err := r.SnapshotsRepo.GetLatestSnapshotByCharacterID(characterOID)
-	if err != nil {
-		if err != mongo.ErrNoDocuments {
-			return nil, err
-		}
+	fmt.Printf("latestSnapshot: %v\n", latestSnapshot)
+	fmt.Printf("character: %v\n", *character)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return nil, err
 	} else if reflect.DeepEqual(latestSnapshot.Character, *character) {
 		return nil, fmt.Errorf("no changes detected")
 	}
@@ -152,5 +152,10 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID s
 		return nil, err
 	}
 
-	return result.(*analyticsdb.Snapshot), nil
+	newSnapshot, ok := result.(analyticsdb.Snapshot)
+	if !ok {
+		return nil, fmt.Errorf("failed to create snapshot")
+	}
+
+	return &newSnapshot, nil
 }

@@ -3,6 +3,7 @@ package coredb
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"tenkhours/pkg/db"
@@ -26,14 +27,10 @@ func (r *CharactersRepo) GetCharacterByID(id primitive.ObjectID) (*Character, er
 	defer cancel()
 
 	character := Character{}
+	log.Printf("Finding character by ID: %s", id.Hex())
 	err := r.FindOne(ctx, bson.M{"_id": id}).Decode(&character)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	} else if err != nil {
-		return nil, err
-	}
 
-	return &character, nil
+	return &character, err
 }
 
 func (r *CharactersRepo) GetCharactersByProfileID(profileID primitive.ObjectID) ([]Character, error) {

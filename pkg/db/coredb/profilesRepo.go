@@ -42,9 +42,7 @@ func (r *ProfilesRepo) GetProfileByFirebaseUID(firebaseUID string) (*Profile, er
 
 	var profile Profile
 	err := r.FindOne(ctx, bson.M{"firebase_uid": firebaseUID}).Decode(&profile)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 

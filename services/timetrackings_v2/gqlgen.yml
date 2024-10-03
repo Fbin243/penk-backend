@@ -31,7 +31,7 @@ resolver:
 # struct_tag: json
 
 # Optional: turn on to use []Thing instead of []*Thing
-# omit_slice_element_pointers: false
+omit_slice_element_pointers: false
 
 # Optional: turn on to omit Is<Name>() methods to interface and unions
 # omit_interface_checks : true
@@ -86,5 +86,7 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
+  ObjectID:
+    model: tenkhours/pkg/graphql.ObjectID
   TimeTracking:
     model: tenkhours/pkg/db/timetrackingsdb.TimeTracking

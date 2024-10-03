@@ -1,11 +1,43 @@
 extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@external", "@requires"])
 
+scalar Time
+scalar ObjectID
+scalar NullableString
+
 type Snapshot {
-  id: ID!
-  timestamp: String!
-  character: Character!
+  id: ObjectID!
+  timestamp: Time!
+  character: CharacterData!
 }
 
-extend type Character @key(fields: "id") {
-  id: ID! @external
+type CharacterData {
+  id: ObjectID!
+  profileID: ObjectID!
+  name: String!
+  gender: Boolean!
+  tags: [String!]!
+  totalFocusedTime: Int!
+  customMetrics: [CustomMetricData!]!
+}
+
+type CustomMetricData {
+  id: ObjectID!
+  name: String!
+  description: NullableString
+  time: Int!
+  style: MetricStyleData!
+  properties: [MetricPropertyData!]!
+}
+
+type MetricStyleData {
+  color: NullableString
+  icon: NullableString
+}
+
+type MetricPropertyData {
+  id: ObjectID!
+  name: String!
+  type: String!
+  value: String!
+  unit: NullableString
 }

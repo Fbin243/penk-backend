@@ -1,24 +1,27 @@
+scalar Time
+scalar ObjectID
+
 type TimeTracking {
-  id: ID!
-  characterID: ID!
-  metricID: ID
-  startTime: String!
-  endTime: String
+  id: ObjectID!
+  characterID: ObjectID!
+  customMetricID: ObjectID
+  startTime: Time!
+  endTime: Time
 }
 
 type Query {
-  currentTimeTracking(characterID: ID!): TimeTracking
+  currentTimeTracking(characterID: ObjectID!): TimeTracking
 }
 
 type Mutation {
   createTimeTracking(
-    characterID: ID!
-    metricID: ID
+    characterID: ObjectID!
+    customMetricID: ObjectID
     """
-    Start time of the tracking session in RFC3339 format.
+    Start time of the tracking session in RFC3339Nano format.
     """
-    startTime: String!
+    startTime: Time!
   ): TimeTracking!
 
-  updateTimeTracking(id: ID!): TimeTracking!
+  updateTimeTracking(id: ObjectID!): TimeTracking!
 }

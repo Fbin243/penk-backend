@@ -25,11 +25,6 @@ func NewCharactersHandler(charactersRepo *coredb.CharactersRepo, profilesRepo *c
 }
 
 func (r *CharactersHandler) GetCharacterByID(ctx context.Context, id string) (*coredb.Character, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
-	if !ok {
-		return nil, auth.ErrorUnauthorized
-	}
-
 	characterOID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
@@ -38,10 +33,6 @@ func (r *CharactersHandler) GetCharacterByID(ctx context.Context, id string) (*c
 	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find character: %v", err)
-	}
-
-	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
 	}
 
 	return character, nil
@@ -115,18 +106,13 @@ func (r *CharactersHandler) CreateCharacter(ctx context.Context, input model.Cha
 	return createdCharacter, nil
 }
 
-func (r *CharactersHandler) UpdateCharacter(ctx context.Context, id string, input model.CharacterInput) (*coredb.Character, error) {
+func (r *CharactersHandler) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*coredb.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	objectID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(objectID)
+	character, err := r.CharactersRepo.GetCharacterByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -156,18 +142,13 @@ func (r *CharactersHandler) UpdateCharacter(ctx context.Context, id string, inpu
 	return updatedCharacter, nil
 }
 
-func (r *CharactersHandler) DeleteCharacter(ctx context.Context, id string) (*coredb.Character, error) {
+func (r *CharactersHandler) DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*coredb.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	objectID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(objectID)
+	character, err := r.CharactersRepo.GetCharacterByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -176,7 +157,7 @@ func (r *CharactersHandler) DeleteCharacter(ctx context.Context, id string) (*co
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	deletedCharacter, err := r.CharactersRepo.DeleteCharacter(objectID)
+	deletedCharacter, err := r.CharactersRepo.DeleteCharacter(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete character: %v", err)
 	}
@@ -184,24 +165,19 @@ func (r *CharactersHandler) DeleteCharacter(ctx context.Context, id string) (*co
 	return deletedCharacter, nil
 }
 
-func (r *CharactersHandler) ResetCharacter(ctx context.Context, id string) (*coredb.Character, error) {
+func (r *CharactersHandler) ResetCharacter(ctx context.Context, id primitive.ObjectID) (*coredb.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	objectID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
-
-	if objectID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(objectID)
+	character, err := r.CharactersRepo.GetCharacterByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
+	}
+
+	if character.ProfileID != profile.ID {
+		return nil, auth.ErrorPermissionDenied
 	}
 
 	character.Tags = []string{}

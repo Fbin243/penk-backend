@@ -7,37 +7,11 @@ package graph
 import (
 	"context"
 	"tenkhours/pkg/db/coredb"
-	"time"
 )
-
-// ID is the resolver for the id field.
-func (r *profileResolver) ID(ctx context.Context, obj *coredb.Profile) (string, error) {
-	return obj.ID.Hex(), nil
-}
-
-// CurrentCharacterID is the resolver for the currentCharacterID field.
-func (r *profileResolver) CurrentCharacterID(ctx context.Context, obj *coredb.Profile) (*string, error) {
-	if obj.ID.IsZero() {
-		return nil, nil
-	}
-
-	id := obj.ID.Hex()
-	return &id, nil
-}
 
 // Characters is the resolver for the characters field.
 func (r *profileResolver) Characters(ctx context.Context, obj *coredb.Profile) ([]coredb.Character, error) {
-	return r.CharactersHandler.GetCharactersByProfileID(ctx)
-}
-
-// CreatedAt is the resolver for the createdAt field.
-func (r *profileResolver) CreatedAt(ctx context.Context, obj *coredb.Profile) (string, error) {
-	return obj.CreatedAt.Format(time.RFC3339), nil
-}
-
-// UpdatedAt is the resolver for the updatedAt field.
-func (r *profileResolver) UpdatedAt(ctx context.Context, obj *coredb.Profile) (string, error) {
-	return obj.UpdatedAt.Format(time.RFC3339), nil
+	return r.CharactersRepo.GetCharactersByProfileID(obj.ID)
 }
 
 // Profile returns ProfileResolver implementation.

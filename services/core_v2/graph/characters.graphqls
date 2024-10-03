@@ -1,8 +1,6 @@
-extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@external", "@requires"])
-
-type Character @key(fields: "id") {
-  id: ID!
-  profileID: ID!
+type Character {
+  id: ObjectID!
+  profileID: ObjectID!
   name: String!
   gender: Boolean!
   tags: [String!]!
@@ -12,9 +10,9 @@ type Character @key(fields: "id") {
 }
 
 type CustomMetric {
-  id: ID!
+  id: ObjectID!
   name: String!
-  description: String
+  description: NullableString
   time: Int!
   style: MetricStyle!
   properties: [MetricProperty!]!
@@ -22,16 +20,16 @@ type CustomMetric {
 }
 
 type MetricStyle {
-  color: String
-  icon: String
+  color: NullableString
+  icon: NullableString
 }
 
 type MetricProperty {
-  id: ID!
+  id: ObjectID!
   name: String!
   type: String!
   value: String!
-  unit: String
+  unit: NullableString
 }
 
 """

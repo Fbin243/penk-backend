@@ -12,18 +12,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID string, input model.CustomMetricInput) (*coredb.CustomMetric, error) {
+func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*coredb.CustomMetric, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get object id: %v", err)
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -76,23 +71,13 @@ func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID 
 	return createdCustomMetric, nil
 }
 
-func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, id string, characterID string, input model.CustomMetricInput) (*coredb.CustomMetric, error) {
+func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*coredb.CustomMetric, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	metricOID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric ID: %v", err)
-	}
-
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid character ID: %v", err)
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -104,7 +89,7 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, id string, c
 	found := false
 	updatedMetric := coredb.CustomMetric{}
 	for i, cm := range character.CustomMetrics {
-		if cm.ID != metricOID {
+		if cm.ID != metricID {
 			continue
 		}
 		if input.Name != nil {
@@ -185,18 +170,13 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, id string, c
 	return &updatedMetric, nil
 }
 
-func (r *CharactersHandler) DeleteCustomMetric(ctx context.Context, id string, characterID string) (*coredb.CustomMetric, error) {
+func (r *CharactersHandler) DeleteCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID) (*coredb.CustomMetric, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid character id: %v", err)
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -205,14 +185,9 @@ func (r *CharactersHandler) DeleteCustomMetric(ctx context.Context, id string, c
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	metricOID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric id: %v", err)
-	}
-
 	found := false
 	for _, cm := range character.CustomMetrics {
-		if cm.ID == metricOID {
+		if cm.ID == metricID {
 			found = true
 			break
 		}
@@ -222,7 +197,7 @@ func (r *CharactersHandler) DeleteCustomMetric(ctx context.Context, id string, c
 		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
-	deletedCustomMetric, err := r.CharactersRepo.DeleteCustomMetric(characterOID, metricOID)
+	deletedCustomMetric, err := r.CharactersRepo.DeleteCustomMetric(characterID, metricID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete metric: %v", err)
 	}
@@ -230,18 +205,13 @@ func (r *CharactersHandler) DeleteCustomMetric(ctx context.Context, id string, c
 	return deletedCustomMetric, nil
 }
 
-func (r *CharactersHandler) ResetCustomMetric(ctx context.Context, id string, characterID string) (*coredb.CustomMetric, error) {
+func (r *CharactersHandler) ResetCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID) (*coredb.CustomMetric, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid character ID: %v", err)
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -250,15 +220,10 @@ func (r *CharactersHandler) ResetCustomMetric(ctx context.Context, id string, ch
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	metricOID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric ID: %v", err)
-	}
-
 	found := false
 	resetMetric := coredb.CustomMetric{}
 	for i, metric := range character.CustomMetrics {
-		if metric.ID == metricOID {
+		if metric.ID == metricID {
 			metric.Description = ""
 			metric.Time = 0
 			metric.Style = coredb.MetricStyle{}
@@ -283,29 +248,19 @@ func (r *CharactersHandler) ResetCustomMetric(ctx context.Context, id string, ch
 	return &resetMetric, nil
 }
 
-func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterID string, metricID string, input model.MetricPropertyInput) (*coredb.MetricProperty, error) {
+func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*coredb.MetricProperty, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid character ID: %v", err)
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
 
 	if character.ProfileID != profile.ID {
 		return nil, auth.ErrorPermissionDenied
-	}
-
-	metricOID, err := primitive.ObjectIDFromHex(metricID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric ID: %v", err)
 	}
 
 	metricProperty := coredb.MetricProperty{
@@ -327,7 +282,7 @@ func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterI
 
 	found := false
 	for i, cm := range character.CustomMetrics {
-		if cm.ID == metricOID {
+		if cm.ID == metricID {
 			if len(character.CustomMetrics[i].Properties) >= int(character.CustomMetrics[i].LimitedPropertyNumber) {
 				return nil, fmt.Errorf("metric properties creation limit reached")
 			}
@@ -355,28 +310,13 @@ func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterI
 	return &metricProperty, nil
 }
 
-func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id string, characterID string, metricID string, input model.MetricPropertyInput) (*coredb.MetricProperty, error) {
+func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*coredb.MetricProperty, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid character ID: %v", err)
-	}
-
-	metricOID, err := primitive.ObjectIDFromHex(metricID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric ID: %v", err)
-	}
-
-	metricPropOID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric property ID: %v", err)
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -389,9 +329,9 @@ func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id string,
 	foundForProperty := false
 	updatedProperty := coredb.MetricProperty{}
 	for i, cm := range character.CustomMetrics {
-		if cm.ID == metricOID {
+		if cm.ID == metricID {
 			for j, prop := range character.CustomMetrics[i].Properties {
-				if prop.ID != metricPropOID {
+				if prop.ID != id {
 					continue
 				}
 
@@ -440,28 +380,13 @@ func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id string,
 	return &updatedProperty, nil
 }
 
-func (r *CharactersHandler) DeleteMetricProperty(ctx context.Context, id string, characterID string, metricID string) (*coredb.MetricProperty, error) {
+func (r *CharactersHandler) DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*coredb.MetricProperty, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid character ID: %v", err)
-	}
-
-	metricOID, err := primitive.ObjectIDFromHex(metricID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric ID: %v", err)
-	}
-
-	metricPropOID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, fmt.Errorf("invalid metric property ID: %v", err)
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -474,9 +399,9 @@ func (r *CharactersHandler) DeleteMetricProperty(ctx context.Context, id string,
 	foundForProperty := false
 	deletedMetricProperty := coredb.MetricProperty{}
 	for i, cm := range character.CustomMetrics {
-		if cm.ID == metricOID {
+		if cm.ID == metricID {
 			for j, prop := range character.CustomMetrics[i].Properties {
-				if prop.ID == metricPropOID {
+				if prop.ID == id {
 					deletedMetricProperty = prop
 					character.CustomMetrics[i].Properties = append(character.CustomMetrics[i].Properties[:j], character.CustomMetrics[i].Properties[j+1:]...)
 					foundForProperty = true

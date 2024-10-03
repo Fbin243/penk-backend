@@ -7,16 +7,21 @@ type Mutation {
   updateProfile(input: ProfileInput!): Profile!
 
   createCharacter(input: CharacterInput!): Character!
-  updateCharacter(id: ID!, input: CharacterInput!): Character!
-  deleteCharacter(id: ID!): Character!
-  resetCharacter(id: ID!): Character!
+  updateCharacter(id: ObjectID!, input: CharacterInput!): Character!
+  deleteCharacter(id: ObjectID!): Character!
+  resetCharacter(id: ObjectID!): Character!
 
-  createCustomMetric(characterID: ID!, input: CustomMetricInput!): CustomMetric!
-  updateCustomMetric(id: ID!, characterID: ID!, input: CustomMetricInput!): CustomMetric!
-  resetCustomMetric(id: ID!, characterID: ID!): CustomMetric!
-  deleteCustomMetric(id: ID!, characterID: ID!): CustomMetric!
+  createCustomMetric(characterID: ObjectID!, input: CustomMetricInput!): CustomMetric!
+  updateCustomMetric(id: ObjectID!, characterID: ObjectID!, input: CustomMetricInput!): CustomMetric!
+  resetCustomMetric(id: ObjectID!, characterID: ObjectID!): CustomMetric!
+  deleteCustomMetric(id: ObjectID!, characterID: ObjectID!): CustomMetric!
 
-  createMetricProperty(characterID: ID!, metricID: ID!, input: MetricPropertyInput!): MetricProperty!
-  updateMetricProperty(id: ID!, characterID: ID!, metricID: ID!, input: MetricPropertyInput!): MetricProperty!
-  deleteMetricProperty(id: ID!, characterID: ID!, metricID: ID!): MetricProperty!
+  createMetricProperty(characterID: ObjectID!, metricID: ObjectID!, input: MetricPropertyInput!): MetricProperty!
+  updateMetricProperty(
+    id: ObjectID!
+    characterID: ObjectID!
+    metricID: ObjectID!
+    input: MetricPropertyInput!
+  ): MetricProperty!
+  deleteMetricProperty(id: ObjectID!, characterID: ObjectID!, metricID: ObjectID!): MetricProperty!
 }

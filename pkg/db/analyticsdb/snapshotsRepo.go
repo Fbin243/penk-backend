@@ -83,13 +83,8 @@ func (r *SnapshotsRepo) GetLatestSnapshotByCharacterID(characterID primitive.Obj
 
 	opts := options.FindOne().SetSort(bson.M{"timestamp": -1})
 	err := r.FindOne(ctx, bson.M{"metadata.character_id": characterID}, opts).Decode(snapshot)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	} else if err != nil {
-		return nil, err
-	}
 
-	return snapshot, nil
+	return snapshot, err
 }
 
 func (r *SnapshotsRepo) CreateSnapshot(snapshot *Snapshot) (*Snapshot, error) {

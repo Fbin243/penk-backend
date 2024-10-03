@@ -6,58 +6,26 @@ package graph
 
 import (
 	"context"
-	"tenkhours/pkg/db/timetrackingsdb"
 	"time"
+
+	"tenkhours/pkg/db/timetrackingsdb"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // CreateTimeTracking is the resolver for the createTimeTracking field.
-func (r *mutationResolver) CreateTimeTracking(ctx context.Context, characterID string, metricID *string, startTime string) (*timetrackingsdb.TimeTracking, error) {
-	return r.TimeTrackingsHandler.CreateTimeTracking(ctx, characterID, metricID, startTime)
+func (r *mutationResolver) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) (*timetrackingsdb.TimeTracking, error) {
+	return r.TimeTrackingsHandler.CreateTimeTracking(ctx, characterID, customMetricID, startTime)
 }
 
 // UpdateTimeTracking is the resolver for the updateTimeTracking field.
-func (r *mutationResolver) UpdateTimeTracking(ctx context.Context, id string) (*timetrackingsdb.TimeTracking, error) {
+func (r *mutationResolver) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsdb.TimeTracking, error) {
 	return r.TimeTrackingsHandler.UpdateTimeTracking(ctx, id)
 }
 
 // CurrentTimeTracking is the resolver for the currentTimeTracking field.
-func (r *queryResolver) CurrentTimeTracking(ctx context.Context, characterID string) (*timetrackingsdb.TimeTracking, error) {
+func (r *queryResolver) CurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*timetrackingsdb.TimeTracking, error) {
 	return r.TimeTrackingsHandler.GetCurrentTimeTracking(ctx, characterID)
-}
-
-// ID is the resolver for the id field.
-func (r *timeTrackingResolver) ID(ctx context.Context, obj *timetrackingsdb.TimeTracking) (string, error) {
-	return obj.ID.Hex(), nil
-}
-
-// CharacterID is the resolver for the characterID field.
-func (r *timeTrackingResolver) CharacterID(ctx context.Context, obj *timetrackingsdb.TimeTracking) (string, error) {
-	return obj.CharacterID.Hex(), nil
-}
-
-// MetricID is the resolver for the metricID field.
-func (r *timeTrackingResolver) MetricID(ctx context.Context, obj *timetrackingsdb.TimeTracking) (*string, error) {
-	if obj.ID.IsZero() {
-		return nil, nil
-	}
-
-	id := obj.ID.Hex()
-	return &id, nil
-}
-
-// StartTime is the resolver for the startTime field.
-func (r *timeTrackingResolver) StartTime(ctx context.Context, obj *timetrackingsdb.TimeTracking) (string, error) {
-	return obj.StartTime.Format(time.RFC3339), nil
-}
-
-// EndTime is the resolver for the endTime field.
-func (r *timeTrackingResolver) EndTime(ctx context.Context, obj *timetrackingsdb.TimeTracking) (*string, error) {
-	if obj.ID.IsZero() {
-		return nil, nil
-	}
-
-	endTime := obj.EndTime.Format(time.RFC3339)
-	return &endTime, nil
 }
 
 // Mutation returns MutationResolver implementation.
@@ -66,9 +34,7 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-// TimeTracking returns TimeTrackingResolver implementation.
-func (r *Resolver) TimeTracking() TimeTrackingResolver { return &timeTrackingResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
-type timeTrackingResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)

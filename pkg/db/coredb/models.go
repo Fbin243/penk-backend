@@ -12,7 +12,7 @@ type Profile struct {
 	Email              string             `json:"email" bson:"email" validate:"required,email"`
 	FirebaseUID        string             `json:"firebaseUID" bson:"firebase_uid"`
 	ImageURL           string             `json:"imageURL" bson:"image_url"`
-	CurrentCharacterID primitive.ObjectID `json:"currentCharacterID" bson:"current_character_id"`
+	CurrentCharacterID primitive.ObjectID `json:"currentCharacterID,omitempty" bson:"current_character_id,omitempty"`
 	AvailableSnapshots int32              `json:"availableSnapshots" bson:"available_snapshots"`
 	AutoSnapshot       bool               `json:"autoSnapshot" bson:"auto_snapshot"`
 	CreatedAt          time.Time          `json:"createdAt" bson:"created_at"`
@@ -36,7 +36,7 @@ type MetricStyle struct {
 type CustomMetric struct {
 	ID                    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name                  string             `json:"name" bson:"name" validate:"required,min=1,max=50"`
-	Description           string             `json:"description" bson:"description" validate:"omitempty,max=255"`
+	Description           string             `json:"description,omitempty" bson:"description" validate:"omitempty,max=255"`
 	Time                  int32              `json:"time" bson:"time"`
 	Style                 MetricStyle        `json:"style,omitempty" bson:"style,omitempty"`
 	Properties            []MetricProperty   `json:"properties,omitempty" bson:"properties,omitempty" validate:"omitempty,dive"`

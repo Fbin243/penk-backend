@@ -1,15 +1,19 @@
+scalar Time
+scalar ObjectID
+scalar NullableString
+
 type Profile {
-  id: ID!
+  id: ObjectID!
   name: String!
   email: String!
   firebaseUID: String!
   imageURL: String!
-  currentCharacterID: ID
+  currentCharacterID: ObjectID
   characters: [Character!]!
   availableSnapshots: Int!
   autoSnapshot: Boolean!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: Time!
+  updatedAt: Time!
 }
 
 """

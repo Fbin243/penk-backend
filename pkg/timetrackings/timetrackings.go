@@ -11,6 +11,7 @@ import (
 	"tenkhours/pkg/db/timetrackingsdb"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type TimeTrackingsHandler struct {
@@ -25,18 +26,13 @@ func NewTimeTrackingsHandler(timeTrackingsRepo *timetrackingsdb.TimeTrackingsRep
 	}
 }
 
-func (r *TimeTrackingsHandler) GetCurrentTimeTracking(ctx context.Context, characterID string) (*timetrackingsdb.TimeTracking, error) {
+func (r *TimeTrackingsHandler) GetCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*timetrackingsdb.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, err
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +41,10 @@ func (r *TimeTrackingsHandler) GetCurrentTimeTracking(ctx context.Context, chara
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	result, err := r.TimeTrackingsRepo.GetCurrentTimeTrackingByCharacterID(characterOID)
+	result, err := r.TimeTrackingsRepo.GetCurrentTimeTrackingByCharacterID(characterID)
+	if err == mongo.ErrNoDocuments {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -53,19 +52,14 @@ func (r *TimeTrackingsHandler) GetCurrentTimeTracking(ctx context.Context, chara
 	return result, nil
 }
 
-func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, characterID string, metricID *string, startTime string) (*timetrackingsdb.TimeTracking, error) {
+func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, metricID *primitive.ObjectID, startTime time.Time) (*timetrackingsdb.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
 	serverStartTime := time.Now()
-	clientStartTime, err := time.Parse(time.RFC3339, startTime)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get client start time")
-	}
-
-	duration := serverStartTime.Sub(clientStartTime)
+	duration := serverStartTime.Sub(startTime)
 	seconds := duration.Seconds()
 
 	// Check timeout if delay of client and server is 20 second
@@ -73,12 +67,7 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 		return nil, fmt.Errorf("server timeout, failed to start a new session")
 	}
 
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, err
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -87,16 +76,10 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	metricOID := primitive.ObjectID{}
 	if metricID != nil {
-		metricOID, err = primitive.ObjectIDFromHex(*metricID)
-		if err != nil {
-			return nil, err
-		}
-
 		found := false
 		for _, customMetric := range character.CustomMetrics {
-			if customMetric.ID == metricOID {
+			if customMetric.ID == *metricID {
 				found = true
 				break
 			}
@@ -108,7 +91,7 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 	}
 
 	// Check if the time tracking is already started
-	timeTrackings, err := r.TimeTrackingsRepo.GetTimeTrackingsByCharacterID(characterOID)
+	timeTrackings, err := r.TimeTrackingsRepo.GetTimeTrackingsByCharacterID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get time trackings: %v", err)
 	}
@@ -121,9 +104,9 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 
 	timeTracking := timetrackingsdb.TimeTracking{
 		ID:              primitive.NewObjectID(),
-		CharacterID:     characterOID,
-		CustomMetricID:  metricOID,
-		StartTime:       clientStartTime,
+		CharacterID:     characterID,
+		CustomMetricID:  *metricID,
+		StartTime:       startTime,
 		MinDurationTime: 600,
 		MaxDurationTime: 14400,
 	}
@@ -136,7 +119,7 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 	return createdTimeTracking, nil
 }
 
-func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id string) (*timetrackingsdb.TimeTracking, error) {
+func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsdb.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -144,12 +127,7 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id string
 
 	endTime := time.Now()
 
-	timeTrackingOID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
-
-	timeTracking, err := r.TimeTrackingsRepo.GetTimeTrackingByID(timeTrackingOID)
+	timeTracking, err := r.TimeTrackingsRepo.GetTimeTrackingByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get time tracking: %v", err)
 	}
@@ -178,7 +156,7 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id string
 
 	if duration < timeTracking.MinDurationTime {
 		duration = 0
-		_, err := r.TimeTrackingsRepo.DeleteTimeTracking(timeTrackingOID)
+		_, err := r.TimeTrackingsRepo.DeleteTimeTracking(id)
 		if err != nil {
 			return nil, fmt.Errorf("failed to delete time tracking: %v", err)
 		}
