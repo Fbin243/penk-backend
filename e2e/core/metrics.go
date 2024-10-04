@@ -82,13 +82,13 @@ func (s UpdateCustomMetricStage) Exec(ctx *context.Context) error {
 		"properties": []interface{}{
 			map[string]interface{}{
 				"name":  "property 1",
-				"type":  "type 1",
+				"type":  "NUMBER",
 				"value": "value 1",
 				"unit":  "unit 1",
 			},
 			map[string]interface{}{
 				"name":  "property 1",
-				"type":  "type 1",
+				"type":  "NUMBER",
 				"value": "value 1",
 				"unit":  "unit 1",
 			},

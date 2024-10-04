@@ -5690,7 +5690,7 @@ func (ec *executionContext) unmarshalInputMetricPropertyInput(ctx context.Contex
 			it.Name = data
 		case "type":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOMetricPropertyType2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricPropertyType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7553,6 +7553,22 @@ func (ec *executionContext) unmarshalOMetricPropertyInput2ᚕtenkhoursᚋservice
 		}
 	}
 	return res, nil
+}
+
+func (ec *executionContext) unmarshalOMetricPropertyType2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricPropertyType(ctx context.Context, v interface{}) (*model.MetricPropertyType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.MetricPropertyType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOMetricPropertyType2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v *model.MetricPropertyType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOMetricStyleInput2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricStyleInput(ctx context.Context, v interface{}) (*model.MetricStyleInput, error) {

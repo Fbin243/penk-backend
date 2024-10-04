@@ -30,7 +30,7 @@ func (s CreateMetricPropertyStage) Exec(ctx *context.Context) error {
 
 	metricPropertyInput := map[string]interface{}{
 		"name":  "property 2",
-		"type":  "type 2",
+		"type":  "NUMBER",
 		"value": "value 2",
 	}
 
@@ -85,7 +85,7 @@ func (s UpdateMetricPropertyStage) Exec(ctx *context.Context) error {
 
 	metricPropertyInput := map[string]interface{}{
 		"name":  "updated property 2",
-		"type":  "updated type 2",
+		"type":  "STRING",
 		"value": "updated value 2",
 		"unit":  "unit",
 	}
