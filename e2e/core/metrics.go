@@ -46,7 +46,6 @@ func (s CreateCustomMetricStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
 			Query:     CreateCustomMetricQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
@@ -111,7 +110,6 @@ func (s UpdateCustomMetricStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
 			Query:     UpdateCustomMetricQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
@@ -149,7 +147,6 @@ func (s DeleteCustomMetricStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
 			Query:     UpdateCustomMetricQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
@@ -201,7 +198,6 @@ func (s ResetCustomMetricStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
 			Query:     ResetCustomMetricQuery,
 			Variables: variables,
 			Assertion: assertion.End(),

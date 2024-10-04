@@ -3,7 +3,6 @@ package coredb
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"tenkhours/pkg/db"
@@ -27,7 +26,6 @@ func (r *CharactersRepo) GetCharacterByID(id primitive.ObjectID) (*Character, er
 	defer cancel()
 
 	character := Character{}
-	log.Printf("Finding character by ID: %s", id.Hex())
 	err := r.FindOne(ctx, bson.M{"_id": id}).Decode(&character)
 
 	return &character, err

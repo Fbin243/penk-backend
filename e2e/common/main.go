@@ -68,6 +68,10 @@ func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
 		return ErrNotFoundInContext(TestingT)
 	}
 
+	if q.Url == "" {
+		q.Url = GatewayUrl
+	}
+
 	result := apitest.New().
 		EnableNetworking(cli).
 		Post(q.Url).

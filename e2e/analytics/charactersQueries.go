@@ -8,7 +8,6 @@ query UserSnapshots {
         character {
             gender
             id
-            limitedMetricNumber
             name
             tags
             totalFocusedTime
@@ -16,7 +15,6 @@ query UserSnapshots {
             customMetrics {
                 description
                 id
-                limitedPropertyNumber
                 name
                 time
                 properties {
@@ -44,7 +42,6 @@ query CharacterSnapshots ($characterID: ID!) {
         character {
             gender
             id
-            limitedMetricNumber
             name
             tags
             totalFocusedTime
@@ -52,7 +49,6 @@ query CharacterSnapshots ($characterID: ID!) {
             customMetrics {
                 description
                 id
-                limitedPropertyNumber
                 name
                 time
                 properties {
@@ -81,7 +77,6 @@ mutation CreateSnapshot ($characterID: ID!) {
         character {
             gender
             id
-            limitedMetricNumber
             name
             tags
             totalFocusedTime
@@ -89,7 +84,6 @@ mutation CreateSnapshot ($characterID: ID!) {
             customMetrics {
                 description
                 id
-                limitedPropertyNumber
                 name
                 time
                 properties {

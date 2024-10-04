@@ -1,10 +1,10 @@
 package timetrackings
 
 var CreateTimeTrackingQuery = `
-	mutation CreateTimeTracking ($characterID: ID!, $metricID: ID, $startTime: DateTime!) {
-		createTimeTracking(characterID: $characterID, startTime: $startTime, metricID: $metricID) {
+	mutation CreateTimeTracking ($characterID: ObjectID!, $customMetricID: ObjectID, $startTime: Time!) {
+		createTimeTracking(characterID: $characterID, startTime: $startTime, customMetricID: $customMetricID) {
 			characterID
-			metricID
+			customMetricID
 			endTime
 			id
 			startTime
@@ -13,10 +13,10 @@ var CreateTimeTrackingQuery = `
 `
 
 var UpdateTimeTrackingQuery = `
-	mutation UpdateTimeTracking ($id: ID!) {
+	mutation UpdateTimeTracking ($id: ObjectID!) {
 		updateTimeTracking(id: $id) {
 			characterID
-			metricID
+			customMetricID
 			endTime
 			id
 			startTime

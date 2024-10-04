@@ -1,7 +1,7 @@
 package core
 
 var CreateCustomMetricQuery = `
-mutation CreateCustomMetric($characterID: ID!, $name: String, $style: MetricStyleInput, $description: String) {
+mutation CreateCustomMetric($characterID: ObjectID!, $name: String, $style: MetricStyleInput, $description: String) {
 	createCustomMetric(
 		characterID: $characterID
 		input: {
@@ -30,8 +30,8 @@ mutation CreateCustomMetric($characterID: ID!, $name: String, $style: MetricStyl
 }`
 
 var UpdateCustomMetricQuery = `
-mutation UpdateCustomMetric ($id: ID!, $characterID: ID!, $name: String, $style: MetricStyleInput, $description: String, $properties: 
-[MetricPropertyInput]) {
+mutation UpdateCustomMetric ($id: ObjectID!, $characterID: ObjectID!, $name: String, $style: MetricStyleInput, $description: String, $properties: 
+[MetricPropertyInput!]) {
      updateCustomMetric(
         id: $id
         characterID: $characterID
@@ -62,7 +62,7 @@ mutation UpdateCustomMetric ($id: ID!, $characterID: ID!, $name: String, $style:
 `
 
 var DeleteCustomMetricQuery = `
-mutation DeleteCustomMetric ($id: ID!, $characterID: ID!) {
+mutation DeleteCustomMetric ($id: ObjectID!, $characterID: ObjectID!) {
     deleteCustomMetric(id: $id, characterID: $characterID) {
         description
         id
@@ -83,7 +83,7 @@ mutation DeleteCustomMetric ($id: ID!, $characterID: ID!) {
 }`
 
 var ResetCustomMetricQuery = `
-mutation ResetCustomMetric ($id: ID!, $characterID: ID!) {
+mutation ResetCustomMetric ($id: ObjectID!, $characterID: ObjectID!) {
     resetCustomMetric(id: $id, characterID: $characterID) {
         description
         id

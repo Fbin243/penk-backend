@@ -43,7 +43,6 @@ func (s CreateCharacterStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
 			Query:     CreateCharacterQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
@@ -80,7 +79,6 @@ func (s UpdateCharacterStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
 			Query:     UpdateCharacterQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
@@ -110,7 +108,6 @@ func (s DeleteCharacterStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
 			Query:     DeleteCharacterQuery,
 			Variables: variables,
 			Assertion: assertion.End(),

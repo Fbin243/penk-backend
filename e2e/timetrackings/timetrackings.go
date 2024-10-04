@@ -27,7 +27,7 @@ func (s CreateTimeTrackingStage) Exec(ctx *context.Context) error {
 
 	variables := map[string]interface{}{
 		"characterID": gjson.Get(character, "id").Value(),
-		"startTime":   time.Now(),
+		"startTime":   time.Now().Format(time.RFC3339Nano),
 	}
 
 	assertion := jsonpath.Chain().
@@ -42,10 +42,10 @@ func (s CreateTimeTrackingStage) Exec(ctx *context.Context) error {
 			return common.ErrNotFoundInContext(s.CustomMetricKey)
 		}
 
-		variables["metricID"] = gjson.Get(customMetric, "id").Value()
-		assertion = assertion.Equal("$.data.createTimeTracking.metricID", variables["metricID"])
+		variables["customMetricID"] = gjson.Get(customMetric, "id").Value()
+		assertion = assertion.Equal("$.data.createTimeTracking.customMetricID", variables["customMetricID"])
 	} else {
-		assertion = assertion.NotPresent("$.data.createTimeTracking.metricID")
+		assertion = assertion.NotPresent("$.data.createTimeTracking.customMetricID")
 	}
 
 	if s.ExpectError {
@@ -54,7 +54,6 @@ func (s CreateTimeTrackingStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.TimetrackingsUrl,
 			Query:     CreateTimeTrackingQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
@@ -91,10 +90,10 @@ func (s UpdateTimeTracking) Exec(ctx *context.Context) error {
 			return common.ErrNotFoundInContext(s.CustomMetricKey)
 		}
 
-		variables["metricID"] = gjson.Get(customMetric, "id").Value()
-		assertion = assertion.Equal("$.data.updateTimeTracking.metricID", variables["metricID"])
+		variables["customMetricID"] = gjson.Get(customMetric, "id").Value()
+		assertion = assertion.Equal("$.data.updateTimeTracking.customMetricID", variables["customMetricID"])
 	} else {
-		assertion = assertion.NotPresent("$.data.updateTimeTracking.metricID")
+		assertion = assertion.NotPresent("$.data.updateTimeTracking.customMetricID")
 	}
 
 	if s.ExpectError {
@@ -103,7 +102,6 @@ func (s UpdateTimeTracking) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.TimetrackingsUrl,
 			Query:     UpdateTimeTrackingQuery,
 			Variables: variables,
 			Assertion: assertion.End(),

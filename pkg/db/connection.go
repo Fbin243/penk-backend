@@ -57,7 +57,7 @@ func InitDBManagerFromEnv() *DatabaseManager {
 		mongoDatabase,
 	)
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connectionURI))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connectionURI).SetMaxConnIdleTime(5*60*time.Second))
 	if err != nil {
 		log.Fatal(err)
 	}

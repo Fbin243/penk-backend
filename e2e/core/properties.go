@@ -53,7 +53,6 @@ func (s CreateMetricPropertyStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
 			Query:     CreateMetricPropertyQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
@@ -111,7 +110,6 @@ func (s UpdateMetricPropertyStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
 			Query:     UpdateMetricPropertyQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
@@ -157,7 +155,6 @@ func (s DeleteMetricPropertyStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
 			Query:     DeleteMetricPropertyQuery,
 			Variables: variables,
 			Assertion: assertion.End(),

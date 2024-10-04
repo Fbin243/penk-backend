@@ -105,10 +105,13 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 	timeTracking := timetrackingsdb.TimeTracking{
 		ID:              primitive.NewObjectID(),
 		CharacterID:     characterID,
-		CustomMetricID:  *metricID,
 		StartTime:       startTime,
 		MinDurationTime: 600,
 		MaxDurationTime: 14400,
+	}
+
+	if metricID != nil {
+		timeTracking.CustomMetricID = *metricID
 	}
 
 	createdTimeTracking, err := r.TimeTrackingsRepo.CreateTimeTracking(&timeTracking)

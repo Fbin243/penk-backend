@@ -34,7 +34,6 @@ func (s GetProfileStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
 			Query:     ProfileQuery,
 			Assertion: assertion.End(),
 		})
@@ -54,10 +53,10 @@ func (s UpdateProfileStage) Exec(ctx *context.Context) error {
 	}
 
 	assertion := jsonpath.Chain().NotPresent("$.errors").
-		Equal("$.data.updateAccount.name", variables["name"]).
-		Equal("$.data.updateAccount.imageURL", variables["imageURL"]).
-		Equal("$.data.updateAccount.currentCharacterID", variables["currentCharacterID"]).
-		Equal("$.data.updateAccount.autoSnapshot", variables["autoSnapshot"])
+		Equal("$.data.updateProfile.name", variables["name"]).
+		Equal("$.data.updateProfile.imageURL", variables["imageURL"]).
+		Equal("$.data.updateProfile.currentCharacterID", variables["currentCharacterID"]).
+		Equal("$.data.updateProfile.autoSnapshot", variables["autoSnapshot"])
 
 	if s.ExpectError {
 		assertion = common.AssertionError
@@ -65,7 +64,6 @@ func (s UpdateProfileStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.CoreUrl,
 			Query:     UpdateProfileQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
