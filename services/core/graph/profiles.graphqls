@@ -1,0 +1,42 @@
+scalar Time
+scalar ObjectID
+scalar NullableString
+
+type Profile {
+  id: ObjectID!
+  name: String!
+  email: String!
+  firebaseUID: String!
+  imageURL: String!
+  currentCharacterID: ObjectID
+  characters: [Character!]!
+  availableSnapshots: Int!
+  autoSnapshot: Boolean!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+"""
+Input type for creating or updating a user profile.
+"""
+input ProfileInput {
+  """
+  The name of the user.
+  """
+  name: String
+
+  """
+  URL of the user's image.
+  """
+  imageURL: String
+
+  """
+  ID of the character currently being chosen by the user.
+  """
+  currentCharacterID: String
+
+  """
+  Whether the user has enabled auto snapshot, default is true
+  """
+  autoSnapshot: Boolean
+}

@@ -1,0 +1,123 @@
+type Character {
+  id: ObjectID!
+  profileID: ObjectID!
+  name: String!
+  gender: Boolean!
+  tags: [String!]!
+  totalFocusedTime: Int!
+  customMetrics: [CustomMetric!]!
+  limitedMetricNumber: Int!
+}
+
+type CustomMetric {
+  id: ObjectID!
+  name: String!
+  description: NullableString
+  time: Int!
+  style: MetricStyle!
+  properties: [MetricProperty!]!
+  limitedPropertyNumber: Int!
+}
+
+type MetricStyle {
+  color: NullableString
+  icon: NullableString
+}
+
+type MetricProperty {
+  id: ObjectID!
+  name: String!
+  type: String!
+  value: String!
+  unit: NullableString
+}
+
+"""
+Input for creating or updating a character.
+"""
+input CharacterInput {
+  """
+  The name of the character.
+  """
+  name: String
+
+  """
+  Male is true, Female is false. Defaults to false.
+  """
+  gender: Boolean
+
+  """
+  List of string tags that describe the character.
+  """
+  tags: [String!]
+}
+
+"""
+Input for defining a custom metric.
+"""
+input CustomMetricInput {
+  """
+  The name of the custom metric.
+  """
+  name: String
+
+  """
+  Description of the custom metric.
+  """
+  description: String
+
+  """
+  Visual style of the metric displayed on screen.
+  """
+  style: MetricStyleInput
+
+  """
+  List of properties that describe the metric.
+  """
+  properties: [MetricPropertyInput!]
+}
+
+"""
+Input for specifying the visual style of a metric.
+"""
+input MetricStyleInput {
+  """
+  Color of the metric, in Hex format.
+  """
+  color: String
+
+  """
+  URL or file path of the icon for the metric.
+  """
+  icon: String
+}
+
+"""
+Input for defining a property of a custom metric.
+"""
+input MetricPropertyInput {
+  """
+  Name of the property.
+  """
+  name: String
+
+  """
+  Data type of the property (STRING or NUMBER).
+  """
+  type: MetricPropertyType
+
+  """
+  Specific value of the property based on its data type.
+  """
+  value: String
+
+  """
+  Unit of the property value (e.g., seconds, meters, etc.).
+  """
+  unit: String
+}
+
+enum MetricPropertyType {
+  STRING
+  NUMBER
+}

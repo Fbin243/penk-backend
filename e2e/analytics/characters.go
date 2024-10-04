@@ -37,8 +37,14 @@ func (s CreateSnapshotStage) Exec(ctx *context.Context) error {
 		"characterID": characterId,
 	}
 
+	characterMap := gjson.Get(profile, fmt.Sprintf(`characters.#(id==%s)`, characterId)).Value().(map[string]interface{})
+
 	assertion := jsonpath.Chain().NotPresent("$.errors").
-		Equal("$.data.createSnapshot.character", gjson.Get(profile, fmt.Sprintf(`characters.#(id==%s)`, characterId)).Value())
+		Equal("$.data.createSnapshot.character.name", characterMap["name"]).
+		Equal("$.data.createSnapshot.character.tags", characterMap["tags"]).
+		Equal("$.data.createSnapshot.character.gender", characterMap["gender"]).
+		Equal("$.data.createSnapshot.character.profileID", characterMap["profileID"]).
+		Equal("$.data.createSnapshot.character.totalFocusedTime", characterMap["totalFocusedTime"])
 
 	if s.ExpectError {
 		assertion = common.AssertionError
@@ -46,7 +52,6 @@ func (s CreateSnapshotStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.AnalyticsUrl,
 			Query:     CreateSnapshotQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
@@ -99,7 +104,6 @@ func (s GetCharacterSnapshotsStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.AnalyticsUrl,
 			Query:     CharacterSnapshotsQuery,
 			Variables: variables,
 			Assertion: assertion,
@@ -150,7 +154,6 @@ func (s GetUserSnapshotsStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Url:       common.AnalyticsUrl,
 			Query:     UserSnapshotsQuery,
 			Variables: variables,
 			Assertion: assertion,

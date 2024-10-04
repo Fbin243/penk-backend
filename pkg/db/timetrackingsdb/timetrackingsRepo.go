@@ -2,7 +2,6 @@ package timetrackingsdb
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"tenkhours/pkg/db"
@@ -63,14 +62,8 @@ func (r *TimeTrackingsRepo) GetCurrentTimeTrackingByCharacterID(characterID prim
 
 	var timeTracking TimeTracking
 	err := r.FindOne(ctx, filter).Decode(&timeTracking)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
 
-	return &timeTracking, nil
+	return &timeTracking, err
 }
 
 func (r *TimeTrackingsRepo) CreateTimeTracking(timeTracking *TimeTracking) (*TimeTracking, error) {
@@ -104,7 +97,6 @@ func (r *TimeTrackingsRepo) UpdateTimeTracking(timeTracking *TimeTracking) (*Tim
 		return nil, err
 	}
 
-	log.Print("end_time", timeTracking.EndTime)
 	return timeTracking, nil
 }
 

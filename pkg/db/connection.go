@@ -57,7 +57,12 @@ func InitDBManagerFromEnv() *DatabaseManager {
 		mongoDatabase,
 	)
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connectionURI))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connectionURI).SetMaxConnIdleTime(5*60*time.Second))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -85,14 +90,6 @@ var dbManager *DatabaseManager
 func GetDBManager() *DatabaseManager {
 	if dbManager == nil {
 		dbManager = InitDBManagerFromEnv()
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	err := dbManager.Client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	return dbManager

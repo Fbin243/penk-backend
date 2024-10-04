@@ -2,10 +2,7 @@ module tenkhours/pkg/analytics
 
 go 1.22.3
 
-require (
-	github.com/graphql-go/graphql v0.8.1
-	go.mongodb.org/mongo-driver v1.16.1
-)
+require go.mongodb.org/mongo-driver v1.16.1
 
 require (
 	github.com/golang/snappy v0.0.4 // indirect

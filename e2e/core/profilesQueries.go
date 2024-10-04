@@ -42,8 +42,8 @@ var ProfileQuery = `query {
     }
 }`
 
-var UpdateAccountQuery = `mutation UpdateAccount($name: String, $imageURL: String, $currentCharacterID: String, $autoSnapshot: Boolean) {
-	updateAccount(
+var UpdateProfileQuery = `mutation UpdateProfile($name: String, $imageURL: String, $currentCharacterID: String, $autoSnapshot: Boolean) {
+	updateProfile(
 		input: {
 			name: $name
 			imageURL: $imageURL

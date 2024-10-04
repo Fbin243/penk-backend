@@ -8,6 +8,7 @@ import (
 	"tenkhours/test/analytics"
 	"tenkhours/test/common"
 	"tenkhours/test/core"
+
 	"tenkhours/test/timetrackings"
 
 	"github.com/stretchr/testify/assert"
@@ -69,6 +70,13 @@ func TestUserFlow(t *testing.T) {
 			},
 		},
 
+		core.UpdateCharacterStage{
+			Metadata: common.Metadata{
+				Describe: "Update info of the current character",
+			},
+			CharacterKey: common.CurrentCharacter,
+		},
+
 		// --------- TIME TRACKING WITHOUT METRIC -----------
 
 		timetrackings.CreateTimeTrackingStage{
@@ -104,13 +112,6 @@ func TestUserFlow(t *testing.T) {
 				ExpectError: true,
 			},
 			TimeTrackingKey: common.TimeTracking,
-		},
-
-		core.UpdateCharacterStage{
-			Metadata: common.Metadata{
-				Describe: "Update info of the current character",
-			},
-			CharacterKey: common.CurrentCharacter,
 		},
 
 		// --------- CUSTOM METRIC -----------

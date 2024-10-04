@@ -12,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Middleware struct {
@@ -37,7 +38,6 @@ func (m *Middleware) CheckRequestBody(c *gin.Context) {
 
 func (m *Middleware) CheckAuth(c *gin.Context) {
 	reqCtx := c.Request.Context()
-
 	authKey := c.Request.Header.Get("Authorization")
 	if strings.HasPrefix(authKey, "Bearer ") {
 		idToken := strings.Replace(authKey, "Bearer ", "", 1)
@@ -49,7 +49,7 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 		}
 
 		profile, err := m.profilesRepo.GetProfileByFirebaseUID(firebaseProfile.UID)
-		if err != nil {
+		if err == mongo.ErrNoDocuments {
 			log.Printf("user has not registered profile, so register it\n")
 			newProfile := coredb.Profile{
 				ID:                 primitive.NewObjectID(),

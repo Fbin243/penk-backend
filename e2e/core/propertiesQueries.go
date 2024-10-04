@@ -1,7 +1,7 @@
 package core
 
 var CreateMetricPropertyQuery = `
-mutation CreateMetricProperty ($characterID: ID!, $metricID: ID!, $input: MetricPropertyInput!) {
+mutation CreateMetricProperty ($characterID: ObjectID!, $metricID: ObjectID!, $input: MetricPropertyInput!) {
     createMetricProperty(
         characterID: $characterID
         metricID: $metricID
@@ -16,7 +16,7 @@ mutation CreateMetricProperty ($characterID: ID!, $metricID: ID!, $input: Metric
 }`
 
 var UpdateMetricPropertyQuery = `
-mutation UpdateMetricProperty ($id: ID!, $characterID: ID!, $metricID: ID!, $input: MetricPropertyInput!) {
+mutation UpdateMetricProperty ($id: ObjectID!, $characterID: ObjectID!, $metricID: ObjectID!, $input: MetricPropertyInput!) {
     updateMetricProperty(
         id: $id
         characterID: $characterID
@@ -32,7 +32,7 @@ mutation UpdateMetricProperty ($id: ID!, $characterID: ID!, $metricID: ID!, $inp
 }`
 
 var DeleteMetricPropertyQuery = `
-mutation DeleteMetricProperty($id: ID!, $characterID: ID!, $metricID: ID!) {
+mutation DeleteMetricProperty($id: ObjectID!, $characterID: ObjectID!, $metricID: ObjectID!) {
     deleteMetricProperty (id: $id, characterID: $characterID, metricID: $metricID)  {
         id
         name

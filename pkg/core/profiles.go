@@ -1,14 +1,15 @@
 package core
 
 import (
+	"context"
 	"fmt"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/core/validations"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
+	"tenkhours/services/core/graph/model"
 
-	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -22,41 +23,37 @@ func NewProfilesHandler(profilesRepo *coredb.ProfilesRepo) *ProfilesHandler {
 	}
 }
 
-func (r *ProfilesHandler) GetProfileByToken(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *ProfilesHandler) GetProfileByToken(ctx context.Context) (*coredb.Profile, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	return profile, nil
+	return &profile, nil
 }
 
-func (r *ProfilesHandler) UpdateAccount(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *ProfilesHandler) UpdateProfile(ctx context.Context, input model.ProfileInput) (*coredb.Profile, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	input := params.Args["input"].(map[string]interface{})
-	if name, ok := input["name"].(string); ok {
-		profile.Name = name
+	if input.Name != nil {
+		profile.Name = *input.Name
 	}
-
-	if imageURL, ok := input["imageURL"].(string); ok {
-		profile.ImageURL = imageURL
+	if input.ImageURL != nil {
+		profile.ImageURL = *input.ImageURL
 	}
-
-	if currentCharacterID, ok := input["currentCharacterID"].(string); ok {
-		currentCharacterOID, err := primitive.ObjectIDFromHex(currentCharacterID)
+	if input.CurrentCharacterID != nil {
+		currentCharacterOID, err := primitive.ObjectIDFromHex(*input.CurrentCharacterID)
 		if err != nil {
 			return nil, err
 		}
 
 		profile.CurrentCharacterID = currentCharacterOID
 	}
-
-	if autoSnapshot, ok := input["autoSnapshot"].(bool); ok {
-		profile.AutoSnapshot = autoSnapshot
+	if input.AutoSnapshot != nil {
+		profile.AutoSnapshot = *input.AutoSnapshot
 	}
 
 	profile.UpdatedAt = utils.Now()
@@ -71,5 +68,5 @@ func (r *ProfilesHandler) UpdateAccount(params graphql.ResolveParams) (interface
 		return nil, fmt.Errorf("failed to update user profile: %v", err)
 	}
 
-	return *updatedProfile, nil
+	return updatedProfile, nil
 }

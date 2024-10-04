@@ -64,7 +64,7 @@ var metricInput1 = &metricInputType{
 			ID:    primitive.NewObjectID(),
 			Name:  "Property 1",
 			Type:  "int",
-			Value: 10,
+			Value: "10",
 			Unit:  "units",
 		},
 	},
@@ -82,7 +82,7 @@ var metricInput2 = &metricInputType{
 			ID:    primitive.NewObjectID(),
 			Name:  "Property 2",
 			Type:  "float",
-			Value: 5.5,
+			Value: "5.5",
 			Unit:  "units",
 		},
 	},
@@ -260,7 +260,7 @@ func TestUpdateCustomMetric(t *testing.T) {
 				ID:    primitive.NewObjectID(),
 				Name:  "Updated Property",
 				Type:  "int",
-				Value: 20,
+				Value: "20",
 				Unit:  "updatedUnits",
 			},
 		},
@@ -289,7 +289,7 @@ func TestAddMetricProperty(t *testing.T) {
 		ID:    primitive.NewObjectID(),
 		Name:  "New Property",
 		Type:  "int",
-		Value: 200,
+		Value: "200",
 		Unit:  "units",
 	}
 
@@ -311,7 +311,7 @@ func TestUpdateMetricProperty(t *testing.T) {
 		ID:    primitive.NewObjectID(),
 		Name:  "Property 1",
 		Type:  "int",
-		Value: 10,
+		Value: "10",
 		Unit:  "units",
 	}
 
@@ -322,7 +322,7 @@ func TestUpdateMetricProperty(t *testing.T) {
 		ID:    property.ID,
 		Name:  "Updated Property",
 		Type:  "float",
-		Value: 15.5,
+		Value: "15.5",
 		Unit:  "updatedUnits",
 	}
 

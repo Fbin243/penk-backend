@@ -11,7 +11,6 @@ import (
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
 
-	"github.com/graphql-go/graphql"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -30,8 +29,8 @@ func NewCharactersHandler(snapshotsRepo *analyticsdb.SnapshotsRepo, charactersRe
 	}
 }
 
-func (r *CharactersHandler) GetSnapshotsByProfileID(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) GetSnapshotsByProfileID(ctx context.Context) ([]analyticsdb.Snapshot, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -44,19 +43,13 @@ func (r *CharactersHandler) GetSnapshotsByProfileID(params graphql.ResolveParams
 	return snapshots, nil
 }
 
-func (r *CharactersHandler) GetSnapshotsByCharacterID(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) GetSnapshotsByCharacterID(ctx context.Context, characterID primitive.ObjectID) ([]analyticsdb.Snapshot, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterID := params.Args["characterID"].(string)
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, err
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character by ID")
 	}
@@ -65,7 +58,7 @@ func (r *CharactersHandler) GetSnapshotsByCharacterID(params graphql.ResolvePara
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	snapshots, err := r.SnapshotsRepo.GetSnapshotsByCharacterID(characterOID)
+	snapshots, err := r.SnapshotsRepo.GetSnapshotsByCharacterID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get snapshots by character ID")
 	}
@@ -73,19 +66,13 @@ func (r *CharactersHandler) GetSnapshotsByCharacterID(params graphql.ResolvePara
 	return snapshots, nil
 }
 
-func (r *CharactersHandler) CreateNewSnapshot(params graphql.ResolveParams) (interface{}, error) {
-	profile, ok := params.Context.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID primitive.ObjectID) (*analyticsdb.Snapshot, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterID := params.Args["characterID"].(string)
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, err
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, err
 	}
@@ -103,11 +90,11 @@ func (r *CharactersHandler) CreateNewSnapshot(params graphql.ResolveParams) (int
 	character.ID = primitive.NilObjectID
 
 	// Compare with the latest snapshot
-	latestSnapshot, err := r.SnapshotsRepo.GetLatestSnapshotByCharacterID(characterOID)
-	if err != nil {
-		if err != mongo.ErrNoDocuments {
-			return nil, err
-		}
+	latestSnapshot, err := r.SnapshotsRepo.GetLatestSnapshotByCharacterID(characterID)
+	fmt.Printf("latestSnapshot: %v\n", latestSnapshot)
+	fmt.Printf("character: %v\n", *character)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return nil, err
 	} else if reflect.DeepEqual(latestSnapshot.Character, *character) {
 		return nil, fmt.Errorf("no changes detected")
 	}
@@ -117,7 +104,7 @@ func (r *CharactersHandler) CreateNewSnapshot(params graphql.ResolveParams) (int
 		Timestamp: utils.Now(),
 		Metadata: analyticsdb.Metadata{
 			ProfileID:   profile.ID,
-			CharacterID: characterOID,
+			CharacterID: characterID,
 		},
 		Character: *character,
 		Asset:     nil,
@@ -145,10 +132,20 @@ func (r *CharactersHandler) CreateNewSnapshot(params graphql.ResolveParams) (int
 
 		// Restore CharacterID and ProfileID
 		snapshot.Character.ProfileID = profile.ID
-		snapshot.Character.ID = characterOID
+		snapshot.Character.ID = characterID
 
 		return *snapshot, nil
 	}
 
-	return session.WithTransaction(context.TODO(), callback)
+	result, err := session.WithTransaction(context.TODO(), callback)
+	if err != nil {
+		return nil, err
+	}
+
+	newSnapshot, ok := result.(analyticsdb.Snapshot)
+	if !ok {
+		return nil, fmt.Errorf("failed to create snapshot")
+	}
+
+	return &newSnapshot, nil
 }
