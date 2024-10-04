@@ -11,9 +11,6 @@ use (
 	./pkg/timetrackings
 	./pkg/utils
 	./services/analytics
-	./services/analytics_v2
 	./services/core
-	./services/core_v2
 	./services/timetrackings
-	./services/timetrackings_v2
 )

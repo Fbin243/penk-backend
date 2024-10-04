@@ -43,18 +43,13 @@ func (r *CharactersHandler) GetSnapshotsByProfileID(ctx context.Context) ([]anal
 	return snapshots, nil
 }
 
-func (r *CharactersHandler) GetSnapshotsByCharacterID(ctx context.Context, characterID string) ([]analyticsdb.Snapshot, error) {
+func (r *CharactersHandler) GetSnapshotsByCharacterID(ctx context.Context, characterID primitive.ObjectID) ([]analyticsdb.Snapshot, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, err
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character by ID")
 	}
@@ -63,7 +58,7 @@ func (r *CharactersHandler) GetSnapshotsByCharacterID(ctx context.Context, chara
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	snapshots, err := r.SnapshotsRepo.GetSnapshotsByCharacterID(characterOID)
+	snapshots, err := r.SnapshotsRepo.GetSnapshotsByCharacterID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get snapshots by character ID")
 	}
@@ -71,18 +66,13 @@ func (r *CharactersHandler) GetSnapshotsByCharacterID(ctx context.Context, chara
 	return snapshots, nil
 }
 
-func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID string) (*analyticsdb.Snapshot, error) {
+func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID primitive.ObjectID) (*analyticsdb.Snapshot, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return nil, err
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +90,7 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID s
 	character.ID = primitive.NilObjectID
 
 	// Compare with the latest snapshot
-	latestSnapshot, err := r.SnapshotsRepo.GetLatestSnapshotByCharacterID(characterOID)
+	latestSnapshot, err := r.SnapshotsRepo.GetLatestSnapshotByCharacterID(characterID)
 	fmt.Printf("latestSnapshot: %v\n", latestSnapshot)
 	fmt.Printf("character: %v\n", *character)
 	if err != nil && err != mongo.ErrNoDocuments {
@@ -114,7 +104,7 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID s
 		Timestamp: utils.Now(),
 		Metadata: analyticsdb.Metadata{
 			ProfileID:   profile.ID,
-			CharacterID: characterOID,
+			CharacterID: characterID,
 		},
 		Character: *character,
 		Asset:     nil,
@@ -142,7 +132,7 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID s
 
 		// Restore CharacterID and ProfileID
 		snapshot.Character.ProfileID = profile.ID
-		snapshot.Character.ID = characterOID
+		snapshot.Character.ID = characterID
 
 		return *snapshot, nil
 	}

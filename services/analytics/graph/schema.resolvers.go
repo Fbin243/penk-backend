@@ -7,11 +7,13 @@ package graph
 import (
 	"context"
 	"fmt"
-	"tenkhours/services/analytics_v2/graph/model"
+	"tenkhours/services/analytics/graph/model"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // CreateSnapshot is the resolver for the createSnapshot field.
-func (r *mutationResolver) CreateSnapshot(ctx context.Context, characterID string) (*model.Snapshot, error) {
+func (r *mutationResolver) CreateSnapshot(ctx context.Context, characterID primitive.ObjectID) (*model.Snapshot, error) {
 	snapshot, err := r.CharactersHandler.CreateNewSnapshot(ctx, characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create snapshot: %v", err)
@@ -21,7 +23,7 @@ func (r *mutationResolver) CreateSnapshot(ctx context.Context, characterID strin
 }
 
 // CharacterSnapshots is the resolver for the characterSnapshots field.
-func (r *queryResolver) CharacterSnapshots(ctx context.Context, characterID string) ([]model.Snapshot, error) {
+func (r *queryResolver) CharacterSnapshots(ctx context.Context, characterID primitive.ObjectID) ([]model.Snapshot, error) {
 	snapshots, err := r.CharactersHandler.GetSnapshotsByCharacterID(ctx, characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get snapshots by character ID: %v", err)

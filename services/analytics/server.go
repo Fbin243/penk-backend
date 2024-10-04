@@ -10,7 +10,7 @@ import (
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/analyticsdb"
 	"tenkhours/pkg/db/coredb"
-	"tenkhours/services/analytics_v2/graph"
+	"tenkhours/services/analytics/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"

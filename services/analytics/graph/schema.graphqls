@@ -1,0 +1,8 @@
+type Mutation {
+  createSnapshot(characterID: ObjectID!): Snapshot!
+}
+
+type Query {
+  characterSnapshots(characterID: ObjectID!): [Snapshot!]!
+  userSnapshots: [Snapshot!]!
+}

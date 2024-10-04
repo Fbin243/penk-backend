@@ -6,11 +6,10 @@ import (
 	"os"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/core"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
-	"tenkhours/pkg/db/timetrackingsdb"
-	"tenkhours/pkg/timetrackings"
-	"tenkhours/services/timetrackings_v2/graph"
+	"tenkhours/services/core/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -40,15 +39,18 @@ func main() {
 	db := db.GetDBManager().DB
 	profilesRepo := coredb.NewProfilesRepo(db)
 	charactersRepo := coredb.NewCharactersRepo(db)
-	timetrackingsRepo := timetrackingsdb.NewTimeTrackingsRepo(db)
-	timetrackingsHandler := timetrackings.NewTimeTrackingsHandler(timetrackingsRepo, charactersRepo)
+	profilesHandler := core.NewProfilesHandler(profilesRepo)
+	charactersHandler := core.NewCharactersHandler(charactersRepo, profilesRepo)
 
 	// Check authentication
 	authMiddleware := auth.NewMiddleware(profilesRepo)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: &graph.Resolver{TimeTrackingsHandler: timetrackingsHandler},
+		Resolvers: &graph.Resolver{
+			ProfilesHandler:   profilesHandler,
+			CharactersHandler: charactersHandler,
+		},
 	}))
 
 	// app.GET("/", func(c *gin.Context) {
@@ -60,7 +62,7 @@ func main() {
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 
-	port, found := os.LookupEnv("TIME_TRACKINGS_PORT")
+	port, found := os.LookupEnv("CORE_PORT")
 	if !found {
 		port = "8080"
 	}

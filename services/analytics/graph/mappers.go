@@ -3,7 +3,7 @@ package graph
 import (
 	"tenkhours/pkg/db/analyticsdb"
 	"tenkhours/pkg/db/coredb"
-	"tenkhours/services/analytics_v2/graph/model"
+	"tenkhours/services/analytics/graph/model"
 )
 
 func MapToSnapshotDto(snapshot *analyticsdb.Snapshot) *model.Snapshot {

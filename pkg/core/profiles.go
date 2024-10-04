@@ -8,7 +8,7 @@ import (
 	"tenkhours/pkg/core/validations"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
-	"tenkhours/services/core_v2/graph/model"
+	"tenkhours/services/core/graph/model"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

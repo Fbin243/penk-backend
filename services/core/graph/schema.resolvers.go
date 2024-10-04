@@ -7,23 +7,23 @@ package graph
 import (
 	"context"
 	"tenkhours/pkg/db/coredb"
-	"tenkhours/services/core_v2/graph/model"
+	model1 "tenkhours/services/core/graph/model"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // UpdateProfile is the resolver for the updateProfile field.
-func (r *mutationResolver) UpdateProfile(ctx context.Context, input model.ProfileInput) (*coredb.Profile, error) {
+func (r *mutationResolver) UpdateProfile(ctx context.Context, input model1.ProfileInput) (*coredb.Profile, error) {
 	return r.ProfilesHandler.UpdateProfile(ctx, input)
 }
 
 // CreateCharacter is the resolver for the createCharacter field.
-func (r *mutationResolver) CreateCharacter(ctx context.Context, input model.CharacterInput) (*coredb.Character, error) {
+func (r *mutationResolver) CreateCharacter(ctx context.Context, input model1.CharacterInput) (*coredb.Character, error) {
 	return r.CharactersHandler.CreateCharacter(ctx, input)
 }
 
 // UpdateCharacter is the resolver for the updateCharacter field.
-func (r *mutationResolver) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*coredb.Character, error) {
+func (r *mutationResolver) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model1.CharacterInput) (*coredb.Character, error) {
 	return r.CharactersHandler.UpdateCharacter(ctx, id, input)
 }
 
@@ -38,12 +38,12 @@ func (r *mutationResolver) ResetCharacter(ctx context.Context, id primitive.Obje
 }
 
 // CreateCustomMetric is the resolver for the createCustomMetric field.
-func (r *mutationResolver) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*coredb.CustomMetric, error) {
+func (r *mutationResolver) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model1.CustomMetricInput) (*coredb.CustomMetric, error) {
 	return r.CharactersHandler.CreateCustomMetric(ctx, characterID, input)
 }
 
 // UpdateCustomMetric is the resolver for the updateCustomMetric field.
-func (r *mutationResolver) UpdateCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*coredb.CustomMetric, error) {
+func (r *mutationResolver) UpdateCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, input model1.CustomMetricInput) (*coredb.CustomMetric, error) {
 	return r.CharactersHandler.UpdateCustomMetric(ctx, id, characterID, input)
 }
 
@@ -58,12 +58,12 @@ func (r *mutationResolver) DeleteCustomMetric(ctx context.Context, id primitive.
 }
 
 // CreateMetricProperty is the resolver for the createMetricProperty field.
-func (r *mutationResolver) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*coredb.MetricProperty, error) {
+func (r *mutationResolver) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model1.MetricPropertyInput) (*coredb.MetricProperty, error) {
 	return r.CharactersHandler.CreateMetricProperty(ctx, characterID, metricID, input)
 }
 
 // UpdateMetricProperty is the resolver for the updateMetricProperty field.
-func (r *mutationResolver) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*coredb.MetricProperty, error) {
+func (r *mutationResolver) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model1.MetricPropertyInput) (*coredb.MetricProperty, error) {
 	return r.CharactersHandler.UpdateMetricProperty(ctx, id, characterID, metricID, input)
 }
 
