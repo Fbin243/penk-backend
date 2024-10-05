@@ -98,9 +98,6 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID pri
 		if input.Description != nil {
 			cm.Description = *input.Description
 		}
-		if input.Description != nil {
-			cm.Description = *input.Description
-		}
 		if input.Style != nil {
 			if input.Style.Color != nil {
 				cm.Style.Color = *input.Style.Color
@@ -113,13 +110,27 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID pri
 
 		if input.Properties != nil {
 			var properties []coredb.MetricProperty
-			for j, prop := range input.Properties {
+			for _, prop := range input.Properties {
 				var metricProperty coredb.MetricProperty
-				if len(cm.Properties) > j {
-					metricProperty.ID = cm.Properties[j].ID
+				if prop.ID != nil {
+					metricProperty.ID = *prop.ID
+					propertyFound := false
+					for _, p := range cm.Properties {
+						if p.ID == *prop.ID {
+							metricProperty = p
+							propertyFound = true
+							break
+						}
+					}
+
+					if !propertyFound {
+						return nil, fmt.Errorf("metric property does not belong to the metric")
+					}
+
 				} else {
 					metricProperty.ID = primitive.NewObjectID()
 				}
+
 				if prop.Name != nil {
 					metricProperty.Name = *prop.Name
 				}

@@ -48,6 +48,7 @@ mutation UpdateCustomMetric ($id: ObjectID!, $characterID: ObjectID!, $name: Str
         name
         time
         properties {
+            id
             name
             type
             unit

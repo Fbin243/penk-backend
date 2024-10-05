@@ -97,6 +97,11 @@ Input for defining a property of a custom metric.
 """
 input MetricPropertyInput {
   """
+  ID of the property. If not provided, a new property will be created.
+  """
+  id: ObjectID
+
+  """
   Name of the property.
   """
   name: String

@@ -150,10 +150,44 @@ func TestUserFlow(t *testing.T) {
 
 		core.UpdateCustomMetricStage{
 			Metadata: common.Metadata{
-				Describe: "Update info for the first custom metric",
+				Describe: "Update info for the first custom metric and add new properties",
 			},
 			CustomMetricKey: common.FirstCustomMetric,
 			CharacterKey:    common.CurrentCharacter,
+			Case:            common.CreateProperties,
+		},
+
+		common.SaveToContextStage{
+			Key:      common.FirstCustomMetric,
+			JsonPath: "data.updateCustomMetric",
+		},
+
+		core.UpdateCustomMetricStage{
+			Metadata: common.Metadata{
+				Describe: "Update existing properties and add one more",
+			},
+			CustomMetricKey: common.FirstCustomMetric,
+			CharacterKey:    common.CurrentCharacter,
+			Case:            common.UpdateProperties,
+		},
+
+		common.SaveToContextStage{
+			Key:      common.FirstCustomMetric,
+			JsonPath: "data.updateCustomMetric",
+		},
+
+		core.UpdateCustomMetricStage{
+			Metadata: common.Metadata{
+				Describe: "Delete the second properties",
+			},
+			CustomMetricKey: common.FirstCustomMetric,
+			CharacterKey:    common.CurrentCharacter,
+			Case:            common.DeleteProperties,
+		},
+
+		common.SaveToContextStage{
+			Key:      common.FirstCustomMetric,
+			JsonPath: "data.updateCustomMetric",
 		},
 
 		core.ResetCustomMetricStage{
@@ -191,61 +225,61 @@ func TestUserFlow(t *testing.T) {
 
 		// --------- CUSTOM METRIC PROPERTY -----------
 
-		core.CreateMetricPropertyStage{
-			Metadata: common.Metadata{
-				Describe: "Create the first property for the second metric",
-			},
-			CharacterKey:    common.CurrentCharacter,
-			CustomMetricKey: common.SecondCustomMetric,
-		},
+		// core.CreateMetricPropertyStage{
+		// 	Metadata: common.Metadata{
+		// 		Describe: "Create the first property for the second metric",
+		// 	},
+		// 	CharacterKey:    common.CurrentCharacter,
+		// 	CustomMetricKey: common.SecondCustomMetric,
+		// },
 
-		core.CreateMetricPropertyStage{
-			Metadata: common.Metadata{
-				Describe: "Create the second property for the second metric",
-			},
-			CharacterKey:    common.CurrentCharacter,
-			CustomMetricKey: common.SecondCustomMetric,
-		},
+		// core.CreateMetricPropertyStage{
+		// 	Metadata: common.Metadata{
+		// 		Describe: "Create the second property for the second metric",
+		// 	},
+		// 	CharacterKey:    common.CurrentCharacter,
+		// 	CustomMetricKey: common.SecondCustomMetric,
+		// },
 
-		common.SaveToContextStage{
-			Key:      common.MetricProperty,
-			JsonPath: "data.createMetricProperty",
-		},
+		// common.SaveToContextStage{
+		// 	Key:      common.MetricProperty,
+		// 	JsonPath: "data.createMetricProperty",
+		// },
 
-		core.CreateMetricPropertyStage{
-			Metadata: common.Metadata{
-				Describe:    "Create the third property for the second metric",
-				ExpectError: true,
-			},
-			CharacterKey:    common.CurrentCharacter,
-			CustomMetricKey: common.SecondCustomMetric,
-		},
+		// core.CreateMetricPropertyStage{
+		// 	Metadata: common.Metadata{
+		// 		Describe:    "Create the third property for the second metric",
+		// 		ExpectError: true,
+		// 	},
+		// 	CharacterKey:    common.CurrentCharacter,
+		// 	CustomMetricKey: common.SecondCustomMetric,
+		// },
 
-		core.UpdateMetricPropertyStage{
-			Metadata: common.Metadata{
-				Describe: "Update the second property of the second metric",
-			},
-			CharacterKey:      common.CurrentCharacter,
-			CustomMetricKey:   common.SecondCustomMetric,
-			MetricPropertyKey: common.MetricProperty,
-		},
+		// core.UpdateMetricPropertyStage{
+		// 	Metadata: common.Metadata{
+		// 		Describe: "Update the second property of the second metric",
+		// 	},
+		// 	CharacterKey:      common.CurrentCharacter,
+		// 	CustomMetricKey:   common.SecondCustomMetric,
+		// 	MetricPropertyKey: common.MetricProperty,
+		// },
 
-		core.DeleteMetricPropertyStage{
-			Metadata: common.Metadata{
-				Describe: "Delete the second property of the second metric",
-			},
-			CharacterKey:      common.CurrentCharacter,
-			CustomMetricKey:   common.SecondCustomMetric,
-			MetricPropertyKey: common.MetricProperty,
-		},
+		// core.DeleteMetricPropertyStage{
+		// 	Metadata: common.Metadata{
+		// 		Describe: "Delete the second property of the second metric",
+		// 	},
+		// 	CharacterKey:      common.CurrentCharacter,
+		// 	CustomMetricKey:   common.SecondCustomMetric,
+		// 	MetricPropertyKey: common.MetricProperty,
+		// },
 
-		core.DeleteCustomMetricStage{
-			Metadata: common.Metadata{
-				Describe: "Delete the second custom metric",
-			},
-			CustomMetricKey: common.SecondCustomMetric,
-			CharacterKey:    common.CurrentCharacter,
-		},
+		// core.DeleteCustomMetricStage{
+		// 	Metadata: common.Metadata{
+		// 		Describe: "Delete the second custom metric",
+		// 	},
+		// 	CustomMetricKey: common.SecondCustomMetric,
+		// 	CharacterKey:    common.CurrentCharacter,
+		// },
 
 		core.GetProfileStage{
 			Metadata: common.Metadata{

@@ -22,7 +22,7 @@ func (s CreateTimeTrackingStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
 	variables := map[string]interface{}{
@@ -39,7 +39,7 @@ func (s CreateTimeTrackingStage) Exec(ctx *context.Context) error {
 	if s.TrackWithMetric {
 		customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
 		if !ok {
-			return common.ErrNotFoundInContext(s.CustomMetricKey)
+			return common.ErrNotFoundInContext("CustomMetricKey")
 		}
 
 		variables["customMetricID"] = gjson.Get(customMetric, "id").Value()
@@ -71,7 +71,7 @@ func (s UpdateTimeTracking) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	timeTracking, ok := (*ctx).Value(s.TimeTrackingKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.TimeTrackingKey)
+		return common.ErrNotFoundInContext("TimeTrackingKey")
 	}
 
 	variables := map[string]interface{}{
@@ -87,7 +87,7 @@ func (s UpdateTimeTracking) Exec(ctx *context.Context) error {
 	if s.TrackWithMetric {
 		customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
 		if !ok {
-			return common.ErrNotFoundInContext(s.CustomMetricKey)
+			return common.ErrNotFoundInContext("CustomMetricKey")
 		}
 
 		variables["customMetricID"] = gjson.Get(customMetric, "id").Value()

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // Input for creating or updating a character.
@@ -32,9 +34,11 @@ type CustomMetricInput struct {
 
 // Input for defining a property of a custom metric.
 type MetricPropertyInput struct {
+	// ID of the property. If not provided, a new property will be created.
+	ID *primitive.ObjectID `json:"id,omitempty"`
 	// Name of the property.
 	Name *string `json:"name,omitempty"`
-	// Data type of the property (String or Number).
+	// Data type of the property (STRING or NUMBER).
 	Type *MetricPropertyType `json:"type,omitempty"`
 	// Specific value of the property based on its data type.
 	Value *string `json:"value,omitempty"`

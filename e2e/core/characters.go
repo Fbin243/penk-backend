@@ -18,7 +18,7 @@ func (s CreateCharacterStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	profile, ok := (*ctx).Value(common.Profile).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(common.Profile)
+		return common.ErrNotFoundInContext("Profile")
 	}
 
 	variables := map[string]interface{}{
@@ -58,7 +58,7 @@ func (s UpdateCharacterStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
 	variables := map[string]interface{}{
@@ -94,7 +94,7 @@ func (s DeleteCharacterStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
 	variables := map[string]interface{}{

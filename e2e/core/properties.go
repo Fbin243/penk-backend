@@ -20,12 +20,12 @@ func (s CreateMetricPropertyStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
-	customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
+	customMetric, ok := (*ctx).Value("CustomMetricKey").(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CustomMetricKey)
+		return common.ErrNotFoundInContext("CustomMetricKey")
 	}
 
 	metricPropertyInput := map[string]interface{}{
@@ -70,17 +70,17 @@ func (s UpdateMetricPropertyStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
 	customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CustomMetricKey)
+		return common.ErrNotFoundInContext("CustomMetricKey")
 	}
 
 	metricProperty, ok := (*ctx).Value(s.MetricPropertyKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.MetricPropertyKey)
+		return common.ErrNotFoundInContext("MetricPropertyKey")
 	}
 
 	metricPropertyInput := map[string]interface{}{
@@ -127,17 +127,17 @@ func (s DeleteMetricPropertyStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
 	customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CustomMetricKey)
+		return common.ErrNotFoundInContext("CustomMetricKey")
 	}
 
 	metricProperty, ok := (*ctx).Value(s.MetricPropertyKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.MetricPropertyKey)
+		return common.ErrNotFoundInContext("MetricPropertyKey")
 	}
 
 	variables := map[string]interface{}{

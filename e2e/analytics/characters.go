@@ -23,12 +23,12 @@ func (s CreateSnapshotStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	profile, ok := (*ctx).Value(common.Profile).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(common.Profile)
+		return common.ErrNotFoundInContext("Profile")
 	}
 
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
 	characterId := gjson.Get(character, "id").Value()
@@ -68,12 +68,12 @@ func (s GetCharacterSnapshotsStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	testingT, ok := (*ctx).Value(common.TestingT).(apitest.TestingT)
 	if !ok {
-		return common.ErrNotFoundInContext(common.TestingT)
+		return common.ErrNotFoundInContext("TestingT")
 	}
 
 	snapshot, ok := (*ctx).Value(s.SnapshotKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.SnapshotKey)
+		return common.ErrNotFoundInContext("SnapshotKey")
 	}
 
 	variables := map[string]interface{}{
@@ -119,12 +119,12 @@ func (s GetUserSnapshotsStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	testingT, ok := (*ctx).Value(common.TestingT).(apitest.TestingT)
 	if !ok {
-		return common.ErrNotFoundInContext(common.TestingT)
+		return common.ErrNotFoundInContext("TestingT")
 	}
 
 	profile, ok := (*ctx).Value(common.Profile).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(common.Profile)
+		return common.ErrNotFoundInContext("Profile")
 	}
 
 	variables := map[string]interface{}{

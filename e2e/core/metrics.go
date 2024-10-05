@@ -2,11 +2,15 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"net/http"
 
 	"tenkhours/test/common"
 
+	"github.com/steinfletcher/apitest"
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
+	"github.com/stretchr/testify/assert"
 	"github.com/tidwall/gjson"
 )
 
@@ -19,7 +23,7 @@ func (s CreateCustomMetricStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
 	variables := map[string]interface{}{
@@ -56,18 +60,19 @@ type UpdateCustomMetricStage struct {
 	common.Metadata
 	CharacterKey    common.ContextKey
 	CustomMetricKey common.ContextKey
+	Case            common.UpdateCustomMetricCase
 }
 
 func (s UpdateCustomMetricStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
 	customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CustomMetricKey)
+		return common.ErrNotFoundInContext("CustomMetricKey")
 	}
 
 	variables := map[string]interface{}{
@@ -79,40 +84,101 @@ func (s UpdateCustomMetricStage) Exec(ctx *context.Context) error {
 			"color": "#123456",
 			"icon":  "update_icon.png",
 		},
-		"properties": []interface{}{
-			map[string]interface{}{
-				"name":  "property 1",
-				"type":  "NUMBER",
-				"value": "value 1",
-				"unit":  "unit 1",
-			},
-			map[string]interface{}{
-				"name":  "property 1",
-				"type":  "NUMBER",
-				"value": "value 1",
-				"unit":  "unit 1",
-			},
-		},
 	}
 
-	assertion := jsonpath.Chain().
-		Present("data.updateCustomMetric.id").
-		Equal("data.updateCustomMetric.name", variables["name"]).
-		Equal("data.updateCustomMetric.description", variables["description"]).
-		Equal("data.updateCustomMetric.style", variables["style"]).
-		Equal("data.updateCustomMetric.properties", variables["properties"]).
-		NotEqual("data.updateCustomMetric.time", nil).
-		NotEqual("data.updateCustomMetric.limitedPropertyNumber", nil)
+	switch s.Case {
+	case common.CreateProperties:
+		variables["properties"] = []interface{}{
+			map[string]interface{}{
+				"name":  "property 1",
+				"type":  "NUMBER",
+				"value": "20",
+				"unit":  "Steps",
+			},
+		}
+
+	case common.UpdateProperties:
+		variables["properties"] = []interface{}{
+			map[string]interface{}{
+				"id":    gjson.Get(customMetric, "properties.0.id").Value(),
+				"name":  "updated property 1",
+				"type":  "NUMBER",
+				"value": "30",
+				"unit":  "CM",
+			},
+			map[string]interface{}{
+				"name":  "new property",
+				"type":  "STRING",
+				"value": "ABCD",
+				"unit":  "Characters",
+			},
+		}
+
+	case common.DeleteProperties:
+		// Remove the first property
+		variables["properties"] = []interface{}{
+			map[string]interface{}{
+				"id":    gjson.Get(customMetric, "properties.1.id").Value(),
+				"name":  "new property",
+				"type":  "STRING",
+				"value": "ABCD",
+				"unit":  "Characters",
+			},
+		}
+	}
+
+	assertion := func(res *http.Response, req *http.Request) error {
+		testingT, ok := (*ctx).Value(common.TestingT).(apitest.TestingT)
+		if !ok {
+			return common.ErrNotFoundInContext("TestingT")
+		}
+
+		json := common.ReadResponseJson(res)
+		customMetric := gjson.Get(json, "data.updateCustomMetric").Value().(map[string]interface{})
+
+		passed := assert.Equal(testingT, customMetric["name"], variables["name"]) &&
+			assert.Equal(testingT, customMetric["description"], variables["description"]) &&
+			assert.Equal(testingT, customMetric["style"], variables["style"]) &&
+			assert.Equal(testingT, customMetric["time"], float64(0))
+
+		properties := gjson.Get(json, "data.updateCustomMetric.properties").Value().([]interface{})
+		varProperties := variables["properties"].([]interface{})
+
+		switch s.Case {
+		case common.CreateProperties:
+			passed = assert.Equal(testingT, len(properties), 1) &&
+				assert.NotEmpty(testingT, properties[0].(map[string]interface{})["id"])
+			delete(properties[0].(map[string]interface{}), "id")
+			passed = passed && assert.Equal(testingT, properties[0], varProperties[0])
+
+		case common.UpdateProperties:
+			passed = assert.Equal(testingT, len(properties), 2) &&
+				assert.Equal(testingT, properties[0], varProperties[0]) &&
+				assert.NotEmpty(testingT, properties[1].(map[string]interface{})["id"])
+			delete(properties[1].(map[string]interface{}), "id")
+			passed = passed && assert.Equal(testingT, properties[1], varProperties[1])
+
+		case common.DeleteProperties:
+			passed = assert.Equal(testingT, len(properties), 1) &&
+				assert.Equal(testingT, properties[0], varProperties[0])
+		}
+
+		if !passed {
+			return fmt.Errorf("assertion failed")
+		}
+
+		return nil
+	}
 
 	if s.ExpectError {
-		assertion = common.AssertionError
+		assertion = common.AssertionError.End()
 	}
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
 			Query:     UpdateCustomMetricQuery,
 			Variables: variables,
-			Assertion: assertion.End(),
+			Assertion: assertion,
 		})
 }
 
@@ -126,12 +192,12 @@ func (s DeleteCustomMetricStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
 	customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CustomMetricKey)
+		return common.ErrNotFoundInContext("CustomMetricKey")
 	}
 
 	variables := map[string]interface{}{
@@ -163,12 +229,12 @@ func (s ResetCustomMetricStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	character, ok := (*ctx).Value(s.CharacterKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CharacterKey)
+		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
 	customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
 	if !ok {
-		return common.ErrNotFoundInContext(s.CustomMetricKey)
+		return common.ErrNotFoundInContext("CustomMetricKey")
 	}
 
 	variables := map[string]interface{}{
