@@ -3,9 +3,7 @@
 package model
 
 import (
-	"fmt"
-	"io"
-	"strconv"
+	"tenkhours/pkg/db/coredb"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -39,7 +37,7 @@ type MetricPropertyInput struct {
 	// Name of the property.
 	Name *string `json:"name,omitempty"`
 	// Data type of the property (STRING or NUMBER).
-	Type *MetricPropertyType `json:"type,omitempty"`
+	Type *coredb.MetricPropertyType `json:"type,omitempty"`
 	// Specific value of the property based on its data type.
 	Value *string `json:"value,omitempty"`
 	// Unit of the property value (e.g., seconds, meters, etc.).
@@ -70,45 +68,4 @@ type ProfileInput struct {
 }
 
 type Query struct {
-}
-
-type MetricPropertyType string
-
-const (
-	MetricPropertyTypeString MetricPropertyType = "STRING"
-	MetricPropertyTypeNumber MetricPropertyType = "NUMBER"
-)
-
-var AllMetricPropertyType = []MetricPropertyType{
-	MetricPropertyTypeString,
-	MetricPropertyTypeNumber,
-}
-
-func (e MetricPropertyType) IsValid() bool {
-	switch e {
-	case MetricPropertyTypeString, MetricPropertyTypeNumber:
-		return true
-	}
-	return false
-}
-
-func (e MetricPropertyType) String() string {
-	return string(e)
-}
-
-func (e *MetricPropertyType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = MetricPropertyType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid MetricPropertyType", str)
-	}
-	return nil
-}
-
-func (e MetricPropertyType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
 }

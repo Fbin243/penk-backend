@@ -89,3 +89,5 @@ models:
     model: tenkhours/pkg/graphql.ObjectID
   NullableString:
     model: tenkhours/pkg/graphql.NullableString
+  MetricPropertyType:
+    model: tenkhours/pkg/db/coredb.MetricPropertyType

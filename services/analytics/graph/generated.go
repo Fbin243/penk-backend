@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"tenkhours/pkg/db/coredb"
 	graphql1 "tenkhours/pkg/graphql"
 	"tenkhours/services/analytics/graph/model"
 	"time"
@@ -1319,9 +1320,9 @@ func (ec *executionContext) _MetricPropertyData_type(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(coredb.MetricPropertyType)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MetricPropertyData_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1331,7 +1332,7 @@ func (ec *executionContext) fieldContext_MetricPropertyData_type(_ context.Conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type MetricPropertyType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4778,6 +4779,22 @@ func (ec *executionContext) marshalNMetricPropertyData2ᚕtenkhoursᚋservices�
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx context.Context, v interface{}) (coredb.MetricPropertyType, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := coredb.MetricPropertyType(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v coredb.MetricPropertyType) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNMetricStyleData2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐMetricStyleData(ctx context.Context, sel ast.SelectionSet, v *model.MetricStyleData) graphql.Marshaler {

@@ -27,7 +27,7 @@ type MetricStyle {
 type MetricProperty {
   id: ObjectID!
   name: String!
-  type: String!
+  type: MetricPropertyType!
   value: String!
   unit: NullableString
 }

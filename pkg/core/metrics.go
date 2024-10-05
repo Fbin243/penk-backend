@@ -135,7 +135,7 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID pri
 					metricProperty.Name = *prop.Name
 				}
 				if prop.Type != nil {
-					metricProperty.Type = (*prop.Type).String()
+					metricProperty.Type = (*prop.Type)
 				}
 				if prop.Value != nil {
 					metricProperty.Value = *prop.Value
@@ -282,7 +282,7 @@ func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterI
 		metricProperty.Name = *input.Name
 	}
 	if input.Type != nil {
-		metricProperty.Type = (*input.Type).String()
+		metricProperty.Type = (*input.Type)
 	}
 	if input.Value != nil {
 		metricProperty.Value = *input.Value
@@ -350,7 +350,7 @@ func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id primiti
 					prop.Name = *input.Name
 				}
 				if input.Type != nil {
-					prop.Type = (*input.Type).String()
+					prop.Type = (*input.Type)
 				}
 				if input.Value != nil {
 					prop.Value = *input.Value

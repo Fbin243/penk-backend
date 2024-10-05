@@ -1917,9 +1917,9 @@ func (ec *executionContext) _MetricProperty_type(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(coredb.MetricPropertyType)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MetricProperty_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1929,7 +1929,7 @@ func (ec *executionContext) fieldContext_MetricProperty_type(_ context.Context, 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type MetricPropertyType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5697,7 +5697,7 @@ func (ec *executionContext) unmarshalInputMetricPropertyInput(ctx context.Contex
 			it.Name = data
 		case "type":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalOMetricPropertyType2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricPropertyType(ctx, v)
+			data, err := ec.unmarshalOMetricPropertyType2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7001,6 +7001,22 @@ func (ec *executionContext) unmarshalNMetricPropertyInput2tenkhoursᚋservices�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx context.Context, v interface{}) (coredb.MetricPropertyType, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := coredb.MetricPropertyType(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v coredb.MetricPropertyType) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalNMetricStyle2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricStyle(ctx context.Context, sel ast.SelectionSet, v coredb.MetricStyle) graphql.Marshaler {
 	return ec._MetricStyle(ctx, sel, &v)
 }
@@ -7562,20 +7578,21 @@ func (ec *executionContext) unmarshalOMetricPropertyInput2ᚕtenkhoursᚋservice
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOMetricPropertyType2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricPropertyType(ctx context.Context, v interface{}) (*model.MetricPropertyType, error) {
+func (ec *executionContext) unmarshalOMetricPropertyType2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx context.Context, v interface{}) (*coredb.MetricPropertyType, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(model.MetricPropertyType)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
+	tmp, err := graphql.UnmarshalString(v)
+	res := coredb.MetricPropertyType(tmp)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOMetricPropertyType2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v *model.MetricPropertyType) graphql.Marshaler {
+func (ec *executionContext) marshalOMetricPropertyType2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v *coredb.MetricPropertyType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return v
+	res := graphql.MarshalString(string(*v))
+	return res
 }
 
 func (ec *executionContext) unmarshalOMetricStyleInput2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricStyleInput(ctx context.Context, v interface{}) (*model.MetricStyleInput, error) {

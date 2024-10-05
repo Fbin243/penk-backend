@@ -37,7 +37,12 @@ type MetricStyleData {
 type MetricPropertyData {
   id: ObjectID!
   name: String!
-  type: String!
+  type: MetricPropertyType!
   value: String!
   unit: NullableString
+}
+
+enum MetricPropertyType {
+  STRING
+  NUMBER
 }

@@ -3,6 +3,7 @@
 package model
 
 import (
+	"tenkhours/pkg/db/coredb"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -28,11 +29,11 @@ type CustomMetricData struct {
 }
 
 type MetricPropertyData struct {
-	ID    primitive.ObjectID `json:"id"`
-	Name  string             `json:"name"`
-	Type  string             `json:"type"`
-	Value string             `json:"value"`
-	Unit  *string            `json:"unit,omitempty"`
+	ID    primitive.ObjectID        `json:"id"`
+	Name  string                    `json:"name"`
+	Type  coredb.MetricPropertyType `json:"type"`
+	Value string                    `json:"value"`
+	Unit  *string                   `json:"unit,omitempty"`
 }
 
 type MetricStyleData struct {
