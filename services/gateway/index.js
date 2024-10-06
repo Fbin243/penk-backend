@@ -1,12 +1,16 @@
 const { ApolloServer } = require("apollo-server");
-const { ApolloGateway, IntrospectAndCompose, RemoteGraphQLDataSource } = require("@apollo/gateway");
+const {
+  ApolloGateway,
+  IntrospectAndCompose,
+  RemoteGraphQLDataSource,
+} = require("@apollo/gateway");
 
 const gateway = new ApolloGateway({
   supergraphSdl: new IntrospectAndCompose({
     subgraphs: [
       { name: "core", url: "http://localhost:8080/graphql" },
-      { name: "timetrackings", url: "http://localhost:8081/graphql" },
-      { name: "analytics", url: "http://localhost:8082/graphql" },
+      { name: "timetrackings", url: "http://localhost:8082/graphql" },
+      { name: "analytics", url: "http://localhost:8083/graphql" },
     ],
   }),
   buildService({ name, url }) {

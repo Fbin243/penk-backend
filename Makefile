@@ -22,3 +22,18 @@ ifeq ($(OS),Windows_NT)
 else
 	export TENK_ENV=development && air -c ./tools/air-configs/timetrackings.air.toml
 endif
+
+# Flow
+# 1. `make run-all`
+# 2. `make gateway`
+# 3. `make kill-all`
+run-all:
+	$(MAKE) core & \
+	$(MAKE) analytics & \
+	$(MAKE) timetrackings & \
+
+kill-all:
+	npx kill-port 8080 8082 8083
+
+gateway:
+	cd services/gateway && npm run start
