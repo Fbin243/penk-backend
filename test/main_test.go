@@ -2,6 +2,8 @@ package test
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"testing"
 
 	"tenkhours/pineline"
@@ -16,6 +18,14 @@ import (
 
 func TestUserFlow(t *testing.T) {
 	ctx := context.WithValue(context.Background(), common.TestingT, t)
+
+	token := os.Getenv("TOKEN")
+	if token == "" {
+		t.Fatalf("Token not set in environment variables")
+	}
+
+	fmt.Printf("Token: %v\n", token)
+	common.IdToken = token
 
 	p := pineline.Pineline(
 

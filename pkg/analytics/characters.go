@@ -91,8 +91,6 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID p
 
 	// Compare with the latest snapshot
 	latestSnapshot, err := r.SnapshotsRepo.GetLatestSnapshotByCharacterID(characterID)
-	fmt.Printf("latestSnapshot: %v\n", latestSnapshot)
-	fmt.Printf("character: %v\n", *character)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return nil, err
 	} else if reflect.DeepEqual(latestSnapshot.Character, *character) {

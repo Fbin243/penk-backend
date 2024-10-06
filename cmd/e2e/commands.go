@@ -1,16 +1,16 @@
-package auth
+package e2e
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/urfave/cli/v2"
 )
 
-var GetJWTTokenCommand = cli.Command{
-	Name:     "jwt",
-	Usage:    "load user jwt by using user's UID",
-	Args:     true,
-	Category: "auth",
+var TestUserFlowCommand = cli.Command{
+	Name:     "test-user-flow",
+	Category: "e2e",
+	Usage:    "Test the user flow with the a user's UID",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:        "uid",
@@ -20,18 +20,17 @@ var GetJWTTokenCommand = cli.Command{
 			DefaultText: "UID",
 		},
 	},
-	Action: func(ctx *cli.Context) error {
-		uid := ctx.String("uid")
+	Action: func(cCtx *cli.Context) error {
+		uid := cCtx.String("uid")
 		if uid == "" {
 			return fmt.Errorf("user's UID is required")
 		}
 
-		token, err := GetIdTokenByUID(uid)
+		err := TestUserFlow(uid)
 		if err != nil {
+			log.Println(err)
 			return cli.Exit(err, 1)
 		}
-
-		fmt.Println("Token:", token)
 
 		return nil
 	},

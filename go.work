@@ -3,7 +3,6 @@ go 1.22.3
 use (
 	.
 	./cmd
-	./e2e
 	./pkg/analytics
 	./pkg/auth
 	./pkg/core
@@ -14,4 +13,5 @@ use (
 	./services/analytics
 	./services/core
 	./services/timetrackings
+	./test
 )

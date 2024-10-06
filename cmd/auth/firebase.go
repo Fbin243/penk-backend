@@ -10,25 +10,17 @@ import (
 	"os"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/db"
-	"tenkhours/pkg/db/coredb"
 
 	"github.com/tidwall/gjson"
 )
 
 const baseUri = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=%s"
 
-func GetCustomTokenByEmail(email string) (string, error) {
-	profileRepo := coredb.NewProfilesRepo(db.GetDBManager().DB)
-	profile, err := profileRepo.GetProfileByEmail(email)
-	if err != nil {
-		return "", err
-	}
-
+func GetIdTokenByUID(uid string) (string, error) {
 	authClient := auth.GetFirebaseManager().Client
 
 	// Create a custom token from the Firebase UID
-	customToken, err := authClient.CustomToken(context.Background(), profile.FirebaseUID)
+	customToken, err := authClient.CustomToken(context.Background(), uid)
 	if err != nil {
 		return "", err
 	}

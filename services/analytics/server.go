@@ -59,8 +59,6 @@ func main() {
 	// })
 
 	app.POST("/graphql", func(c *gin.Context) {
-		user := c.Request.Context().Value(auth.ProfileKey)
-		log.Print("User: ", user)
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 

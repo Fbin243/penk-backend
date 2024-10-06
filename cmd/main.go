@@ -6,8 +6,10 @@ import (
 	"os"
 
 	"tenkhours/cmd/auth"
+	"tenkhours/cmd/e2e"
 	"tenkhours/cmd/gql"
 
+	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v2"
 )
 
@@ -22,6 +24,20 @@ func main() {
 		Commands: []*cli.Command{
 			&gql.SetupBoilerplateCommand,
 			&auth.GetJWTTokenCommand,
+			&e2e.TestUserFlowCommand,
+		},
+		Before: func(ctx *cli.Context) error {
+			env := os.Getenv("TENK_ENV")
+			if env == "" {
+				env = "development"
+			}
+
+			if godotenv.Load(".env."+env) != nil {
+				return cli.Exit("Error loading .env."+env+" file", 1)
+			}
+
+			fmt.Println("------------------Running in environment:", env)
+			return nil
 		},
 	}
 

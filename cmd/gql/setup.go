@@ -24,7 +24,7 @@ func SetupBoilerplate(path string) error {
 	cmd.Dir = path
 	_, err = cmd.CombinedOutput()
 	if err != nil {
-		return nil
+		return fmt.Errorf("failed to init module: %v", err)
 	}
 
 	// Use the new module
@@ -32,7 +32,7 @@ func SetupBoilerplate(path string) error {
 	cmd.Dir = rootDir
 	_, err = cmd.CombinedOutput()
 	if err != nil {
-		return nil
+		return fmt.Errorf("failed to use the new module: %v", err)
 	}
 
 	// Create a `tools.go`
@@ -61,7 +61,7 @@ import (
 	cmd.Dir = path
 	_, err = cmd.CombinedOutput()
 	if err != nil {
-		return nil
+		return fmt.Errorf("failed to install gqlgen: %v", err)
 	}
 
 	// Build the server
@@ -69,7 +69,7 @@ import (
 	cmd.Dir = path
 	_, err = cmd.CombinedOutput()
 	if err != nil {
-		return nil
+		return fmt.Errorf("failed to build the server: %v", err)
 	}
 
 	return nil

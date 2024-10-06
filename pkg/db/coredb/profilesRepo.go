@@ -79,3 +79,11 @@ func (r *ProfilesRepo) UpdateProfile(profile *Profile) (*Profile, error) {
 
 	return profile, err
 }
+
+func (r *ProfilesRepo) DeleteProfileByFirebaseUID(firebaseUID string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := r.DeleteOne(ctx, bson.M{"firebase_uid": firebaseUID})
+	return err
+}
