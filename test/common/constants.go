@@ -15,10 +15,14 @@ const (
 	MetricProperties
 )
 
-type UpdateCustomMetricCase int
+type (
+	UpdateCustomMetricCase int
+	CreateCustomMetricCase int
+)
 
 const (
-	CreateProperties UpdateCustomMetricCase = iota
+	CreateProperties UpdateCustomMetricCase = iota + 1
 	UpdateProperties
 	DeleteProperties
+	CreateMetricWithProperties CreateCustomMetricCase = iota + 1
 )

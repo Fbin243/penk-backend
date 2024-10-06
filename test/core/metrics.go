@@ -17,6 +17,7 @@ import (
 type CreateCustomMetricStage struct {
 	common.Metadata
 	CharacterKey common.ContextKey // The key to the character in the context
+	Case         common.CreateCustomMetricCase
 }
 
 func (s CreateCustomMetricStage) Exec(ctx *context.Context) error {
@@ -37,12 +38,32 @@ func (s CreateCustomMetricStage) Exec(ctx *context.Context) error {
 	}
 
 	assertion := jsonpath.Chain().NotPresent("$.errors").
-		Present("$.data.createCustomMetric.id").
+		NotEqual("$.data.createCustomMetric.id", nil).
 		Equal("$.data.createCustomMetric.name", variables["name"]).
 		Equal("$.data.createCustomMetric.description", variables["description"]).
 		Equal("$.data.createCustomMetric.style", variables["style"]).
 		Equal("$.data.createCustomMetric.time", float64(0)).
 		Equal("$.data.createCustomMetric.limitedPropertyNumber", float64(2))
+
+	if s.Case == common.CreateMetricWithProperties {
+		log.Println("---> Creating custom metric with properties")
+		variables["properties"] = []interface{}{
+			map[string]interface{}{
+				"name":  "property 1",
+				"type":  "NUMBER",
+				"value": "10",
+				"unit":  "Steps",
+			},
+			map[string]interface{}{
+				"name":  "property 2",
+				"type":  "STRING",
+				"value": "ABCD",
+				"unit":  "Characters",
+			},
+		}
+
+		assertion = assertion.Equal("$.data.createCustomMetric.properties", variables["properties"])
+	}
 
 	if s.ExpectError {
 		assertion = common.AssertionError

@@ -85,7 +85,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateSnapshot func(childComplexity int, characterID primitive.ObjectID) int
+		CreateSnapshot func(childComplexity int, characterID primitive.ObjectID, description *string) int
 	}
 
 	Query struct {
@@ -95,9 +95,10 @@ type ComplexityRoot struct {
 	}
 
 	Snapshot struct {
-		Character func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Timestamp func(childComplexity int) int
+		Character   func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Timestamp   func(childComplexity int) int
 	}
 
 	_Service struct {
@@ -106,7 +107,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateSnapshot(ctx context.Context, characterID primitive.ObjectID) (*model.Snapshot, error)
+	CreateSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*model.Snapshot, error)
 }
 type QueryResolver interface {
 	CharacterSnapshots(ctx context.Context, characterID primitive.ObjectID) ([]model.Snapshot, error)
@@ -282,7 +283,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateSnapshot(childComplexity, args["characterID"].(primitive.ObjectID)), true
+		return e.complexity.Mutation.CreateSnapshot(childComplexity, args["characterID"].(primitive.ObjectID), args["description"].(*string)), true
 
 	case "Query.characterSnapshots":
 		if e.complexity.Query.CharacterSnapshots == nil {
@@ -316,6 +317,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Snapshot.Character(childComplexity), true
+
+	case "Snapshot.description":
+		if e.complexity.Snapshot.Description == nil {
+			break
+		}
+
+		return e.complexity.Snapshot.Description(childComplexity), true
 
 	case "Snapshot.id":
 		if e.complexity.Snapshot.ID == nil {
@@ -534,6 +542,15 @@ func (ec *executionContext) field_Mutation_createSnapshot_args(ctx context.Conte
 		}
 	}
 	args["characterID"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["description"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["description"] = arg1
 	return args, nil
 }
 
@@ -1519,7 +1536,7 @@ func (ec *executionContext) _Mutation_createSnapshot(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateSnapshot(rctx, fc.Args["characterID"].(primitive.ObjectID))
+		return ec.resolvers.Mutation().CreateSnapshot(rctx, fc.Args["characterID"].(primitive.ObjectID), fc.Args["description"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1550,6 +1567,8 @@ func (ec *executionContext) fieldContext_Mutation_createSnapshot(ctx context.Con
 				return ec.fieldContext_Snapshot_timestamp(ctx, field)
 			case "character":
 				return ec.fieldContext_Snapshot_character(ctx, field)
+			case "description":
+				return ec.fieldContext_Snapshot_description(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Snapshot", field.Name)
 		},
@@ -1613,6 +1632,8 @@ func (ec *executionContext) fieldContext_Query_characterSnapshots(ctx context.Co
 				return ec.fieldContext_Snapshot_timestamp(ctx, field)
 			case "character":
 				return ec.fieldContext_Snapshot_character(ctx, field)
+			case "description":
+				return ec.fieldContext_Snapshot_description(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Snapshot", field.Name)
 		},
@@ -1676,6 +1697,8 @@ func (ec *executionContext) fieldContext_Query_userSnapshots(_ context.Context, 
 				return ec.fieldContext_Snapshot_timestamp(ctx, field)
 			case "character":
 				return ec.fieldContext_Snapshot_character(ctx, field)
+			case "description":
+				return ec.fieldContext_Snapshot_description(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Snapshot", field.Name)
 		},
@@ -2003,6 +2026,50 @@ func (ec *executionContext) fieldContext_Snapshot_character(_ context.Context, f
 				return ec.fieldContext_CharacterData_customMetrics(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CharacterData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Snapshot_description(ctx context.Context, field graphql.CollectedField, obj *model.Snapshot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Snapshot_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Snapshot_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Snapshot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4242,6 +4309,11 @@ func (ec *executionContext) _Snapshot(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "character":
 			out.Values[i] = ec._Snapshot_character(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "description":
+			out.Values[i] = ec._Snapshot_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

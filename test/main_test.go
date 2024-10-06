@@ -143,6 +143,7 @@ func TestUserFlow(t *testing.T) {
 				Describe: "Create the second metric",
 			},
 			CharacterKey: common.CurrentCharacter,
+			Case:         common.CreateMetricWithProperties,
 		},
 
 		common.SaveToContextStage{

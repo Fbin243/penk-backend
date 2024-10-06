@@ -2,7 +2,6 @@ package analyticsdb
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"tenkhours/pkg/db"
@@ -43,8 +42,6 @@ func (r *SnapshotsRepo) GetSnapshotsByProfileID(profileID primitive.ObjectID) ([
 		snapshot.Character.ProfileID = snapshot.Metadata.ProfileID
 		snapshots = append(snapshots, snapshot)
 	}
-
-	log.Printf("snapshots: %v\n", snapshots)
 
 	return snapshots, nil
 }

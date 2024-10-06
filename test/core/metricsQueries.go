@@ -1,13 +1,14 @@
 package core
 
 var CreateCustomMetricQuery = `
-mutation CreateCustomMetric($characterID: ObjectID!, $name: String, $style: MetricStyleInput, $description: String) {
+mutation CreateCustomMetric($characterID: ObjectID!, $name: String, $style: MetricStyleInput, $description: String, $properties: [MetricPropertyInput!]) {
 	createCustomMetric(
 		characterID: $characterID
 		input: {
 			name: $name,
 			style: $style,
 			description: $description
+            properties: $properties
 		}
 	) {
 		description
@@ -16,7 +17,6 @@ mutation CreateCustomMetric($characterID: ObjectID!, $name: String, $style: Metr
 		name
 		time
 		properties {
-			id
 			name
 			type
 			unit

@@ -8,6 +8,7 @@ type Snapshot {
   id: ObjectID!
   timestamp: Time!
   character: CharacterData!
+  description: String!
 }
 
 type CharacterData {

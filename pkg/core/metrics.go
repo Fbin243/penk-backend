@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/core/validations"
@@ -57,6 +58,45 @@ func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID 
 			customMetric.Style.Icon = *input.Style.Icon
 		}
 	}
+
+	// Show input
+	log.Printf("Input: %+v", input)
+
+	if input.Properties != nil {
+		var properties []coredb.MetricProperty
+		for _, prop := range input.Properties {
+			var metricProperty coredb.MetricProperty
+			metricProperty.ID = primitive.NewObjectID()
+
+			if prop.Name != nil {
+				metricProperty.Name = *prop.Name
+			}
+			if prop.Type != nil {
+				metricProperty.Type = *prop.Type
+			}
+			if prop.Value != nil {
+				metricProperty.Value = *prop.Value
+			}
+			if prop.Unit != nil {
+				metricProperty.Unit = *prop.Unit
+			}
+
+			err = validations.ValidateMetricProperty(metricProperty)
+			if err != nil {
+				return nil, err
+			}
+
+			if len(properties) >= int(customMetric.LimitedPropertyNumber) {
+				return nil, fmt.Errorf("metric properties creation limit reached")
+			}
+
+			properties = append(properties, metricProperty)
+		}
+
+		customMetric.Properties = properties
+	}
+
+	log.Printf("Custom metric: %+v", customMetric)
 
 	err = validations.ValidateCustomMetric(customMetric)
 	if err != nil {
@@ -135,7 +175,7 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID pri
 					metricProperty.Name = *prop.Name
 				}
 				if prop.Type != nil {
-					metricProperty.Type = (*prop.Type)
+					metricProperty.Type = *prop.Type
 				}
 				if prop.Value != nil {
 					metricProperty.Value = *prop.Value

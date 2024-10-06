@@ -25,6 +25,7 @@ func MapToSnapshotDto(snapshot *analyticsdb.Snapshot) *model.Snapshot {
 			TotalFocusedTime: int(character.TotalFocusedTime),
 			CustomMetrics:    customMetrics,
 		},
+		Description: snapshot.Description,
 	}
 }
 

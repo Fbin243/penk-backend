@@ -5,6 +5,7 @@ query UserSnapshots {
     userSnapshots {
         id
         timestamp
+        description
         character {
             gender
             id
@@ -39,6 +40,7 @@ query CharacterSnapshots ($characterID: ObjectID!) {
     characterSnapshots(characterID: $characterID) {
         id
         timestamp
+        description
         character {
             gender
             id
@@ -70,10 +72,11 @@ query CharacterSnapshots ($characterID: ObjectID!) {
 `
 
 var CreateSnapshotQuery = `
-mutation CreateSnapshot ($characterID: ObjectID!) {
-    createSnapshot(characterID: $characterID) {
+mutation CreateSnapshot ($characterID: ObjectID!, $description: String) {
+    createSnapshot(characterID: $characterID, description: $description) {
         id
         timestamp
+        description
         character {
             gender
             id

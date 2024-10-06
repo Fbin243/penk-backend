@@ -28,7 +28,7 @@ func (s CreateCharacterStage) Exec(ctx *context.Context) error {
 	}
 
 	assertion := jsonpath.Chain().NotPresent("$.errors").
-		Present("$.data.createCharacter.id").
+		NotEqual("$.data.createCharacter.id", nil).
 		Equal("$.data.createCharacter.name", variables["name"]).
 		Equal("$.data.createCharacter.gender", variables["gender"]).
 		Equal("$.data.createCharacter.tags", variables["tags"]).

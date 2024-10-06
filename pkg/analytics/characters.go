@@ -66,7 +66,7 @@ func (r *CharactersHandler) GetSnapshotsByCharacterID(ctx context.Context, chara
 	return snapshots, nil
 }
 
-func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID primitive.ObjectID) (*analyticsdb.Snapshot, error) {
+func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*analyticsdb.Snapshot, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -105,7 +105,10 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID p
 			CharacterID: characterID,
 		},
 		Character: *character,
-		Asset:     nil,
+	}
+
+	if description != nil {
+		snapshot.Description = *description
 	}
 
 	session, err := db.GetDBManager().Client.StartSession()

@@ -1,5 +1,5 @@
 type Mutation {
-  createSnapshot(characterID: ObjectID!): Snapshot!
+  createSnapshot(characterID: ObjectID!, description: String): Snapshot!
 }
 
 type Query {

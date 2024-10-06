@@ -14,9 +14,10 @@ type Metadata struct {
 }
 
 type Snapshot struct {
-	ID        primitive.ObjectID `json:"id" bson:"_id"`
-	Timestamp time.Time          `json:"timestamp" bson:"timestamp"`
-	Metadata  Metadata           `json:"metadata" bson:"metadata"`
-	Character coredb.Character   `json:"character" bson:"character"`
-	Asset     interface{}        `json:"asset" bson:"asset"`
+	ID          primitive.ObjectID `json:"id" bson:"_id"`
+	Timestamp   time.Time          `json:"timestamp" bson:"timestamp"`
+	Metadata    Metadata           `json:"metadata" bson:"metadata"`
+	Character   coredb.Character   `json:"character" bson:"character"`
+	Description string             `json:"description,omitempty" bson:"description,omitempty" validate:"omitempty,max=255"`
+	Asset       interface{}        `json:"asset,omitempty" bson:"asset,omitempty"`
 }

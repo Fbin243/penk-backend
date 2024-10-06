@@ -48,7 +48,8 @@ type Query struct {
 }
 
 type Snapshot struct {
-	ID        primitive.ObjectID `json:"id"`
-	Timestamp time.Time          `json:"timestamp"`
-	Character *CharacterData     `json:"character"`
+	ID          primitive.ObjectID `json:"id"`
+	Timestamp   time.Time          `json:"timestamp"`
+	Character   *CharacterData     `json:"character"`
+	Description string             `json:"description"`
 }

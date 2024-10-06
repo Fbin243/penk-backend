@@ -13,8 +13,8 @@ import (
 )
 
 // CreateSnapshot is the resolver for the createSnapshot field.
-func (r *mutationResolver) CreateSnapshot(ctx context.Context, characterID primitive.ObjectID) (*model.Snapshot, error) {
-	snapshot, err := r.CharactersHandler.CreateNewSnapshot(ctx, characterID)
+func (r *mutationResolver) CreateSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*model.Snapshot, error) {
+	snapshot, err := r.CharactersHandler.CreateNewSnapshot(ctx, characterID, description)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create snapshot: %v", err)
 	}

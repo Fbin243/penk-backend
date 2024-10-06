@@ -30,8 +30,8 @@ type Profile struct {
 type MetricProperty struct {
 	ID    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name  string             `json:"name" bson:"name" validate:"required,min=1,max=50"`
-	Type  MetricPropertyType `json:"type" bson:"type" validate:"required,min=1,max=20"`
-	Value string             `json:"value" bson:"value" validate:"required"`
+	Type  MetricPropertyType `json:"type" bson:"type" validate:"required"`
+	Value string             `json:"value" bson:"value"`
 	Unit  string             `json:"unit,omitempty" bson:"unit,omitempty" validate:"omitempty,min=1,max=10"`
 }
 

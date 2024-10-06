@@ -31,10 +31,10 @@ func (s CreateTimeTrackingStage) Exec(ctx *context.Context) error {
 	}
 
 	assertion := jsonpath.Chain().
-		Present("$.data.createTimeTracking.id").
-		Present("$.data.createTimeTracking.characterID").
-		Present("$.data.createTimeTracking.startTime").
-		NotPresent("$.data.createTimeTracking.endTime")
+		NotEqual("$.data.createTimeTracking.id", nil).
+		NotEqual("$.data.createTimeTracking.characterID", nil).
+		NotEqual("$.data.createTimeTracking.startTime", nil).
+		Equal("$.data.createTimeTracking.endTime", nil)
 
 	if s.TrackWithMetric {
 		customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
@@ -79,10 +79,10 @@ func (s UpdateTimeTracking) Exec(ctx *context.Context) error {
 	}
 
 	assertion := jsonpath.Chain().
-		Present("$.data.updateTimeTracking.id").
-		Present("$.data.updateTimeTracking.characterID").
-		Present("$.data.updateTimeTracking.startTime").
-		Present("$.data.updateTimeTracking.endTime")
+		NotEqual("$.data.updateTimeTracking.id", nil).
+		NotEqual("$.data.updateTimeTracking.characterID", nil).
+		NotEqual("$.data.updateTimeTracking.startTime", nil).
+		NotEqual("$.data.updateTimeTracking.endTime", nil)
 
 	if s.TrackWithMetric {
 		customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)

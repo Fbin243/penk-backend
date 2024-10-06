@@ -20,8 +20,8 @@ func (s GetProfileStage) Exec(ctx *context.Context) error {
 
 	if s.CreateNewProfile {
 		assertion = jsonpath.Chain().NotPresent("$.errors").
-			Present("$.data.profile.id").
-			Present("$.data.profile.firebaseUID").
+			NotEqual("$.data.profile.id", nil).
+			NotEqual("$.data.profile.firebaseUID", nil).
 			Equal("$.data.profile.availableSnapshots", float64(2)).
 			Equal("$.data.profile.autoSnapshot", true).
 			Equal("$.data.profile.characters", []interface{}{}).

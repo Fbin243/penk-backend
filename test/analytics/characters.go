@@ -35,6 +35,7 @@ func (s CreateSnapshotStage) Exec(ctx *context.Context) error {
 
 	variables := map[string]interface{}{
 		"characterID": characterId,
+		"description": "Test snapshot description",
 	}
 
 	characterMap := gjson.Get(profile, fmt.Sprintf(`characters.#(id==%s)`, characterId)).Value().(map[string]interface{})
@@ -44,7 +45,9 @@ func (s CreateSnapshotStage) Exec(ctx *context.Context) error {
 		Equal("$.data.createSnapshot.character.tags", characterMap["tags"]).
 		Equal("$.data.createSnapshot.character.gender", characterMap["gender"]).
 		Equal("$.data.createSnapshot.character.profileID", characterMap["profileID"]).
-		Equal("$.data.createSnapshot.character.totalFocusedTime", characterMap["totalFocusedTime"])
+		Equal("$.data.createSnapshot.character.totalFocusedTime", characterMap["totalFocusedTime"]).
+		Equal("$.data.createSnapshot.description", variables["description"]).
+		NotEqual("$.data.createSnapshot.timestamp", nil)
 
 	if s.ExpectError {
 		assertion = common.AssertionError
