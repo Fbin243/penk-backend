@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"tenkhours/cmd/auth"
 	"tenkhours/cmd/gql"
 
 	"github.com/urfave/cli/v2"
@@ -15,23 +16,12 @@ func main() {
 		Name:  "tenk-cli",
 		Usage: "say hi to tenk-cli",
 		Action: func(*cli.Context) error {
-			fmt.Println("hieu dep trai sieu cap vu tru")
+			fmt.Println("Welcome to Tenk Hours CLI")
 			return nil
 		},
 		Commands: []*cli.Command{
-			{
-				Name:     "gql-setup",
-				Category: "gql",
-				Usage:    "Setup a gql boilerplate",
-				Action: func(cCtx *cli.Context) error {
-					setupPath := cCtx.Args().First()
-					if setupPath == "" {
-						setupPath = "services/example"
-					}
-
-					return gql.SetupBoilerplate(setupPath)
-				},
-			},
+			&gql.SetupBoilerplateCommand,
+			&auth.GetJWTTokenCommand,
 		},
 	}
 

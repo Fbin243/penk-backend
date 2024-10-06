@@ -49,6 +49,19 @@ func (r *ProfilesRepo) GetProfileByFirebaseUID(firebaseUID string) (*Profile, er
 	return &profile, nil
 }
 
+func (r *ProfilesRepo) GetProfileByEmail(email string) (*Profile, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var profile Profile
+	err := r.FindOne(ctx, bson.M{"email": email}).Decode(&profile)
+	if err != nil {
+		return nil, err
+	}
+
+	return &profile, nil
+}
+
 func (r *ProfilesRepo) CreateNewProfile(profile *Profile) (*Profile, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

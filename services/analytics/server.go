@@ -66,7 +66,7 @@ func main() {
 
 	port, found := os.LookupEnv("ANALYTICS_PORT")
 	if !found {
-		port = "8082"
+		port = "8083"
 	}
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	app.Run(":" + port)

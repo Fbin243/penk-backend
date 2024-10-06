@@ -2,7 +2,7 @@ package auth
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"os"
 
 	firebase "firebase.google.com/go"
@@ -10,32 +10,37 @@ import (
 	"google.golang.org/api/option"
 )
 
-func getFirebaseApp() (*firebase.App, error) {
-	opt := option.WithCredentialsFile(os.Getenv("FIREBASE_ADMIN"))
-	app, err := firebase.NewApp(context.Background(), nil, opt)
-	if err != nil {
-		return nil, fmt.Errorf("error initializing app: %v", err)
-	}
-
-	return app, nil
+type FirebaseManager struct {
+	Client *auth.Client
+	App    *firebase.App
 }
 
-func getAuthClient() (*auth.Client, error) {
-	app, err := getFirebaseApp()
-	if err != nil {
-		return nil, err
+var firebaseManager *FirebaseManager
+
+func GetFirebaseManager() *FirebaseManager {
+	if firebaseManager == nil {
+		firebaseManager = &FirebaseManager{}
+		opt := option.WithCredentialsFile(os.Getenv("FIREBASE_ADMIN"))
+		app, err := firebase.NewApp(context.Background(), nil, opt)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		firebaseManager.App = app
+
+		client, err := app.Auth(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		firebaseManager.Client = client
 	}
 
-	return app.Auth(context.Background())
+	return firebaseManager
 }
 
 func GetProfileByIDToken(idToken string) (*Profile, error) {
-	authClient, err := getAuthClient()
-	if err != nil {
-		return nil, err
-	}
-
-	token, err := authClient.VerifyIDToken(context.Background(), idToken)
+	token, err := GetFirebaseManager().Client.VerifyIDToken(context.Background(), idToken)
 	if err != nil {
 		return nil, err
 	}

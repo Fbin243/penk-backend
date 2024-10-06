@@ -62,7 +62,7 @@ func main() {
 
 	port, found := os.LookupEnv("TIME_TRACKINGS_PORT")
 	if !found {
-		port = "8080"
+		port = "8082"
 	}
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	app.Run(":" + port)
