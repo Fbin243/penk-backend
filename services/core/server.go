@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/core"
+	"tenkhours/pkg/business/core"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/services/core/graph"

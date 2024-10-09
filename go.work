@@ -3,12 +3,12 @@ go 1.22.3
 use (
 	.
 	./cmd
-	./pkg/analytics
 	./pkg/auth
-	./pkg/core
+	./pkg/business/analytics
+	./pkg/business/core
+	./pkg/business/timetrackings
 	./pkg/db
 	./pkg/graphql
-	./pkg/timetrackings
 	./pkg/utils
 	./services/analytics
 	./services/core

@@ -1,4 +1,4 @@
-module tenkhours/pkg/core
+module tenkhours/pkg/business/core
 
 go 1.22.3
 

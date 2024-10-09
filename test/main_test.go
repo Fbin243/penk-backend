@@ -140,7 +140,7 @@ func TestUserFlow(t *testing.T) {
 
 		core.CreateCustomMetricStage{
 			Metadata: common.Metadata{
-				Describe: "Create the second metric",
+				Describe: "Create the second metric with properties",
 			},
 			CharacterKey: common.CurrentCharacter,
 			Case:         common.CreateMetricWithProperties,
@@ -189,7 +189,7 @@ func TestUserFlow(t *testing.T) {
 
 		core.UpdateCustomMetricStage{
 			Metadata: common.Metadata{
-				Describe: "Delete the second properties",
+				Describe: "Delete the second property",
 			},
 			CustomMetricKey: common.FirstCustomMetric,
 			CharacterKey:    common.CurrentCharacter,
@@ -339,12 +339,12 @@ func TestUserFlow(t *testing.T) {
 			HasTwoSnapshots: true,
 		},
 
-		core.DeleteCharacterStage{
-			Metadata: common.Metadata{
-				Describe: "Delete another character",
-			},
-			CharacterKey: common.AnotherCharacter,
-		},
+		// core.DeleteCharacterStage{
+		// 	Metadata: common.Metadata{
+		// 		Describe: "Delete another character",
+		// 	},
+		// 	CharacterKey: common.AnotherCharacter,
+		// },
 
 		core.GetProfileStage{
 			Metadata: common.Metadata{

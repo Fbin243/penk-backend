@@ -157,7 +157,8 @@ func (s UpdateCustomMetricStage) Exec(ctx *context.Context) error {
 		json := common.ReadResponseJson(res)
 		customMetric := gjson.Get(json, "data.updateCustomMetric").Value().(map[string]interface{})
 
-		passed := assert.Equal(testingT, customMetric["name"], variables["name"]) &&
+		passed := assert.Empty(testingT, gjson.Get(json, "errors").Value()) &&
+			assert.Equal(testingT, customMetric["name"], variables["name"]) &&
 			assert.Equal(testingT, customMetric["description"], variables["description"]) &&
 			assert.Equal(testingT, customMetric["style"], variables["style"]) &&
 			assert.Equal(testingT, customMetric["time"], float64(0))

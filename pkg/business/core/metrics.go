@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/core/validations"
+	"tenkhours/pkg/business/core/validations"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/services/core/graph/model"
 

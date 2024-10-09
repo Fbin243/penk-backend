@@ -1,7 +1,7 @@
 //go:generate go run github.com/99designs/gqlgen generate
 package graph
 
-import "tenkhours/pkg/core"
+import "tenkhours/pkg/business/core"
 
 // This file will not be regenerated automatically.
 //
