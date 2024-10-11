@@ -3,6 +3,10 @@ type Mutation {
 }
 
 type Query {
-  characterSnapshots(characterID: ObjectID!): [Snapshot!]!
-  userSnapshots: [Snapshot!]!
+  snapshots(characterID: ObjectID, filter: SnapshotFilter): [Snapshot!]!
+}
+
+input SnapshotFilter {
+  month: Month
+  year: Int
 }

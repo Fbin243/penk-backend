@@ -89,8 +89,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		CharacterSnapshots func(childComplexity int, characterID primitive.ObjectID) int
-		UserSnapshots      func(childComplexity int) int
+		Snapshots          func(childComplexity int, characterID *primitive.ObjectID, filter *model.SnapshotFilter) int
 		__resolve__service func(childComplexity int) int
 	}
 
@@ -110,8 +109,7 @@ type MutationResolver interface {
 	CreateSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*model.Snapshot, error)
 }
 type QueryResolver interface {
-	CharacterSnapshots(ctx context.Context, characterID primitive.ObjectID) ([]model.Snapshot, error)
-	UserSnapshots(ctx context.Context) ([]model.Snapshot, error)
+	Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.SnapshotFilter) ([]model.Snapshot, error)
 }
 
 type executableSchema struct {
@@ -285,24 +283,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateSnapshot(childComplexity, args["characterID"].(primitive.ObjectID), args["description"].(*string)), true
 
-	case "Query.characterSnapshots":
-		if e.complexity.Query.CharacterSnapshots == nil {
+	case "Query.snapshots":
+		if e.complexity.Query.Snapshots == nil {
 			break
 		}
 
-		args, err := ec.field_Query_characterSnapshots_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_snapshots_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.CharacterSnapshots(childComplexity, args["characterID"].(primitive.ObjectID)), true
-
-	case "Query.userSnapshots":
-		if e.complexity.Query.UserSnapshots == nil {
-			break
-		}
-
-		return e.complexity.Query.UserSnapshots(childComplexity), true
+		return e.complexity.Query.Snapshots(childComplexity, args["characterID"].(*primitive.ObjectID), args["filter"].(*model.SnapshotFilter)), true
 
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
@@ -353,7 +344,9 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputSnapshotFilter,
+	)
 	first := true
 
 	switch rc.Operation.Operation {
@@ -461,6 +454,30 @@ func sourceData(filename string) string {
 }
 
 var sources = []*ast.Source{
+	{Name: "../../../pkg/graphql/enums/time.graphqls", Input: `enum Month {
+  JANUARY
+  FEBRUARY
+  MARCH
+  APRIL
+  MAY
+  JUNE
+  JULY
+  AUGUST
+  SEPTEMBER
+  OCTOBER
+  NOVEMBER
+  DECEMBER
+}
+
+enum Weekday {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}`, BuiltIn: false},
 	{Name: "analytics.graphqls", Input: sourceData("analytics.graphqls"), BuiltIn: false},
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
 	{Name: "../federation/directives.graphql", Input: `
@@ -569,18 +586,27 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_characterSnapshots_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_snapshots_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 primitive.ObjectID
+	var arg0 *primitive.ObjectID
 	if tmp, ok := rawArgs["characterID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-		arg0, err = ec.unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
+		arg0, err = ec.unmarshalOObjectID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["characterID"] = arg0
+	var arg1 *model.SnapshotFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg1, err = ec.unmarshalOSnapshotFilter2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg1
 	return args, nil
 }
 
@@ -1587,8 +1613,8 @@ func (ec *executionContext) fieldContext_Mutation_createSnapshot(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_characterSnapshots(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_characterSnapshots(ctx, field)
+func (ec *executionContext) _Query_snapshots(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_snapshots(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1601,7 +1627,7 @@ func (ec *executionContext) _Query_characterSnapshots(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CharacterSnapshots(rctx, fc.Args["characterID"].(primitive.ObjectID))
+		return ec.resolvers.Query().Snapshots(rctx, fc.Args["characterID"].(*primitive.ObjectID), fc.Args["filter"].(*model.SnapshotFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1618,7 +1644,7 @@ func (ec *executionContext) _Query_characterSnapshots(ctx context.Context, field
 	return ec.marshalNSnapshot2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_characterSnapshots(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_snapshots(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1645,63 +1671,9 @@ func (ec *executionContext) fieldContext_Query_characterSnapshots(ctx context.Co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_characterSnapshots_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_snapshots_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_userSnapshots(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_userSnapshots(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserSnapshots(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]model.Snapshot)
-	fc.Result = res
-	return ec.marshalNSnapshot2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_userSnapshots(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Snapshot_id(ctx, field)
-			case "timestamp":
-				return ec.fieldContext_Snapshot_timestamp(ctx, field)
-			case "character":
-				return ec.fieldContext_Snapshot_character(ctx, field)
-			case "description":
-				return ec.fieldContext_Snapshot_description(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Snapshot", field.Name)
-		},
 	}
 	return fc, nil
 }
@@ -3889,6 +3861,40 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputSnapshotFilter(ctx context.Context, obj interface{}) (model.SnapshotFilter, error) {
+	var it model.SnapshotFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"month", "year"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "month":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("month"))
+			data, err := ec.unmarshalOMonth2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐMonth(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Month = data
+		case "year":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Year = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4189,7 +4195,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "characterSnapshots":
+		case "snapshots":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -4198,29 +4204,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_characterSnapshots(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "userSnapshots":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_userSnapshots(ctx, field)
+				res = ec._Query_snapshots(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5455,6 +5439,38 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOMonth2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐMonth(ctx context.Context, v interface{}) (*model.Month, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.Month)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOMonth2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐMonth(ctx context.Context, sel ast.SelectionSet, v *model.Month) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) unmarshalONullableString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -5469,6 +5485,30 @@ func (ec *executionContext) marshalONullableString2ᚖstring(ctx context.Context
 	}
 	res := graphql1.MarshalNullableString(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOObjectID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, v interface{}) (*primitive.ObjectID, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql1.UnmarshalObjectID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOObjectID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, sel ast.SelectionSet, v *primitive.ObjectID) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql1.MarshalObjectID(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOSnapshotFilter2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotFilter(ctx context.Context, v interface{}) (*model.SnapshotFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSnapshotFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

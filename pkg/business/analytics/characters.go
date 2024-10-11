@@ -10,7 +10,9 @@ import (
 	"tenkhours/pkg/db/analyticsdb"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
+	"tenkhours/services/analytics/graph/model"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -29,38 +31,57 @@ func NewCharactersHandler(snapshotsRepo *analyticsdb.SnapshotsRepo, charactersRe
 	}
 }
 
-func (r *CharactersHandler) GetSnapshotsByProfileID(ctx context.Context) ([]analyticsdb.Snapshot, error) {
+func (r *CharactersHandler) GetSnapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.SnapshotFilter) ([]analyticsdb.Snapshot, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	snapshots, err := r.SnapshotsRepo.GetSnapshotsByProfileID(profile.ID)
+	pineline := mongo.Pipeline{}
+	matchStage := bson.D{}
+
+	if characterID != nil {
+		character, err := r.CharactersRepo.GetCharacterByID(*characterID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get character by ID")
+		}
+
+		if character.ProfileID != profile.ID {
+			return nil, auth.ErrorPermissionDenied
+		}
+
+		matchStage = append(matchStage, bson.E{Key: "metadata.character_id", Value: *characterID})
+	} else {
+		matchStage = append(matchStage, bson.E{Key: "metadata.profile_id", Value: profile.ID})
+	}
+
+	if filter != nil {
+		if filter.Month != nil {
+			month := utils.MonthToIntMap[(*filter.Month).String()]
+			matchStage = append(matchStage, bson.E{
+				Key: "$expr",
+				Value: bson.D{{
+					Key:   "$eq",
+					Value: bson.A{bson.D{{Key: "$month", Value: "$timestamp"}}, month},
+				}},
+			})
+		}
+
+		if filter.Year != nil {
+			matchStage = append(matchStage, bson.E{
+				Key: "$expr",
+				Value: bson.D{{
+					Key:   "$eq",
+					Value: bson.A{bson.D{{Key: "$year", Value: "$timestamp"}}, *filter.Year},
+				}},
+			})
+		}
+	}
+
+	pineline = append(pineline, bson.D{{Key: "$match", Value: matchStage}})
+	snapshots, err := r.SnapshotsRepo.GetSnapshots(pineline)
 	if err != nil {
 		return nil, err
-	}
-
-	return snapshots, nil
-}
-
-func (r *CharactersHandler) GetSnapshotsByCharacterID(ctx context.Context, characterID primitive.ObjectID) ([]analyticsdb.Snapshot, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
-	if !ok {
-		return nil, auth.ErrorUnauthorized
-	}
-
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get character by ID")
-	}
-
-	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
-	}
-
-	snapshots, err := r.SnapshotsRepo.GetSnapshotsByCharacterID(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get snapshots by character ID")
 	}
 
 	return snapshots, nil
