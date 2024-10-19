@@ -22,8 +22,13 @@ func (r *mutationResolver) CreateSnapshot(ctx context.Context, characterID primi
 	return MapToSnapshotDto(snapshot), nil
 }
 
+// CreateCapturedRecord is the resolver for the createCapturedRecord field.
+func (r *mutationResolver) CreateCapturedRecord(ctx context.Context, characterID primitive.ObjectID) (*model.CapturedRecord, error) {
+	return r.CharactersHandler.CreateCapturedRecord(ctx, characterID)
+}
+
 // Snapshots is the resolver for the snapshots field.
-func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.SnapshotFilter) ([]model.Snapshot, error) {
+func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) ([]model.Snapshot, error) {
 	snapshots, err := r.CharactersHandler.GetSnapshots(ctx, characterID, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get snapshots: %v", err)
@@ -35,6 +40,11 @@ func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.Ob
 	}
 
 	return res, nil
+}
+
+// AnalyticResults is the resolver for the analyticResults field.
+func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) (map[string]interface{}, error) {
+	return r.CharactersHandler.GetAnalyticResults(ctx, characterID, filter)
 }
 
 // Mutation returns MutationResolver implementation.

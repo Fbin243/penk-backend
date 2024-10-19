@@ -18,20 +18,22 @@ import (
 )
 
 type CharactersHandler struct {
-	SnapshotsRepo  *analyticsdb.SnapshotsRepo
-	CharactersRepo *coredb.CharactersRepo
-	ProfilesRepo   *coredb.ProfilesRepo
+	SnapshotsRepo       *analyticsdb.SnapshotsRepo
+	CharactersRepo      *coredb.CharactersRepo
+	ProfilesRepo        *coredb.ProfilesRepo
+	CapturedRecordsRepo *analyticsdb.CapturedRecordsRepo
 }
 
-func NewCharactersHandler(snapshotsRepo *analyticsdb.SnapshotsRepo, charactersRepo *coredb.CharactersRepo, profilesRepo *coredb.ProfilesRepo) *CharactersHandler {
+func NewCharactersHandler(snapshotsRepo *analyticsdb.SnapshotsRepo, charactersRepo *coredb.CharactersRepo, profilesRepo *coredb.ProfilesRepo, capturedRepo *analyticsdb.CapturedRecordsRepo) *CharactersHandler {
 	return &CharactersHandler{
-		SnapshotsRepo:  snapshotsRepo,
-		CharactersRepo: charactersRepo,
-		ProfilesRepo:   profilesRepo,
+		SnapshotsRepo:       snapshotsRepo,
+		CharactersRepo:      charactersRepo,
+		ProfilesRepo:        profilesRepo,
+		CapturedRecordsRepo: capturedRepo,
 	}
 }
 
-func (r *CharactersHandler) GetSnapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.SnapshotFilter) ([]analyticsdb.Snapshot, error) {
+func (r *CharactersHandler) GetSnapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) ([]analyticsdb.Snapshot, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -170,4 +172,83 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID p
 	}
 
 	return &newSnapshot, nil
+}
+
+func (r *CharactersHandler) CreateCapturedRecord(ctx context.Context, characterID primitive.ObjectID) (*model.CapturedRecord, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+	if !ok {
+		return nil, auth.ErrorUnauthorized
+	}
+
+	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	if err != nil {
+		return nil, err
+	}
+
+	if character.ProfileID != profile.ID {
+		return nil, auth.ErrorPermissionDenied
+	}
+
+	// Extract time from the custom metrics
+	metricRecord := model.CapturedRecordCustomMetric{}
+	metricRecords := make([]model.CapturedRecordCustomMetric, 0)
+	for _, metric := range character.CustomMetrics {
+		metricRecord.ID = metric.ID
+		metricRecord.Time = metric.Time
+		metricRecords = append(metricRecords, metricRecord)
+	}
+
+	// Make a new captured record
+	capturedRecord := &model.CapturedRecord{
+		ID:               primitive.NewObjectID(),
+		Timestamp:        utils.Now(),
+		TotalFocusedTime: character.TotalFocusedTime,
+		CustomMetrics:    metricRecords,
+		Metadata: model.CapturedRecordMetadata{
+			ProfileID:   profile.ID,
+			CharacterID: characterID,
+		},
+	}
+
+	// Save the captured record
+	err = r.CapturedRecordsRepo.CreateCapturedRecord(capturedRecord)
+	if err != nil {
+		return nil, err
+	}
+
+	return capturedRecord, nil
+}
+
+func (r *CharactersHandler) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) (map[string]interface{}, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+	if !ok {
+		return nil, auth.ErrorUnauthorized
+	}
+
+	pipeline := mongo.Pipeline{}
+	matchStage := bson.D{}
+
+	if characterID != nil {
+		character, err := r.CharactersRepo.GetCharacterByID(*characterID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get character by ID")
+		}
+
+		if character.ProfileID != profile.ID {
+			return nil, auth.ErrorPermissionDenied
+		}
+
+		matchStage = append(matchStage, bson.E{Key: "metadata.character_id", Value: *characterID})
+	} else {
+		matchStage = append(matchStage, bson.E{Key: "metadata.profile_id", Value: profile.ID})
+	}
+
+	pipeline = append(pipeline, bson.D{{Key: "$match", Value: matchStage}})
+
+	capturedRecords, err := r.CapturedRecordsRepo.GetCapturedRecords(pipeline)
+	if err != nil {
+		return nil, err
+	}
+	
+	return processCapturedRecords(capturedRecords), nil
 }

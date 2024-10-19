@@ -41,7 +41,8 @@ func main() {
 	profilesRepo := coredb.NewProfilesRepo(db)
 	charactersRepo := coredb.NewCharactersRepo(db)
 	snapshotsRepo := analyticsdb.NewSnapshotRepo(db)
-	charactersHandler := analytics.NewCharactersHandler(snapshotsRepo, charactersRepo, profilesRepo)
+	capturedRecordsRepo := analyticsdb.NewCapturedRecordRepo(db)
+	charactersHandler := analytics.NewCharactersHandler(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo)
 
 	// Check authentication
 	authMiddleware := auth.NewMiddleware(profilesRepo)

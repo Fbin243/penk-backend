@@ -12,36 +12,27 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type CharacterData struct {
-	ID               primitive.ObjectID `json:"id"`
-	ProfileID        primitive.ObjectID `json:"profileID"`
-	Name             string             `json:"name"`
-	Gender           bool               `json:"gender"`
-	Tags             []string           `json:"tags"`
-	TotalFocusedTime int                `json:"totalFocusedTime"`
-	CustomMetrics    []CustomMetricData `json:"customMetrics"`
+type CapturedRecord struct {
+	ID               primitive.ObjectID           `json:"id" bson:"_id"`
+	Timestamp        time.Time                    `json:"timestamp" bson:"timestamp"`
+	TotalFocusedTime int32                        `json:"totalFocusedTime" bson:"total_focused_time"`
+	CustomMetrics    []CapturedRecordCustomMetric `json:"customMetrics" bson:"custom_metrics"`
+	Metadata         CapturedRecordMetadata       `json:"metadata" bson:"metadata"`
 }
 
-type CustomMetricData struct {
-	ID          primitive.ObjectID   `json:"id"`
-	Name        string               `json:"name"`
-	Description *string              `json:"description,omitempty"`
-	Time        int                  `json:"time"`
-	Style       *MetricStyleData     `json:"style"`
-	Properties  []MetricPropertyData `json:"properties"`
+type CapturedRecordCustomMetric struct {
+	ID   primitive.ObjectID `json:"id" bson:"_id"`
+	Time int32              `json:"time" bson:"time"`
 }
 
-type MetricPropertyData struct {
-	ID    primitive.ObjectID        `json:"id"`
-	Name  string                    `json:"name"`
-	Type  coredb.MetricPropertyType `json:"type"`
-	Value string                    `json:"value"`
-	Unit  *string                   `json:"unit,omitempty"`
+type CapturedRecordMetadata struct {
+	CharacterID primitive.ObjectID `json:"characterID" bson:"character_id"`
+	ProfileID   primitive.ObjectID `json:"profileID" bson:"profile_id"`
 }
 
-type MetricStyleData struct {
-	Color *string `json:"color,omitempty"`
-	Icon  *string `json:"icon,omitempty"`
+type Filter struct {
+	Month *Month `json:"month,omitempty"`
+	Year  *int32 `json:"year,omitempty"`
 }
 
 type Mutation struct {
@@ -53,13 +44,40 @@ type Query struct {
 type Snapshot struct {
 	ID          primitive.ObjectID `json:"id"`
 	Timestamp   time.Time          `json:"timestamp"`
-	Character   *CharacterData     `json:"character"`
+	Character   SnapshotCharacter  `json:"character"`
 	Description string             `json:"description"`
 }
 
-type SnapshotFilter struct {
-	Month *Month `json:"month,omitempty"`
-	Year  *int   `json:"year,omitempty"`
+type SnapshotCharacter struct {
+	ID               primitive.ObjectID     `json:"id"`
+	ProfileID        primitive.ObjectID     `json:"profileID"`
+	Name             string                 `json:"name"`
+	Gender           bool                   `json:"gender"`
+	Tags             []string               `json:"tags"`
+	TotalFocusedTime int32                  `json:"totalFocusedTime"`
+	CustomMetrics    []SnapshotCustomMetric `json:"customMetrics"`
+}
+
+type SnapshotCustomMetric struct {
+	ID          primitive.ObjectID       `json:"id"`
+	Name        string                   `json:"name"`
+	Description *string                  `json:"description,omitempty"`
+	Time        int32                    `json:"time"`
+	Style       SnapshotMetricStyle      `json:"style"`
+	Properties  []SnapshotMetricProperty `json:"properties"`
+}
+
+type SnapshotMetricProperty struct {
+	ID    primitive.ObjectID        `json:"id"`
+	Name  string                    `json:"name"`
+	Type  coredb.MetricPropertyType `json:"type"`
+	Value string                    `json:"value"`
+	Unit  *string                   `json:"unit,omitempty"`
+}
+
+type SnapshotMetricStyle struct {
+	Color *string `json:"color,omitempty"`
+	Icon  *string `json:"icon,omitempty"`
 }
 
 type Month string
