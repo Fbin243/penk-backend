@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sessions"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
@@ -40,8 +41,9 @@ func main() {
 	db := db.GetDBManager().DB
 	profilesRepo := coredb.NewProfilesRepo(db)
 	charactersRepo := coredb.NewCharactersRepo(db)
+	redisClient := sessions.GetRedisClient()
 	timetrackingsRepo := timetrackingsdb.NewTimeTrackingsRepo(db)
-	timetrackingsHandler := timetrackings.NewTimeTrackingsHandler(timetrackingsRepo, charactersRepo)
+	timetrackingsHandler := timetrackings.NewTimeTrackingsHandler(timetrackingsRepo, charactersRepo, redisClient)
 
 	// Check authentication
 	authMiddleware := auth.NewMiddleware(profilesRepo)
