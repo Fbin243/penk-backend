@@ -25,7 +25,5 @@ type Mutation {
 
   updateTimeTracking(
     id: ObjectID!
-    characterID: ObjectID!
-    customMetricID: ObjectID
   ): TimeTracking!
 }

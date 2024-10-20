@@ -53,7 +53,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		CreateTimeTracking func(childComplexity int, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) int
-		UpdateTimeTracking func(childComplexity int, id primitive.ObjectID, characterID primitive.ObjectID, customMetricID *primitive.ObjectID) int
+		UpdateTimeTracking func(childComplexity int, id primitive.ObjectID) int
 	}
 
 	Query struct {
@@ -76,7 +76,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) (*timetrackingsdb.TimeTracking, error)
-	UpdateTimeTracking(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, customMetricID *primitive.ObjectID) (*timetrackingsdb.TimeTracking, error)
+	UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsdb.TimeTracking, error)
 }
 type QueryResolver interface {
 	CurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*timetrackingsdb.TimeTracking, error)
@@ -123,7 +123,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateTimeTracking(childComplexity, args["id"].(primitive.ObjectID), args["characterID"].(primitive.ObjectID), args["customMetricID"].(*primitive.ObjectID)), true
+		return e.complexity.Mutation.UpdateTimeTracking(childComplexity, args["id"].(primitive.ObjectID)), true
 
 	case "Query.currentTimeTracking":
 		if e.complexity.Query.CurrentTimeTracking == nil {
@@ -414,24 +414,6 @@ func (ec *executionContext) field_Mutation_updateTimeTracking_args(ctx context.C
 		}
 	}
 	args["id"] = arg0
-	var arg1 primitive.ObjectID
-	if tmp, ok := rawArgs["characterID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-		arg1, err = ec.unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["characterID"] = arg1
-	var arg2 *primitive.ObjectID
-	if tmp, ok := rawArgs["customMetricID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("customMetricID"))
-		arg2, err = ec.unmarshalOObjectID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["customMetricID"] = arg2
 	return args, nil
 }
 
@@ -584,7 +566,7 @@ func (ec *executionContext) _Mutation_updateTimeTracking(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTimeTracking(rctx, fc.Args["id"].(primitive.ObjectID), fc.Args["characterID"].(primitive.ObjectID), fc.Args["customMetricID"].(*primitive.ObjectID))
+		return ec.resolvers.Mutation().UpdateTimeTracking(rctx, fc.Args["id"].(primitive.ObjectID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

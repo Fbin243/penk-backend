@@ -129,7 +129,7 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 	return &timeTracking, nil
 }
 
-func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID *primitive.ObjectID) (*timetrackingsdb.TimeTracking, error) {
+func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsdb.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -150,7 +150,20 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 		return nil, fmt.Errorf("failed to deserialize time tracking: %v", err)
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	if endTime.Sub(timeTracking.StartTime).Hours() > 24 {
+		err = r.RedisClient.Del(ctx, id.Hex()).Err()
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete expired time tracking from redis: %v", err)
+		}
+		return nil, fmt.Errorf("session timeout, exceeded 24 hours")
+	}
+
+	err = r.RedisClient.Del(ctx, id.Hex()).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete time tracking from redis: %v", err)
+	}
+
+	character, err := r.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -167,11 +180,6 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 
 	if duration < timeTracking.MinDurationTime {
 		duration = 0
-		err = r.RedisClient.Del(ctx, id.Hex()).Err()
-		if err != nil {
-			return nil, fmt.Errorf("failed to delete time tracking from redis: %v", err)
-		}
-
 		log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
 		return &timeTracking, nil
 	}
@@ -193,9 +201,9 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 		}
 	}
 
-	err = r.RedisClient.Set(ctx, timeTracking.ID.Hex(), timeTracking, 24*time.Hour).Err()
+	_, err = r.TimeTrackingsRepo.UpdateTimeTracking(&timeTracking)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update time tracking in redis: %v", err)
+		return nil, fmt.Errorf("failed to update time tracking in DB: %v", err)
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
