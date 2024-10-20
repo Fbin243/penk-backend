@@ -116,7 +116,12 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 		timeTracking.CustomMetricID = *metricID
 	}
 
-	err = r.RedisClient.Set(ctx, timeTracking.ID.Hex(), timeTracking, 24*time.Hour).Err()
+	timeTrackingJSON, err := json.Marshal(timeTracking)
+	if err != nil {
+		return nil, fmt.Errorf("failed to serialize time tracking: %v", err)
+	}
+
+	err = r.RedisClient.Set(ctx, timeTracking.ID.Hex(), timeTrackingJSON, 24*time.Hour).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to save time tracking to redis: %v", err)
 	}
