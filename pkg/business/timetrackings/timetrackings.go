@@ -2,6 +2,7 @@ package timetrackings
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/db/timetrackingsdb"
 
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -17,12 +19,14 @@ import (
 type TimeTrackingsHandler struct {
 	TimeTrackingsRepo *timetrackingsdb.TimeTrackingsRepo
 	CharactersRepo    *coredb.CharactersRepo
+	RedisClient       *redis.Client
 }
 
-func NewTimeTrackingsHandler(timeTrackingsRepo *timetrackingsdb.TimeTrackingsRepo, charactersRepo *coredb.CharactersRepo) *TimeTrackingsHandler {
+func NewTimeTrackingsHandler(timeTrackingsRepo *timetrackingsdb.TimeTrackingsRepo, charactersRepo *coredb.CharactersRepo, redisClient *redis.Client) *TimeTrackingsHandler {
 	return &TimeTrackingsHandler{
 		TimeTrackingsRepo: timeTrackingsRepo,
 		CharactersRepo:    charactersRepo,
+		RedisClient:       redisClient,
 	}
 }
 
@@ -62,7 +66,6 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 	duration := serverStartTime.Sub(startTime)
 	seconds := duration.Seconds()
 
-	// Check timeout if delay of client and server is 20 second
 	if seconds > 20 {
 		return nil, fmt.Errorf("server timeout, failed to start a new session")
 	}
@@ -90,7 +93,6 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 		}
 	}
 
-	// Check if the time tracking is already started
 	timeTrackings, err := r.TimeTrackingsRepo.GetTimeTrackingsByCharacterID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get time trackings: %v", err)
@@ -114,12 +116,17 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 		timeTracking.CustomMetricID = *metricID
 	}
 
-	createdTimeTracking, err := r.TimeTrackingsRepo.CreateTimeTracking(&timeTracking)
+	timeTrackingJSON, err := json.Marshal(timeTracking)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create time tracking: %v", err)
+		return nil, fmt.Errorf("failed to serialize time tracking: %v", err)
 	}
 
-	return createdTimeTracking, nil
+	err = r.RedisClient.Set(ctx, timeTracking.ID.Hex(), timeTrackingJSON, 24*time.Hour).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to save time tracking to redis: %v", err)
+	}
+
+	return &timeTracking, nil
 }
 
 func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsdb.TimeTracking, error) {
@@ -130,9 +137,30 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 
 	endTime := time.Now()
 
-	timeTracking, err := r.TimeTrackingsRepo.GetTimeTrackingByID(id)
+	val, err := r.RedisClient.Get(ctx, id.Hex()).Result()
+	if err == redis.Nil {
+		return nil, fmt.Errorf("time tracking not found in redis")
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to get time tracking from redis: %v", err)
+	}
+
+	var timeTracking timetrackingsdb.TimeTracking
+	err = json.Unmarshal([]byte(val), &timeTracking)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get time tracking: %v", err)
+		return nil, fmt.Errorf("failed to deserialize time tracking: %v", err)
+	}
+
+	if endTime.Sub(timeTracking.StartTime).Hours() > 24 {
+		err = r.RedisClient.Del(ctx, id.Hex()).Err()
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete expired time tracking from redis: %v", err)
+		}
+		return nil, fmt.Errorf("session timeout, exceeded 24 hours")
+	}
+
+	err = r.RedisClient.Del(ctx, id.Hex()).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete time tracking from redis: %v", err)
 	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
@@ -150,22 +178,10 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 
 	duration := int32(endTime.Sub(timeTracking.StartTime).Seconds())
 
-	// TODO: TESTING
-	// duration = 599 // Test for the min duration time
-	// duration = 600 // Test for the min duration time
-	// duration = 601 // Test for the min duration time
-	// duration = 14400 // Test for the max duration time
-	// duration = 14401 // Test for the max duration time
-
 	if duration < timeTracking.MinDurationTime {
 		duration = 0
-		_, err := r.TimeTrackingsRepo.DeleteTimeTracking(id)
-		if err != nil {
-			return nil, fmt.Errorf("failed to delete time tracking: %v", err)
-		}
-
 		log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
-		return timeTracking, nil
+		return &timeTracking, nil
 	}
 
 	if duration > timeTracking.MaxDurationTime {
@@ -185,9 +201,9 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 		}
 	}
 
-	_, err = r.TimeTrackingsRepo.UpdateTimeTracking(timeTracking)
+	_, err = r.TimeTrackingsRepo.UpdateTimeTracking(&timeTracking)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update time tracking: %v", err)
+		return nil, fmt.Errorf("failed to update time tracking in DB: %v", err)
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
@@ -195,5 +211,5 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return timeTracking, nil
+	return &timeTracking, nil
 }
