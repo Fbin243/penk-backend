@@ -3,39 +3,40 @@ extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@
 scalar Time
 scalar ObjectID
 scalar NullableString
+scalar JSON
 
 type Snapshot {
   id: ObjectID!
   timestamp: Time!
-  character: CharacterData!
+  character: Snapshot_Character!
   description: String!
 }
 
-type CharacterData {
+type Snapshot_Character {
   id: ObjectID!
   profileID: ObjectID!
   name: String!
   gender: Boolean!
   tags: [String!]!
   totalFocusedTime: Int!
-  customMetrics: [CustomMetricData!]!
+  customMetrics: [Snapshot_CustomMetric!]!
 }
 
-type CustomMetricData {
+type Snapshot_CustomMetric {
   id: ObjectID!
   name: String!
   description: NullableString
   time: Int!
-  style: MetricStyleData!
-  properties: [MetricPropertyData!]!
+  style: Snapshot_MetricStyle!
+  properties: [Snapshot_MetricProperty!]!
 }
 
-type MetricStyleData {
+type Snapshot_MetricStyle {
   color: NullableString
   icon: NullableString
 }
 
-type MetricPropertyData {
+type Snapshot_MetricProperty {
   id: ObjectID!
   name: String!
   type: MetricPropertyType!
@@ -46,4 +47,24 @@ type MetricPropertyData {
 enum MetricPropertyType {
   STRING
   NUMBER
+}
+
+directive @goTag(key: String!, value: String) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+type CapturedRecord {
+  id: ObjectID! @goTag(key: "bson", value: "_id")
+  timestamp: Time! @goTag(key: "bson", value: "timestamp")
+  totalFocusedTime: Int! @goTag(key: "bson", value: "total_focused_time")
+  customMetrics: [CapturedRecord_CustomMetric!]! @goTag(key: "bson", value: "custom_metrics")
+  metadata: CapturedRecord_Metadata! @goTag(key: "bson", value: "metadata")
+}
+
+type CapturedRecord_CustomMetric {
+  id: ObjectID! @goTag(key: "bson", value: "_id")
+  time: Int! @goTag(key: "bson", value: "time")
+}
+
+type CapturedRecord_Metadata {
+  characterID: ObjectID! @goTag(key: "bson", value: "character_id")
+  profileID: ObjectID! @goTag(key: "bson", value: "profile_id")
 }

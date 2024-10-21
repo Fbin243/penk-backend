@@ -8,7 +8,7 @@ import (
 
 func MapToSnapshotDto(snapshot *analyticsdb.Snapshot) *model.Snapshot {
 	character := snapshot.Character
-	customMetrics := make([]model.CustomMetricData, 0)
+	customMetrics := make([]model.SnapshotCustomMetric, 0)
 	for _, customMetric := range character.CustomMetrics {
 		customMetrics = append(customMetrics, *MapToCustomMetricDto(&customMetric))
 	}
@@ -16,31 +16,31 @@ func MapToSnapshotDto(snapshot *analyticsdb.Snapshot) *model.Snapshot {
 	return &model.Snapshot{
 		ID:        snapshot.ID,
 		Timestamp: snapshot.Timestamp,
-		Character: &model.CharacterData{
+		Character: model.SnapshotCharacter{
 			ID:               character.ID,
 			ProfileID:        character.ProfileID,
 			Name:             character.Name,
 			Gender:           character.Gender,
 			Tags:             character.Tags,
-			TotalFocusedTime: int(character.TotalFocusedTime),
-			CustomMetrics:    customMetrics,
-		},
+			TotalFocusedTime: character.TotalFocusedTime,
+				CustomMetrics:    customMetrics,
+			},
 		Description: snapshot.Description,
 	}
 }
 
-func MapToCustomMetricDto(customMetrics *coredb.CustomMetric) *model.CustomMetricData {
-	props := make([]model.MetricPropertyData, 0)
+func MapToCustomMetricDto(customMetrics *coredb.CustomMetric) *model.SnapshotCustomMetric {
+	props := make([]model.SnapshotMetricProperty, 0)
 	for _, prop := range customMetrics.Properties {
 		props = append(props, *MapToMetricPropertyDto(&prop))
 	}
 
-	return &model.CustomMetricData{
+	return &model.SnapshotCustomMetric{
 		ID:          customMetrics.ID,
 		Name:        customMetrics.Name,
 		Description: &customMetrics.Description,
-		Time:        int(customMetrics.Time),
-		Style: &model.MetricStyleData{
+		Time:        customMetrics.Time,
+		Style: model.SnapshotMetricStyle{
 			Color: &customMetrics.Style.Color,
 			Icon:  &customMetrics.Style.Icon,
 		},
@@ -48,8 +48,8 @@ func MapToCustomMetricDto(customMetrics *coredb.CustomMetric) *model.CustomMetri
 	}
 }
 
-func MapToMetricPropertyDto(properties *coredb.MetricProperty) *model.MetricPropertyData {
-	return &model.MetricPropertyData{
+func MapToMetricPropertyDto(properties *coredb.MetricProperty) *model.SnapshotMetricProperty {
+	return &model.SnapshotMetricProperty{
 		ID:    properties.ID,
 		Name:  properties.Name,
 		Type:  properties.Type,

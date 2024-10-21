@@ -2,6 +2,7 @@ package timetrackings
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -9,7 +10,10 @@ import (
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/db/timetrackingsdb"
+	"tenkhours/pkg/sessions"
+	"tenkhours/services/analytics/graph/model"
 
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -17,12 +21,14 @@ import (
 type TimeTrackingsHandler struct {
 	TimeTrackingsRepo *timetrackingsdb.TimeTrackingsRepo
 	CharactersRepo    *coredb.CharactersRepo
+	RedisClient       *redis.Client
 }
 
-func NewTimeTrackingsHandler(timeTrackingsRepo *timetrackingsdb.TimeTrackingsRepo, charactersRepo *coredb.CharactersRepo) *TimeTrackingsHandler {
+func NewTimeTrackingsHandler(timeTrackingsRepo *timetrackingsdb.TimeTrackingsRepo, charactersRepo *coredb.CharactersRepo, redisClient *redis.Client) *TimeTrackingsHandler {
 	return &TimeTrackingsHandler{
 		TimeTrackingsRepo: timeTrackingsRepo,
 		CharactersRepo:    charactersRepo,
+		RedisClient:       redisClient,
 	}
 }
 
@@ -62,7 +68,6 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 	duration := serverStartTime.Sub(startTime)
 	seconds := duration.Seconds()
 
-	// Check timeout if delay of client and server is 20 second
 	if seconds > 20 {
 		return nil, fmt.Errorf("server timeout, failed to start a new session")
 	}
@@ -90,7 +95,6 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 		}
 	}
 
-	// Check if the time tracking is already started
 	timeTrackings, err := r.TimeTrackingsRepo.GetTimeTrackingsByCharacterID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get time trackings: %v", err)
@@ -114,12 +118,17 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 		timeTracking.CustomMetricID = *metricID
 	}
 
-	createdTimeTracking, err := r.TimeTrackingsRepo.CreateTimeTracking(&timeTracking)
+	timeTrackingJSON, err := json.Marshal(timeTracking)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create time tracking: %v", err)
+		return nil, fmt.Errorf("failed to serialize time tracking: %v", err)
 	}
 
-	return createdTimeTracking, nil
+	err = r.RedisClient.Set(ctx, timeTracking.ID.Hex(), timeTrackingJSON, 24*time.Hour).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to save time tracking to redis: %v", err)
+	}
+
+	return &timeTracking, nil
 }
 
 func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsdb.TimeTracking, error) {
@@ -130,9 +139,30 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 
 	endTime := time.Now()
 
-	timeTracking, err := r.TimeTrackingsRepo.GetTimeTrackingByID(id)
+	val, err := r.RedisClient.Get(ctx, id.Hex()).Result()
+	if err == redis.Nil {
+		return nil, fmt.Errorf("time tracking not found in redis")
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to get time tracking from redis: %v", err)
+	}
+
+	var timeTracking timetrackingsdb.TimeTracking
+	err = json.Unmarshal([]byte(val), &timeTracking)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get time tracking: %v", err)
+		return nil, fmt.Errorf("failed to deserialize time tracking: %v", err)
+	}
+
+	if endTime.Sub(timeTracking.StartTime).Hours() > 24 {
+		err = r.RedisClient.Del(ctx, id.Hex()).Err()
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete expired time tracking from redis: %v", err)
+		}
+		return nil, fmt.Errorf("session timeout, exceeded 24 hours")
+	}
+
+	err = r.RedisClient.Del(ctx, id.Hex()).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete time tracking from redis: %v", err)
 	}
 
 	character, err := r.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
@@ -149,7 +179,6 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 	}
 
 	duration := int32(endTime.Sub(timeTracking.StartTime).Seconds())
-
 	// TODO: TESTING
 	// duration = 599 // Test for the min duration time
 	// duration = 600 // Test for the min duration time
@@ -159,13 +188,8 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 
 	if duration < timeTracking.MinDurationTime {
 		duration = 0
-		_, err := r.TimeTrackingsRepo.DeleteTimeTracking(id)
-		if err != nil {
-			return nil, fmt.Errorf("failed to delete time tracking: %v", err)
-		}
-
 		log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
-		return timeTracking, nil
+		return &timeTracking, nil
 	}
 
 	if duration > timeTracking.MaxDurationTime {
@@ -175,19 +199,65 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 
 	timeTracking.EndTime = timeTracking.StartTime.Add(time.Duration(duration) * time.Second)
 
+	// Check if the captured record already exists in Redis
+	capturedRecord := model.CapturedRecord{}
+	capturedRecordJSON, err := r.RedisClient.HGet(ctx, sessions.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex()).Result()
+	if err == redis.Nil {
+		// Make a new captured record
+		capturedRecord = model.CapturedRecord{
+			ID:               primitive.NewObjectID(),
+			Timestamp:        timeTracking.StartTime,
+			TotalFocusedTime: 0,
+			Metadata: model.CapturedRecordMetadata{
+				CharacterID: character.ID,
+				ProfileID:   character.ProfileID,
+			},
+			CustomMetrics: []model.CapturedRecordCustomMetric{},
+		}
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to get captured record from redis: %v", err)
+	} else {
+		err = json.Unmarshal([]byte(capturedRecordJSON), &capturedRecord)
+		if err != nil {
+			return nil, fmt.Errorf("failed to deserialize captured record: %v", err)
+		}
+	}
+
+	// Add the time to the captured record for character
+	capturedRecord.TotalFocusedTime += duration
+
 	character.TotalFocusedTime += duration
 	if !timeTracking.CustomMetricID.IsZero() {
 		for i, customMetric := range character.CustomMetrics {
 			if customMetric.ID == timeTracking.CustomMetricID {
 				character.CustomMetrics[i].Time += int32(duration)
+
+				// Check if this custom metric already exists in the captured record
+				found := false
+				for j, capturedCustomMetric := range capturedRecord.CustomMetrics {
+					// If it exists, add the time to it
+					if capturedCustomMetric.ID == timeTracking.CustomMetricID {
+						capturedRecord.CustomMetrics[j].Time += int32(duration)
+						found = true
+					}
+				}
+
+				// If it doesn't exist, create a new one
+				if !found {
+					capturedRecord.CustomMetrics = append(capturedRecord.CustomMetrics, model.CapturedRecordCustomMetric{
+						ID:   timeTracking.CustomMetricID,
+						Time: int32(duration),
+					})
+				}
+
 				break
 			}
 		}
 	}
 
-	_, err = r.TimeTrackingsRepo.UpdateTimeTracking(timeTracking)
+	_, err = r.TimeTrackingsRepo.CreateTimeTracking(&timeTracking)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update time tracking: %v", err)
+		return nil, fmt.Errorf("failed to create time tracking in DB: %v", err)
 	}
 
 	_, err = r.CharactersRepo.UpdateCharacter(character)
@@ -195,5 +265,16 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
-	return timeTracking, nil
+	// Upsert the captured record to Redis
+	capturedRecordBytes, err := json.Marshal(capturedRecord)
+	if err != nil {
+		return nil, fmt.Errorf("failed to serialize captured record: %v", err)
+	}
+
+	err = r.RedisClient.HSet(ctx, sessions.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex(), capturedRecordBytes).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to save captured record to redis: %v", err)
+	}
+
+	return &timeTracking, nil
 }

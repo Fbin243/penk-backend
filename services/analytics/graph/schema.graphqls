@@ -1,8 +1,26 @@
 type Mutation {
   createSnapshot(characterID: ObjectID!, description: String): Snapshot!
+  createCapturedRecord(characterID: ObjectID!): CapturedRecord!
 }
 
 type Query {
-  characterSnapshots(characterID: ObjectID!): [Snapshot!]!
-  userSnapshots: [Snapshot!]!
+  snapshots(characterID: ObjectID, filter: Filter): [Snapshot!]!
+  analyticResults(characterID: ObjectID, filter: Filter): JSON!
 }
+
+input Filter {
+  month: Month
+  year: Int
+}
+
+# input Aggregate {
+#   type: AggregateType!
+#   value: Int!
+# }
+
+# enum AggregateType {
+#   YEARLY
+#   MONTHLY
+#   WEEKLY
+#   DAILY
+# }
