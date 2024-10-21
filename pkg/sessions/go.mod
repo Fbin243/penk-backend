@@ -1,4 +1,4 @@
-module sessions
+module tenkhours/pkg/sessions
 
 go 1.22.3
 

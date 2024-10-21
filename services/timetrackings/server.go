@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sessions"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/db/timetrackingsdb"
+	"tenkhours/pkg/sessions"
 	"tenkhours/pkg/timetrackings"
 	"tenkhours/services/timetrackings/graph"
 
