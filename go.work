@@ -5,7 +5,6 @@ use (
 	./cmd
 	./pkg/auth
 	./pkg/business/analytics
-	./pkg/business/core
 	./pkg/business/timetrackings
 	./pkg/cron
 	./pkg/db

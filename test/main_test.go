@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"tenkhours/pineline"
+	"tenkhours/pkg/pineline"
 	"tenkhours/test/analytics"
 	"tenkhours/test/common"
 	"tenkhours/test/core"

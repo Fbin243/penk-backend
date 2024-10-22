@@ -1,13 +1,13 @@
-package core
+package business
 
 import (
 	"context"
 	"fmt"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/business/core/validations"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
+	"tenkhours/services/core/business/validations"
 	"tenkhours/services/core/graph/model"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"

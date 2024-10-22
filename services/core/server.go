@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/business/core"
+	"tenkhours/services/core/business"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/services/core/graph"
@@ -39,8 +39,8 @@ func main() {
 	db := db.GetDBManager().DB
 	profilesRepo := coredb.NewProfilesRepo(db)
 	charactersRepo := coredb.NewCharactersRepo(db)
-	profilesHandler := core.NewProfilesHandler(profilesRepo)
-	charactersHandler := core.NewCharactersHandler(charactersRepo, profilesRepo)
+	profilesHandler := business.NewProfilesHandler(profilesRepo)
+	charactersHandler := business.NewCharactersHandler(charactersRepo, profilesRepo)
 
 	// Check authentication
 	authMiddleware := auth.NewMiddleware(profilesRepo)

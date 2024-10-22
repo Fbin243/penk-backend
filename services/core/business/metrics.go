@@ -1,4 +1,4 @@
-package core
+package business
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"log"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/business/core/validations"
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/services/core/business/validations"
 	"tenkhours/services/core/graph/model"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
