@@ -3,7 +3,7 @@
 package model
 
 import (
-	"tenkhours/pkg/db/coredb"
+	"tenkhours/services/core/repo"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -37,7 +37,7 @@ type MetricPropertyInput struct {
 	// Name of the property.
 	Name *string `json:"name,omitempty"`
 	// Data type of the property (STRING or NUMBER).
-	Type *coredb.MetricPropertyType `json:"type,omitempty"`
+	Type *repo.MetricPropertyType `json:"type,omitempty"`
 	// Specific value of the property based on its data type.
 	Value *string `json:"value,omitempty"`
 	// Unit of the property value (e.g., seconds, meters, etc.).

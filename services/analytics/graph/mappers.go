@@ -1,12 +1,12 @@
 package graph
 
 import (
-	"tenkhours/pkg/db/analyticsdb"
-	"tenkhours/pkg/db/coredb"
 	"tenkhours/services/analytics/graph/model"
+	analyticsRepo "tenkhours/services/analytics/repo"
+	"tenkhours/services/core/repo"
 )
 
-func MapToSnapshotDto(snapshot *analyticsdb.Snapshot) *model.Snapshot {
+func MapToSnapshotDto(snapshot *analyticsRepo.Snapshot) *model.Snapshot {
 	character := snapshot.Character
 	customMetrics := make([]model.SnapshotCustomMetric, 0)
 	for _, customMetric := range character.CustomMetrics {
@@ -23,13 +23,13 @@ func MapToSnapshotDto(snapshot *analyticsdb.Snapshot) *model.Snapshot {
 			Gender:           character.Gender,
 			Tags:             character.Tags,
 			TotalFocusedTime: character.TotalFocusedTime,
-				CustomMetrics:    customMetrics,
-			},
+			CustomMetrics:    customMetrics,
+		},
 		Description: snapshot.Description,
 	}
 }
 
-func MapToCustomMetricDto(customMetrics *coredb.CustomMetric) *model.SnapshotCustomMetric {
+func MapToCustomMetricDto(customMetrics *repo.CustomMetric) *model.SnapshotCustomMetric {
 	props := make([]model.SnapshotMetricProperty, 0)
 	for _, prop := range customMetrics.Properties {
 		props = append(props, *MapToMetricPropertyDto(&prop))
@@ -48,7 +48,7 @@ func MapToCustomMetricDto(customMetrics *coredb.CustomMetric) *model.SnapshotCus
 	}
 }
 
-func MapToMetricPropertyDto(properties *coredb.MetricProperty) *model.SnapshotMetricProperty {
+func MapToMetricPropertyDto(properties *repo.MetricProperty) *model.SnapshotMetricProperty {
 	return &model.SnapshotMetricProperty{
 		ID:    properties.ID,
 		Name:  properties.Name,

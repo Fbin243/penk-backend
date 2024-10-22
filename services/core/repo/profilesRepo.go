@@ -1,4 +1,4 @@
-package coredb
+package repo
 
 import (
 	"context"

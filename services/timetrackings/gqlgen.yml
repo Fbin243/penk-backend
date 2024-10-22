@@ -89,4 +89,4 @@ models:
   ObjectID:
     model: tenkhours/pkg/graphql.ObjectID
   TimeTracking:
-    model: tenkhours/pkg/db/timetrackingsdb.TimeTracking
+    model: tenkhours/services/timetrackings/repo.TimeTracking

@@ -3,8 +3,8 @@ package validations
 import (
 	"testing"
 
-	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
+	"tenkhours/services/core/repo"
 
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,11 +13,11 @@ import (
 func TestValidateProfile(t *testing.T) {
 	type testCase struct {
 		name     string
-		profile  coredb.Profile
+		profile  repo.Profile
 		hasError bool
 	}
 
-	profile := coredb.Profile{
+	profile := repo.Profile{
 		ID:                 primitive.NewObjectID(),
 		Name:               "John Doe",
 		Email:              "john@example.com",
@@ -36,7 +36,7 @@ func TestValidateProfile(t *testing.T) {
 		},
 		{
 			name: "empty name",
-			profile: func(u coredb.Profile) coredb.Profile {
+			profile: func(u repo.Profile) repo.Profile {
 				u.Name = ""
 				return u
 			}(profile),
@@ -44,7 +44,7 @@ func TestValidateProfile(t *testing.T) {
 		},
 		{
 			name: "name too long",
-			profile: func(u coredb.Profile) coredb.Profile {
+			profile: func(u repo.Profile) repo.Profile {
 				u.Name = "This is a very long name that exceeds the maximum allowed length of fifty characters"
 				return u
 			}(profile),

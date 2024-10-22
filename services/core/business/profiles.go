@@ -5,26 +5,26 @@ import (
 	"fmt"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/business/validations"
 	"tenkhours/services/core/graph/model"
+	"tenkhours/services/core/repo"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ProfilesHandler struct {
-	ProfilesRepo *coredb.ProfilesRepo
+	ProfilesRepo *repo.ProfilesRepo
 }
 
-func NewProfilesHandler(profilesRepo *coredb.ProfilesRepo) *ProfilesHandler {
+func NewProfilesHandler(profilesRepo *repo.ProfilesRepo) *ProfilesHandler {
 	return &ProfilesHandler{
 		ProfilesRepo: profilesRepo,
 	}
 }
 
-func (r *ProfilesHandler) GetProfileByToken(ctx context.Context) (*coredb.Profile, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *ProfilesHandler) GetProfileByToken(ctx context.Context) (*repo.Profile, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -32,8 +32,8 @@ func (r *ProfilesHandler) GetProfileByToken(ctx context.Context) (*coredb.Profil
 	return &profile, nil
 }
 
-func (r *ProfilesHandler) UpdateProfile(ctx context.Context, input model.ProfileInput) (*coredb.Profile, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *ProfilesHandler) UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}

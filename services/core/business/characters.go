@@ -5,26 +5,27 @@ import (
 	"fmt"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/db/coredb"
+
 	"tenkhours/services/core/business/validations"
 	"tenkhours/services/core/graph/model"
+	"tenkhours/services/core/repo"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type CharactersHandler struct {
-	CharactersRepo *coredb.CharactersRepo
-	ProfilesRepo   *coredb.ProfilesRepo
+	CharactersRepo *repo.CharactersRepo
+	ProfilesRepo   *repo.ProfilesRepo
 }
 
-func NewCharactersHandler(charactersRepo *coredb.CharactersRepo, profilesRepo *coredb.ProfilesRepo) *CharactersHandler {
+func NewCharactersHandler(charactersRepo *repo.CharactersRepo, profilesRepo *repo.ProfilesRepo) *CharactersHandler {
 	return &CharactersHandler{
 		CharactersRepo: charactersRepo,
 		ProfilesRepo:   profilesRepo,
 	}
 }
 
-func (r *CharactersHandler) GetCharacterByID(ctx context.Context, id string) (*coredb.Character, error) {
+func (r *CharactersHandler) GetCharacterByID(ctx context.Context, id string) (*repo.Character, error) {
 	characterOID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
@@ -38,8 +39,8 @@ func (r *CharactersHandler) GetCharacterByID(ctx context.Context, id string) (*c
 	return character, nil
 }
 
-func (r *CharactersHandler) GetCharactersByProfileID(ctx context.Context) ([]coredb.Character, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) GetCharactersByProfileID(ctx context.Context) ([]repo.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -52,8 +53,8 @@ func (r *CharactersHandler) GetCharactersByProfileID(ctx context.Context) ([]cor
 	return characters, nil
 }
 
-func (r *CharactersHandler) CreateCharacter(ctx context.Context, input model.CharacterInput) (*coredb.Character, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -68,11 +69,11 @@ func (r *CharactersHandler) CreateCharacter(ctx context.Context, input model.Cha
 		return nil, fmt.Errorf("user have already created 2 characters")
 	}
 
-	character := coredb.Character{
+	character := repo.Character{
 		ID:                  primitive.NewObjectID(),
 		ProfileID:           profile.ID,
 		TotalFocusedTime:    0,
-		CustomMetrics:       []coredb.CustomMetric{},
+		CustomMetrics:       []repo.CustomMetric{},
 		LimitedMetricNumber: 2,
 	}
 
@@ -106,8 +107,8 @@ func (r *CharactersHandler) CreateCharacter(ctx context.Context, input model.Cha
 	return createdCharacter, nil
 }
 
-func (r *CharactersHandler) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*coredb.Character, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -142,8 +143,8 @@ func (r *CharactersHandler) UpdateCharacter(ctx context.Context, id primitive.Ob
 	return updatedCharacter, nil
 }
 
-func (r *CharactersHandler) DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*coredb.Character, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -165,8 +166,8 @@ func (r *CharactersHandler) DeleteCharacter(ctx context.Context, id primitive.Ob
 	return deletedCharacter, nil
 }
 
-func (r *CharactersHandler) ResetCharacter(ctx context.Context, id primitive.ObjectID) (*coredb.Character, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) ResetCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -182,7 +183,7 @@ func (r *CharactersHandler) ResetCharacter(ctx context.Context, id primitive.Obj
 
 	character.Tags = []string{}
 	character.TotalFocusedTime = 0
-	character.CustomMetrics = []coredb.CustomMetric{}
+	character.CustomMetrics = []repo.CustomMetric{}
 
 	resetCharacter, err := r.CharactersRepo.UpdateCharacter(character)
 	if err != nil {

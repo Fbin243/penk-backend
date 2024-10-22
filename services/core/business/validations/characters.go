@@ -1,7 +1,7 @@
 package validations
 
 import (
-	"tenkhours/pkg/db/coredb"
+	"tenkhours/services/core/repo"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -20,17 +20,17 @@ func ValidateTag(fl validator.FieldLevel) bool {
 	return true
 }
 
-func ValidateCharacter(character coredb.Character) error {
+func ValidateCharacter(character repo.Character) error {
 	validate := validator.New()
 	validate.RegisterValidation("tags_valid", ValidateTag)
 
 	return validate.Struct(character)
 }
 
-func ValidateCustomMetric(customMetric coredb.CustomMetric) error {
+func ValidateCustomMetric(customMetric repo.CustomMetric) error {
 	return validator.New().Struct(customMetric)
 }
 
-func ValidateMetricProperty(metricProperty coredb.MetricProperty) error {
+func ValidateMetricProperty(metricProperty repo.MetricProperty) error {
 	return validator.New().Struct(metricProperty)
 }

@@ -1,9 +1,11 @@
-package timetrackingsdb
+package repo_test
 
 import (
 	"context"
 	"testing"
 	"time"
+
+	"tenkhours/services/timetrackings/repo"
 
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -28,8 +30,8 @@ var timeTrackingInput = &timeTrackingInputType{
 	MaxDurationTime: 120,
 }
 
-func newTimeTrackingFromInput(input *timeTrackingInputType) *TimeTracking {
-	return &TimeTracking{
+func newTimeTrackingFromInput(input *timeTrackingInputType) *repo.TimeTracking {
+	return &repo.TimeTracking{
 		ID:              primitive.NewObjectID(),
 		CharacterID:     input.CharacterID,
 		CustomMetricID:  input.CustomMetricID,
@@ -40,7 +42,7 @@ func newTimeTrackingFromInput(input *timeTrackingInputType) *TimeTracking {
 	}
 }
 
-func assertWithTimeTrackingInput(t *testing.T, timeTracking *TimeTracking, input *timeTrackingInputType) {
+func assertWithTimeTrackingInput(t *testing.T, timeTracking *repo.TimeTracking, input *timeTrackingInputType) {
 	assert.Equal(t, timeTracking.CharacterID, input.CharacterID)
 	assert.Equal(t, timeTracking.CustomMetricID, input.CustomMetricID)
 	assert.WithinDuration(t, timeTracking.StartTime, input.StartTime, 1*time.Second)
@@ -49,7 +51,7 @@ func assertWithTimeTrackingInput(t *testing.T, timeTracking *TimeTracking, input
 	assert.Equal(t, timeTracking.MaxDurationTime, input.MaxDurationTime)
 }
 
-func setupTest(t *testing.T) (*TimeTracking, func()) {
+func setupTest(t *testing.T) (*repo.TimeTracking, func()) {
 	_, err := timeTrackingsRepo.Collection.DeleteMany(context.Background(), bson.M{})
 	if err != nil {
 		t.Fatalf("Failed to clean up collection: %v", err)

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"tenkhours/pkg/db/coredb"
+	"tenkhours/services/core/repo"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -68,11 +68,11 @@ type SnapshotCustomMetric struct {
 }
 
 type SnapshotMetricProperty struct {
-	ID    primitive.ObjectID        `json:"id"`
-	Name  string                    `json:"name"`
-	Type  coredb.MetricPropertyType `json:"type"`
-	Value string                    `json:"value"`
-	Unit  *string                   `json:"unit,omitempty"`
+	ID    primitive.ObjectID      `json:"id"`
+	Name  string                  `json:"name"`
+	Type  repo.MetricPropertyType `json:"type"`
+	Value string                  `json:"value"`
+	Unit  *string                 `json:"unit,omitempty"`
 }
 
 type SnapshotMetricStyle struct {

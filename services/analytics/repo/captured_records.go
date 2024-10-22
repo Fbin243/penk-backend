@@ -1,4 +1,4 @@
-package analyticsdb
+package repo
 
 import (
 	"context"
@@ -53,5 +53,3 @@ func (r *CapturedRecordsRepo) GetCapturedRecords(pineline mongo.Pipeline) ([]mod
 
 	return capturedRecords, nil
 }
-
-

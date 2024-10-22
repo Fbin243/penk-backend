@@ -1,9 +1,8 @@
-package analyticsdb
+package repo
 
 import (
+	"tenkhours/services/core/repo"
 	"time"
-
-	"tenkhours/pkg/db/coredb"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -17,7 +16,7 @@ type Snapshot struct {
 	ID          primitive.ObjectID `json:"id" bson:"_id"`
 	Timestamp   time.Time          `json:"timestamp" bson:"timestamp"`
 	Metadata    Metadata           `json:"metadata" bson:"metadata"`
-	Character   coredb.Character   `json:"character" bson:"character"`
+	Character   repo.Character   `json:"character" bson:"character"`
 	Description string             `json:"description,omitempty" bson:"description,omitempty" validate:"omitempty,max=255"`
 	Asset       interface{}        `json:"asset,omitempty" bson:"asset,omitempty"`
 }

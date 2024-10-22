@@ -1,4 +1,4 @@
-package timetrackings
+package business
 
 import (
 	"context"
@@ -8,10 +8,11 @@ import (
 	"time"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/db/coredb"
-	"tenkhours/pkg/db/timetrackingsdb"
+
 	"tenkhours/pkg/sessions"
 	"tenkhours/services/analytics/graph/model"
+	"tenkhours/services/core/repo"
+	timetrackingsRepo "tenkhours/services/timetrackings/repo"
 
 	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,12 +20,12 @@ import (
 )
 
 type TimeTrackingsHandler struct {
-	TimeTrackingsRepo *timetrackingsdb.TimeTrackingsRepo
-	CharactersRepo    *coredb.CharactersRepo
+	TimeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo
+	CharactersRepo    *repo.CharactersRepo
 	RedisClient       *redis.Client
 }
 
-func NewTimeTrackingsHandler(timeTrackingsRepo *timetrackingsdb.TimeTrackingsRepo, charactersRepo *coredb.CharactersRepo, redisClient *redis.Client) *TimeTrackingsHandler {
+func NewTimeTrackingsHandler(timeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo, charactersRepo *repo.CharactersRepo, redisClient *redis.Client) *TimeTrackingsHandler {
 	return &TimeTrackingsHandler{
 		TimeTrackingsRepo: timeTrackingsRepo,
 		CharactersRepo:    charactersRepo,
@@ -32,8 +33,8 @@ func NewTimeTrackingsHandler(timeTrackingsRepo *timetrackingsdb.TimeTrackingsRep
 	}
 }
 
-func (r *TimeTrackingsHandler) GetCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*timetrackingsdb.TimeTracking, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *TimeTrackingsHandler) GetCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*timetrackingsRepo.TimeTracking, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -58,8 +59,8 @@ func (r *TimeTrackingsHandler) GetCurrentTimeTracking(ctx context.Context, chara
 	return result, nil
 }
 
-func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, metricID *primitive.ObjectID, startTime time.Time) (*timetrackingsdb.TimeTracking, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, metricID *primitive.ObjectID, startTime time.Time) (*timetrackingsRepo.TimeTracking, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -106,7 +107,7 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 		}
 	}
 
-	timeTracking := timetrackingsdb.TimeTracking{
+	timeTracking := timetrackingsRepo.TimeTracking{
 		ID:              primitive.NewObjectID(),
 		CharacterID:     characterID,
 		StartTime:       startTime,
@@ -131,8 +132,8 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 	return &timeTracking, nil
 }
 
-func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsdb.TimeTracking, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsRepo.TimeTracking, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -146,7 +147,7 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 		return nil, fmt.Errorf("failed to get time tracking from redis: %v", err)
 	}
 
-	var timeTracking timetrackingsdb.TimeTracking
+	var timeTracking timetrackingsRepo.TimeTracking
 	err = json.Unmarshal([]byte(val), &timeTracking)
 	if err != nil {
 		return nil, fmt.Errorf("failed to deserialize time tracking: %v", err)

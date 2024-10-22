@@ -1,4 +1,4 @@
-package analyticsdb
+package repo
 
 import (
 	"context"

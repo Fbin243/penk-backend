@@ -1,8 +1,10 @@
-package coredb
+package repo_test
 
 import (
 	"context"
 	"testing"
+
+	"tenkhours/services/core/repo"
 
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -24,7 +26,7 @@ type metricInputType struct {
 	Name        string
 	Description string
 	Style       styleInputType
-	Properties  []MetricProperty
+	Properties  []repo.MetricProperty
 }
 
 var charInput = &characterInputType{
@@ -33,20 +35,20 @@ var charInput = &characterInputType{
 	Tags:   []string{"#tag1", "#tag2"},
 }
 
-func newCharacterFromInput(input *characterInputType) *Character {
-	return &Character{
+func newCharacterFromInput(input *characterInputType) *repo.Character {
+	return &repo.Character{
 		ID:                  primitive.NewObjectID(),
 		ProfileID:           primitive.NewObjectID(),
 		Name:                input.Name,
 		Tags:                input.Tags,
 		Gender:              input.Gender,
 		TotalFocusedTime:    0,
-		CustomMetrics:       []CustomMetric{},
+		CustomMetrics:       []repo.CustomMetric{},
 		LimitedMetricNumber: 2,
 	}
 }
 
-func assertWithCharInput(t *testing.T, character *Character, input *characterInputType) {
+func assertWithCharInput(t *testing.T, character *repo.Character, input *characterInputType) {
 	assert.Equal(t, character.Name, input.Name)
 	assert.Equal(t, character.Gender, input.Gender)
 	assert.Equal(t, character.Tags, input.Tags)
@@ -59,7 +61,7 @@ var metricInput1 = &metricInputType{
 		Color: "red",
 		Icon:  "1",
 	},
-	Properties: []MetricProperty{
+	Properties: []repo.MetricProperty{
 		{
 			ID:    primitive.NewObjectID(),
 			Name:  "Property 1",
@@ -77,7 +79,7 @@ var metricInput2 = &metricInputType{
 		Color: "blue",
 		Icon:  "2",
 	},
-	Properties: []MetricProperty{
+	Properties: []repo.MetricProperty{
 		{
 			ID:    primitive.NewObjectID(),
 			Name:  "Property 2",
@@ -95,7 +97,7 @@ var metricInput3 = &metricInputType{
 		Color: "yellow",
 		Icon:  "3",
 	},
-	Properties: []MetricProperty{
+	Properties: []repo.MetricProperty{
 		{
 			ID:    primitive.NewObjectID(),
 			Name:  "Property 3",
@@ -106,21 +108,21 @@ var metricInput3 = &metricInputType{
 	},
 }
 
-func newMetricFromInput(input *metricInputType) *CustomMetric {
-	return &CustomMetric{
+func newMetricFromInput(input *metricInputType) *repo.CustomMetric {
+	return &repo.CustomMetric{
 		ID:                    primitive.NewObjectID(),
 		Name:                  input.Name,
 		Description:           input.Description,
-		Style:                 MetricStyle(input.Style),
+		Style:                 repo.MetricStyle(input.Style),
 		Properties:            input.Properties,
 		LimitedPropertyNumber: 2,
 	}
 }
 
-func assertWithMetricInput(t *testing.T, metric *CustomMetric, input *metricInputType) {
+func assertWithMetricInput(t *testing.T, metric *repo.CustomMetric, input *metricInputType) {
 	assert.Equal(t, metric.Name, input.Name)
 	assert.Equal(t, metric.Description, input.Description)
-	assert.Equal(t, metric.Style, MetricStyle(input.Style))
+	assert.Equal(t, metric.Style, repo.MetricStyle(input.Style))
 	assert.Equal(t, metric.Properties, input.Properties)
 }
 
@@ -155,7 +157,7 @@ func TestGetCharactersByProfileID(t *testing.T) {
 	assert.Equal(t, *character, characters[0])
 }
 
-func setupMultipleCharactersTest(t *testing.T) ([]*Character, func()) {
+func setupMultipleCharactersTest(t *testing.T) ([]*repo.Character, func()) {
 	_, err := charactersRepo.Collection.DeleteMany(context.Background(), bson.M{})
 	if err != nil {
 		t.Fatalf("Failed to clean up characters collection: %v", err)
@@ -190,7 +192,7 @@ func setupMultipleCharactersTest(t *testing.T) ([]*Character, func()) {
 		}
 	}
 
-	return []*Character{character1, character2}, cleanup
+	return []*repo.Character{character1, character2}, cleanup
 }
 
 func TestGetAllCharacters(t *testing.T) {
@@ -255,7 +257,7 @@ func TestUpdateCustomMetric(t *testing.T) {
 			Color: "green",
 			Icon:  "updatedIcon",
 		},
-		Properties: []MetricProperty{
+		Properties: []repo.MetricProperty{
 			{
 				ID:    primitive.NewObjectID(),
 				Name:  "Updated Property",
@@ -268,7 +270,7 @@ func TestUpdateCustomMetric(t *testing.T) {
 
 	metric.Name = updateInput.Name
 	metric.Description = updateInput.Description
-	metric.Style = MetricStyle(updateInput.Style)
+	metric.Style = repo.MetricStyle(updateInput.Style)
 	metric.Properties = updateInput.Properties
 
 	updatedMetric, err := charactersRepo.UpdateCustomMetric(character.ID, metric)
@@ -285,7 +287,7 @@ func TestAddMetricProperty(t *testing.T) {
 	_, err = charactersRepo.CreateCustomMetric(character.ID, metric)
 	assert.Nil(t, err)
 
-	property := MetricProperty{
+	property := repo.MetricProperty{
 		ID:    primitive.NewObjectID(),
 		Name:  "New Property",
 		Type:  "int",
@@ -307,7 +309,7 @@ func TestUpdateMetricProperty(t *testing.T) {
 	_, err = charactersRepo.CreateCustomMetric(character.ID, metric)
 	assert.Nil(t, err)
 
-	property := MetricProperty{
+	property := repo.MetricProperty{
 		ID:    primitive.NewObjectID(),
 		Name:  "Property 1",
 		Type:  "int",
@@ -318,7 +320,7 @@ func TestUpdateMetricProperty(t *testing.T) {
 	_, err = charactersRepo.CreateMetricProperty(character.ID, metric.ID, &property)
 	assert.Nil(t, err)
 
-	updateProperty := MetricProperty{
+	updateProperty := repo.MetricProperty{
 		ID:    property.ID,
 		Name:  "Updated Property",
 		Type:  "float",

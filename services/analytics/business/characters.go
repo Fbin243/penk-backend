@@ -1,16 +1,16 @@
-package analytics
+package business
 
 import (
 	"context"
 	"fmt"
 	"reflect"
-
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
-	"tenkhours/pkg/db/analyticsdb"
-	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/analytics/graph/model"
+
+	analyticsRepo "tenkhours/services/analytics/repo"
+	coreRepo "tenkhours/services/core/repo"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -18,13 +18,13 @@ import (
 )
 
 type CharactersHandler struct {
-	SnapshotsRepo       *analyticsdb.SnapshotsRepo
-	CharactersRepo      *coredb.CharactersRepo
-	ProfilesRepo        *coredb.ProfilesRepo
-	CapturedRecordsRepo *analyticsdb.CapturedRecordsRepo
+	SnapshotsRepo       *analyticsRepo.SnapshotsRepo
+	CharactersRepo      *coreRepo.CharactersRepo
+	ProfilesRepo        *coreRepo.ProfilesRepo
+	CapturedRecordsRepo *analyticsRepo.CapturedRecordsRepo
 }
 
-func NewCharactersHandler(snapshotsRepo *analyticsdb.SnapshotsRepo, charactersRepo *coredb.CharactersRepo, profilesRepo *coredb.ProfilesRepo, capturedRepo *analyticsdb.CapturedRecordsRepo) *CharactersHandler {
+func NewCharactersHandler(snapshotsRepo *analyticsRepo.SnapshotsRepo, charactersRepo *coreRepo.CharactersRepo, profilesRepo *coreRepo.ProfilesRepo, capturedRepo *analyticsRepo.CapturedRecordsRepo) *CharactersHandler {
 	return &CharactersHandler{
 		SnapshotsRepo:       snapshotsRepo,
 		CharactersRepo:      charactersRepo,
@@ -33,8 +33,8 @@ func NewCharactersHandler(snapshotsRepo *analyticsdb.SnapshotsRepo, charactersRe
 	}
 }
 
-func (r *CharactersHandler) GetSnapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) ([]analyticsdb.Snapshot, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) GetSnapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) ([]analyticsRepo.Snapshot, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -89,8 +89,8 @@ func (r *CharactersHandler) GetSnapshots(ctx context.Context, characterID *primi
 	return snapshots, nil
 }
 
-func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*analyticsdb.Snapshot, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*analyticsRepo.Snapshot, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -120,10 +120,10 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID p
 		return nil, fmt.Errorf("no changes detected")
 	}
 
-	snapshot := &analyticsdb.Snapshot{
+	snapshot := &analyticsRepo.Snapshot{
 		ID:        primitive.NewObjectID(),
 		Timestamp: utils.Now(),
-		Metadata: analyticsdb.Metadata{
+		Metadata: analyticsRepo.Metadata{
 			ProfileID:   profile.ID,
 			CharacterID: characterID,
 		},
@@ -166,7 +166,7 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID p
 		return nil, err
 	}
 
-	newSnapshot, ok := result.(analyticsdb.Snapshot)
+	newSnapshot, ok := result.(analyticsRepo.Snapshot)
 	if !ok {
 		return nil, fmt.Errorf("failed to create snapshot")
 	}
@@ -175,7 +175,7 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID p
 }
 
 func (r *CharactersHandler) CreateCapturedRecord(ctx context.Context, characterID primitive.ObjectID) (*model.CapturedRecord, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -220,7 +220,7 @@ func (r *CharactersHandler) CreateCapturedRecord(ctx context.Context, characterI
 }
 
 func (r *CharactersHandler) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) (map[string]interface{}, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -249,6 +249,6 @@ func (r *CharactersHandler) GetAnalyticResults(ctx context.Context, characterID 
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return processCapturedRecords(capturedRecords), nil
 }

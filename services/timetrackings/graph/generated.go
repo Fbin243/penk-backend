@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-	"tenkhours/pkg/db/timetrackingsdb"
 	graphql1 "tenkhours/pkg/graphql"
+	timetrackingsdb "tenkhours/services/timetrackings/repo"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -513,7 +513,7 @@ func (ec *executionContext) _Mutation_createTimeTracking(ctx context.Context, fi
 	}
 	res := resTmp.(*timetrackingsdb.TimeTracking)
 	fc.Result = res
-	return ec.marshalNTimeTracking2ᚖtenkhoursᚋpkgᚋdbᚋtimetrackingsdbᚐTimeTracking(ctx, field.Selections, res)
+	return ec.marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createTimeTracking(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -580,7 +580,7 @@ func (ec *executionContext) _Mutation_updateTimeTracking(ctx context.Context, fi
 	}
 	res := resTmp.(*timetrackingsdb.TimeTracking)
 	fc.Result = res
-	return ec.marshalNTimeTracking2ᚖtenkhoursᚋpkgᚋdbᚋtimetrackingsdbᚐTimeTracking(ctx, field.Selections, res)
+	return ec.marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateTimeTracking(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -644,7 +644,7 @@ func (ec *executionContext) _Query_currentTimeTracking(ctx context.Context, fiel
 	}
 	res := resTmp.(*timetrackingsdb.TimeTracking)
 	fc.Result = res
-	return ec.marshalOTimeTracking2ᚖtenkhoursᚋpkgᚋdbᚋtimetrackingsdbᚐTimeTracking(ctx, field.Selections, res)
+	return ec.marshalOTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_currentTimeTracking(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3533,11 +3533,11 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalNTimeTracking2tenkhoursᚋpkgᚋdbᚋtimetrackingsdbᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v timetrackingsdb.TimeTracking) graphql.Marshaler {
+func (ec *executionContext) marshalNTimeTracking2tenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v timetrackingsdb.TimeTracking) graphql.Marshaler {
 	return ec._TimeTracking(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTimeTracking2ᚖtenkhoursᚋpkgᚋdbᚋtimetrackingsdbᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v *timetrackingsdb.TimeTracking) graphql.Marshaler {
+func (ec *executionContext) marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v *timetrackingsdb.TimeTracking) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4088,7 +4088,7 @@ func (ec *executionContext) marshalOTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOTimeTracking2ᚖtenkhoursᚋpkgᚋdbᚋtimetrackingsdbᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v *timetrackingsdb.TimeTracking) graphql.Marshaler {
+func (ec *executionContext) marshalOTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v *timetrackingsdb.TimeTracking) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

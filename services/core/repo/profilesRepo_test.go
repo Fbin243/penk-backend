@@ -1,7 +1,9 @@
-package coredb
+package repo_test
 
 import (
 	"testing"
+
+	"tenkhours/services/core/repo"
 
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,8 +21,8 @@ var profileInput = &profileInputType{
 	CurrentCharacterID: primitive.NewObjectID(),
 }
 
-func newProfileFromInput(input *profileInputType) *Profile {
-	return &Profile{
+func newProfileFromInput(input *profileInputType) *repo.Profile {
+	return &repo.Profile{
 		ID:                 primitive.NewObjectID(),
 		Email:              primitive.NewObjectID().Hex() + "@gmail.com",
 		FirebaseUID:        primitive.NewObjectID().Hex(),
@@ -30,7 +32,7 @@ func newProfileFromInput(input *profileInputType) *Profile {
 	}
 }
 
-func assertWithProfileInput(t *testing.T, profile *Profile, input *profileInputType) {
+func assertWithProfileInput(t *testing.T, profile *repo.Profile, input *profileInputType) {
 	assert.Equal(t, profile.Name, input.Name)
 	assert.Equal(t, profile.ImageURL, input.ImageURL)
 	assert.Equal(t, profile.CurrentCharacterID, input.CurrentCharacterID)

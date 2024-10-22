@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
+	"tenkhours/services/core/repo"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -16,10 +16,10 @@ import (
 )
 
 type Middleware struct {
-	profilesRepo *coredb.ProfilesRepo
+	profilesRepo *repo.ProfilesRepo
 }
 
-func NewMiddleware(profilesRepo *coredb.ProfilesRepo) *Middleware {
+func NewMiddleware(profilesRepo *repo.ProfilesRepo) *Middleware {
 	return &Middleware{profilesRepo}
 }
 
@@ -51,7 +51,7 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 		profile, err := m.profilesRepo.GetProfileByFirebaseUID(firebaseProfile.UID)
 		if err == mongo.ErrNoDocuments {
 			log.Printf("user has not registered profile, so register it\n")
-			newProfile := coredb.Profile{
+			newProfile := repo.Profile{
 				ID:                 primitive.NewObjectID(),
 				Name:               firebaseProfile.Name,
 				Email:              firebaseProfile.Email,

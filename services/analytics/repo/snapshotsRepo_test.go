@@ -1,23 +1,24 @@
-package analyticsdb
+package repo_test
 
 import (
 	"testing"
 
-	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/utils"
+	analyticsRepo "tenkhours/services/analytics/repo"
+	coreRepo "tenkhours/services/core/repo"
 
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var snapshot = &Snapshot{
+var snapshot = &analyticsRepo.Snapshot{
 	ID:        primitive.NewObjectID(),
 	Timestamp: utils.Now(),
-	Metadata: Metadata{
+	Metadata: analyticsRepo.Metadata{
 		ProfileID:   primitive.NewObjectID(),
 		CharacterID: primitive.NewObjectID(),
 	},
-	Character: coredb.Character{},
+	Character: coreRepo.Character{},
 	// Asset: :,
 }
 

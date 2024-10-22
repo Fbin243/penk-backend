@@ -3,7 +3,7 @@ package validations
 import (
 	"testing"
 
-	"tenkhours/pkg/db/coredb"
+	"tenkhours/services/core/repo"
 
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -12,18 +12,18 @@ import (
 func TestValidateCharacter(t *testing.T) {
 	type testCase struct {
 		name      string
-		character coredb.Character
+		character repo.Character
 		hasError  bool
 	}
 
-	character := coredb.Character{
+	character := repo.Character{
 		ID:                  primitive.NewObjectID(),
 		ProfileID:           primitive.NewObjectID(),
 		Name:                "Hero",
 		Gender:              true,
 		Tags:                []string{"warrior", "legend"},
 		TotalFocusedTime:    100,
-		CustomMetrics:       []coredb.CustomMetric{},
+		CustomMetrics:       []repo.CustomMetric{},
 		LimitedMetricNumber: 5,
 	}
 
@@ -35,7 +35,7 @@ func TestValidateCharacter(t *testing.T) {
 		},
 		{
 			name: "empty name",
-			character: func(char coredb.Character) coredb.Character {
+			character: func(char repo.Character) repo.Character {
 				char.Name = ""
 				return char
 			}(character),
@@ -43,7 +43,7 @@ func TestValidateCharacter(t *testing.T) {
 		},
 		{
 			name: "name too long",
-			character: func(char coredb.Character) coredb.Character {
+			character: func(char repo.Character) repo.Character {
 				char.Name = "This is a very long name that exceeds the maximum allowed length of fifty characters"
 				return char
 			}(character),
@@ -66,17 +66,17 @@ func TestValidateCharacter(t *testing.T) {
 func TestValidateCustomMetric(t *testing.T) {
 	type testCase struct {
 		name     string
-		metric   coredb.CustomMetric
+		metric   repo.CustomMetric
 		hasError bool
 	}
 
-	metric := coredb.CustomMetric{
+	metric := repo.CustomMetric{
 		ID:                    primitive.NewObjectID(),
 		Name:                  "Metric",
 		Description:           "Metric description",
 		Time:                  10,
-		Style:                 coredb.MetricStyle{},
-		Properties:            []coredb.MetricProperty{},
+		Style:                 repo.MetricStyle{},
+		Properties:            []repo.MetricProperty{},
 		LimitedPropertyNumber: 5,
 	}
 
@@ -88,7 +88,7 @@ func TestValidateCustomMetric(t *testing.T) {
 		},
 		{
 			name: "description with maximum length",
-			metric: func(m coredb.CustomMetric) coredb.CustomMetric {
+			metric: func(m repo.CustomMetric) repo.CustomMetric {
 				m.Description = "This is a enough description with maximum length. This is a enough description with maximum length. This is a enough description with maximum length. This is a enough description with maximum length. This is a enough description with maximum length. Th..."
 				return m
 			}(metric),
@@ -96,7 +96,7 @@ func TestValidateCustomMetric(t *testing.T) {
 		},
 		{
 			name: "too long description",
-			metric: func(m coredb.CustomMetric) coredb.CustomMetric {
+			metric: func(m repo.CustomMetric) repo.CustomMetric {
 				m.Description = "This is a very long description that exceeds the maximum allowed length of two hundred fifty five characters. This is a very long description that exceeds the maximum allowed length of two hundred fifty five characters. This is a very long description t..."
 				return m
 			}(metric),
@@ -104,7 +104,7 @@ func TestValidateCustomMetric(t *testing.T) {
 		},
 		{
 			name: "color with valid hex",
-			metric: func(m coredb.CustomMetric) coredb.CustomMetric {
+			metric: func(m repo.CustomMetric) repo.CustomMetric {
 				m.Style.Color = "#ff0000"
 				return m
 			}(metric),
@@ -112,7 +112,7 @@ func TestValidateCustomMetric(t *testing.T) {
 		},
 		{
 			name: "color with invalid hex",
-			metric: func(m coredb.CustomMetric) coredb.CustomMetric {
+			metric: func(m repo.CustomMetric) repo.CustomMetric {
 				m.Style.Color = "#invalid"
 				return m
 			}(metric),
@@ -120,8 +120,8 @@ func TestValidateCustomMetric(t *testing.T) {
 		},
 		{
 			name: "invalid property",
-			metric: func(m coredb.CustomMetric) coredb.CustomMetric {
-				m.Properties = []coredb.MetricProperty{
+			metric: func(m repo.CustomMetric) repo.CustomMetric {
+				m.Properties = []repo.MetricProperty{
 					{
 						ID:    primitive.NewObjectID(),
 						Name:  "",
@@ -151,11 +151,11 @@ func TestValidateCustomMetric(t *testing.T) {
 func TestValidateMetricProperty(t *testing.T) {
 	type testCase struct {
 		name     string
-		property coredb.MetricProperty
+		property repo.MetricProperty
 		hasError bool
 	}
 
-	property := coredb.MetricProperty{
+	property := repo.MetricProperty{
 		ID:    primitive.NewObjectID(),
 		Name:  "Property",
 		Type:  "number",
@@ -171,7 +171,7 @@ func TestValidateMetricProperty(t *testing.T) {
 		},
 		{
 			name: "without unit",
-			property: func(p coredb.MetricProperty) coredb.MetricProperty {
+			property: func(p repo.MetricProperty) repo.MetricProperty {
 				p.Unit = ""
 				return p
 			}(property),
@@ -179,7 +179,7 @@ func TestValidateMetricProperty(t *testing.T) {
 		},
 		{
 			name: "missing name",
-			property: func(p coredb.MetricProperty) coredb.MetricProperty {
+			property: func(p repo.MetricProperty) repo.MetricProperty {
 				p.Name = ""
 				return p
 			}(property),
@@ -187,7 +187,7 @@ func TestValidateMetricProperty(t *testing.T) {
 		},
 		{
 			name: "missing type",
-			property: func(p coredb.MetricProperty) coredb.MetricProperty {
+			property: func(p repo.MetricProperty) repo.MetricProperty {
 				p.Type = ""
 				return p
 			}(property),
@@ -195,7 +195,7 @@ func TestValidateMetricProperty(t *testing.T) {
 		},
 		{
 			name: "missing value",
-			property: func(p coredb.MetricProperty) coredb.MetricProperty {
+			property: func(p repo.MetricProperty) repo.MetricProperty {
 				p.Value = ""
 				return p
 			}(property),

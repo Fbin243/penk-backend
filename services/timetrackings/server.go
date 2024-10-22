@@ -7,11 +7,12 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
-	"tenkhours/pkg/db/coredb"
-	"tenkhours/pkg/db/timetrackingsdb"
+
 	"tenkhours/pkg/sessions"
-	"tenkhours/pkg/timetrackings"
+	"tenkhours/services/core/repo"
+	"tenkhours/services/timetrackings/business"
 	"tenkhours/services/timetrackings/graph"
+	timetrackingsRepo "tenkhours/services/timetrackings/repo"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -39,11 +40,11 @@ func main() {
 
 	// Init dependencies and perform DI manually
 	db := db.GetDBManager().DB
-	profilesRepo := coredb.NewProfilesRepo(db)
-	charactersRepo := coredb.NewCharactersRepo(db)
+	profilesRepo := repo.NewProfilesRepo(db)
+	charactersRepo := repo.NewCharactersRepo(db)
 	redisClient := sessions.GetRedisClient()
-	timetrackingsRepo := timetrackingsdb.NewTimeTrackingsRepo(db)
-	timetrackingsHandler := timetrackings.NewTimeTrackingsHandler(timetrackingsRepo, charactersRepo, redisClient)
+	timetrackingsRepo := timetrackingsRepo.NewTimeTrackingsRepo(db)
+	timetrackingsHandler := business.NewTimeTrackingsHandler(timetrackingsRepo, charactersRepo, redisClient)
 
 	// Check authentication
 	authMiddleware := auth.NewMiddleware(profilesRepo)

@@ -6,15 +6,16 @@ import (
 	"log"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/db/coredb"
+
 	"tenkhours/services/core/business/validations"
 	"tenkhours/services/core/graph/model"
+	"tenkhours/services/core/repo"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*coredb.CustomMetric, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -32,12 +33,12 @@ func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID 
 		return nil, fmt.Errorf("custom metric creation limit reached")
 	}
 
-	customMetric := coredb.CustomMetric{
+	customMetric := repo.CustomMetric{
 		ID:                    primitive.NewObjectID(),
 		Description:           "",
 		Time:                  0,
-		Style:                 coredb.MetricStyle{},
-		Properties:            []coredb.MetricProperty{},
+		Style:                 repo.MetricStyle{},
+		Properties:            []repo.MetricProperty{},
 		LimitedPropertyNumber: 2,
 	}
 
@@ -63,9 +64,9 @@ func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID 
 	log.Printf("Input: %+v", input)
 
 	if input.Properties != nil {
-		var properties []coredb.MetricProperty
+		var properties []repo.MetricProperty
 		for _, prop := range input.Properties {
-			var metricProperty coredb.MetricProperty
+			var metricProperty repo.MetricProperty
 			metricProperty.ID = primitive.NewObjectID()
 
 			if prop.Name != nil {
@@ -111,8 +112,8 @@ func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID 
 	return createdCustomMetric, nil
 }
 
-func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*coredb.CustomMetric, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -127,7 +128,7 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID pri
 	}
 
 	found := false
-	updatedMetric := coredb.CustomMetric{}
+	updatedMetric := repo.CustomMetric{}
 	for i, cm := range character.CustomMetrics {
 		if cm.ID != metricID {
 			continue
@@ -149,9 +150,9 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID pri
 		}
 
 		if input.Properties != nil {
-			var properties []coredb.MetricProperty
+			var properties []repo.MetricProperty
 			for _, prop := range input.Properties {
-				var metricProperty coredb.MetricProperty
+				var metricProperty repo.MetricProperty
 				if prop.ID != nil {
 					metricProperty.ID = *prop.ID
 					propertyFound := false
@@ -221,8 +222,8 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID pri
 	return &updatedMetric, nil
 }
 
-func (r *CharactersHandler) DeleteCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID) (*coredb.CustomMetric, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) DeleteCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -256,8 +257,8 @@ func (r *CharactersHandler) DeleteCustomMetric(ctx context.Context, metricID pri
 	return deletedCustomMetric, nil
 }
 
-func (r *CharactersHandler) ResetCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID) (*coredb.CustomMetric, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) ResetCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -272,13 +273,13 @@ func (r *CharactersHandler) ResetCustomMetric(ctx context.Context, metricID prim
 	}
 
 	found := false
-	resetMetric := coredb.CustomMetric{}
+	resetMetric := repo.CustomMetric{}
 	for i, metric := range character.CustomMetrics {
 		if metric.ID == metricID {
 			metric.Description = ""
 			metric.Time = 0
-			metric.Style = coredb.MetricStyle{}
-			metric.Properties = []coredb.MetricProperty{}
+			metric.Style = repo.MetricStyle{}
+			metric.Properties = []repo.MetricProperty{}
 
 			character.CustomMetrics[i] = metric
 			resetMetric = metric
@@ -299,8 +300,8 @@ func (r *CharactersHandler) ResetCustomMetric(ctx context.Context, metricID prim
 	return &resetMetric, nil
 }
 
-func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*coredb.MetricProperty, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -314,7 +315,7 @@ func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterI
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	metricProperty := coredb.MetricProperty{
+	metricProperty := repo.MetricProperty{
 		ID: primitive.NewObjectID(),
 	}
 
@@ -361,8 +362,8 @@ func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterI
 	return &metricProperty, nil
 }
 
-func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*coredb.MetricProperty, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -378,7 +379,7 @@ func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id primiti
 
 	foundForMetric := false
 	foundForProperty := false
-	updatedProperty := coredb.MetricProperty{}
+	updatedProperty := repo.MetricProperty{}
 	for i, cm := range character.CustomMetrics {
 		if cm.ID == metricID {
 			for j, prop := range character.CustomMetrics[i].Properties {
@@ -431,8 +432,8 @@ func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id primiti
 	return &updatedProperty, nil
 }
 
-func (r *CharactersHandler) DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*coredb.MetricProperty, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coredb.Profile)
+func (r *CharactersHandler) DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*repo.MetricProperty, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
@@ -448,7 +449,7 @@ func (r *CharactersHandler) DeleteMetricProperty(ctx context.Context, id primiti
 
 	foundForMetric := false
 	foundForProperty := false
-	deletedMetricProperty := coredb.MetricProperty{}
+	deletedMetricProperty := repo.MetricProperty{}
 	for i, cm := range character.CustomMetrics {
 		if cm.ID == metricID {
 			for j, prop := range character.CustomMetrics[i].Properties {

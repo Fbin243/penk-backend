@@ -1,4 +1,4 @@
-package analyticsdb
+package repo_test
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"tenkhours/pkg/db"
+	"tenkhours/services/analytics/repo"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -13,7 +14,7 @@ import (
 
 var (
 	testdb        *mongo.Database
-	snapshotsRepo *SnapshotsRepo
+	snapshotsRepo *repo.SnapshotsRepo
 )
 
 func TestMain(m *testing.M) {
@@ -27,7 +28,7 @@ func TestMain(m *testing.M) {
 			),
 	)
 
-	snapshotsRepo = NewSnapshotRepo(testdb)
+	snapshotsRepo = repo.NewSnapshotRepo(testdb)
 
 	code := m.Run()
 

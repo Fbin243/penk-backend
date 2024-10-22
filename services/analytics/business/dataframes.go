@@ -1,25 +1,25 @@
-package analytics
+package business
 
 import (
 	"encoding/json"
 	"fmt"
 	"math"
 
-	"tenkhours/pkg/db/analyticsdb"
 	"tenkhours/services/analytics/graph/model"
+	"tenkhours/services/analytics/repo"
 
 	"github.com/go-gota/gota/dataframe"
 )
 
 var processCapturedRecords = func(capturedRecords []model.CapturedRecord) map[string]interface{} {
-	dfCaptureRecordsData := make([]analyticsdb.DFCapturedRecord, 0)
-	dfCaptureRecordCustomMetricsData := make([]analyticsdb.DFCapturedRecordCustomMetric, 0)
+	dfCaptureRecordsData := make([]repo.DFCapturedRecord, 0)
+	dfCaptureRecordCustomMetricsData := make([]repo.DFCapturedRecordCustomMetric, 0)
 
 	for _, record := range capturedRecords {
 		recordDay := record.Timestamp.Day()
 		recordWeek := math.Min(math.Ceil(float64(recordDay)/NUMBER_OF_DAYS_IN_A_WEEK), NUMBER_OF_WEEKS_IN_A_MONTH)
 
-		dfCaptureRecordsData = append(dfCaptureRecordsData, analyticsdb.DFCapturedRecord{
+		dfCaptureRecordsData = append(dfCaptureRecordsData, repo.DFCapturedRecord{
 			ID:               record.ID.Hex(),
 			CharacterID:      record.Metadata.CharacterID.Hex(),
 			Year:             record.Timestamp.Year(),
@@ -30,7 +30,7 @@ var processCapturedRecords = func(capturedRecords []model.CapturedRecord) map[st
 		})
 
 		for _, metric := range record.CustomMetrics {
-			dfCaptureRecordCustomMetricsData = append(dfCaptureRecordCustomMetricsData, analyticsdb.DFCapturedRecordCustomMetric{
+			dfCaptureRecordCustomMetricsData = append(dfCaptureRecordCustomMetricsData, repo.DFCapturedRecordCustomMetric{
 				ID:       record.ID.Hex(),
 				MetricID: metric.ID.Hex(),
 				Time:     int(metric.Time),

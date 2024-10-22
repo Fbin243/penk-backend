@@ -7,7 +7,7 @@ import (
 
 	"tenkhours/cmd/auth"
 	"tenkhours/pkg/db"
-	"tenkhours/pkg/db/coredb"
+	"tenkhours/services/core/repo"
 )
 
 func TestUserFlow(uid string) error {
@@ -18,7 +18,7 @@ func TestUserFlow(uid string) error {
 	}
 
 	// Remove the current profile in `dev` database
-	profileRepo := coredb.NewProfilesRepo(db.GetDBManager().DB)
+	profileRepo := repo.NewProfilesRepo(db.GetDBManager().DB)
 	err = profileRepo.DeleteProfileByFirebaseUID(uid)
 	if err != nil {
 		return fmt.Errorf("failed to delete profile: %v", err)

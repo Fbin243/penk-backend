@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-	"tenkhours/pkg/db/coredb"
 	graphql1 "tenkhours/pkg/graphql"
 	"tenkhours/services/analytics/graph/model"
+	"tenkhours/services/core/repo"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -2540,9 +2540,9 @@ func (ec *executionContext) _Snapshot_MetricProperty_type(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(coredb.MetricPropertyType)
+	res := resTmp.(repo.MetricPropertyType)
 	fc.Result = res
-	return ec.marshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx, field.Selections, res)
+	return ec.marshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Snapshot_MetricProperty_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5672,13 +5672,13 @@ func (ec *executionContext) marshalNJSON2map(ctx context.Context, sel ast.Select
 	return res
 }
 
-func (ec *executionContext) unmarshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx context.Context, v interface{}) (coredb.MetricPropertyType, error) {
+func (ec *executionContext) unmarshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx context.Context, v interface{}) (repo.MetricPropertyType, error) {
 	tmp, err := graphql.UnmarshalString(v)
-	res := coredb.MetricPropertyType(tmp)
+	res := repo.MetricPropertyType(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v coredb.MetricPropertyType) graphql.Marshaler {
+func (ec *executionContext) marshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v repo.MetricPropertyType) graphql.Marshaler {
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {

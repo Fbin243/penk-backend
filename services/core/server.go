@@ -6,10 +6,10 @@ import (
 	"os"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/services/core/business"
 	"tenkhours/pkg/db"
-	"tenkhours/pkg/db/coredb"
+	"tenkhours/services/core/business"
 	"tenkhours/services/core/graph"
+	"tenkhours/services/core/repo"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -37,8 +37,8 @@ func main() {
 
 	// Init dependencies and perform DI manually
 	db := db.GetDBManager().DB
-	profilesRepo := coredb.NewProfilesRepo(db)
-	charactersRepo := coredb.NewCharactersRepo(db)
+	profilesRepo := repo.NewProfilesRepo(db)
+	charactersRepo := repo.NewCharactersRepo(db)
 	profilesHandler := business.NewProfilesHandler(profilesRepo)
 	charactersHandler := business.NewCharactersHandler(charactersRepo, profilesRepo)
 

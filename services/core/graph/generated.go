@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-	"tenkhours/pkg/db/coredb"
 	graphql1 "tenkhours/pkg/graphql"
 	"tenkhours/services/core/graph/model"
+	"tenkhours/services/core/repo"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -128,25 +128,25 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	UpdateProfile(ctx context.Context, input model.ProfileInput) (*coredb.Profile, error)
-	CreateCharacter(ctx context.Context, input model.CharacterInput) (*coredb.Character, error)
-	UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*coredb.Character, error)
-	DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*coredb.Character, error)
-	ResetCharacter(ctx context.Context, id primitive.ObjectID) (*coredb.Character, error)
-	CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*coredb.CustomMetric, error)
-	UpdateCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*coredb.CustomMetric, error)
-	ResetCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (*coredb.CustomMetric, error)
-	DeleteCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (*coredb.CustomMetric, error)
-	CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*coredb.MetricProperty, error)
-	UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*coredb.MetricProperty, error)
-	DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*coredb.MetricProperty, error)
+	UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error)
+	CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error)
+	UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error)
+	DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error)
+	ResetCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error)
+	CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error)
+	UpdateCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error)
+	ResetCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error)
+	DeleteCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error)
+	CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error)
+	UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error)
+	DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*repo.MetricProperty, error)
 }
 type ProfileResolver interface {
-	Characters(ctx context.Context, obj *coredb.Profile) ([]coredb.Character, error)
+	Characters(ctx context.Context, obj *repo.Profile) ([]repo.Character, error)
 }
 type QueryResolver interface {
-	Characters(ctx context.Context) ([]coredb.Character, error)
-	Profile(ctx context.Context) (*coredb.Profile, error)
+	Characters(ctx context.Context) ([]repo.Character, error)
+	Profile(ctx context.Context) (*repo.Profile, error)
 }
 
 type executableSchema struct {
@@ -1112,7 +1112,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Character_id(ctx context.Context, field graphql.CollectedField, obj *coredb.Character) (ret graphql.Marshaler) {
+func (ec *executionContext) _Character_id(ctx context.Context, field graphql.CollectedField, obj *repo.Character) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Character_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1156,7 +1156,7 @@ func (ec *executionContext) fieldContext_Character_id(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Character_profileID(ctx context.Context, field graphql.CollectedField, obj *coredb.Character) (ret graphql.Marshaler) {
+func (ec *executionContext) _Character_profileID(ctx context.Context, field graphql.CollectedField, obj *repo.Character) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Character_profileID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1200,7 +1200,7 @@ func (ec *executionContext) fieldContext_Character_profileID(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Character_name(ctx context.Context, field graphql.CollectedField, obj *coredb.Character) (ret graphql.Marshaler) {
+func (ec *executionContext) _Character_name(ctx context.Context, field graphql.CollectedField, obj *repo.Character) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Character_name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1244,7 +1244,7 @@ func (ec *executionContext) fieldContext_Character_name(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Character_gender(ctx context.Context, field graphql.CollectedField, obj *coredb.Character) (ret graphql.Marshaler) {
+func (ec *executionContext) _Character_gender(ctx context.Context, field graphql.CollectedField, obj *repo.Character) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Character_gender(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1288,7 +1288,7 @@ func (ec *executionContext) fieldContext_Character_gender(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Character_tags(ctx context.Context, field graphql.CollectedField, obj *coredb.Character) (ret graphql.Marshaler) {
+func (ec *executionContext) _Character_tags(ctx context.Context, field graphql.CollectedField, obj *repo.Character) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Character_tags(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1332,7 +1332,7 @@ func (ec *executionContext) fieldContext_Character_tags(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Character_totalFocusedTime(ctx context.Context, field graphql.CollectedField, obj *coredb.Character) (ret graphql.Marshaler) {
+func (ec *executionContext) _Character_totalFocusedTime(ctx context.Context, field graphql.CollectedField, obj *repo.Character) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Character_totalFocusedTime(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1376,7 +1376,7 @@ func (ec *executionContext) fieldContext_Character_totalFocusedTime(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Character_customMetrics(ctx context.Context, field graphql.CollectedField, obj *coredb.Character) (ret graphql.Marshaler) {
+func (ec *executionContext) _Character_customMetrics(ctx context.Context, field graphql.CollectedField, obj *repo.Character) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Character_customMetrics(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1402,9 +1402,9 @@ func (ec *executionContext) _Character_customMetrics(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]coredb.CustomMetric)
+	res := resTmp.([]repo.CustomMetric)
 	fc.Result = res
-	return ec.marshalNCustomMetric2ᚕtenkhoursᚋpkgᚋdbᚋcoredbᚐCustomMetricᚄ(ctx, field.Selections, res)
+	return ec.marshalNCustomMetric2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐCustomMetricᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Character_customMetrics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1436,7 +1436,7 @@ func (ec *executionContext) fieldContext_Character_customMetrics(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Character_limitedMetricNumber(ctx context.Context, field graphql.CollectedField, obj *coredb.Character) (ret graphql.Marshaler) {
+func (ec *executionContext) _Character_limitedMetricNumber(ctx context.Context, field graphql.CollectedField, obj *repo.Character) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Character_limitedMetricNumber(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1480,7 +1480,7 @@ func (ec *executionContext) fieldContext_Character_limitedMetricNumber(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _CustomMetric_id(ctx context.Context, field graphql.CollectedField, obj *coredb.CustomMetric) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustomMetric_id(ctx context.Context, field graphql.CollectedField, obj *repo.CustomMetric) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CustomMetric_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1524,7 +1524,7 @@ func (ec *executionContext) fieldContext_CustomMetric_id(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _CustomMetric_name(ctx context.Context, field graphql.CollectedField, obj *coredb.CustomMetric) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustomMetric_name(ctx context.Context, field graphql.CollectedField, obj *repo.CustomMetric) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CustomMetric_name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1568,7 +1568,7 @@ func (ec *executionContext) fieldContext_CustomMetric_name(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _CustomMetric_description(ctx context.Context, field graphql.CollectedField, obj *coredb.CustomMetric) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustomMetric_description(ctx context.Context, field graphql.CollectedField, obj *repo.CustomMetric) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CustomMetric_description(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1609,7 +1609,7 @@ func (ec *executionContext) fieldContext_CustomMetric_description(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _CustomMetric_time(ctx context.Context, field graphql.CollectedField, obj *coredb.CustomMetric) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustomMetric_time(ctx context.Context, field graphql.CollectedField, obj *repo.CustomMetric) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CustomMetric_time(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1653,7 +1653,7 @@ func (ec *executionContext) fieldContext_CustomMetric_time(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _CustomMetric_style(ctx context.Context, field graphql.CollectedField, obj *coredb.CustomMetric) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustomMetric_style(ctx context.Context, field graphql.CollectedField, obj *repo.CustomMetric) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CustomMetric_style(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1679,9 +1679,9 @@ func (ec *executionContext) _CustomMetric_style(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(coredb.MetricStyle)
+	res := resTmp.(repo.MetricStyle)
 	fc.Result = res
-	return ec.marshalNMetricStyle2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricStyle(ctx, field.Selections, res)
+	return ec.marshalNMetricStyle2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricStyle(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CustomMetric_style(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1703,7 +1703,7 @@ func (ec *executionContext) fieldContext_CustomMetric_style(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _CustomMetric_properties(ctx context.Context, field graphql.CollectedField, obj *coredb.CustomMetric) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustomMetric_properties(ctx context.Context, field graphql.CollectedField, obj *repo.CustomMetric) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CustomMetric_properties(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1729,9 +1729,9 @@ func (ec *executionContext) _CustomMetric_properties(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]coredb.MetricProperty)
+	res := resTmp.([]repo.MetricProperty)
 	fc.Result = res
-	return ec.marshalNMetricProperty2ᚕtenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyᚄ(ctx, field.Selections, res)
+	return ec.marshalNMetricProperty2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CustomMetric_properties(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1759,7 +1759,7 @@ func (ec *executionContext) fieldContext_CustomMetric_properties(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _CustomMetric_limitedPropertyNumber(ctx context.Context, field graphql.CollectedField, obj *coredb.CustomMetric) (ret graphql.Marshaler) {
+func (ec *executionContext) _CustomMetric_limitedPropertyNumber(ctx context.Context, field graphql.CollectedField, obj *repo.CustomMetric) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CustomMetric_limitedPropertyNumber(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1803,7 +1803,7 @@ func (ec *executionContext) fieldContext_CustomMetric_limitedPropertyNumber(_ co
 	return fc, nil
 }
 
-func (ec *executionContext) _MetricProperty_id(ctx context.Context, field graphql.CollectedField, obj *coredb.MetricProperty) (ret graphql.Marshaler) {
+func (ec *executionContext) _MetricProperty_id(ctx context.Context, field graphql.CollectedField, obj *repo.MetricProperty) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MetricProperty_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1847,7 +1847,7 @@ func (ec *executionContext) fieldContext_MetricProperty_id(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _MetricProperty_name(ctx context.Context, field graphql.CollectedField, obj *coredb.MetricProperty) (ret graphql.Marshaler) {
+func (ec *executionContext) _MetricProperty_name(ctx context.Context, field graphql.CollectedField, obj *repo.MetricProperty) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MetricProperty_name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1891,7 +1891,7 @@ func (ec *executionContext) fieldContext_MetricProperty_name(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _MetricProperty_type(ctx context.Context, field graphql.CollectedField, obj *coredb.MetricProperty) (ret graphql.Marshaler) {
+func (ec *executionContext) _MetricProperty_type(ctx context.Context, field graphql.CollectedField, obj *repo.MetricProperty) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MetricProperty_type(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1917,9 +1917,9 @@ func (ec *executionContext) _MetricProperty_type(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(coredb.MetricPropertyType)
+	res := resTmp.(repo.MetricPropertyType)
 	fc.Result = res
-	return ec.marshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx, field.Selections, res)
+	return ec.marshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MetricProperty_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1935,7 +1935,7 @@ func (ec *executionContext) fieldContext_MetricProperty_type(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _MetricProperty_value(ctx context.Context, field graphql.CollectedField, obj *coredb.MetricProperty) (ret graphql.Marshaler) {
+func (ec *executionContext) _MetricProperty_value(ctx context.Context, field graphql.CollectedField, obj *repo.MetricProperty) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MetricProperty_value(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1979,7 +1979,7 @@ func (ec *executionContext) fieldContext_MetricProperty_value(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _MetricProperty_unit(ctx context.Context, field graphql.CollectedField, obj *coredb.MetricProperty) (ret graphql.Marshaler) {
+func (ec *executionContext) _MetricProperty_unit(ctx context.Context, field graphql.CollectedField, obj *repo.MetricProperty) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MetricProperty_unit(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2020,7 +2020,7 @@ func (ec *executionContext) fieldContext_MetricProperty_unit(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _MetricStyle_color(ctx context.Context, field graphql.CollectedField, obj *coredb.MetricStyle) (ret graphql.Marshaler) {
+func (ec *executionContext) _MetricStyle_color(ctx context.Context, field graphql.CollectedField, obj *repo.MetricStyle) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MetricStyle_color(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2061,7 +2061,7 @@ func (ec *executionContext) fieldContext_MetricStyle_color(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _MetricStyle_icon(ctx context.Context, field graphql.CollectedField, obj *coredb.MetricStyle) (ret graphql.Marshaler) {
+func (ec *executionContext) _MetricStyle_icon(ctx context.Context, field graphql.CollectedField, obj *repo.MetricStyle) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MetricStyle_icon(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2128,9 +2128,9 @@ func (ec *executionContext) _Mutation_updateProfile(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.Profile)
+	res := resTmp.(*repo.Profile)
 	fc.Result = res
-	return ec.marshalNProfile2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐProfile(ctx, field.Selections, res)
+	return ec.marshalNProfile2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐProfile(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateProfile(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2207,9 +2207,9 @@ func (ec *executionContext) _Mutation_createCharacter(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.Character)
+	res := resTmp.(*repo.Character)
 	fc.Result = res
-	return ec.marshalNCharacter2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐCharacter(ctx, field.Selections, res)
+	return ec.marshalNCharacter2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐCharacter(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createCharacter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2280,9 +2280,9 @@ func (ec *executionContext) _Mutation_updateCharacter(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.Character)
+	res := resTmp.(*repo.Character)
 	fc.Result = res
-	return ec.marshalNCharacter2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐCharacter(ctx, field.Selections, res)
+	return ec.marshalNCharacter2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐCharacter(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateCharacter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2353,9 +2353,9 @@ func (ec *executionContext) _Mutation_deleteCharacter(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.Character)
+	res := resTmp.(*repo.Character)
 	fc.Result = res
-	return ec.marshalNCharacter2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐCharacter(ctx, field.Selections, res)
+	return ec.marshalNCharacter2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐCharacter(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_deleteCharacter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2426,9 +2426,9 @@ func (ec *executionContext) _Mutation_resetCharacter(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.Character)
+	res := resTmp.(*repo.Character)
 	fc.Result = res
-	return ec.marshalNCharacter2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐCharacter(ctx, field.Selections, res)
+	return ec.marshalNCharacter2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐCharacter(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_resetCharacter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2499,9 +2499,9 @@ func (ec *executionContext) _Mutation_createCustomMetric(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.CustomMetric)
+	res := resTmp.(*repo.CustomMetric)
 	fc.Result = res
-	return ec.marshalNCustomMetric2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐCustomMetric(ctx, field.Selections, res)
+	return ec.marshalNCustomMetric2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐCustomMetric(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createCustomMetric(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2570,9 +2570,9 @@ func (ec *executionContext) _Mutation_updateCustomMetric(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.CustomMetric)
+	res := resTmp.(*repo.CustomMetric)
 	fc.Result = res
-	return ec.marshalNCustomMetric2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐCustomMetric(ctx, field.Selections, res)
+	return ec.marshalNCustomMetric2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐCustomMetric(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateCustomMetric(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2641,9 +2641,9 @@ func (ec *executionContext) _Mutation_resetCustomMetric(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.CustomMetric)
+	res := resTmp.(*repo.CustomMetric)
 	fc.Result = res
-	return ec.marshalNCustomMetric2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐCustomMetric(ctx, field.Selections, res)
+	return ec.marshalNCustomMetric2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐCustomMetric(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_resetCustomMetric(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2712,9 +2712,9 @@ func (ec *executionContext) _Mutation_deleteCustomMetric(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.CustomMetric)
+	res := resTmp.(*repo.CustomMetric)
 	fc.Result = res
-	return ec.marshalNCustomMetric2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐCustomMetric(ctx, field.Selections, res)
+	return ec.marshalNCustomMetric2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐCustomMetric(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_deleteCustomMetric(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2783,9 +2783,9 @@ func (ec *executionContext) _Mutation_createMetricProperty(ctx context.Context, 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.MetricProperty)
+	res := resTmp.(*repo.MetricProperty)
 	fc.Result = res
-	return ec.marshalNMetricProperty2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐMetricProperty(ctx, field.Selections, res)
+	return ec.marshalNMetricProperty2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐMetricProperty(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createMetricProperty(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2850,9 +2850,9 @@ func (ec *executionContext) _Mutation_updateMetricProperty(ctx context.Context, 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.MetricProperty)
+	res := resTmp.(*repo.MetricProperty)
 	fc.Result = res
-	return ec.marshalNMetricProperty2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐMetricProperty(ctx, field.Selections, res)
+	return ec.marshalNMetricProperty2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐMetricProperty(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateMetricProperty(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2917,9 +2917,9 @@ func (ec *executionContext) _Mutation_deleteMetricProperty(ctx context.Context, 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.MetricProperty)
+	res := resTmp.(*repo.MetricProperty)
 	fc.Result = res
-	return ec.marshalNMetricProperty2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐMetricProperty(ctx, field.Selections, res)
+	return ec.marshalNMetricProperty2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐMetricProperty(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_deleteMetricProperty(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2958,7 +2958,7 @@ func (ec *executionContext) fieldContext_Mutation_deleteMetricProperty(ctx conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_id(ctx context.Context, field graphql.CollectedField, obj *coredb.Profile) (ret graphql.Marshaler) {
+func (ec *executionContext) _Profile_id(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3002,7 +3002,7 @@ func (ec *executionContext) fieldContext_Profile_id(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_name(ctx context.Context, field graphql.CollectedField, obj *coredb.Profile) (ret graphql.Marshaler) {
+func (ec *executionContext) _Profile_name(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3046,7 +3046,7 @@ func (ec *executionContext) fieldContext_Profile_name(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_email(ctx context.Context, field graphql.CollectedField, obj *coredb.Profile) (ret graphql.Marshaler) {
+func (ec *executionContext) _Profile_email(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_email(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3090,7 +3090,7 @@ func (ec *executionContext) fieldContext_Profile_email(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_firebaseUID(ctx context.Context, field graphql.CollectedField, obj *coredb.Profile) (ret graphql.Marshaler) {
+func (ec *executionContext) _Profile_firebaseUID(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_firebaseUID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3134,7 +3134,7 @@ func (ec *executionContext) fieldContext_Profile_firebaseUID(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_imageURL(ctx context.Context, field graphql.CollectedField, obj *coredb.Profile) (ret graphql.Marshaler) {
+func (ec *executionContext) _Profile_imageURL(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_imageURL(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3178,7 +3178,7 @@ func (ec *executionContext) fieldContext_Profile_imageURL(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_currentCharacterID(ctx context.Context, field graphql.CollectedField, obj *coredb.Profile) (ret graphql.Marshaler) {
+func (ec *executionContext) _Profile_currentCharacterID(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_currentCharacterID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3219,7 +3219,7 @@ func (ec *executionContext) fieldContext_Profile_currentCharacterID(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_characters(ctx context.Context, field graphql.CollectedField, obj *coredb.Profile) (ret graphql.Marshaler) {
+func (ec *executionContext) _Profile_characters(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_characters(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3245,9 +3245,9 @@ func (ec *executionContext) _Profile_characters(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]coredb.Character)
+	res := resTmp.([]repo.Character)
 	fc.Result = res
-	return ec.marshalNCharacter2ᚕtenkhoursᚋpkgᚋdbᚋcoredbᚐCharacterᚄ(ctx, field.Selections, res)
+	return ec.marshalNCharacter2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐCharacterᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Profile_characters(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3281,7 +3281,7 @@ func (ec *executionContext) fieldContext_Profile_characters(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_availableSnapshots(ctx context.Context, field graphql.CollectedField, obj *coredb.Profile) (ret graphql.Marshaler) {
+func (ec *executionContext) _Profile_availableSnapshots(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_availableSnapshots(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3325,7 +3325,7 @@ func (ec *executionContext) fieldContext_Profile_availableSnapshots(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_autoSnapshot(ctx context.Context, field graphql.CollectedField, obj *coredb.Profile) (ret graphql.Marshaler) {
+func (ec *executionContext) _Profile_autoSnapshot(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_autoSnapshot(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3369,7 +3369,7 @@ func (ec *executionContext) fieldContext_Profile_autoSnapshot(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_createdAt(ctx context.Context, field graphql.CollectedField, obj *coredb.Profile) (ret graphql.Marshaler) {
+func (ec *executionContext) _Profile_createdAt(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3413,7 +3413,7 @@ func (ec *executionContext) fieldContext_Profile_createdAt(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_updatedAt(ctx context.Context, field graphql.CollectedField, obj *coredb.Profile) (ret graphql.Marshaler) {
+func (ec *executionContext) _Profile_updatedAt(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_updatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3483,9 +3483,9 @@ func (ec *executionContext) _Query_characters(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]coredb.Character)
+	res := resTmp.([]repo.Character)
 	fc.Result = res
-	return ec.marshalNCharacter2ᚕtenkhoursᚋpkgᚋdbᚋcoredbᚐCharacterᚄ(ctx, field.Selections, res)
+	return ec.marshalNCharacter2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐCharacterᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_characters(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3545,9 +3545,9 @@ func (ec *executionContext) _Query_profile(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*coredb.Profile)
+	res := resTmp.(*repo.Profile)
 	fc.Result = res
-	return ec.marshalNProfile2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐProfile(ctx, field.Selections, res)
+	return ec.marshalNProfile2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐProfile(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_profile(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5697,7 +5697,7 @@ func (ec *executionContext) unmarshalInputMetricPropertyInput(ctx context.Contex
 			it.Name = data
 		case "type":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalOMetricPropertyType2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx, v)
+			data, err := ec.unmarshalOMetricPropertyType2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5814,7 +5814,7 @@ func (ec *executionContext) unmarshalInputProfileInput(ctx context.Context, obj 
 
 var characterImplementors = []string{"Character"}
 
-func (ec *executionContext) _Character(ctx context.Context, sel ast.SelectionSet, obj *coredb.Character) graphql.Marshaler {
+func (ec *executionContext) _Character(ctx context.Context, sel ast.SelectionSet, obj *repo.Character) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, characterImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5888,7 +5888,7 @@ func (ec *executionContext) _Character(ctx context.Context, sel ast.SelectionSet
 
 var customMetricImplementors = []string{"CustomMetric"}
 
-func (ec *executionContext) _CustomMetric(ctx context.Context, sel ast.SelectionSet, obj *coredb.CustomMetric) graphql.Marshaler {
+func (ec *executionContext) _CustomMetric(ctx context.Context, sel ast.SelectionSet, obj *repo.CustomMetric) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, customMetricImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5954,7 +5954,7 @@ func (ec *executionContext) _CustomMetric(ctx context.Context, sel ast.Selection
 
 var metricPropertyImplementors = []string{"MetricProperty"}
 
-func (ec *executionContext) _MetricProperty(ctx context.Context, sel ast.SelectionSet, obj *coredb.MetricProperty) graphql.Marshaler {
+func (ec *executionContext) _MetricProperty(ctx context.Context, sel ast.SelectionSet, obj *repo.MetricProperty) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, metricPropertyImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6010,7 +6010,7 @@ func (ec *executionContext) _MetricProperty(ctx context.Context, sel ast.Selecti
 
 var metricStyleImplementors = []string{"MetricStyle"}
 
-func (ec *executionContext) _MetricStyle(ctx context.Context, sel ast.SelectionSet, obj *coredb.MetricStyle) graphql.Marshaler {
+func (ec *executionContext) _MetricStyle(ctx context.Context, sel ast.SelectionSet, obj *repo.MetricStyle) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, metricStyleImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6174,7 +6174,7 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 var profileImplementors = []string{"Profile"}
 
-func (ec *executionContext) _Profile(ctx context.Context, sel ast.SelectionSet, obj *coredb.Profile) graphql.Marshaler {
+func (ec *executionContext) _Profile(ctx context.Context, sel ast.SelectionSet, obj *repo.Profile) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, profileImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6782,11 +6782,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNCharacter2tenkhoursᚋpkgᚋdbᚋcoredbᚐCharacter(ctx context.Context, sel ast.SelectionSet, v coredb.Character) graphql.Marshaler {
+func (ec *executionContext) marshalNCharacter2tenkhoursᚋservicesᚋcoreᚋrepoᚐCharacter(ctx context.Context, sel ast.SelectionSet, v repo.Character) graphql.Marshaler {
 	return ec._Character(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCharacter2ᚕtenkhoursᚋpkgᚋdbᚋcoredbᚐCharacterᚄ(ctx context.Context, sel ast.SelectionSet, v []coredb.Character) graphql.Marshaler {
+func (ec *executionContext) marshalNCharacter2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐCharacterᚄ(ctx context.Context, sel ast.SelectionSet, v []repo.Character) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6810,7 +6810,7 @@ func (ec *executionContext) marshalNCharacter2ᚕtenkhoursᚋpkgᚋdbᚋcoredb�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCharacter2tenkhoursᚋpkgᚋdbᚋcoredbᚐCharacter(ctx, sel, v[i])
+			ret[i] = ec.marshalNCharacter2tenkhoursᚋservicesᚋcoreᚋrepoᚐCharacter(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6830,7 +6830,7 @@ func (ec *executionContext) marshalNCharacter2ᚕtenkhoursᚋpkgᚋdbᚋcoredb�
 	return ret
 }
 
-func (ec *executionContext) marshalNCharacter2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐCharacter(ctx context.Context, sel ast.SelectionSet, v *coredb.Character) graphql.Marshaler {
+func (ec *executionContext) marshalNCharacter2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐCharacter(ctx context.Context, sel ast.SelectionSet, v *repo.Character) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6845,11 +6845,11 @@ func (ec *executionContext) unmarshalNCharacterInput2tenkhoursᚋservicesᚋcore
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCustomMetric2tenkhoursᚋpkgᚋdbᚋcoredbᚐCustomMetric(ctx context.Context, sel ast.SelectionSet, v coredb.CustomMetric) graphql.Marshaler {
+func (ec *executionContext) marshalNCustomMetric2tenkhoursᚋservicesᚋcoreᚋrepoᚐCustomMetric(ctx context.Context, sel ast.SelectionSet, v repo.CustomMetric) graphql.Marshaler {
 	return ec._CustomMetric(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCustomMetric2ᚕtenkhoursᚋpkgᚋdbᚋcoredbᚐCustomMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []coredb.CustomMetric) graphql.Marshaler {
+func (ec *executionContext) marshalNCustomMetric2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐCustomMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []repo.CustomMetric) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6873,7 +6873,7 @@ func (ec *executionContext) marshalNCustomMetric2ᚕtenkhoursᚋpkgᚋdbᚋcored
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCustomMetric2tenkhoursᚋpkgᚋdbᚋcoredbᚐCustomMetric(ctx, sel, v[i])
+			ret[i] = ec.marshalNCustomMetric2tenkhoursᚋservicesᚋcoreᚋrepoᚐCustomMetric(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6893,7 +6893,7 @@ func (ec *executionContext) marshalNCustomMetric2ᚕtenkhoursᚋpkgᚋdbᚋcored
 	return ret
 }
 
-func (ec *executionContext) marshalNCustomMetric2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐCustomMetric(ctx context.Context, sel ast.SelectionSet, v *coredb.CustomMetric) graphql.Marshaler {
+func (ec *executionContext) marshalNCustomMetric2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐCustomMetric(ctx context.Context, sel ast.SelectionSet, v *repo.CustomMetric) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6938,11 +6938,11 @@ func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNMetricProperty2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricProperty(ctx context.Context, sel ast.SelectionSet, v coredb.MetricProperty) graphql.Marshaler {
+func (ec *executionContext) marshalNMetricProperty2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricProperty(ctx context.Context, sel ast.SelectionSet, v repo.MetricProperty) graphql.Marshaler {
 	return ec._MetricProperty(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNMetricProperty2ᚕtenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyᚄ(ctx context.Context, sel ast.SelectionSet, v []coredb.MetricProperty) graphql.Marshaler {
+func (ec *executionContext) marshalNMetricProperty2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyᚄ(ctx context.Context, sel ast.SelectionSet, v []repo.MetricProperty) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6966,7 +6966,7 @@ func (ec *executionContext) marshalNMetricProperty2ᚕtenkhoursᚋpkgᚋdbᚋcor
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNMetricProperty2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricProperty(ctx, sel, v[i])
+			ret[i] = ec.marshalNMetricProperty2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricProperty(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6986,7 +6986,7 @@ func (ec *executionContext) marshalNMetricProperty2ᚕtenkhoursᚋpkgᚋdbᚋcor
 	return ret
 }
 
-func (ec *executionContext) marshalNMetricProperty2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐMetricProperty(ctx context.Context, sel ast.SelectionSet, v *coredb.MetricProperty) graphql.Marshaler {
+func (ec *executionContext) marshalNMetricProperty2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐMetricProperty(ctx context.Context, sel ast.SelectionSet, v *repo.MetricProperty) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -7001,13 +7001,13 @@ func (ec *executionContext) unmarshalNMetricPropertyInput2tenkhoursᚋservices�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx context.Context, v interface{}) (coredb.MetricPropertyType, error) {
+func (ec *executionContext) unmarshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx context.Context, v interface{}) (repo.MetricPropertyType, error) {
 	tmp, err := graphql.UnmarshalString(v)
-	res := coredb.MetricPropertyType(tmp)
+	res := repo.MetricPropertyType(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v coredb.MetricPropertyType) graphql.Marshaler {
+func (ec *executionContext) marshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v repo.MetricPropertyType) graphql.Marshaler {
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -7017,7 +7017,7 @@ func (ec *executionContext) marshalNMetricPropertyType2tenkhoursᚋpkgᚋdbᚋco
 	return res
 }
 
-func (ec *executionContext) marshalNMetricStyle2tenkhoursᚋpkgᚋdbᚋcoredbᚐMetricStyle(ctx context.Context, sel ast.SelectionSet, v coredb.MetricStyle) graphql.Marshaler {
+func (ec *executionContext) marshalNMetricStyle2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricStyle(ctx context.Context, sel ast.SelectionSet, v repo.MetricStyle) graphql.Marshaler {
 	return ec._MetricStyle(ctx, sel, &v)
 }
 
@@ -7036,11 +7036,11 @@ func (ec *executionContext) marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriver
 	return res
 }
 
-func (ec *executionContext) marshalNProfile2tenkhoursᚋpkgᚋdbᚋcoredbᚐProfile(ctx context.Context, sel ast.SelectionSet, v coredb.Profile) graphql.Marshaler {
+func (ec *executionContext) marshalNProfile2tenkhoursᚋservicesᚋcoreᚋrepoᚐProfile(ctx context.Context, sel ast.SelectionSet, v repo.Profile) graphql.Marshaler {
 	return ec._Profile(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNProfile2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐProfile(ctx context.Context, sel ast.SelectionSet, v *coredb.Profile) graphql.Marshaler {
+func (ec *executionContext) marshalNProfile2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐProfile(ctx context.Context, sel ast.SelectionSet, v *repo.Profile) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -7578,16 +7578,16 @@ func (ec *executionContext) unmarshalOMetricPropertyInput2ᚕtenkhoursᚋservice
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOMetricPropertyType2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx context.Context, v interface{}) (*coredb.MetricPropertyType, error) {
+func (ec *executionContext) unmarshalOMetricPropertyType2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx context.Context, v interface{}) (*repo.MetricPropertyType, error) {
 	if v == nil {
 		return nil, nil
 	}
 	tmp, err := graphql.UnmarshalString(v)
-	res := coredb.MetricPropertyType(tmp)
+	res := repo.MetricPropertyType(tmp)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOMetricPropertyType2ᚖtenkhoursᚋpkgᚋdbᚋcoredbᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v *coredb.MetricPropertyType) graphql.Marshaler {
+func (ec *executionContext) marshalOMetricPropertyType2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v *repo.MetricPropertyType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

@@ -83,6 +83,6 @@ models:
   NullableString:
     model: tenkhours/pkg/graphql.NullableString
   MetricPropertyType:
-    model: tenkhours/pkg/db/coredb.MetricPropertyType
+    model: tenkhours/services/core/repo.MetricPropertyType
   JSON:
     model: github.com/99designs/gqlgen/graphql.Map

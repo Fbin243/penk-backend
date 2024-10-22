@@ -1,4 +1,4 @@
-package timetrackingsdb
+package repo
 
 import (
 	"time"
