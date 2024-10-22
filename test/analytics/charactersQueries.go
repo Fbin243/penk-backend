@@ -1,74 +1,38 @@
 package analytics
 
-var UserSnapshotsQuery = `
-query UserSnapshots {
-    userSnapshots {
+var SnapshotsQuery = `
+query Snapshots ($characterID: ObjectID) {
+    snapshots(characterID: $characterID) {
         id
         timestamp
         description
         character {
-            gender
             id
+            profileID
             name
+            gender
             tags
             totalFocusedTime
-            profileID
             customMetrics {
-                description
                 id
                 name
+                description
                 time
+                style {
+                    color
+                    icon
+                }
                 properties {
                     id
                     name
                     type
-                    unit
                     value
-                }
-                style {
-                    color
-                    icon
+                    unit
                 }
             }
         }
     }
 }
-`
-
-var CharacterSnapshotsQuery = `
-query CharacterSnapshots ($characterID: ObjectID!) {
-    characterSnapshots(characterID: $characterID) {
-        id
-        timestamp
-        description
-        character {
-            gender
-            id
-            name
-            tags
-            totalFocusedTime
-            profileID
-            customMetrics {
-                description
-                id
-                name
-                time
-                properties {
-                    id
-                    name
-                    type
-                    unit
-                    value
-                }
-                style {
-                    color
-                    icon
-                }
-            }
-        }
-    }
-}
-
 `
 
 var CreateSnapshotQuery = `
