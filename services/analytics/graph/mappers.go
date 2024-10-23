@@ -52,7 +52,7 @@ func MapToMetricPropertyDto(properties *repo.MetricProperty) *model.SnapshotMetr
 	return &model.SnapshotMetricProperty{
 		ID:    properties.ID,
 		Name:  properties.Name,
-		Type:  properties.Type,
+		Type:  model.MetricPropertyType(properties.Type.String()),
 		Value: properties.Value,
 		Unit:  &properties.Unit,
 	}

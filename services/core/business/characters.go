@@ -5,8 +5,6 @@ import (
 	"fmt"
 
 	"tenkhours/pkg/auth"
-
-	"tenkhours/services/core/business/validations"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
@@ -87,11 +85,6 @@ func (r *CharactersHandler) CreateCharacter(ctx context.Context, input model.Cha
 		character.Tags = input.Tags
 	}
 
-	err = validations.ValidateCharacter(character)
-	if err != nil {
-		return nil, err
-	}
-
 	createdCharacter, err := r.CharactersRepo.CreateCharacter(&character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create character: %v", err)
@@ -128,11 +121,6 @@ func (r *CharactersHandler) UpdateCharacter(ctx context.Context, id primitive.Ob
 
 	if input.Tags != nil {
 		character.Tags = input.Tags
-	}
-
-	err = validations.ValidateCharacter(*character)
-	if err != nil {
-		return nil, err
 	}
 
 	updatedCharacter, err := r.CharactersRepo.UpdateCharacter(character)

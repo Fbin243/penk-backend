@@ -6,8 +6,6 @@ import (
 	"log"
 
 	"tenkhours/pkg/auth"
-
-	"tenkhours/services/core/business/validations"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
@@ -82,11 +80,6 @@ func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID 
 				metricProperty.Unit = *prop.Unit
 			}
 
-			err = validations.ValidateMetricProperty(metricProperty)
-			if err != nil {
-				return nil, err
-			}
-
 			if len(properties) >= int(customMetric.LimitedPropertyNumber) {
 				return nil, fmt.Errorf("metric properties creation limit reached")
 			}
@@ -95,13 +88,6 @@ func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID 
 		}
 
 		customMetric.Properties = properties
-	}
-
-	log.Printf("Custom metric: %+v", customMetric)
-
-	err = validations.ValidateCustomMetric(customMetric)
-	if err != nil {
-		return nil, err
 	}
 
 	createdCustomMetric, err := r.CharactersRepo.CreateCustomMetric(character.ID, &customMetric)
@@ -185,11 +171,6 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID pri
 					metricProperty.Unit = *prop.Unit
 				}
 
-				err = validations.ValidateMetricProperty(metricProperty)
-				if err != nil {
-					return nil, err
-				}
-
 				if len(properties) >= int(character.CustomMetrics[i].LimitedPropertyNumber) {
 					return nil, fmt.Errorf("metric properties creation limit reached")
 				}
@@ -197,11 +178,6 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID pri
 				properties = append(properties, metricProperty)
 			}
 			cm.Properties = properties
-		}
-
-		err = validations.ValidateCustomMetric(cm)
-		if err != nil {
-			return nil, err
 		}
 
 		character.CustomMetrics[i] = cm
@@ -339,11 +315,6 @@ func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterI
 				return nil, fmt.Errorf("metric properties creation limit reached")
 			}
 
-			err = validations.ValidateMetricProperty(metricProperty)
-			if err != nil {
-				return nil, err
-			}
-
 			character.CustomMetrics[i].Properties = append(character.CustomMetrics[i].Properties, metricProperty)
 			found = true
 			break
@@ -398,11 +369,6 @@ func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id primiti
 				}
 				if input.Unit != nil {
 					prop.Unit = *input.Unit
-				}
-
-				err := validations.ValidateMetricProperty(prop)
-				if err != nil {
-					return nil, err
 				}
 
 				character.CustomMetrics[i].Properties[j] = prop

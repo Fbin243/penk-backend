@@ -6,24 +6,43 @@ package graph
 
 import (
 	"context"
-	model1 "tenkhours/services/core/graph/model"
+	"tenkhours/services/core/graph/model"
+	"tenkhours/services/core/graph/validations"
 	"tenkhours/services/core/repo"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // UpdateProfile is the resolver for the updateProfile field.
-func (r *mutationResolver) UpdateProfile(ctx context.Context, input model1.ProfileInput) (*repo.Profile, error) {
+func (r *mutationResolver) UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error) {
+	// Validate the input
+	err := validations.ValidateProfileInput(input)
+	if err != nil {
+		return nil, err
+	}
+
 	return r.ProfilesHandler.UpdateProfile(ctx, input)
 }
 
 // CreateCharacter is the resolver for the createCharacter field.
-func (r *mutationResolver) CreateCharacter(ctx context.Context, input model1.CharacterInput) (*repo.Character, error) {
+func (r *mutationResolver) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
+	// Validate the input
+	err := validations.ValidateCharacterInput(input)
+	if err != nil {
+		return nil, err
+	}
+
 	return r.CharactersHandler.CreateCharacter(ctx, input)
 }
 
 // UpdateCharacter is the resolver for the updateCharacter field.
-func (r *mutationResolver) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model1.CharacterInput) (*repo.Character, error) {
+func (r *mutationResolver) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error) {
+	// Validate the input
+	err := validations.ValidateCharacterInput(input)
+	if err != nil {
+		return nil, err
+	}
+
 	return r.CharactersHandler.UpdateCharacter(ctx, id, input)
 }
 
@@ -38,12 +57,24 @@ func (r *mutationResolver) ResetCharacter(ctx context.Context, id primitive.Obje
 }
 
 // CreateCustomMetric is the resolver for the createCustomMetric field.
-func (r *mutationResolver) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model1.CustomMetricInput) (*repo.CustomMetric, error) {
+func (r *mutationResolver) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
+	// Validate the input
+	err := validations.ValidateCustomMetricInput(input)
+	if err != nil {
+		return nil, err
+	}
+
 	return r.CharactersHandler.CreateCustomMetric(ctx, characterID, input)
 }
 
 // UpdateCustomMetric is the resolver for the updateCustomMetric field.
-func (r *mutationResolver) UpdateCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, input model1.CustomMetricInput) (*repo.CustomMetric, error) {
+func (r *mutationResolver) UpdateCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
+	// Validate the input
+	err := validations.ValidateCustomMetricInput(input)
+	if err != nil {
+		return nil, err
+	}
+
 	return r.CharactersHandler.UpdateCustomMetric(ctx, id, characterID, input)
 }
 
@@ -58,12 +89,24 @@ func (r *mutationResolver) DeleteCustomMetric(ctx context.Context, id primitive.
 }
 
 // CreateMetricProperty is the resolver for the createMetricProperty field.
-func (r *mutationResolver) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model1.MetricPropertyInput) (*repo.MetricProperty, error) {
+func (r *mutationResolver) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
+	// Validate the input
+	err := validations.ValidateMetricPropertyInput(input)
+	if err != nil {
+		return nil, err
+	}
+
 	return r.CharactersHandler.CreateMetricProperty(ctx, characterID, metricID, input)
 }
 
 // UpdateMetricProperty is the resolver for the updateMetricProperty field.
-func (r *mutationResolver) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model1.MetricPropertyInput) (*repo.MetricProperty, error) {
+func (r *mutationResolver) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
+	// Validate the input
+	err := validations.ValidateMetricPropertyInput(input)
+	if err != nil {
+		return nil, err
+	}
+
 	return r.CharactersHandler.UpdateMetricProperty(ctx, id, characterID, metricID, input)
 }
 

@@ -103,5 +103,3 @@ models:
     model: tenkhours/services/core/repo.MetricStyle
   NullableString:
     model: tenkhours/pkg/graphql.NullableString
-  MetricPropertyType:
-    model: tenkhours/services/core/repo.MetricPropertyType

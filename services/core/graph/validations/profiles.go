@@ -1,12 +1,12 @@
 package validations
 
 import (
-	"tenkhours/services/core/repo"
+	"tenkhours/services/core/graph/model"
 
 	"github.com/go-playground/validator/v10"
 )
 
-func ValidateProfile(profile repo.Profile) error {
+func ValidateProfileInput(profile model.ProfileInput) error {
 	validate := validator.New()
 
 	return validate.Struct(profile)

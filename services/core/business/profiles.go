@@ -6,11 +6,8 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/utils"
-	"tenkhours/services/core/business/validations"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ProfilesHandler struct {
@@ -45,23 +42,13 @@ func (r *ProfilesHandler) UpdateProfile(ctx context.Context, input model.Profile
 		profile.ImageURL = *input.ImageURL
 	}
 	if input.CurrentCharacterID != nil {
-		currentCharacterOID, err := primitive.ObjectIDFromHex(*input.CurrentCharacterID)
-		if err != nil {
-			return nil, err
-		}
-
-		profile.CurrentCharacterID = currentCharacterOID
+		profile.CurrentCharacterID = *input.CurrentCharacterID
 	}
 	if input.AutoSnapshot != nil {
 		profile.AutoSnapshot = *input.AutoSnapshot
 	}
 
 	profile.UpdatedAt = utils.Now()
-
-	err := validations.ValidateProfile(profile)
-	if err != nil {
-		return nil, err
-	}
 
 	updatedProfile, err := r.ProfilesRepo.UpdateProfile(&profile)
 	if err != nil {
