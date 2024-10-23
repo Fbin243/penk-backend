@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sessions"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
+	"tenkhours/pkg/db/redis"
 	"tenkhours/pkg/db/timetrackingsdb"
 	"tenkhours/pkg/timetrackings"
 	"tenkhours/services/timetrackings/graph"
@@ -41,7 +41,7 @@ func main() {
 	db := db.GetDBManager().DB
 	profilesRepo := coredb.NewProfilesRepo(db)
 	charactersRepo := coredb.NewCharactersRepo(db)
-	redisClient := sessions.GetRedisClient()
+	redisClient := redis.GetRedisClient()
 	timetrackingsRepo := timetrackingsdb.NewTimeTrackingsRepo(db)
 	timetrackingsHandler := timetrackings.NewTimeTrackingsHandler(timetrackingsRepo, charactersRepo, redisClient)
 
