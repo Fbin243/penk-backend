@@ -4,11 +4,11 @@ type Mutation {
 }
 
 type Query {
-  snapshots(characterID: ObjectID, filter: Filter): [Snapshot!]!
-  analyticResults(characterID: ObjectID, filter: Filter): JSON!
+  snapshots(characterID: ObjectID, filter: DateTimeFilter): [Snapshot!]!
+  analyticResults(characterID: ObjectID, filter: DateTimeFilter): JSON!
 }
 
-input Filter {
+input DateTimeFilter {
   month: Month
   year: Int
 }

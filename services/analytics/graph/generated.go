@@ -75,8 +75,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AnalyticResults    func(childComplexity int, characterID *primitive.ObjectID, filter *model.Filter) int
-		Snapshots          func(childComplexity int, characterID *primitive.ObjectID, filter *model.Filter) int
+		AnalyticResults    func(childComplexity int, characterID *primitive.ObjectID, filter *model.DateTimeFilter) int
+		Snapshots          func(childComplexity int, characterID *primitive.ObjectID, filter *model.DateTimeFilter) int
 		__resolve__service func(childComplexity int) int
 	}
 
@@ -129,8 +129,8 @@ type MutationResolver interface {
 	CreateCapturedRecord(ctx context.Context, characterID primitive.ObjectID) (*model.CapturedRecord, error)
 }
 type QueryResolver interface {
-	Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) ([]model.Snapshot, error)
-	AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) (map[string]interface{}, error)
+	Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]model.Snapshot, error)
+	AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) (map[string]interface{}, error)
 }
 
 type executableSchema struct {
@@ -249,7 +249,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.AnalyticResults(childComplexity, args["characterID"].(*primitive.ObjectID), args["filter"].(*model.Filter)), true
+		return e.complexity.Query.AnalyticResults(childComplexity, args["characterID"].(*primitive.ObjectID), args["filter"].(*model.DateTimeFilter)), true
 
 	case "Query.snapshots":
 		if e.complexity.Query.Snapshots == nil {
@@ -261,7 +261,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Snapshots(childComplexity, args["characterID"].(*primitive.ObjectID), args["filter"].(*model.Filter)), true
+		return e.complexity.Query.Snapshots(childComplexity, args["characterID"].(*primitive.ObjectID), args["filter"].(*model.DateTimeFilter)), true
 
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
@@ -453,7 +453,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputFilter,
+		ec.unmarshalInputDateTimeFilter,
 	)
 	first := true
 
@@ -721,10 +721,10 @@ func (ec *executionContext) field_Query_analyticResults_args(ctx context.Context
 		}
 	}
 	args["characterID"] = arg0
-	var arg1 *model.Filter
+	var arg1 *model.DateTimeFilter
 	if tmp, ok := rawArgs["filter"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg1, err = ec.unmarshalOFilter2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐFilter(ctx, tmp)
+		arg1, err = ec.unmarshalODateTimeFilter2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐDateTimeFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -745,10 +745,10 @@ func (ec *executionContext) field_Query_snapshots_args(ctx context.Context, rawA
 		}
 	}
 	args["characterID"] = arg0
-	var arg1 *model.Filter
+	var arg1 *model.DateTimeFilter
 	if tmp, ok := rawArgs["filter"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg1, err = ec.unmarshalOFilter2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐFilter(ctx, tmp)
+		arg1, err = ec.unmarshalODateTimeFilter2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐDateTimeFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1349,7 +1349,7 @@ func (ec *executionContext) _Query_snapshots(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Snapshots(rctx, fc.Args["characterID"].(*primitive.ObjectID), fc.Args["filter"].(*model.Filter))
+		return ec.resolvers.Query().Snapshots(rctx, fc.Args["characterID"].(*primitive.ObjectID), fc.Args["filter"].(*model.DateTimeFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1414,7 +1414,7 @@ func (ec *executionContext) _Query_analyticResults(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AnalyticResults(rctx, fc.Args["characterID"].(*primitive.ObjectID), fc.Args["filter"].(*model.Filter))
+		return ec.resolvers.Query().AnalyticResults(rctx, fc.Args["characterID"].(*primitive.ObjectID), fc.Args["filter"].(*model.DateTimeFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4538,8 +4538,8 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputFilter(ctx context.Context, obj interface{}) (model.Filter, error) {
-	var it model.Filter
+func (ec *executionContext) unmarshalInputDateTimeFilter(ctx context.Context, obj interface{}) (model.DateTimeFilter, error) {
+	var it model.DateTimeFilter
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -6361,11 +6361,11 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalOFilter2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐFilter(ctx context.Context, v interface{}) (*model.Filter, error) {
+func (ec *executionContext) unmarshalODateTimeFilter2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐDateTimeFilter(ctx context.Context, v interface{}) (*model.DateTimeFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputFilter(ctx, v)
+	res, err := ec.unmarshalInputDateTimeFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

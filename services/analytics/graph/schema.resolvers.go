@@ -28,7 +28,7 @@ func (r *mutationResolver) CreateCapturedRecord(ctx context.Context, characterID
 }
 
 // Snapshots is the resolver for the snapshots field.
-func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) ([]model.Snapshot, error) {
+func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]model.Snapshot, error) {
 	snapshots, err := r.CharactersHandler.GetSnapshots(ctx, characterID, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get snapshots: %v", err)
@@ -43,7 +43,7 @@ func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.Ob
 }
 
 // AnalyticResults is the resolver for the analyticResults field.
-func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) (map[string]interface{}, error) {
+func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) (map[string]interface{}, error) {
 	return r.CharactersHandler.GetAnalyticResults(ctx, characterID, filter)
 }
 

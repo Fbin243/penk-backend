@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/utils"
@@ -33,7 +34,7 @@ func NewCharactersHandler(snapshotsRepo *analyticsRepo.SnapshotsRepo, characters
 	}
 }
 
-func (r *CharactersHandler) GetSnapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) ([]analyticsRepo.Snapshot, error) {
+func (r *CharactersHandler) GetSnapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]analyticsRepo.Snapshot, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -219,7 +220,7 @@ func (r *CharactersHandler) CreateCapturedRecord(ctx context.Context, characterI
 	return capturedRecord, nil
 }
 
-func (r *CharactersHandler) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) (map[string]interface{}, error) {
+func (r *CharactersHandler) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) (map[string]interface{}, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized

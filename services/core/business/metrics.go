@@ -3,7 +3,6 @@ package business
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/services/core/graph/model"
@@ -57,9 +56,6 @@ func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID 
 			customMetric.Style.Icon = *input.Style.Icon
 		}
 	}
-
-	// Show input
-	log.Printf("Input: %+v", input)
 
 	if input.Properties != nil {
 		var properties []repo.MetricProperty

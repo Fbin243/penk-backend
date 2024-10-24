@@ -29,7 +29,7 @@ type CapturedRecordMetadata struct {
 	ProfileID   primitive.ObjectID `json:"profileID" bson:"profile_id"`
 }
 
-type Filter struct {
+type DateTimeFilter struct {
 	Month *Month `json:"month,omitempty"`
 	Year  *int32 `json:"year,omitempty"`
 }
