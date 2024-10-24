@@ -6,9 +6,8 @@ package graph
 
 import (
 	"context"
-	"time"
-
 	"tenkhours/services/timetrackings/repo"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -34,7 +33,5 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type (
-	mutationResolver struct{ *Resolver }
-	queryResolver    struct{ *Resolver }
-)
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

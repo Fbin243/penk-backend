@@ -82,8 +82,8 @@ type SnapshotMetricStyle struct {
 type MetricPropertyType string
 
 const (
-	MetricPropertyTypeString MetricPropertyType = "STRING"
-	MetricPropertyTypeNumber MetricPropertyType = "NUMBER"
+	MetricPropertyTypeString MetricPropertyType = "String"
+	MetricPropertyTypeNumber MetricPropertyType = "Number"
 )
 
 var AllMetricPropertyType = []MetricPropertyType{
@@ -123,18 +123,18 @@ func (e MetricPropertyType) MarshalGQL(w io.Writer) {
 type Month string
 
 const (
-	MonthJanuary   Month = "JANUARY"
-	MonthFebruary  Month = "FEBRUARY"
-	MonthMarch     Month = "MARCH"
-	MonthApril     Month = "APRIL"
-	MonthMay       Month = "MAY"
-	MonthJune      Month = "JUNE"
-	MonthJuly      Month = "JULY"
-	MonthAugust    Month = "AUGUST"
-	MonthSeptember Month = "SEPTEMBER"
-	MonthOctober   Month = "OCTOBER"
-	MonthNovember  Month = "NOVEMBER"
-	MonthDecember  Month = "DECEMBER"
+	MonthJanuary   Month = "January"
+	MonthFebruary  Month = "February"
+	MonthMarch     Month = "March"
+	MonthApril     Month = "April"
+	MonthMay       Month = "May"
+	MonthJune      Month = "June"
+	MonthJuly      Month = "July"
+	MonthAugust    Month = "August"
+	MonthSeptember Month = "September"
+	MonthOctober   Month = "October"
+	MonthNovember  Month = "November"
+	MonthDecember  Month = "December"
 )
 
 var AllMonth = []Month{
@@ -184,13 +184,13 @@ func (e Month) MarshalGQL(w io.Writer) {
 type Weekday string
 
 const (
-	WeekdaySunday    Weekday = "SUNDAY"
-	WeekdayMonday    Weekday = "MONDAY"
-	WeekdayTuesday   Weekday = "TUESDAY"
-	WeekdayWednesday Weekday = "WEDNESDAY"
-	WeekdayThursday  Weekday = "THURSDAY"
-	WeekdayFriday    Weekday = "FRIDAY"
-	WeekdaySaturday  Weekday = "SATURDAY"
+	WeekdaySunday    Weekday = "Sunday"
+	WeekdayMonday    Weekday = "Monday"
+	WeekdayTuesday   Weekday = "Tuesday"
+	WeekdayWednesday Weekday = "Wednesday"
+	WeekdayThursday  Weekday = "Thursday"
+	WeekdayFriday    Weekday = "Friday"
+	WeekdaySaturday  Weekday = "Saturday"
 )
 
 var AllWeekday = []Weekday{

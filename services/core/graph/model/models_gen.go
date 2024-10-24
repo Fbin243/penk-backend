@@ -75,8 +75,8 @@ type Query struct {
 type MetricPropertyType string
 
 const (
-	MetricPropertyTypeString MetricPropertyType = "STRING"
-	MetricPropertyTypeNumber MetricPropertyType = "NUMBER"
+	MetricPropertyTypeString MetricPropertyType = "String"
+	MetricPropertyTypeNumber MetricPropertyType = "Number"
 )
 
 var AllMetricPropertyType = []MetricPropertyType{

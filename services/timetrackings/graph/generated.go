@@ -12,7 +12,7 @@ import (
 	"sync"
 	"sync/atomic"
 	graphql1 "tenkhours/pkg/graphql"
-	timetrackingsdb "tenkhours/services/timetrackings/repo"
+	"tenkhours/services/timetrackings/repo"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -75,11 +75,11 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) (*timetrackingsdb.TimeTracking, error)
-	UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsdb.TimeTracking, error)
+	CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) (*repo.TimeTracking, error)
+	UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*repo.TimeTracking, error)
 }
 type QueryResolver interface {
-	CurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*timetrackingsdb.TimeTracking, error)
+	CurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*repo.TimeTracking, error)
 }
 
 type executableSchema struct {
@@ -511,7 +511,7 @@ func (ec *executionContext) _Mutation_createTimeTracking(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*timetrackingsdb.TimeTracking)
+	res := resTmp.(*repo.TimeTracking)
 	fc.Result = res
 	return ec.marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx, field.Selections, res)
 }
@@ -578,7 +578,7 @@ func (ec *executionContext) _Mutation_updateTimeTracking(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*timetrackingsdb.TimeTracking)
+	res := resTmp.(*repo.TimeTracking)
 	fc.Result = res
 	return ec.marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx, field.Selections, res)
 }
@@ -642,7 +642,7 @@ func (ec *executionContext) _Query_currentTimeTracking(ctx context.Context, fiel
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*timetrackingsdb.TimeTracking)
+	res := resTmp.(*repo.TimeTracking)
 	fc.Result = res
 	return ec.marshalOTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx, field.Selections, res)
 }
@@ -860,7 +860,7 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _TimeTracking_id(ctx context.Context, field graphql.CollectedField, obj *timetrackingsdb.TimeTracking) (ret graphql.Marshaler) {
+func (ec *executionContext) _TimeTracking_id(ctx context.Context, field graphql.CollectedField, obj *repo.TimeTracking) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TimeTracking_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -904,7 +904,7 @@ func (ec *executionContext) fieldContext_TimeTracking_id(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _TimeTracking_characterID(ctx context.Context, field graphql.CollectedField, obj *timetrackingsdb.TimeTracking) (ret graphql.Marshaler) {
+func (ec *executionContext) _TimeTracking_characterID(ctx context.Context, field graphql.CollectedField, obj *repo.TimeTracking) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TimeTracking_characterID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -948,7 +948,7 @@ func (ec *executionContext) fieldContext_TimeTracking_characterID(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _TimeTracking_customMetricID(ctx context.Context, field graphql.CollectedField, obj *timetrackingsdb.TimeTracking) (ret graphql.Marshaler) {
+func (ec *executionContext) _TimeTracking_customMetricID(ctx context.Context, field graphql.CollectedField, obj *repo.TimeTracking) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TimeTracking_customMetricID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -989,7 +989,7 @@ func (ec *executionContext) fieldContext_TimeTracking_customMetricID(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _TimeTracking_startTime(ctx context.Context, field graphql.CollectedField, obj *timetrackingsdb.TimeTracking) (ret graphql.Marshaler) {
+func (ec *executionContext) _TimeTracking_startTime(ctx context.Context, field graphql.CollectedField, obj *repo.TimeTracking) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TimeTracking_startTime(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1033,7 +1033,7 @@ func (ec *executionContext) fieldContext_TimeTracking_startTime(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _TimeTracking_endTime(ctx context.Context, field graphql.CollectedField, obj *timetrackingsdb.TimeTracking) (ret graphql.Marshaler) {
+func (ec *executionContext) _TimeTracking_endTime(ctx context.Context, field graphql.CollectedField, obj *repo.TimeTracking) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TimeTracking_endTime(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -3045,7 +3045,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 var timeTrackingImplementors = []string{"TimeTracking"}
 
-func (ec *executionContext) _TimeTracking(ctx context.Context, sel ast.SelectionSet, obj *timetrackingsdb.TimeTracking) graphql.Marshaler {
+func (ec *executionContext) _TimeTracking(ctx context.Context, sel ast.SelectionSet, obj *repo.TimeTracking) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, timeTrackingImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3533,11 +3533,11 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalNTimeTracking2tenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v timetrackingsdb.TimeTracking) graphql.Marshaler {
+func (ec *executionContext) marshalNTimeTracking2tenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v repo.TimeTracking) graphql.Marshaler {
 	return ec._TimeTracking(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v *timetrackingsdb.TimeTracking) graphql.Marshaler {
+func (ec *executionContext) marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v *repo.TimeTracking) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4088,7 +4088,7 @@ func (ec *executionContext) marshalOTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v *timetrackingsdb.TimeTracking) graphql.Marshaler {
+func (ec *executionContext) marshalOTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v *repo.TimeTracking) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

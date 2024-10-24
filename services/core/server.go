@@ -41,9 +41,6 @@ func main() {
 	profilesRepo := repo.NewProfilesRepo(db)
 	charactersRepo := repo.NewCharactersRepo(db)
 	redisClient := sessions.GetRedisClient()
-	if redisClient == nil {
-		fmt.Print("Redis null")
-	}
 	profilesBiz := business.NewProfilesBusiness(profilesRepo, redisClient)
 	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo)
 
