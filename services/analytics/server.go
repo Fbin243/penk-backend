@@ -48,7 +48,7 @@ func main() {
 	charactersRepo := repo.NewCharactersRepo(db)
 	snapshotsRepo := analyticsRepo.NewSnapshotRepo(db)
 	capturedRecordsRepo := analyticsRepo.NewCapturedRecordRepo(db)
-	charactersHandler := business.NewCharactersHandler(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo)
+	charactersHandler := business.NewCharactersBusiness(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo)
 	redisClient := sessions.GetRedisClient()
 
 	// Make a cron run daily for captured records
@@ -105,7 +105,7 @@ func main() {
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &graph.Resolver{
-			CharactersHandler: charactersHandler,
+			CharactersBusiness: charactersHandler,
 		},
 	}))
 

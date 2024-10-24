@@ -39,8 +39,8 @@ func main() {
 	db := db.GetDBManager().DB
 	profilesRepo := repo.NewProfilesRepo(db)
 	charactersRepo := repo.NewCharactersRepo(db)
-	profilesHandler := business.NewProfilesHandler(profilesRepo)
-	charactersHandler := business.NewCharactersHandler(charactersRepo, profilesRepo)
+	profilesHandler := business.NewProfilesBusiness(profilesRepo)
+	charactersHandler := business.NewCharactersBusiness(charactersRepo, profilesRepo)
 
 	// Check authentication
 	authMiddleware := auth.NewMiddleware(profilesRepo)
@@ -48,8 +48,8 @@ func main() {
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &graph.Resolver{
-			ProfilesHandler:   profilesHandler,
-			CharactersHandler: charactersHandler,
+			ProfilesBusiness:   profilesHandler,
+			CharactersBusiness: charactersHandler,
 		},
 	}))
 

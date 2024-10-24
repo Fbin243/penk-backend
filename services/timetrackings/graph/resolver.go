@@ -7,5 +7,5 @@ import "tenkhours/services/timetrackings/business"
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	*business.TimeTrackingsHandler
+	*business.TimeTrackingsBusiness
 }

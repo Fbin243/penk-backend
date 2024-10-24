@@ -15,17 +15,17 @@ import (
 
 // CreateTimeTracking is the resolver for the createTimeTracking field.
 func (r *mutationResolver) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) (*repo.TimeTracking, error) {
-	return r.TimeTrackingsHandler.CreateTimeTracking(ctx, characterID, customMetricID, startTime)
+	return r.TimeTrackingsBusiness.CreateTimeTracking(ctx, characterID, customMetricID, startTime)
 }
 
 // UpdateTimeTracking is the resolver for the updateTimeTracking field.
 func (r *mutationResolver) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*repo.TimeTracking, error) {
-	return r.TimeTrackingsHandler.UpdateTimeTracking(ctx, id)
+	return r.TimeTrackingsBusiness.UpdateTimeTracking(ctx, id)
 }
 
 // CurrentTimeTracking is the resolver for the currentTimeTracking field.
 func (r *queryResolver) CurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*repo.TimeTracking, error) {
-	return r.TimeTrackingsHandler.GetCurrentTimeTracking(ctx, characterID)
+	return r.TimeTrackingsBusiness.GetCurrentTimeTracking(ctx, characterID)
 }
 
 // Mutation returns MutationResolver implementation.

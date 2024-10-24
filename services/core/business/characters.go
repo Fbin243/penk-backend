@@ -11,25 +11,25 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type CharactersHandler struct {
+type CharactersBusiness struct {
 	CharactersRepo *repo.CharactersRepo
 	ProfilesRepo   *repo.ProfilesRepo
 }
 
-func NewCharactersHandler(charactersRepo *repo.CharactersRepo, profilesRepo *repo.ProfilesRepo) *CharactersHandler {
-	return &CharactersHandler{
+func NewCharactersBusiness(charactersRepo *repo.CharactersRepo, profilesRepo *repo.ProfilesRepo) *CharactersBusiness {
+	return &CharactersBusiness{
 		CharactersRepo: charactersRepo,
 		ProfilesRepo:   profilesRepo,
 	}
 }
 
-func (r *CharactersHandler) GetCharacterByID(ctx context.Context, id string) (*repo.Character, error) {
+func (biz *CharactersBusiness) GetCharacterByID(ctx context.Context, id string) (*repo.Character, error) {
 	characterOID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := biz.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find character: %v", err)
 	}
@@ -37,13 +37,13 @@ func (r *CharactersHandler) GetCharacterByID(ctx context.Context, id string) (*r
 	return character, nil
 }
 
-func (r *CharactersHandler) GetCharactersByProfileID(ctx context.Context) ([]repo.Character, error) {
+func (biz *CharactersBusiness) GetCharactersByProfileID(ctx context.Context) ([]repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	characters, err := r.CharactersRepo.GetCharactersByProfileID(profile.ID)
+	characters, err := biz.CharactersRepo.GetCharactersByProfileID(profile.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find characters: %v", err)
 	}
@@ -51,14 +51,14 @@ func (r *CharactersHandler) GetCharactersByProfileID(ctx context.Context) ([]rep
 	return characters, nil
 }
 
-func (r *CharactersHandler) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
+func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
 	// TODO: Check if the user has already created 2 characters, maybe changed later
-	characters, err := r.CharactersRepo.GetCharactersByProfileID(profile.ID)
+	characters, err := biz.CharactersRepo.GetCharactersByProfileID(profile.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find characters: %v", err)
 	}
@@ -85,14 +85,14 @@ func (r *CharactersHandler) CreateCharacter(ctx context.Context, input model.Cha
 		character.Tags = input.Tags
 	}
 
-	createdCharacter, err := r.CharactersRepo.CreateCharacter(&character)
+	createdCharacter, err := biz.CharactersRepo.CreateCharacter(&character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create character: %v", err)
 	}
 
 	// TODO: Character has been created, so set the current character of the user to it
 	profile.CurrentCharacterID = createdCharacter.ID
-	_, err = r.ProfilesRepo.UpdateProfile(&profile)
+	_, err = biz.ProfilesRepo.UpdateProfile(&profile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update user profile: %v", err)
 	}
@@ -100,13 +100,13 @@ func (r *CharactersHandler) CreateCharacter(ctx context.Context, input model.Cha
 	return createdCharacter, nil
 }
 
-func (r *CharactersHandler) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error) {
+func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(id)
+	character, err := biz.CharactersRepo.GetCharacterByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -123,7 +123,7 @@ func (r *CharactersHandler) UpdateCharacter(ctx context.Context, id primitive.Ob
 		character.Tags = input.Tags
 	}
 
-	updatedCharacter, err := r.CharactersRepo.UpdateCharacter(character)
+	updatedCharacter, err := biz.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
@@ -131,13 +131,13 @@ func (r *CharactersHandler) UpdateCharacter(ctx context.Context, id primitive.Ob
 	return updatedCharacter, nil
 }
 
-func (r *CharactersHandler) DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
+func (biz *CharactersBusiness) DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(id)
+	character, err := biz.CharactersRepo.GetCharacterByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -146,7 +146,7 @@ func (r *CharactersHandler) DeleteCharacter(ctx context.Context, id primitive.Ob
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	deletedCharacter, err := r.CharactersRepo.DeleteCharacter(id)
+	deletedCharacter, err := biz.CharactersRepo.DeleteCharacter(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete character: %v", err)
 	}
@@ -154,13 +154,13 @@ func (r *CharactersHandler) DeleteCharacter(ctx context.Context, id primitive.Ob
 	return deletedCharacter, nil
 }
 
-func (r *CharactersHandler) ResetCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
+func (biz *CharactersBusiness) ResetCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(id)
+	character, err := biz.CharactersRepo.GetCharacterByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -173,7 +173,7 @@ func (r *CharactersHandler) ResetCharacter(ctx context.Context, id primitive.Obj
 	character.TotalFocusedTime = 0
 	character.CustomMetrics = []repo.CustomMetric{}
 
-	resetCharacter, err := r.CharactersRepo.UpdateCharacter(character)
+	resetCharacter, err := biz.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to reset character: %v", err)
 	}

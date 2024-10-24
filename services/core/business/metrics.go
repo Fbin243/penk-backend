@@ -11,13 +11,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
+func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -86,7 +86,7 @@ func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID 
 		customMetric.Properties = properties
 	}
 
-	createdCustomMetric, err := r.CharactersRepo.CreateCustomMetric(character.ID, &customMetric)
+	createdCustomMetric, err := biz.CharactersRepo.CreateCustomMetric(character.ID, &customMetric)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create custom metric: %v", err)
 	}
@@ -94,13 +94,13 @@ func (r *CharactersHandler) CreateCustomMetric(ctx context.Context, characterID 
 	return createdCustomMetric, nil
 }
 
-func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
+func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -186,7 +186,7 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID pri
 		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
-	_, err = r.CharactersRepo.UpdateCharacter(character)
+	_, err = biz.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update custom metric: %v", err)
 	}
@@ -194,13 +194,13 @@ func (r *CharactersHandler) UpdateCustomMetric(ctx context.Context, metricID pri
 	return &updatedMetric, nil
 }
 
-func (r *CharactersHandler) DeleteCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
+func (biz *CharactersBusiness) DeleteCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -221,7 +221,7 @@ func (r *CharactersHandler) DeleteCustomMetric(ctx context.Context, metricID pri
 		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
-	deletedCustomMetric, err := r.CharactersRepo.DeleteCustomMetric(characterID, metricID)
+	deletedCustomMetric, err := biz.CharactersRepo.DeleteCustomMetric(characterID, metricID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete metric: %v", err)
 	}
@@ -229,13 +229,13 @@ func (r *CharactersHandler) DeleteCustomMetric(ctx context.Context, metricID pri
 	return deletedCustomMetric, nil
 }
 
-func (r *CharactersHandler) ResetCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
+func (biz *CharactersBusiness) ResetCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -264,7 +264,7 @@ func (r *CharactersHandler) ResetCustomMetric(ctx context.Context, metricID prim
 		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
-	_, err = r.CharactersRepo.UpdateCharacter(character)
+	_, err = biz.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to reset custom metric: %v", err)
 	}
@@ -272,13 +272,13 @@ func (r *CharactersHandler) ResetCustomMetric(ctx context.Context, metricID prim
 	return &resetMetric, nil
 }
 
-func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
+func (biz *CharactersBusiness) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -321,7 +321,7 @@ func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterI
 		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
-	_, err = r.CharactersRepo.UpdateCharacter(character)
+	_, err = biz.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create metric property: %v", err)
 	}
@@ -329,13 +329,13 @@ func (r *CharactersHandler) CreateMetricProperty(ctx context.Context, characterI
 	return &metricProperty, nil
 }
 
-func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
+func (biz *CharactersBusiness) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -386,7 +386,7 @@ func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id primiti
 		return nil, fmt.Errorf("metric property does not belong to the metric")
 	}
 
-	_, err = r.CharactersRepo.UpdateCharacter(character)
+	_, err = biz.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update metric property: %v", err)
 	}
@@ -394,13 +394,13 @@ func (r *CharactersHandler) UpdateMetricProperty(ctx context.Context, id primiti
 	return &updatedProperty, nil
 }
 
-func (r *CharactersHandler) DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*repo.MetricProperty, error) {
+func (biz *CharactersBusiness) DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*repo.MetricProperty, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -436,7 +436,7 @@ func (r *CharactersHandler) DeleteMetricProperty(ctx context.Context, id primiti
 		return nil, fmt.Errorf("metric property does not belong to the metric")
 	}
 
-	_, err = r.CharactersRepo.UpdateCharacter(character)
+	_, err = biz.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete metric property: %v", err)
 	}

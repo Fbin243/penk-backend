@@ -44,14 +44,14 @@ func main() {
 	charactersRepo := repo.NewCharactersRepo(db)
 	redisClient := sessions.GetRedisClient()
 	timetrackingsRepo := timetrackingsRepo.NewTimeTrackingsRepo(db)
-	timetrackingsHandler := business.NewTimeTrackingsHandler(timetrackingsRepo, charactersRepo, redisClient)
+	timetrackingsHandler := business.NewTimeTrackingsBusiness(timetrackingsRepo, charactersRepo, redisClient)
 
 	// Check authentication
 	authMiddleware := auth.NewMiddleware(profilesRepo)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: &graph.Resolver{TimeTrackingsHandler: timetrackingsHandler},
+		Resolvers: &graph.Resolver{TimeTrackingsBusiness: timetrackingsHandler},
 	}))
 
 	// app.GET("/", func(c *gin.Context) {

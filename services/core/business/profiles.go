@@ -10,17 +10,17 @@ import (
 	"tenkhours/services/core/repo"
 )
 
-type ProfilesHandler struct {
+type ProfilesBusiness struct {
 	ProfilesRepo *repo.ProfilesRepo
 }
 
-func NewProfilesHandler(profilesRepo *repo.ProfilesRepo) *ProfilesHandler {
-	return &ProfilesHandler{
+func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo) *ProfilesBusiness {
+	return &ProfilesBusiness{
 		ProfilesRepo: profilesRepo,
 	}
 }
 
-func (r *ProfilesHandler) GetProfileByToken(ctx context.Context) (*repo.Profile, error) {
+func (biz *ProfilesBusiness) GetProfileByToken(ctx context.Context) (*repo.Profile, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -29,7 +29,7 @@ func (r *ProfilesHandler) GetProfileByToken(ctx context.Context) (*repo.Profile,
 	return &profile, nil
 }
 
-func (r *ProfilesHandler) UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error) {
+func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -50,7 +50,7 @@ func (r *ProfilesHandler) UpdateProfile(ctx context.Context, input model.Profile
 
 	profile.UpdatedAt = utils.Now()
 
-	updatedProfile, err := r.ProfilesRepo.UpdateProfile(&profile)
+	updatedProfile, err := biz.ProfilesRepo.UpdateProfile(&profile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update user profile: %v", err)
 	}

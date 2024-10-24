@@ -19,27 +19,27 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type TimeTrackingsHandler struct {
+type TimeTrackingsBusiness struct {
 	TimeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo
 	CharactersRepo    *repo.CharactersRepo
 	RedisClient       *redis.Client
 }
 
-func NewTimeTrackingsHandler(timeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo, charactersRepo *repo.CharactersRepo, redisClient *redis.Client) *TimeTrackingsHandler {
-	return &TimeTrackingsHandler{
+func NewTimeTrackingsBusiness(timeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo, charactersRepo *repo.CharactersRepo, redisClient *redis.Client) *TimeTrackingsBusiness {
+	return &TimeTrackingsBusiness{
 		TimeTrackingsRepo: timeTrackingsRepo,
 		CharactersRepo:    charactersRepo,
 		RedisClient:       redisClient,
 	}
 }
 
-func (r *TimeTrackingsHandler) GetCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*timetrackingsRepo.TimeTracking, error) {
+func (biz *TimeTrackingsBusiness) GetCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*timetrackingsRepo.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (r *TimeTrackingsHandler) GetCurrentTimeTracking(ctx context.Context, chara
 		return nil, auth.ErrorPermissionDenied
 	}
 
-	result, err := r.TimeTrackingsRepo.GetCurrentTimeTrackingByCharacterID(characterID)
+	result, err := biz.TimeTrackingsRepo.GetCurrentTimeTrackingByCharacterID(characterID)
 	if err == mongo.ErrNoDocuments {
 		return nil, nil
 	}
@@ -59,7 +59,7 @@ func (r *TimeTrackingsHandler) GetCurrentTimeTracking(ctx context.Context, chara
 	return result, nil
 }
 
-func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, metricID *primitive.ObjectID, startTime time.Time) (*timetrackingsRepo.TimeTracking, error) {
+func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, metricID *primitive.ObjectID, startTime time.Time) (*timetrackingsRepo.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -73,7 +73,7 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 		return nil, fmt.Errorf("server timeout, failed to start a new session")
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -96,7 +96,7 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 		}
 	}
 
-	timeTrackings, err := r.TimeTrackingsRepo.GetTimeTrackingsByCharacterID(characterID)
+	timeTrackings, err := biz.TimeTrackingsRepo.GetTimeTrackingsByCharacterID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get time trackings: %v", err)
 	}
@@ -124,7 +124,7 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 		return nil, fmt.Errorf("failed to serialize time tracking: %v", err)
 	}
 
-	err = r.RedisClient.Set(ctx, timeTracking.ID.Hex(), timeTrackingJSON, 24*time.Hour).Err()
+	err = biz.RedisClient.Set(ctx, timeTracking.ID.Hex(), timeTrackingJSON, 24*time.Hour).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to save time tracking to redis: %v", err)
 	}
@@ -132,7 +132,7 @@ func (r *TimeTrackingsHandler) CreateTimeTracking(ctx context.Context, character
 	return &timeTracking, nil
 }
 
-func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsRepo.TimeTracking, error) {
+func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsRepo.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -140,7 +140,7 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 
 	endTime := time.Now()
 
-	val, err := r.RedisClient.Get(ctx, id.Hex()).Result()
+	val, err := biz.RedisClient.Get(ctx, id.Hex()).Result()
 	if err == redis.Nil {
 		return nil, fmt.Errorf("time tracking not found in redis")
 	} else if err != nil {
@@ -154,19 +154,19 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 	}
 
 	if endTime.Sub(timeTracking.StartTime).Hours() > 24 {
-		err = r.RedisClient.Del(ctx, id.Hex()).Err()
+		err = biz.RedisClient.Del(ctx, id.Hex()).Err()
 		if err != nil {
 			return nil, fmt.Errorf("failed to delete expired time tracking from redis: %v", err)
 		}
 		return nil, fmt.Errorf("session timeout, exceeded 24 hours")
 	}
 
-	err = r.RedisClient.Del(ctx, id.Hex()).Err()
+	err = biz.RedisClient.Del(ctx, id.Hex()).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete time tracking from redis: %v", err)
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
+	character, err := biz.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -202,7 +202,7 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 
 	// Check if the captured record already exists in Redis
 	capturedRecord := model.CapturedRecord{}
-	capturedRecordJSON, err := r.RedisClient.HGet(ctx, sessions.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex()).Result()
+	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, sessions.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex()).Result()
 	if err == redis.Nil {
 		// Make a new captured record
 		capturedRecord = model.CapturedRecord{
@@ -256,12 +256,12 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 		}
 	}
 
-	_, err = r.TimeTrackingsRepo.CreateTimeTracking(&timeTracking)
+	_, err = biz.TimeTrackingsRepo.CreateTimeTracking(&timeTracking)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create time tracking in DB: %v", err)
 	}
 
-	_, err = r.CharactersRepo.UpdateCharacter(character)
+	_, err = biz.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
@@ -272,7 +272,7 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context, id primit
 		return nil, fmt.Errorf("failed to serialize captured record: %v", err)
 	}
 
-	err = r.RedisClient.HSet(ctx, sessions.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex(), capturedRecordBytes).Err()
+	err = biz.RedisClient.HSet(ctx, sessions.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex(), capturedRecordBytes).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to save captured record to redis: %v", err)
 	}

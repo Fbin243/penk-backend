@@ -36,6 +36,7 @@ func (m *Middleware) CheckRequestBody(c *gin.Context) {
 	c.Next()
 }
 
+// Check if the request has a valid Authorization header with a Bearer token.
 func (m *Middleware) CheckAuth(c *gin.Context) {
 	reqCtx := c.Request.Context()
 	authKey := c.Request.Header.Get("Authorization")
@@ -48,6 +49,7 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 			return
 		}
 
+		// Get user's profile and set it to context
 		profile, err := m.profilesRepo.GetProfileByFirebaseUID(firebaseProfile.UID)
 		if err == mongo.ErrNoDocuments {
 			log.Printf("user has not registered profile, so register it\n")

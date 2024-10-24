@@ -18,15 +18,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type CharactersHandler struct {
+type CharactersBusiness struct {
 	SnapshotsRepo       *analyticsRepo.SnapshotsRepo
 	CharactersRepo      *coreRepo.CharactersRepo
 	ProfilesRepo        *coreRepo.ProfilesRepo
 	CapturedRecordsRepo *analyticsRepo.CapturedRecordsRepo
 }
 
-func NewCharactersHandler(snapshotsRepo *analyticsRepo.SnapshotsRepo, charactersRepo *coreRepo.CharactersRepo, profilesRepo *coreRepo.ProfilesRepo, capturedRepo *analyticsRepo.CapturedRecordsRepo) *CharactersHandler {
-	return &CharactersHandler{
+func NewCharactersBusiness(snapshotsRepo *analyticsRepo.SnapshotsRepo, charactersRepo *coreRepo.CharactersRepo, profilesRepo *coreRepo.ProfilesRepo, capturedRepo *analyticsRepo.CapturedRecordsRepo) *CharactersBusiness {
+	return &CharactersBusiness{
 		SnapshotsRepo:       snapshotsRepo,
 		CharactersRepo:      charactersRepo,
 		ProfilesRepo:        profilesRepo,
@@ -34,7 +34,7 @@ func NewCharactersHandler(snapshotsRepo *analyticsRepo.SnapshotsRepo, characters
 	}
 }
 
-func (r *CharactersHandler) GetSnapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]analyticsRepo.Snapshot, error) {
+func (biz *CharactersBusiness) GetSnapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]analyticsRepo.Snapshot, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -44,7 +44,7 @@ func (r *CharactersHandler) GetSnapshots(ctx context.Context, characterID *primi
 	matchStage := bson.D{}
 
 	if characterID != nil {
-		character, err := r.CharactersRepo.GetCharacterByID(*characterID)
+		character, err := biz.CharactersRepo.GetCharacterByID(*characterID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get character by ID")
 		}
@@ -82,7 +82,7 @@ func (r *CharactersHandler) GetSnapshots(ctx context.Context, characterID *primi
 	}
 
 	pineline = append(pineline, bson.D{{Key: "$match", Value: matchStage}})
-	snapshots, err := r.SnapshotsRepo.GetSnapshots(pineline)
+	snapshots, err := biz.SnapshotsRepo.GetSnapshots(pineline)
 	if err != nil {
 		return nil, err
 	}
@@ -90,13 +90,13 @@ func (r *CharactersHandler) GetSnapshots(ctx context.Context, characterID *primi
 	return snapshots, nil
 }
 
-func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*analyticsRepo.Snapshot, error) {
+func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*analyticsRepo.Snapshot, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID p
 	character.ID = primitive.NilObjectID
 
 	// Compare with the latest snapshot
-	latestSnapshot, err := r.SnapshotsRepo.GetLatestSnapshotByCharacterID(characterID)
+	latestSnapshot, err := biz.SnapshotsRepo.GetLatestSnapshotByCharacterID(characterID)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return nil, err
 	} else if reflect.DeepEqual(latestSnapshot.Character, *character) {
@@ -143,14 +143,14 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID p
 	defer session.EndSession(context.TODO())
 
 	callback := func(ctx mongo.SessionContext) (interface{}, error) {
-		_, err = r.SnapshotsRepo.CreateSnapshot(snapshot)
+		_, err = biz.SnapshotsRepo.CreateSnapshot(snapshot)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create snapshot: %v", err)
 		}
 
 		// Decrement available snapshots
 		profile.AvailableSnapshots--
-		_, err = r.ProfilesRepo.UpdateProfile(&profile)
+		_, err = biz.ProfilesRepo.UpdateProfile(&profile)
 		if err != nil {
 			return nil, fmt.Errorf("failed to update user profile: %v", err)
 		}
@@ -175,13 +175,13 @@ func (r *CharactersHandler) CreateNewSnapshot(ctx context.Context, characterID p
 	return &newSnapshot, nil
 }
 
-func (r *CharactersHandler) CreateCapturedRecord(ctx context.Context, characterID primitive.ObjectID) (*model.CapturedRecord, error) {
+func (biz *CharactersBusiness) CreateCapturedRecord(ctx context.Context, characterID primitive.ObjectID) (*model.CapturedRecord, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
 	}
 
-	character, err := r.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +212,7 @@ func (r *CharactersHandler) CreateCapturedRecord(ctx context.Context, characterI
 	}
 
 	// Save the captured record
-	err = r.CapturedRecordsRepo.CreateCapturedRecord(capturedRecord)
+	err = biz.CapturedRecordsRepo.CreateCapturedRecord(capturedRecord)
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +220,7 @@ func (r *CharactersHandler) CreateCapturedRecord(ctx context.Context, characterI
 	return capturedRecord, nil
 }
 
-func (r *CharactersHandler) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) (map[string]interface{}, error) {
+func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) (map[string]interface{}, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, auth.ErrorUnauthorized
@@ -230,7 +230,7 @@ func (r *CharactersHandler) GetAnalyticResults(ctx context.Context, characterID 
 	matchStage := bson.D{}
 
 	if characterID != nil {
-		character, err := r.CharactersRepo.GetCharacterByID(*characterID)
+		character, err := biz.CharactersRepo.GetCharacterByID(*characterID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get character by ID")
 		}
@@ -246,7 +246,7 @@ func (r *CharactersHandler) GetAnalyticResults(ctx context.Context, characterID 
 
 	pipeline = append(pipeline, bson.D{{Key: "$match", Value: matchStage}})
 
-	capturedRecords, err := r.CapturedRecordsRepo.GetCapturedRecords(pipeline)
+	capturedRecords, err := biz.CapturedRecordsRepo.GetCapturedRecords(pipeline)
 	if err != nil {
 		return nil, err
 	}
