@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/graph/validations"
 	"tenkhours/services/core/repo"
@@ -123,7 +122,7 @@ func (r *queryResolver) Characters(ctx context.Context) ([]repo.Character, error
 
 // Profile is the resolver for the profile field.
 func (r *queryResolver) Profile(ctx context.Context) (*repo.Profile, error) {
-	return r.ProfilesBusiness.GetProfileByToken(ctx)
+	return r.ProfilesBusiness.GetProfile(ctx)
 }
 
 // Mutation returns MutationResolver implementation.
@@ -132,7 +131,5 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type (
-	mutationResolver struct{ *Resolver }
-	queryResolver    struct{ *Resolver }
-)
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

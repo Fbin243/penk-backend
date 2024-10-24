@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
+	"tenkhours/pkg/middlewares"
 
 	"tenkhours/pkg/sessions"
 	"tenkhours/services/core/repo"
@@ -40,24 +40,18 @@ func main() {
 
 	// Init dependencies and perform DI manually
 	db := db.GetDBManager().DB
-	profilesRepo := repo.NewProfilesRepo(db)
 	charactersRepo := repo.NewCharactersRepo(db)
 	redisClient := sessions.GetRedisClient()
 	timetrackingsRepo := timetrackingsRepo.NewTimeTrackingsRepo(db)
-	timetrackingsHandler := business.NewTimeTrackingsBusiness(timetrackingsRepo, charactersRepo, redisClient)
+	timetrackingsBiz := business.NewTimeTrackingsBusiness(timetrackingsRepo, charactersRepo, redisClient)
 
 	// Check authentication
-	authMiddleware := auth.NewMiddleware(profilesRepo)
+	authMiddleware := middlewares.NewMiddleware(redisClient)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: &graph.Resolver{TimeTrackingsBusiness: timetrackingsHandler},
+		Resolvers: &graph.Resolver{TimeTrackingsBusiness: timetrackingsBiz},
 	}))
-
-	// app.GET("/", func(c *gin.Context) {
-	// 	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
-	// 	playgroundHandler.ServeHTTP(c.Writer, c.Request)
-	// })
 
 	app.POST("/graphql", func(c *gin.Context) {
 		srv.ServeHTTP(c.Writer, c.Request)

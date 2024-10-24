@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/errors"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
@@ -14,7 +15,7 @@ import (
 func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
@@ -23,7 +24,7 @@ func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, character
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	if len(character.CustomMetrics) >= int(character.LimitedMetricNumber) {
@@ -97,7 +98,7 @@ func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, character
 func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
@@ -106,7 +107,7 @@ func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID 
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	found := false
@@ -197,7 +198,7 @@ func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID 
 func (biz *CharactersBusiness) DeleteCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
@@ -206,7 +207,7 @@ func (biz *CharactersBusiness) DeleteCustomMetric(ctx context.Context, metricID 
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	found := false
@@ -232,7 +233,7 @@ func (biz *CharactersBusiness) DeleteCustomMetric(ctx context.Context, metricID 
 func (biz *CharactersBusiness) ResetCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
@@ -241,7 +242,7 @@ func (biz *CharactersBusiness) ResetCustomMetric(ctx context.Context, metricID p
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	found := false
@@ -275,7 +276,7 @@ func (biz *CharactersBusiness) ResetCustomMetric(ctx context.Context, metricID p
 func (biz *CharactersBusiness) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
@@ -284,7 +285,7 @@ func (biz *CharactersBusiness) CreateMetricProperty(ctx context.Context, charact
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	metricProperty := repo.MetricProperty{
@@ -332,7 +333,7 @@ func (biz *CharactersBusiness) CreateMetricProperty(ctx context.Context, charact
 func (biz *CharactersBusiness) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
@@ -341,7 +342,7 @@ func (biz *CharactersBusiness) UpdateMetricProperty(ctx context.Context, id prim
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	foundForMetric := false
@@ -397,7 +398,7 @@ func (biz *CharactersBusiness) UpdateMetricProperty(ctx context.Context, id prim
 func (biz *CharactersBusiness) DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*repo.MetricProperty, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
@@ -406,7 +407,7 @@ func (biz *CharactersBusiness) DeleteMetricProperty(ctx context.Context, id prim
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	foundForMetric := false

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"tenkhours/pkg/auth"
-
+	"tenkhours/pkg/errors"
 	"tenkhours/pkg/sessions"
 	"tenkhours/services/analytics/graph/model"
 	"tenkhours/services/core/repo"
@@ -36,7 +36,7 @@ func NewTimeTrackingsBusiness(timeTrackingsRepo *timetrackingsRepo.TimeTrackings
 func (biz *TimeTrackingsBusiness) GetCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*timetrackingsRepo.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
@@ -45,7 +45,7 @@ func (biz *TimeTrackingsBusiness) GetCurrentTimeTracking(ctx context.Context, ch
 	}
 
 	if profile.ID != character.ProfileID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	result, err := biz.TimeTrackingsRepo.GetCurrentTimeTrackingByCharacterID(characterID)
@@ -62,7 +62,7 @@ func (biz *TimeTrackingsBusiness) GetCurrentTimeTracking(ctx context.Context, ch
 func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, metricID *primitive.ObjectID, startTime time.Time) (*timetrackingsRepo.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	serverStartTime := time.Now()
@@ -79,7 +79,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	if metricID != nil {
@@ -135,7 +135,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsRepo.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	endTime := time.Now()
@@ -172,7 +172,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context, id pri
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	if !timeTracking.EndTime.IsZero() {

@@ -69,12 +69,12 @@ input CustomMetricInput {
   """
   Visual style of the metric displayed on screen.
   """
-  style: MetricStyleInput @goTag(key: "validate", value: "omitempty,dive")
+  style: MetricStyleInput @goTag(key: "validate", value: "omitempty")
 
   """
   List of properties that describe the metric.
   """
-  properties: [MetricPropertyInput!] @goTag(key: "validate", value: "omitempty,dive")
+  properties: [MetricPropertyInput!] @goTag(key: "validate", value: "omitempty")
 }
 
 """

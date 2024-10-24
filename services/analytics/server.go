@@ -7,9 +7,9 @@ import (
 	"log"
 	"os"
 
-	"tenkhours/pkg/auth"
 	"tenkhours/pkg/cron"
 	"tenkhours/pkg/db"
+	"tenkhours/pkg/middlewares"
 
 	"tenkhours/pkg/sessions"
 	"tenkhours/services/analytics/business"
@@ -48,7 +48,7 @@ func main() {
 	charactersRepo := repo.NewCharactersRepo(db)
 	snapshotsRepo := analyticsRepo.NewSnapshotRepo(db)
 	capturedRecordsRepo := analyticsRepo.NewCapturedRecordRepo(db)
-	charactersHandler := business.NewCharactersBusiness(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo)
+	charactersBiz := business.NewCharactersBusiness(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo)
 	redisClient := sessions.GetRedisClient()
 
 	// Make a cron run daily for captured records
@@ -100,12 +100,12 @@ func main() {
 	})
 
 	// Check authentication
-	authMiddleware := auth.NewMiddleware(profilesRepo)
+	authMiddleware := middlewares.NewMiddleware(redisClient)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &graph.Resolver{
-			CharactersBusiness: charactersHandler,
+			CharactersBusiness: charactersBiz,
 		},
 	}))
 

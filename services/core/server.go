@@ -5,8 +5,9 @@ import (
 	"log"
 	"os"
 
-	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
+	"tenkhours/pkg/middlewares"
+	"tenkhours/pkg/sessions"
 	"tenkhours/services/core/business"
 	"tenkhours/services/core/graph"
 	"tenkhours/services/core/repo"
@@ -39,26 +40,26 @@ func main() {
 	db := db.GetDBManager().DB
 	profilesRepo := repo.NewProfilesRepo(db)
 	charactersRepo := repo.NewCharactersRepo(db)
-	profilesHandler := business.NewProfilesBusiness(profilesRepo)
-	charactersHandler := business.NewCharactersBusiness(charactersRepo, profilesRepo)
+	redisClient := sessions.GetRedisClient()
+	if redisClient == nil {
+		fmt.Print("Redis null")
+	}
+	profilesBiz := business.NewProfilesBusiness(profilesRepo, redisClient)
+	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo)
 
 	// Check authentication
-	authMiddleware := auth.NewMiddleware(profilesRepo)
+	authMiddleware := middlewares.NewMiddleware(redisClient)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &graph.Resolver{
-			ProfilesBusiness:   profilesHandler,
-			CharactersBusiness: charactersHandler,
+			ProfilesBusiness:   profilesBiz,
+			CharactersBusiness: charactersBiz,
 		},
 	}))
 
-	// app.GET("/", func(c *gin.Context) {
-	// 	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
-	// 	playgroundHandler.ServeHTTP(c.Writer, c.Request)
-	// })
-
 	app.POST("/graphql", func(c *gin.Context) {
+		fmt.Print("Body", c.Request)
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 

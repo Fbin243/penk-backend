@@ -39,17 +39,16 @@ func GetFirebaseManager() *FirebaseManager {
 	return firebaseManager
 }
 
-func GetProfileByIDToken(idToken string) (*Profile, error) {
+func GetProfileByIDToken(idToken string) (*FirebaseProfile, error) {
 	token, err := GetFirebaseManager().Client.VerifyIDToken(context.Background(), idToken)
 	if err != nil {
 		return nil, err
 	}
 
-	authProfile := Profile{
-		UID:           token.UID,
-		Email:         token.Claims["email"].(string),
-		EmailVerified: token.Claims["email_verified"].(bool),
-		Name:          token.Claims["name"].(string),
+	authProfile := FirebaseProfile{
+		UID:   token.UID,
+		Email: token.Claims["email"].(string),
+		Name:  token.Claims["name"].(string),
 	}
 
 	return &authProfile, nil

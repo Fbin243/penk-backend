@@ -7,9 +7,9 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
+	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/analytics/graph/model"
-
 	analyticsRepo "tenkhours/services/analytics/repo"
 	coreRepo "tenkhours/services/core/repo"
 
@@ -37,7 +37,7 @@ func NewCharactersBusiness(snapshotsRepo *analyticsRepo.SnapshotsRepo, character
 func (biz *CharactersBusiness) GetSnapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]analyticsRepo.Snapshot, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	pineline := mongo.Pipeline{}
@@ -50,7 +50,7 @@ func (biz *CharactersBusiness) GetSnapshots(ctx context.Context, characterID *pr
 		}
 
 		if character.ProfileID != profile.ID {
-			return nil, auth.ErrorPermissionDenied
+			return nil, errors.ErrorPermissionDenied
 		}
 
 		matchStage = append(matchStage, bson.E{Key: "metadata.character_id", Value: *characterID})
@@ -93,7 +93,7 @@ func (biz *CharactersBusiness) GetSnapshots(ctx context.Context, characterID *pr
 func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*analyticsRepo.Snapshot, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
@@ -102,7 +102,7 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	if profile.AvailableSnapshots <= 0 {
@@ -178,7 +178,7 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 func (biz *CharactersBusiness) CreateCapturedRecord(ctx context.Context, characterID primitive.ObjectID) (*model.CapturedRecord, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
@@ -187,7 +187,7 @@ func (biz *CharactersBusiness) CreateCapturedRecord(ctx context.Context, charact
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	// Extract time from the custom metrics
@@ -223,7 +223,7 @@ func (biz *CharactersBusiness) CreateCapturedRecord(ctx context.Context, charact
 func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) (map[string]interface{}, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	pipeline := mongo.Pipeline{}
@@ -236,7 +236,7 @@ func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, character
 		}
 
 		if character.ProfileID != profile.ID {
-			return nil, auth.ErrorPermissionDenied
+			return nil, errors.ErrorPermissionDenied
 		}
 
 		matchStage = append(matchStage, bson.E{Key: "metadata.character_id", Value: *characterID})

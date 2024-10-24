@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/errors"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
@@ -40,7 +41,7 @@ func (biz *CharactersBusiness) GetCharacterByID(ctx context.Context, id string) 
 func (biz *CharactersBusiness) GetCharactersByProfileID(ctx context.Context) ([]repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	characters, err := biz.CharactersRepo.GetCharactersByProfileID(profile.ID)
@@ -54,7 +55,7 @@ func (biz *CharactersBusiness) GetCharactersByProfileID(ctx context.Context) ([]
 func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	// TODO: Check if the user has already created 2 characters, maybe changed later
@@ -103,7 +104,7 @@ func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.
 func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(id)
@@ -112,7 +113,7 @@ func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	if input.Name != nil {
@@ -134,7 +135,7 @@ func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive
 func (biz *CharactersBusiness) DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(id)
@@ -143,7 +144,7 @@ func (biz *CharactersBusiness) DeleteCharacter(ctx context.Context, id primitive
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	deletedCharacter, err := biz.CharactersRepo.DeleteCharacter(id)
@@ -157,7 +158,7 @@ func (biz *CharactersBusiness) DeleteCharacter(ctx context.Context, id primitive
 func (biz *CharactersBusiness) ResetCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, auth.ErrorUnauthorized
+		return nil, errors.ErrorUnauthorized
 	}
 
 	character, err := biz.CharactersRepo.GetCharacterByID(id)
@@ -166,7 +167,7 @@ func (biz *CharactersBusiness) ResetCharacter(ctx context.Context, id primitive.
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, auth.ErrorPermissionDenied
+		return nil, errors.ErrorPermissionDenied
 	}
 
 	character.Tags = []string{}

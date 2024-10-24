@@ -1,12 +1,14 @@
 package e2e
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 
 	"tenkhours/cmd/auth"
 	"tenkhours/pkg/db"
+	"tenkhours/pkg/sessions"
 	"tenkhours/services/core/repo"
 )
 
@@ -22,6 +24,13 @@ func TestUserFlow(uid string) error {
 	err = profileRepo.DeleteProfileByFirebaseUID(uid)
 	if err != nil {
 		return fmt.Errorf("failed to delete profile: %v", err)
+	}
+
+	// Remove the active session in redis
+	redisClient := sessions.GetRedisClient()
+	err = redisClient.Del(context.Background(), uid).Err()
+	if err != nil {
+		return fmt.Errorf("faild to delete the active session in redis")
 	}
 
 	rootDir, err := os.Getwd()

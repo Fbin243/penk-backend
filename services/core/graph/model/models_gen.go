@@ -27,9 +27,9 @@ type CustomMetricInput struct {
 	// Description of the custom metric.
 	Description *string `json:"description,omitempty" validate:"omitempty,max=255"`
 	// Visual style of the metric displayed on screen.
-	Style *MetricStyleInput `json:"style,omitempty" validate:"omitempty,dive"`
+	Style *MetricStyleInput `json:"style,omitempty" validate:"omitempty"`
 	// List of properties that describe the metric.
-	Properties []MetricPropertyInput `json:"properties,omitempty" validate:"omitempty,dive"`
+	Properties []MetricPropertyInput `json:"properties,omitempty" validate:"omitempty"`
 }
 
 // Input for defining a property of a custom metric.
