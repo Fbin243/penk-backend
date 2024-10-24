@@ -13,5 +13,6 @@ use (
 	./services/analytics
 	./services/core
 	./services/timetrackings
+	./services/notification
 	./test
 )
