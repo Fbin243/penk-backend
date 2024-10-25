@@ -1,6 +1,4 @@
-go 1.22.5
-
-toolchain go1.22.8
+go 1.22.3
 
 use (
 	.
@@ -8,14 +6,13 @@ use (
 	./pkg/auth
 	./pkg/business/analytics
 	./pkg/business/core
-	./pkg/business/notification
 	./pkg/business/timetrackings
 	./pkg/db
 	./pkg/graphql
 	./pkg/utils
 	./services/analytics
 	./services/core
-	./services/notification
 	./services/timetrackings
+	./services/notification
 	./test
 )
