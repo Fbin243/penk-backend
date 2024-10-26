@@ -33,7 +33,7 @@ input ProfileInput {
   """
   ID of the character currently being chosen by the user.
   """
-  currentCharacterID: String
+  currentCharacterID: ObjectID
 
   """
   Whether the user has enabled auto snapshot, default is true

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"tenkhours/pkg/db/coredb"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -30,7 +29,7 @@ type CapturedRecordMetadata struct {
 	ProfileID   primitive.ObjectID `json:"profileID" bson:"profile_id"`
 }
 
-type Filter struct {
+type DateTimeFilter struct {
 	Month *Month `json:"month,omitempty"`
 	Year  *int32 `json:"year,omitempty"`
 }
@@ -68,11 +67,11 @@ type SnapshotCustomMetric struct {
 }
 
 type SnapshotMetricProperty struct {
-	ID    primitive.ObjectID        `json:"id"`
-	Name  string                    `json:"name"`
-	Type  coredb.MetricPropertyType `json:"type"`
-	Value string                    `json:"value"`
-	Unit  *string                   `json:"unit,omitempty"`
+	ID    primitive.ObjectID `json:"id"`
+	Name  string             `json:"name"`
+	Type  MetricPropertyType `json:"type"`
+	Value string             `json:"value"`
+	Unit  *string            `json:"unit,omitempty"`
 }
 
 type SnapshotMetricStyle struct {
@@ -80,21 +79,62 @@ type SnapshotMetricStyle struct {
 	Icon  *string `json:"icon,omitempty"`
 }
 
+type MetricPropertyType string
+
+const (
+	MetricPropertyTypeString MetricPropertyType = "String"
+	MetricPropertyTypeNumber MetricPropertyType = "Number"
+)
+
+var AllMetricPropertyType = []MetricPropertyType{
+	MetricPropertyTypeString,
+	MetricPropertyTypeNumber,
+}
+
+func (e MetricPropertyType) IsValid() bool {
+	switch e {
+	case MetricPropertyTypeString, MetricPropertyTypeNumber:
+		return true
+	}
+	return false
+}
+
+func (e MetricPropertyType) String() string {
+	return string(e)
+}
+
+func (e *MetricPropertyType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MetricPropertyType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MetricPropertyType", str)
+	}
+	return nil
+}
+
+func (e MetricPropertyType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type Month string
 
 const (
-	MonthJanuary   Month = "JANUARY"
-	MonthFebruary  Month = "FEBRUARY"
-	MonthMarch     Month = "MARCH"
-	MonthApril     Month = "APRIL"
-	MonthMay       Month = "MAY"
-	MonthJune      Month = "JUNE"
-	MonthJuly      Month = "JULY"
-	MonthAugust    Month = "AUGUST"
-	MonthSeptember Month = "SEPTEMBER"
-	MonthOctober   Month = "OCTOBER"
-	MonthNovember  Month = "NOVEMBER"
-	MonthDecember  Month = "DECEMBER"
+	MonthJanuary   Month = "January"
+	MonthFebruary  Month = "February"
+	MonthMarch     Month = "March"
+	MonthApril     Month = "April"
+	MonthMay       Month = "May"
+	MonthJune      Month = "June"
+	MonthJuly      Month = "July"
+	MonthAugust    Month = "August"
+	MonthSeptember Month = "September"
+	MonthOctober   Month = "October"
+	MonthNovember  Month = "November"
+	MonthDecember  Month = "December"
 )
 
 var AllMonth = []Month{
@@ -144,13 +184,13 @@ func (e Month) MarshalGQL(w io.Writer) {
 type Weekday string
 
 const (
-	WeekdaySunday    Weekday = "SUNDAY"
-	WeekdayMonday    Weekday = "MONDAY"
-	WeekdayTuesday   Weekday = "TUESDAY"
-	WeekdayWednesday Weekday = "WEDNESDAY"
-	WeekdayThursday  Weekday = "THURSDAY"
-	WeekdayFriday    Weekday = "FRIDAY"
-	WeekdaySaturday  Weekday = "SATURDAY"
+	WeekdaySunday    Weekday = "Sunday"
+	WeekdayMonday    Weekday = "Monday"
+	WeekdayTuesday   Weekday = "Tuesday"
+	WeekdayWednesday Weekday = "Wednesday"
+	WeekdayThursday  Weekday = "Thursday"
+	WeekdayFriday    Weekday = "Friday"
+	WeekdaySaturday  Weekday = "Saturday"
 )
 
 var AllWeekday = []Weekday{

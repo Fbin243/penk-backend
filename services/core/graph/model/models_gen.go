@@ -3,7 +3,9 @@
 package model
 
 import (
-	"tenkhours/pkg/db/coredb"
+	"fmt"
+	"io"
+	"strconv"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -11,23 +13,23 @@ import (
 // Input for creating or updating a character.
 type CharacterInput struct {
 	// The name of the character.
-	Name *string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty" validate:"required,min=1,max=50"`
 	// Male is true, Female is false. Defaults to false.
 	Gender *bool `json:"gender,omitempty"`
 	// List of string tags that describe the character.
-	Tags []string `json:"tags,omitempty"`
+	Tags []string `json:"tags,omitempty" validate:"omitempty,tags_valid"`
 }
 
 // Input for defining a custom metric.
 type CustomMetricInput struct {
 	// The name of the custom metric.
-	Name *string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty" validate:"required,min=1,max=50"`
 	// Description of the custom metric.
-	Description *string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty" validate:"omitempty,max=255"`
 	// Visual style of the metric displayed on screen.
-	Style *MetricStyleInput `json:"style,omitempty"`
+	Style *MetricStyleInput `json:"style,omitempty" validate:"omitempty"`
 	// List of properties that describe the metric.
-	Properties []MetricPropertyInput `json:"properties,omitempty"`
+	Properties []MetricPropertyInput `json:"properties,omitempty" validate:"omitempty"`
 }
 
 // Input for defining a property of a custom metric.
@@ -35,19 +37,19 @@ type MetricPropertyInput struct {
 	// ID of the property. If not provided, a new property will be created.
 	ID *primitive.ObjectID `json:"id,omitempty"`
 	// Name of the property.
-	Name *string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty" validate:"required,min=1,max=50"`
 	// Data type of the property (STRING or NUMBER).
-	Type *coredb.MetricPropertyType `json:"type,omitempty"`
+	Type *MetricPropertyType `json:"type,omitempty" validate:"required"`
 	// Specific value of the property based on its data type.
 	Value *string `json:"value,omitempty"`
 	// Unit of the property value (e.g., seconds, meters, etc.).
-	Unit *string `json:"unit,omitempty"`
+	Unit *string `json:"unit,omitempty" validate:"omitempty,min=1,max=10"`
 }
 
 // Input for specifying the visual style of a metric.
 type MetricStyleInput struct {
 	// Color of the metric, in Hex format.
-	Color *string `json:"color,omitempty"`
+	Color *string `json:"color,omitempty" validate:"omitempty,hexcolor"`
 	// URL or file path of the icon for the metric.
 	Icon *string `json:"icon,omitempty"`
 }
@@ -58,14 +60,55 @@ type Mutation struct {
 // Input type for creating or updating a user profile.
 type ProfileInput struct {
 	// The name of the user.
-	Name *string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty" validate:"required,min=1,max=50"`
 	// URL of the user's image.
 	ImageURL *string `json:"imageURL,omitempty"`
 	// ID of the character currently being chosen by the user.
-	CurrentCharacterID *string `json:"currentCharacterID,omitempty"`
+	CurrentCharacterID *primitive.ObjectID `json:"currentCharacterID,omitempty"`
 	// Whether the user has enabled auto snapshot, default is true
 	AutoSnapshot *bool `json:"autoSnapshot,omitempty"`
 }
 
 type Query struct {
+}
+
+type MetricPropertyType string
+
+const (
+	MetricPropertyTypeString MetricPropertyType = "String"
+	MetricPropertyTypeNumber MetricPropertyType = "Number"
+)
+
+var AllMetricPropertyType = []MetricPropertyType{
+	MetricPropertyTypeString,
+	MetricPropertyTypeNumber,
+}
+
+func (e MetricPropertyType) IsValid() bool {
+	switch e {
+	case MetricPropertyTypeString, MetricPropertyTypeNumber:
+		return true
+	}
+	return false
+}
+
+func (e MetricPropertyType) String() string {
+	return string(e)
+}
+
+func (e *MetricPropertyType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MetricPropertyType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MetricPropertyType", str)
+	}
+	return nil
+}
+
+func (e MetricPropertyType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

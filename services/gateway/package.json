@@ -7,9 +7,9 @@
     "start": "nodemon index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "TenK-Hours",
   "license": "ISC",
-  "description": "",
+  "description": "The gateway service",
   "dependencies": {
     "@apollo/gateway": "^2.9.2",
     "apollo-server": "^3.13.0",

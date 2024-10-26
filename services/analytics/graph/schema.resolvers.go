@@ -14,7 +14,7 @@ import (
 
 // CreateSnapshot is the resolver for the createSnapshot field.
 func (r *mutationResolver) CreateSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*model.Snapshot, error) {
-	snapshot, err := r.CharactersHandler.CreateNewSnapshot(ctx, characterID, description)
+	snapshot, err := r.CharactersBusiness.CreateNewSnapshot(ctx, characterID, description)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create snapshot: %v", err)
 	}
@@ -24,12 +24,12 @@ func (r *mutationResolver) CreateSnapshot(ctx context.Context, characterID primi
 
 // CreateCapturedRecord is the resolver for the createCapturedRecord field.
 func (r *mutationResolver) CreateCapturedRecord(ctx context.Context, characterID primitive.ObjectID) (*model.CapturedRecord, error) {
-	return r.CharactersHandler.CreateCapturedRecord(ctx, characterID)
+	return r.CharactersBusiness.CreateCapturedRecord(ctx, characterID)
 }
 
 // Snapshots is the resolver for the snapshots field.
-func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) ([]model.Snapshot, error) {
-	snapshots, err := r.CharactersHandler.GetSnapshots(ctx, characterID, filter)
+func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]model.Snapshot, error) {
+	snapshots, err := r.CharactersBusiness.GetSnapshots(ctx, characterID, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get snapshots: %v", err)
 	}
@@ -43,8 +43,8 @@ func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.Ob
 }
 
 // AnalyticResults is the resolver for the analyticResults field.
-func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.Filter) (map[string]interface{}, error) {
-	return r.CharactersHandler.GetAnalyticResults(ctx, characterID, filter)
+func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) (map[string]interface{}, error) {
+	return r.CharactersBusiness.GetAnalyticResults(ctx, characterID, filter)
 }
 
 // Mutation returns MutationResolver implementation.

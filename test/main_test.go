@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"tenkhours/pineline"
+	"tenkhours/pkg/pineline"
 	"tenkhours/test/analytics"
 	"tenkhours/test/common"
 	"tenkhours/test/core"
@@ -317,7 +317,7 @@ func TestUserFlow(t *testing.T) {
 			JsonPath: "data.createSnapshot",
 		},
 
-		analytics.GetCharacterSnapshotsStage{
+		analytics.GetSnapshotsStage{
 			Metadata: common.Metadata{
 				Describe: "Get all snapshots of the current character after add a new snapshot for it",
 			},
@@ -332,7 +332,7 @@ func TestUserFlow(t *testing.T) {
 			CharacterKey: common.AnotherCharacter,
 		},
 
-		analytics.GetUserSnapshotsStage{
+		analytics.GetSnapshotsStage{
 			Metadata: common.Metadata{
 				Describe: "Get all snapshots of the user after add a new snapshot for each of characters, so we have 2 snapshots",
 			},

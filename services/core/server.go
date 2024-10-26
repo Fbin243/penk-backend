@@ -5,11 +5,11 @@ import (
 	"log"
 	"os"
 
-	"tenkhours/pkg/auth"
-	"tenkhours/pkg/business/core"
 	"tenkhours/pkg/db"
-	"tenkhours/pkg/db/coredb"
+	"tenkhours/pkg/middlewares"
+	"tenkhours/services/core/business"
 	"tenkhours/services/core/graph"
+	"tenkhours/services/core/repo"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -36,29 +36,26 @@ func main() {
 	}))
 
 	// Init dependencies and perform DI manually
-	db := db.GetDBManager().DB
-	profilesRepo := coredb.NewProfilesRepo(db)
-	charactersRepo := coredb.NewCharactersRepo(db)
-	profilesHandler := core.NewProfilesHandler(profilesRepo)
-	charactersHandler := core.NewCharactersHandler(charactersRepo, profilesRepo)
+	mongodb := db.GetDBManager().DB
+	profilesRepo := repo.NewProfilesRepo(mongodb)
+	charactersRepo := repo.NewCharactersRepo(mongodb)
+	redisClient := db.GetRedisClient()
+	profilesBiz := business.NewProfilesBusiness(profilesRepo, redisClient)
+	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo)
 
 	// Check authentication
-	authMiddleware := auth.NewMiddleware(profilesRepo)
+	authMiddleware := middlewares.NewMiddleware(redisClient)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &graph.Resolver{
-			ProfilesHandler:   profilesHandler,
-			CharactersHandler: charactersHandler,
+			ProfilesBusiness:   profilesBiz,
+			CharactersBusiness: charactersBiz,
 		},
 	}))
 
-	// app.GET("/", func(c *gin.Context) {
-	// 	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
-	// 	playgroundHandler.ServeHTTP(c.Writer, c.Request)
-	// })
-
 	app.POST("/graphql", func(c *gin.Context) {
+		fmt.Print("Body", c.Request)
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 

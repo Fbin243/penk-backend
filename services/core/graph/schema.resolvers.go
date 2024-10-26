@@ -6,80 +6,117 @@ package graph
 
 import (
 	"context"
-	"tenkhours/pkg/db/coredb"
-	model1 "tenkhours/services/core/graph/model"
+
+	"tenkhours/services/core/graph/model"
+	"tenkhours/services/core/graph/validations"
+	"tenkhours/services/core/repo"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // UpdateProfile is the resolver for the updateProfile field.
-func (r *mutationResolver) UpdateProfile(ctx context.Context, input model1.ProfileInput) (*coredb.Profile, error) {
-	return r.ProfilesHandler.UpdateProfile(ctx, input)
+func (r *mutationResolver) UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error) {
+	// Validate the input
+	if err := validations.ValidateProfileInput(input); err != nil {
+		return nil, err
+	}
+
+	return r.ProfilesBusiness.UpdateProfile(ctx, input)
 }
 
 // CreateCharacter is the resolver for the createCharacter field.
-func (r *mutationResolver) CreateCharacter(ctx context.Context, input model1.CharacterInput) (*coredb.Character, error) {
-	return r.CharactersHandler.CreateCharacter(ctx, input)
+func (r *mutationResolver) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
+	// Validate the input
+	if err := validations.ValidateCreateCharacterInput(input); err != nil {
+		return nil, err
+	}
+
+	return r.CharactersBusiness.CreateCharacter(ctx, input)
 }
 
 // UpdateCharacter is the resolver for the updateCharacter field.
-func (r *mutationResolver) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model1.CharacterInput) (*coredb.Character, error) {
-	return r.CharactersHandler.UpdateCharacter(ctx, id, input)
+func (r *mutationResolver) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error) {
+	// Validate the input
+	if err := validations.ValidateUpdateCharacterInput(input); err != nil {
+		return nil, err
+	}
+
+	return r.CharactersBusiness.UpdateCharacter(ctx, id, input)
 }
 
 // DeleteCharacter is the resolver for the deleteCharacter field.
-func (r *mutationResolver) DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*coredb.Character, error) {
-	return r.CharactersHandler.DeleteCharacter(ctx, id)
+func (r *mutationResolver) DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
+	return r.CharactersBusiness.DeleteCharacter(ctx, id)
 }
 
 // ResetCharacter is the resolver for the resetCharacter field.
-func (r *mutationResolver) ResetCharacter(ctx context.Context, id primitive.ObjectID) (*coredb.Character, error) {
-	return r.CharactersHandler.ResetCharacter(ctx, id)
+func (r *mutationResolver) ResetCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
+	return r.CharactersBusiness.ResetCharacter(ctx, id)
 }
 
 // CreateCustomMetric is the resolver for the createCustomMetric field.
-func (r *mutationResolver) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model1.CustomMetricInput) (*coredb.CustomMetric, error) {
-	return r.CharactersHandler.CreateCustomMetric(ctx, characterID, input)
+func (r *mutationResolver) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
+	// Validate the input
+	if err := validations.ValidateCreateCustomMetricInput(input); err != nil {
+		return nil, err
+	}
+
+	return r.CharactersBusiness.CreateCustomMetric(ctx, characterID, input)
 }
 
 // UpdateCustomMetric is the resolver for the updateCustomMetric field.
-func (r *mutationResolver) UpdateCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, input model1.CustomMetricInput) (*coredb.CustomMetric, error) {
-	return r.CharactersHandler.UpdateCustomMetric(ctx, id, characterID, input)
+func (r *mutationResolver) UpdateCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
+	// Validate the input
+	if err := validations.ValidateUpdateCustomMetricInput(input); err != nil {
+		return nil, err
+	}
+
+	return r.CharactersBusiness.UpdateCustomMetric(ctx, id, characterID, input)
 }
 
 // ResetCustomMetric is the resolver for the resetCustomMetric field.
-func (r *mutationResolver) ResetCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (*coredb.CustomMetric, error) {
-	return r.CharactersHandler.ResetCustomMetric(ctx, id, characterID)
+func (r *mutationResolver) ResetCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
+	return r.CharactersBusiness.ResetCustomMetric(ctx, id, characterID)
 }
 
 // DeleteCustomMetric is the resolver for the deleteCustomMetric field.
-func (r *mutationResolver) DeleteCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (*coredb.CustomMetric, error) {
-	return r.CharactersHandler.DeleteCustomMetric(ctx, id, characterID)
+func (r *mutationResolver) DeleteCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
+	return r.CharactersBusiness.DeleteCustomMetric(ctx, id, characterID)
 }
 
 // CreateMetricProperty is the resolver for the createMetricProperty field.
-func (r *mutationResolver) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model1.MetricPropertyInput) (*coredb.MetricProperty, error) {
-	return r.CharactersHandler.CreateMetricProperty(ctx, characterID, metricID, input)
+func (r *mutationResolver) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
+	// Validate the input
+	if err := validations.ValidateCreateMetricPropertyInput(input); err != nil {
+		return nil, err
+	}
+
+	return r.CharactersBusiness.CreateMetricProperty(ctx, characterID, metricID, input)
 }
 
 // UpdateMetricProperty is the resolver for the updateMetricProperty field.
-func (r *mutationResolver) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model1.MetricPropertyInput) (*coredb.MetricProperty, error) {
-	return r.CharactersHandler.UpdateMetricProperty(ctx, id, characterID, metricID, input)
+func (r *mutationResolver) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
+	// Validate the input
+	if err := validations.ValidateUpdateMetricPropertyInput(input); err != nil {
+		return nil, err
+	}
+
+	return r.CharactersBusiness.UpdateMetricProperty(ctx, id, characterID, metricID, input)
 }
 
 // DeleteMetricProperty is the resolver for the deleteMetricProperty field.
-func (r *mutationResolver) DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*coredb.MetricProperty, error) {
-	return r.CharactersHandler.DeleteMetricProperty(ctx, id, characterID, metricID)
+func (r *mutationResolver) DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*repo.MetricProperty, error) {
+	return r.CharactersBusiness.DeleteMetricProperty(ctx, id, characterID, metricID)
 }
 
 // Characters is the resolver for the characters field.
-func (r *queryResolver) Characters(ctx context.Context) ([]coredb.Character, error) {
-	return r.CharactersHandler.GetCharactersByProfileID(ctx)
+func (r *queryResolver) Characters(ctx context.Context) ([]repo.Character, error) {
+	return r.CharactersBusiness.GetCharactersByProfileID(ctx)
 }
 
 // Profile is the resolver for the profile field.
-func (r *queryResolver) Profile(ctx context.Context) (*coredb.Profile, error) {
-	return r.ProfilesHandler.GetProfileByToken(ctx)
+func (r *queryResolver) Profile(ctx context.Context) (*repo.Profile, error) {
+	return r.ProfilesBusiness.GetProfile(ctx)
 }
 
 // Mutation returns MutationResolver implementation.
@@ -88,5 +125,7 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)
