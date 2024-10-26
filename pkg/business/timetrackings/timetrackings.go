@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/db/timetrackingsdb"
-	"tenkhours/pkg/sessions"
 	"tenkhours/services/analytics/graph/model"
 
 	"github.com/go-redis/redis/v8"
@@ -205,7 +205,7 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context) (*timetra
 
 	// Check if the captured record already exists in Redis
 	capturedRecord := model.CapturedRecord{}
-	capturedRecordJSON, err := r.RedisClient.HGet(ctx, sessions.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex()).Result()
+	capturedRecordJSON, err := r.RedisClient.HGet(ctx, db.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex()).Result()
 	if err == redis.Nil {
 		// Make a new captured record
 		capturedRecord = model.CapturedRecord{
@@ -275,7 +275,7 @@ func (r *TimeTrackingsHandler) UpdateTimeTracking(ctx context.Context) (*timetra
 		return nil, fmt.Errorf("failed to serialize captured record: %v", err)
 	}
 
-	err = r.RedisClient.HSet(ctx, sessions.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex(), capturedRecordBytes).Err()
+	err = r.RedisClient.HSet(ctx, db.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex(), capturedRecordBytes).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to save captured record to redis: %v", err)
 	}
