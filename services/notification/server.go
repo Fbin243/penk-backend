@@ -10,7 +10,6 @@ import (
 	"tenkhours/services/notification/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -31,13 +30,6 @@ func main() {
 
 	notificationService := notification.NewNotificationService()
 
-	app.Use(cors.New(cors.Config{
-		AllowAllOrigins:  true,
-		AllowMethods:     []string{"POST", "OPTIONS"},
-		AllowHeaders:     []string{"Content-Type", "Authorization"},
-		AllowCredentials: true,
-	}))
-
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &graph.Resolver{
 			NotificationService: notificationService,
@@ -45,6 +37,7 @@ func main() {
 	}))
 
 	app.POST("/graphql", func(c *gin.Context) {
+		log.Println("Received request on /graphql")
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 

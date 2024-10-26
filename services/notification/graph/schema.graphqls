@@ -1,3 +1,7 @@
+type Query {
+  test: String
+}
+
 type Mutation {
     addToWaitlist(email: String!): Boolean
 }

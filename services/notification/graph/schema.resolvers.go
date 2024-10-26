@@ -23,7 +23,16 @@ func (r *mutationResolver) AddToWaitlist(ctx context.Context, email string) (*bo
 	return &trueValue, nil
 }
 
+// Test is the resolver for the test field.
+func (r *queryResolver) Test(ctx context.Context) (*string, error) {
+	panic(fmt.Errorf("not implemented: Test - test"))
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+
 type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
