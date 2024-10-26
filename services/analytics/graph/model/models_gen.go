@@ -3,42 +3,36 @@
 package model
 
 import (
+	"fmt"
+	"io"
+	"strconv"
 	"tenkhours/pkg/db/coredb"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type CharacterData struct {
-	ID               primitive.ObjectID `json:"id"`
-	ProfileID        primitive.ObjectID `json:"profileID"`
-	Name             string             `json:"name"`
-	Gender           bool               `json:"gender"`
-	Tags             []string           `json:"tags"`
-	TotalFocusedTime int                `json:"totalFocusedTime"`
-	CustomMetrics    []CustomMetricData `json:"customMetrics"`
+type CapturedRecord struct {
+	ID               primitive.ObjectID           `json:"id" bson:"_id"`
+	Timestamp        time.Time                    `json:"timestamp" bson:"timestamp"`
+	TotalFocusedTime int32                        `json:"totalFocusedTime" bson:"total_focused_time"`
+	CustomMetrics    []CapturedRecordCustomMetric `json:"customMetrics" bson:"custom_metrics"`
+	Metadata         CapturedRecordMetadata       `json:"metadata" bson:"metadata"`
 }
 
-type CustomMetricData struct {
-	ID          primitive.ObjectID   `json:"id"`
-	Name        string               `json:"name"`
-	Description *string              `json:"description,omitempty"`
-	Time        int                  `json:"time"`
-	Style       *MetricStyleData     `json:"style"`
-	Properties  []MetricPropertyData `json:"properties"`
+type CapturedRecordCustomMetric struct {
+	ID   primitive.ObjectID `json:"id" bson:"_id"`
+	Time int32              `json:"time" bson:"time"`
 }
 
-type MetricPropertyData struct {
-	ID    primitive.ObjectID        `json:"id"`
-	Name  string                    `json:"name"`
-	Type  coredb.MetricPropertyType `json:"type"`
-	Value string                    `json:"value"`
-	Unit  *string                   `json:"unit,omitempty"`
+type CapturedRecordMetadata struct {
+	CharacterID primitive.ObjectID `json:"characterID" bson:"character_id"`
+	ProfileID   primitive.ObjectID `json:"profileID" bson:"profile_id"`
 }
 
-type MetricStyleData struct {
-	Color *string `json:"color,omitempty"`
-	Icon  *string `json:"icon,omitempty"`
+type Filter struct {
+	Month *Month `json:"month,omitempty"`
+	Year  *int32 `json:"year,omitempty"`
 }
 
 type Mutation struct {
@@ -50,6 +44,150 @@ type Query struct {
 type Snapshot struct {
 	ID          primitive.ObjectID `json:"id"`
 	Timestamp   time.Time          `json:"timestamp"`
-	Character   *CharacterData     `json:"character"`
+	Character   SnapshotCharacter  `json:"character"`
 	Description string             `json:"description"`
+}
+
+type SnapshotCharacter struct {
+	ID               primitive.ObjectID     `json:"id"`
+	ProfileID        primitive.ObjectID     `json:"profileID"`
+	Name             string                 `json:"name"`
+	Gender           bool                   `json:"gender"`
+	Tags             []string               `json:"tags"`
+	TotalFocusedTime int32                  `json:"totalFocusedTime"`
+	CustomMetrics    []SnapshotCustomMetric `json:"customMetrics"`
+}
+
+type SnapshotCustomMetric struct {
+	ID          primitive.ObjectID       `json:"id"`
+	Name        string                   `json:"name"`
+	Description *string                  `json:"description,omitempty"`
+	Time        int32                    `json:"time"`
+	Style       SnapshotMetricStyle      `json:"style"`
+	Properties  []SnapshotMetricProperty `json:"properties"`
+}
+
+type SnapshotMetricProperty struct {
+	ID    primitive.ObjectID        `json:"id"`
+	Name  string                    `json:"name"`
+	Type  coredb.MetricPropertyType `json:"type"`
+	Value string                    `json:"value"`
+	Unit  *string                   `json:"unit,omitempty"`
+}
+
+type SnapshotMetricStyle struct {
+	Color *string `json:"color,omitempty"`
+	Icon  *string `json:"icon,omitempty"`
+}
+
+type Month string
+
+const (
+	MonthJanuary   Month = "JANUARY"
+	MonthFebruary  Month = "FEBRUARY"
+	MonthMarch     Month = "MARCH"
+	MonthApril     Month = "APRIL"
+	MonthMay       Month = "MAY"
+	MonthJune      Month = "JUNE"
+	MonthJuly      Month = "JULY"
+	MonthAugust    Month = "AUGUST"
+	MonthSeptember Month = "SEPTEMBER"
+	MonthOctober   Month = "OCTOBER"
+	MonthNovember  Month = "NOVEMBER"
+	MonthDecember  Month = "DECEMBER"
+)
+
+var AllMonth = []Month{
+	MonthJanuary,
+	MonthFebruary,
+	MonthMarch,
+	MonthApril,
+	MonthMay,
+	MonthJune,
+	MonthJuly,
+	MonthAugust,
+	MonthSeptember,
+	MonthOctober,
+	MonthNovember,
+	MonthDecember,
+}
+
+func (e Month) IsValid() bool {
+	switch e {
+	case MonthJanuary, MonthFebruary, MonthMarch, MonthApril, MonthMay, MonthJune, MonthJuly, MonthAugust, MonthSeptember, MonthOctober, MonthNovember, MonthDecember:
+		return true
+	}
+	return false
+}
+
+func (e Month) String() string {
+	return string(e)
+}
+
+func (e *Month) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Month(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Month", str)
+	}
+	return nil
+}
+
+func (e Month) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type Weekday string
+
+const (
+	WeekdaySunday    Weekday = "SUNDAY"
+	WeekdayMonday    Weekday = "MONDAY"
+	WeekdayTuesday   Weekday = "TUESDAY"
+	WeekdayWednesday Weekday = "WEDNESDAY"
+	WeekdayThursday  Weekday = "THURSDAY"
+	WeekdayFriday    Weekday = "FRIDAY"
+	WeekdaySaturday  Weekday = "SATURDAY"
+)
+
+var AllWeekday = []Weekday{
+	WeekdaySunday,
+	WeekdayMonday,
+	WeekdayTuesday,
+	WeekdayWednesday,
+	WeekdayThursday,
+	WeekdayFriday,
+	WeekdaySaturday,
+}
+
+func (e Weekday) IsValid() bool {
+	switch e {
+	case WeekdaySunday, WeekdayMonday, WeekdayTuesday, WeekdayWednesday, WeekdayThursday, WeekdayFriday, WeekdaySaturday:
+		return true
+	}
+	return false
+}
+
+func (e Weekday) String() string {
+	return string(e)
+}
+
+func (e *Weekday) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Weekday(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Weekday", str)
+	}
+	return nil
+}
+
+func (e Weekday) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
