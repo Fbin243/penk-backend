@@ -1,6 +1,7 @@
 package validations
 
 import (
+	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
 
 	"github.com/go-playground/validator/v10"
@@ -20,17 +21,103 @@ func ValidateTag(fl validator.FieldLevel) bool {
 	return true
 }
 
-func ValidateCharacterInput(characterInput model.CharacterInput) error {
-	validate := validator.New()
-	validate.RegisterValidation("tags_valid", ValidateTag)
+func ValidateCreateCharacterInput(characterInput model.CharacterInput) error {
+	if err := utils.NewValidateBuilder().Required().Validate(characterInput.Name); err != nil {
+		return err
+	}
 
-	return validate.Struct(characterInput)
+	return ValidateUpdateCharacterInput(characterInput)
 }
 
-func ValidateCustomMetricInput(customMetricInput model.CustomMetricInput) error {
-	return validator.New().Struct(customMetricInput)
+func ValidateUpdateCharacterInput(characterInput model.CharacterInput) error {
+	if characterInput.Name != nil {
+		err := utils.NewValidateBuilder().Required().Min(1).Max(50).Validate(*characterInput.Name)
+		if err != nil {
+			return err
+		}
+	}
+
+	err := utils.NewValidateBuilder().OmitEmpty().AddCustomValidate("tags_valid", ValidateTag).Custom("tags_valid").Validate(characterInput.Tags)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func ValidateMetricPropertyInput(metricPropertyInput model.MetricPropertyInput) error {
-	return validator.New().Struct(metricPropertyInput)
+func ValidateCreateCustomMetricInput(customMetricInput model.CustomMetricInput) error {
+	if err := utils.NewValidateBuilder().Required().Validate(customMetricInput.Name); err != nil {
+		return err
+	}
+
+	return ValidateUpdateCustomMetricInput(customMetricInput)
+}
+
+func ValidateUpdateCustomMetricInput(customMetricInput model.CustomMetricInput) error {
+	if customMetricInput.Name != nil {
+		err := utils.NewValidateBuilder().Required().Min(1).Max(50).Validate(*customMetricInput.Name)
+		if err != nil {
+			return err
+		}
+	}
+
+	if customMetricInput.Description != nil {
+		if err := utils.NewValidateBuilder().OmitEmpty().Max(255).Validate(*customMetricInput.Description); err != nil {
+			return err
+		}
+	}
+
+	if customMetricInput.Style != nil {
+		if err := ValidateMetricStyleInput(*customMetricInput.Style); err != nil {
+			return err
+		}
+	}
+
+	if customMetricInput.Properties != nil {
+		for _, property := range customMetricInput.Properties {
+			if err := ValidateCreateMetricPropertyInput(property); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func ValidateMetricStyleInput(metricStyleInput model.MetricStyleInput) error {
+	if metricStyleInput.Color != nil {
+		if err := utils.NewValidateBuilder().OmitEmpty().Color().Validate(*metricStyleInput.Color); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func ValidateCreateMetricPropertyInput(metricPropertyInput model.MetricPropertyInput) error {
+	if err := utils.NewValidateBuilder().Required().Validate(metricPropertyInput.Name); err != nil {
+		return err
+	}
+
+	if err := utils.NewValidateBuilder().Required().Validate(metricPropertyInput.Type); err != nil {
+		return err
+	}
+
+	return ValidateUpdateMetricPropertyInput(metricPropertyInput)
+}
+
+func ValidateUpdateMetricPropertyInput(metricPropertyInput model.MetricPropertyInput) error {
+	if metricPropertyInput.Name != nil {
+		if err := utils.NewValidateBuilder().Required().Min(1).Max(50).Validate(*metricPropertyInput.Name); err != nil {
+			return err
+		}
+	}
+
+	if metricPropertyInput.Unit != nil {
+		if err := utils.NewValidateBuilder().OmitEmpty().Max(10).Validate(*metricPropertyInput.Unit); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

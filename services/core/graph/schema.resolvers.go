@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/graph/validations"
 	"tenkhours/services/core/repo"
@@ -16,8 +17,7 @@ import (
 // UpdateProfile is the resolver for the updateProfile field.
 func (r *mutationResolver) UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error) {
 	// Validate the input
-	err := validations.ValidateProfileInput(input)
-	if err != nil {
+	if err := validations.ValidateProfileInput(input); err != nil {
 		return nil, err
 	}
 
@@ -27,8 +27,7 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input model.Profil
 // CreateCharacter is the resolver for the createCharacter field.
 func (r *mutationResolver) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
 	// Validate the input
-	err := validations.ValidateCharacterInput(input)
-	if err != nil {
+	if err := validations.ValidateCreateCharacterInput(input); err != nil {
 		return nil, err
 	}
 
@@ -38,8 +37,7 @@ func (r *mutationResolver) CreateCharacter(ctx context.Context, input model.Char
 // UpdateCharacter is the resolver for the updateCharacter field.
 func (r *mutationResolver) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error) {
 	// Validate the input
-	err := validations.ValidateCharacterInput(input)
-	if err != nil {
+	if err := validations.ValidateUpdateCharacterInput(input); err != nil {
 		return nil, err
 	}
 
@@ -59,8 +57,7 @@ func (r *mutationResolver) ResetCharacter(ctx context.Context, id primitive.Obje
 // CreateCustomMetric is the resolver for the createCustomMetric field.
 func (r *mutationResolver) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
 	// Validate the input
-	err := validations.ValidateCustomMetricInput(input)
-	if err != nil {
+	if err := validations.ValidateCreateCustomMetricInput(input); err != nil {
 		return nil, err
 	}
 
@@ -70,8 +67,7 @@ func (r *mutationResolver) CreateCustomMetric(ctx context.Context, characterID p
 // UpdateCustomMetric is the resolver for the updateCustomMetric field.
 func (r *mutationResolver) UpdateCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
 	// Validate the input
-	err := validations.ValidateCustomMetricInput(input)
-	if err != nil {
+	if err := validations.ValidateUpdateCustomMetricInput(input); err != nil {
 		return nil, err
 	}
 
@@ -91,8 +87,7 @@ func (r *mutationResolver) DeleteCustomMetric(ctx context.Context, id primitive.
 // CreateMetricProperty is the resolver for the createMetricProperty field.
 func (r *mutationResolver) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
 	// Validate the input
-	err := validations.ValidateMetricPropertyInput(input)
-	if err != nil {
+	if err := validations.ValidateCreateMetricPropertyInput(input); err != nil {
 		return nil, err
 	}
 
@@ -102,8 +97,7 @@ func (r *mutationResolver) CreateMetricProperty(ctx context.Context, characterID
 // UpdateMetricProperty is the resolver for the updateMetricProperty field.
 func (r *mutationResolver) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
 	// Validate the input
-	err := validations.ValidateMetricPropertyInput(input)
-	if err != nil {
+	if err := validations.ValidateUpdateMetricPropertyInput(input); err != nil {
 		return nil, err
 	}
 
@@ -131,5 +125,7 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)

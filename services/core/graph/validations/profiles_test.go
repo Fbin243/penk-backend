@@ -1,9 +1,9 @@
-package validations
+package validations_test
 
 import (
 	"testing"
 
-	"tenkhours/services/core/graph/model"
+	"tenkhours/services/core/graph/validations"
 
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -12,15 +12,11 @@ import (
 func TestValidateProfile(t *testing.T) {
 	type testCase struct {
 		name     string
-		profile  model.ProfileInput
+		profile  ProfileInput
 		hasError bool
 	}
 
-	profile := model.ProfileInput{
-		Name:               toPtr("John Doe"),
-		ImageURL:           toPtr("http://example.com/image.png"),
-		CurrentCharacterID: toPtr(primitive.NewObjectID()),
-	}
+	profile := NewProfileInput().Name("John Doe").ImageURL("http://example.com/image.png").CurrentCharacterID(primitive.NewObjectID())
 
 	tests := []testCase{
 		{
@@ -29,26 +25,20 @@ func TestValidateProfile(t *testing.T) {
 			hasError: false,
 		},
 		{
-			name: "empty name",
-			profile: func(u model.ProfileInput) model.ProfileInput {
-				u.Name = nil
-				return u
-			}(profile),
+			name:     "empty name",
+			profile:  profile.Name(""),
 			hasError: true,
 		},
 		{
-			name: "name too long",
-			profile: func(u model.ProfileInput) model.ProfileInput {
-				u.Name = toPtr("This is a very long name that exceeds the maximum allowed length of fifty characters")
-				return u
-			}(profile),
+			name:     "name too long",
+			profile:  profile.Name("This is a very long name that exceeds the maximum allowed length of fifty characters"),
 			hasError: true,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := ValidateProfileInput(tc.profile)
+			err := validations.ValidateProfileInput(tc.profile.ProfileInput)
 			if tc.hasError {
 				assert.Error(t, err)
 			} else {
