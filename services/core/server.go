@@ -7,7 +7,6 @@ import (
 
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/middlewares"
-	"tenkhours/pkg/sessions"
 	"tenkhours/services/core/business"
 	"tenkhours/services/core/graph"
 	"tenkhours/services/core/repo"
@@ -37,10 +36,10 @@ func main() {
 	}))
 
 	// Init dependencies and perform DI manually
-	db := db.GetDBManager().DB
-	profilesRepo := repo.NewProfilesRepo(db)
-	charactersRepo := repo.NewCharactersRepo(db)
-	redisClient := sessions.GetRedisClient()
+	mongodb := db.GetDBManager().DB
+	profilesRepo := repo.NewProfilesRepo(mongodb)
+	charactersRepo := repo.NewCharactersRepo(mongodb)
+	redisClient := db.GetRedisClient()
 	profilesBiz := business.NewProfilesBusiness(profilesRepo, redisClient)
 	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo)
 

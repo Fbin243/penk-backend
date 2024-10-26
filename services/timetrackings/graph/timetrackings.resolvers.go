@@ -6,26 +6,26 @@ package graph
 
 import (
 	"context"
-	"fmt"
-	"tenkhours/services/timetrackings/repo"
 	"time"
+
+	"tenkhours/services/timetrackings/repo"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // CreateTimeTracking is the resolver for the createTimeTracking field.
 func (r *mutationResolver) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) (*repo.TimeTracking, error) {
-	panic(fmt.Errorf("not implemented: CreateTimeTracking - createTimeTracking"))
+	return r.TimeTrackingsBusiness.CreateTimeTracking(ctx, characterID, customMetricID, startTime)
 }
 
 // UpdateTimeTracking is the resolver for the updateTimeTracking field.
 func (r *mutationResolver) UpdateTimeTracking(ctx context.Context) (*repo.TimeTracking, error) {
-	panic(fmt.Errorf("not implemented: UpdateTimeTracking - updateTimeTracking"))
+	return r.TimeTrackingsBusiness.UpdateTimeTracking(ctx)
 }
 
 // CurrentTimeTracking is the resolver for the currentTimeTracking field.
-func (r *queryResolver) CurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*repo.TimeTracking, error) {
-	panic(fmt.Errorf("not implemented: CurrentTimeTracking - currentTimeTracking"))
+func (r *queryResolver) CurrentTimeTracking(ctx context.Context) (*repo.TimeTracking, error) {
+	return r.TimeTrackingsBusiness.GetCurrentTimeTracking(ctx)
 }
 
 // Mutation returns MutationResolver implementation.
@@ -34,5 +34,7 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)

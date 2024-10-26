@@ -8,7 +8,6 @@ import (
 
 	"tenkhours/cmd/auth"
 	"tenkhours/pkg/db"
-	"tenkhours/pkg/sessions"
 	"tenkhours/services/core/repo"
 )
 
@@ -27,7 +26,7 @@ func TestUserFlow(uid string) error {
 	}
 
 	// Remove the active session in redis
-	redisClient := sessions.GetRedisClient()
+	redisClient := db.GetRedisClient()
 	err = redisClient.Del(context.Background(), uid).Err()
 	if err != nil {
 		return fmt.Errorf("faild to delete the active session in redis")
