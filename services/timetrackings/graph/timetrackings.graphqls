@@ -23,7 +23,5 @@ type Mutation {
     startTime: Time!
   ): TimeTracking!
 
-  updateTimeTracking(
-    id: ObjectID!
-  ): TimeTracking!
+  updateTimeTracking: TimeTracking!
 }

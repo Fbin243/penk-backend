@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
-	"tenkhours/pkg/sessions"
 	"tenkhours/services/analytics/graph/model"
 	"tenkhours/services/core/repo"
 	timetrackingsRepo "tenkhours/services/timetrackings/repo"
@@ -124,7 +124,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 		return nil, fmt.Errorf("failed to serialize time tracking: %v", err)
 	}
 
-	err = biz.RedisClient.Set(ctx, timeTracking.ID.Hex(), timeTrackingJSON, 24*time.Hour).Err()
+	err = biz.RedisClient.Set(ctx, profile.ID.Hex(), timeTrackingJSON, 24*time.Hour).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to save time tracking to redis: %v", err)
 	}
@@ -132,15 +132,15 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	return &timeTracking, nil
 }
 
-func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsRepo.TimeTracking, error) {
+func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*timetrackingsRepo.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, errors.ErrorUnauthorized
 	}
 
-	endTime := time.Now()
+	redisKey := profile.ID.Hex()
 
-	val, err := biz.RedisClient.Get(ctx, id.Hex()).Result()
+	val, err := biz.RedisClient.Get(ctx, redisKey).Result()
 	if err == redis.Nil {
 		return nil, fmt.Errorf("time tracking not found in redis")
 	} else if err != nil {
@@ -153,15 +153,17 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context, id pri
 		return nil, fmt.Errorf("failed to deserialize time tracking: %v", err)
 	}
 
+	endTime := time.Now()
+
 	if endTime.Sub(timeTracking.StartTime).Hours() > 24 {
-		err = biz.RedisClient.Del(ctx, id.Hex()).Err()
+		err = biz.RedisClient.Del(ctx, redisKey).Err()
 		if err != nil {
 			return nil, fmt.Errorf("failed to delete expired time tracking from redis: %v", err)
 		}
 		return nil, fmt.Errorf("session timeout, exceeded 24 hours")
 	}
 
-	err = biz.RedisClient.Del(ctx, id.Hex()).Err()
+	err = biz.RedisClient.Del(ctx, redisKey).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete time tracking from redis: %v", err)
 	}
@@ -202,7 +204,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context, id pri
 
 	// Check if the captured record already exists in Redis
 	capturedRecord := model.CapturedRecord{}
-	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, sessions.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex()).Result()
+	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, db.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex()).Result()
 	if err == redis.Nil {
 		// Make a new captured record
 		capturedRecord = model.CapturedRecord{
@@ -272,7 +274,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context, id pri
 		return nil, fmt.Errorf("failed to serialize captured record: %v", err)
 	}
 
-	err = biz.RedisClient.HSet(ctx, sessions.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex(), capturedRecordBytes).Err()
+	err = biz.RedisClient.HSet(ctx, db.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex(), capturedRecordBytes).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to save captured record to redis: %v", err)
 	}

@@ -7,8 +7,6 @@ import (
 
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/middlewares"
-
-	"tenkhours/pkg/sessions"
 	"tenkhours/services/core/repo"
 	"tenkhours/services/timetrackings/business"
 	"tenkhours/services/timetrackings/graph"
@@ -39,10 +37,10 @@ func main() {
 	}))
 
 	// Init dependencies and perform DI manually
-	db := db.GetDBManager().DB
-	charactersRepo := repo.NewCharactersRepo(db)
-	redisClient := sessions.GetRedisClient()
-	timetrackingsRepo := timetrackingsRepo.NewTimeTrackingsRepo(db)
+	mongodb := db.GetDBManager().DB
+	charactersRepo := repo.NewCharactersRepo(mongodb)
+	redisClient := db.GetRedisClient()
+	timetrackingsRepo := timetrackingsRepo.NewTimeTrackingsRepo(mongodb)
 	timetrackingsBiz := business.NewTimeTrackingsBusiness(timetrackingsRepo, charactersRepo, redisClient)
 
 	// Check authentication

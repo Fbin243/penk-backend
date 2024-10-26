@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"tenkhours/services/timetrackings/repo"
 	"time"
 
@@ -14,17 +15,17 @@ import (
 
 // CreateTimeTracking is the resolver for the createTimeTracking field.
 func (r *mutationResolver) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) (*repo.TimeTracking, error) {
-	return r.TimeTrackingsBusiness.CreateTimeTracking(ctx, characterID, customMetricID, startTime)
+	panic(fmt.Errorf("not implemented: CreateTimeTracking - createTimeTracking"))
 }
 
 // UpdateTimeTracking is the resolver for the updateTimeTracking field.
-func (r *mutationResolver) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*repo.TimeTracking, error) {
-	return r.TimeTrackingsBusiness.UpdateTimeTracking(ctx, id)
+func (r *mutationResolver) UpdateTimeTracking(ctx context.Context) (*repo.TimeTracking, error) {
+	panic(fmt.Errorf("not implemented: UpdateTimeTracking - updateTimeTracking"))
 }
 
 // CurrentTimeTracking is the resolver for the currentTimeTracking field.
 func (r *queryResolver) CurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*repo.TimeTracking, error) {
-	return r.TimeTrackingsBusiness.GetCurrentTimeTracking(ctx, characterID)
+	panic(fmt.Errorf("not implemented: CurrentTimeTracking - currentTimeTracking"))
 }
 
 // Mutation returns MutationResolver implementation.

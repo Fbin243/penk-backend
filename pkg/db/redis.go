@@ -1,4 +1,4 @@
-package sessions
+package db
 
 import (
 	"context"
@@ -14,6 +14,8 @@ var (
 	ctx         = context.Background()
 	once        sync.Once
 )
+
+const CapturedRecordKey = "captured_record_"
 
 func GetRedisClient() *redis.Client {
 	once.Do(func() {

@@ -53,7 +53,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		CreateTimeTracking func(childComplexity int, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) int
-		UpdateTimeTracking func(childComplexity int, id primitive.ObjectID) int
+		UpdateTimeTracking func(childComplexity int) int
 	}
 
 	Query struct {
@@ -76,7 +76,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) (*repo.TimeTracking, error)
-	UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*repo.TimeTracking, error)
+	UpdateTimeTracking(ctx context.Context) (*repo.TimeTracking, error)
 }
 type QueryResolver interface {
 	CurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID) (*repo.TimeTracking, error)
@@ -118,12 +118,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateTimeTracking_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateTimeTracking(childComplexity, args["id"].(primitive.ObjectID)), true
+		return e.complexity.Mutation.UpdateTimeTracking(childComplexity), true
 
 	case "Query.currentTimeTracking":
 		if e.complexity.Query.CurrentTimeTracking == nil {
@@ -402,21 +397,6 @@ func (ec *executionContext) field_Mutation_createTimeTracking_args(ctx context.C
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateTimeTracking_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 primitive.ObjectID
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -566,7 +546,7 @@ func (ec *executionContext) _Mutation_updateTimeTracking(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTimeTracking(rctx, fc.Args["id"].(primitive.ObjectID))
+		return ec.resolvers.Mutation().UpdateTimeTracking(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -583,7 +563,7 @@ func (ec *executionContext) _Mutation_updateTimeTracking(ctx context.Context, fi
 	return ec.marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateTimeTracking(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_updateTimeTracking(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -604,17 +584,6 @@ func (ec *executionContext) fieldContext_Mutation_updateTimeTracking(ctx context
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TimeTracking", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateTimeTracking_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }

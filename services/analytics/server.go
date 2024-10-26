@@ -11,7 +11,6 @@ import (
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/middlewares"
 
-	"tenkhours/pkg/sessions"
 	"tenkhours/services/analytics/business"
 	"tenkhours/services/analytics/graph"
 	"tenkhours/services/analytics/graph/model"
@@ -43,13 +42,13 @@ func main() {
 	}))
 
 	// Init dependencies and perform DI manually
-	db := db.GetDBManager().DB
-	profilesRepo := repo.NewProfilesRepo(db)
-	charactersRepo := repo.NewCharactersRepo(db)
-	snapshotsRepo := analyticsRepo.NewSnapshotRepo(db)
-	capturedRecordsRepo := analyticsRepo.NewCapturedRecordRepo(db)
+	mongodb := db.GetDBManager().DB
+	profilesRepo := repo.NewProfilesRepo(mongodb)
+	charactersRepo := repo.NewCharactersRepo(mongodb)
+	snapshotsRepo := analyticsRepo.NewSnapshotRepo(mongodb)
+	capturedRecordsRepo := analyticsRepo.NewCapturedRecordRepo(mongodb)
 	charactersBiz := business.NewCharactersBusiness(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo)
-	redisClient := sessions.GetRedisClient()
+	redisClient := db.GetRedisClient()
 
 	// Make a cron run daily for captured records
 	cron := cron.NewCron()
@@ -59,7 +58,7 @@ func main() {
 		// Scan Redis and save to DB
 		for {
 			var cursor uint64
-			profileIds, cursor, err := redisClient.Scan(context.Background(), cursor, "*"+sessions.CapturedRecordKey+"*", 1000).Result()
+			profileIds, cursor, err := redisClient.Scan(context.Background(), cursor, "*"+db.CapturedRecordKey+"*", 1000).Result()
 			if err != nil {
 				fmt.Println("Error scanning redis: ", err)
 			}
