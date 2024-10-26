@@ -18,8 +18,8 @@ func (r *mutationResolver) CreateTimeTracking(ctx context.Context, characterID p
 }
 
 // UpdateTimeTracking is the resolver for the updateTimeTracking field.
-func (r *mutationResolver) UpdateTimeTracking(ctx context.Context, id primitive.ObjectID) (*timetrackingsdb.TimeTracking, error) {
-	return r.TimeTrackingsHandler.UpdateTimeTracking(ctx, id)
+func (r *mutationResolver) UpdateTimeTracking(ctx context.Context) (*timetrackingsdb.TimeTracking, error) {
+	return r.TimeTrackingsHandler.UpdateTimeTracking(ctx)
 }
 
 // CurrentTimeTracking is the resolver for the currentTimeTracking field.

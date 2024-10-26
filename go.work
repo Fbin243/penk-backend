@@ -10,7 +10,6 @@ use (
 	./pkg/cron
 	./pkg/db
 	./pkg/graphql
-	./pkg/sessions
 	./pkg/utils
 	./services/analytics
 	./services/core

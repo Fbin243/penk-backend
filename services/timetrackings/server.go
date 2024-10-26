@@ -9,7 +9,6 @@ import (
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/pkg/db/timetrackingsdb"
-	"tenkhours/pkg/sessions"
 	"tenkhours/pkg/timetrackings"
 	"tenkhours/services/timetrackings/graph"
 
@@ -38,11 +37,11 @@ func main() {
 	}))
 
 	// Init dependencies and perform DI manually
-	db := db.GetDBManager().DB
-	profilesRepo := coredb.NewProfilesRepo(db)
-	charactersRepo := coredb.NewCharactersRepo(db)
-	redisClient := sessions.GetRedisClient()
-	timetrackingsRepo := timetrackingsdb.NewTimeTrackingsRepo(db)
+	mongodb := db.GetDBManager().DB
+	profilesRepo := coredb.NewProfilesRepo(mongodb)
+	charactersRepo := coredb.NewCharactersRepo(mongodb)
+	redisClient := db.GetRedisClient()
+	timetrackingsRepo := timetrackingsdb.NewTimeTrackingsRepo(mongodb)
 	timetrackingsHandler := timetrackings.NewTimeTrackingsHandler(timetrackingsRepo, charactersRepo, redisClient)
 
 	// Check authentication
