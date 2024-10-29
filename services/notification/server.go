@@ -10,6 +10,7 @@ import (
 	"tenkhours/services/notification/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -27,6 +28,11 @@ func main() {
 	fmt.Println("Running in environment:", env)
 
 	app := gin.Default()
+
+	app.Use(cors.New(cors.Config{
+		AllowAllOrigins: true,
+		AllowHeaders:    []string{"Content-Type", "Authorization"},
+	}))
 
 	notificationService := notification.NewNotificationService()
 
