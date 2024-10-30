@@ -8,6 +8,7 @@ import (
 	"tenkhours/cmd/auth"
 	"tenkhours/cmd/e2e"
 	"tenkhours/cmd/gql"
+	"tenkhours/cmd/time"
 
 	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v2"
@@ -25,6 +26,7 @@ func main() {
 			&gql.SetupBoilerplateCommand,
 			&auth.GetJWTTokenCommand,
 			&e2e.TestUserFlowCommand,
+			&time.GetTheCurrentTime,
 		},
 		Before: func(ctx *cli.Context) error {
 			env := os.Getenv("TENK_ENV")

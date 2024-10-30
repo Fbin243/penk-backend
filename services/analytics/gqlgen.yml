@@ -1,5 +1,6 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
+  - ../../pkg/graphql/enums/time.graphqls
   - graph/*.graphqls
 
 # Where should the generated server code go?
@@ -23,7 +24,7 @@ resolver:
   layout: follow-schema
   dir: graph
   package: graph
-  filename_template: '{name}.resolvers.go'
+  filename_template: "{name}.resolvers.go"
   # Optional: turn on to not generate template comments above resolvers
   # omit_template_comment: false
 
@@ -47,7 +48,7 @@ omit_slice_element_pointers: true
 
 # Optional: turn off to make struct-type struct fields not use pointers
 # e.g. type Thing struct { FieldA OtherThing } instead of { FieldA *OtherThing }
-# struct_fields_always_pointers: true
+struct_fields_always_pointers: false
 
 # Optional: turn off to make resolvers return values instead of pointers for structs
 # resolvers_always_return_pointers: true
@@ -74,16 +75,8 @@ autobind: null # - "graph/model"
 # modelgen, the others will be allowed when binding to fields. Configure them to
 # your liking
 models:
-  ID:
-    model:
-      - github.com/99designs/gqlgen/graphql.ID
-      - github.com/99designs/gqlgen/graphql.Int
-      - github.com/99designs/gqlgen/graphql.Int64
-      - github.com/99designs/gqlgen/graphql.Int32
   Int:
     model:
-      - github.com/99designs/gqlgen/graphql.Int
-      - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
   ObjectID:
     model: tenkhours/pkg/graphql.ObjectID
@@ -91,3 +84,5 @@ models:
     model: tenkhours/pkg/graphql.NullableString
   MetricPropertyType:
     model: tenkhours/pkg/db/coredb.MetricPropertyType
+  JSON:
+    model: github.com/99designs/gqlgen/graphql.Map

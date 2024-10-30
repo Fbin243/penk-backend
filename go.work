@@ -10,6 +10,7 @@ use (
 	./pkg/business/core
 	./pkg/business/notification
 	./pkg/business/timetrackings
+	./pkg/cron
 	./pkg/db
 	./pkg/graphql
 	./pkg/utils

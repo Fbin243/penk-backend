@@ -13,11 +13,12 @@ import (
 )
 
 var (
-	ProfileCollection       = "profiles"
-	CharacterCollection     = "characters"
-	TimeTrackingsCollection = "time_trackings"
-	SnapshotsCollection     = "snapshots"
-	FindOneAndUpdateOptions = options.FindOneAndUpdate().SetReturnDocument(options.After)
+	ProfileCollection         = "profiles"
+	CharacterCollection       = "characters"
+	TimeTrackingsCollection   = "time_trackings"
+	SnapshotsCollection       = "snapshots"
+	CapturedRecordsCollection = "captured_records"
+	FindOneAndUpdateOptions   = options.FindOneAndUpdate().SetReturnDocument(options.After)
 )
 
 type DatabaseManager struct {
@@ -71,6 +72,15 @@ func InitDBManagerFromEnv() *DatabaseManager {
 
 	// TODO: Create time series collection for snapshots (Temporarily)
 	db.CreateCollection(ctx, SnapshotsCollection,
+		options.CreateCollection().
+			SetTimeSeriesOptions(
+				options.TimeSeries().
+					SetTimeField("timestamp").
+					SetMetaField("metadata"),
+			),
+	)
+
+	db.CreateCollection(ctx, CapturedRecordsCollection,
 		options.CreateCollection().
 			SetTimeSeriesOptions(
 				options.TimeSeries().

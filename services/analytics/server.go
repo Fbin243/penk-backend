@@ -1,16 +1,20 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 
 	"tenkhours/pkg/analytics"
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/cron"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/db/analyticsdb"
 	"tenkhours/pkg/db/coredb"
 	"tenkhours/services/analytics/graph"
+	"tenkhours/services/analytics/graph/model"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -37,11 +41,61 @@ func main() {
 	}))
 
 	// Init dependencies and perform DI manually
-	db := db.GetDBManager().DB
-	profilesRepo := coredb.NewProfilesRepo(db)
-	charactersRepo := coredb.NewCharactersRepo(db)
-	snapshotsRepo := analyticsdb.NewSnapshotRepo(db)
-	charactersHandler := analytics.NewCharactersHandler(snapshotsRepo, charactersRepo, profilesRepo)
+	mongodb := db.GetDBManager().DB
+	profilesRepo := coredb.NewProfilesRepo(mongodb)
+	charactersRepo := coredb.NewCharactersRepo(mongodb)
+	snapshotsRepo := analyticsdb.NewSnapshotRepo(mongodb)
+	capturedRecordsRepo := analyticsdb.NewCapturedRecordRepo(mongodb)
+	charactersHandler := analytics.NewCharactersHandler(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo)
+	redisClient := db.GetRedisClient()
+
+	// Make a cron run daily for captured records
+	cron := cron.NewCron()
+	cron.RunDaily(func() {
+		fmt.Println("Running cron job every day")
+
+		// Scan Redis and save to DB
+		for {
+			var cursor uint64
+			profileIds, cursor, err := redisClient.Scan(context.Background(), cursor, "*"+db.CapturedRecordKey+"*", 1000).Result()
+			if err != nil {
+				fmt.Println("Error scanning redis: ", err)
+			}
+
+			for _, profileId := range profileIds {
+				// Get the captured record from redis and save it to DB
+				capturedRecordsJSON, err := redisClient.HGetAll(context.Background(), profileId).Result()
+				if err != nil {
+					fmt.Println("Error getting characters from redis: ", err)
+				}
+
+				for _, capturedRecordJSON := range capturedRecordsJSON {
+					var capturedRecord model.CapturedRecord
+					// Decode the captured records json to struct
+					err = json.Unmarshal([]byte(capturedRecordJSON), &capturedRecord)
+					if err != nil {
+						fmt.Println("Error unmarshalling captured record: ", err)
+					}
+
+					// Save the captured record to DB
+					err = capturedRecordsRepo.CreateCapturedRecord(&capturedRecord)
+					if err != nil {
+						fmt.Println("Error saving captured record to DB: ", err)
+					}
+				}
+
+				// Delete the captured records from redis
+				_, err = redisClient.Del(context.Background(), profileId).Result()
+				if err != nil {
+					fmt.Println("Error deleting captured records from redis:", err)
+				}
+			}
+			if cursor == 0 {
+				// cron.Stop() // Stop the cron job for testing
+				break
+			}
+		}
+	})
 
 	// Check authentication
 	authMiddleware := auth.NewMiddleware(profilesRepo)

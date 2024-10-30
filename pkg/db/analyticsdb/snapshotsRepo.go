@@ -20,37 +20,11 @@ func NewSnapshotRepo(mongodb *mongo.Database) *SnapshotsRepo {
 	return &SnapshotsRepo{mongodb.Collection(db.SnapshotsCollection)}
 }
 
-func (r *SnapshotsRepo) GetSnapshotsByProfileID(profileID primitive.ObjectID) ([]Snapshot, error) {
+func (r *SnapshotsRepo) GetSnapshots(pineline mongo.Pipeline) ([]Snapshot, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := r.Find(ctx, bson.M{"metadata.profile_id": profileID})
-	if err != nil {
-		return nil, err
-	}
-
-	defer cursor.Close(ctx)
-
-	var snapshots []Snapshot
-	for cursor.Next(ctx) {
-		var snapshot Snapshot
-		if err := cursor.Decode(&snapshot); err != nil {
-			return nil, err
-		}
-
-		snapshot.Character.ID = snapshot.Metadata.CharacterID
-		snapshot.Character.ProfileID = snapshot.Metadata.ProfileID
-		snapshots = append(snapshots, snapshot)
-	}
-
-	return snapshots, nil
-}
-
-func (r *SnapshotsRepo) GetSnapshotsByCharacterID(characterID primitive.ObjectID) ([]Snapshot, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	cursor, err := r.Find(ctx, bson.M{"metadata.character_id": characterID})
+	cursor, err := r.Aggregate(ctx, pineline)
 	if err != nil {
 		return nil, err
 	}
