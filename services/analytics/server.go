@@ -7,14 +7,15 @@ import (
 	"log"
 	"os"
 
-	"tenkhours/pkg/analytics"
-	"tenkhours/pkg/auth"
 	"tenkhours/pkg/cron"
 	"tenkhours/pkg/db"
-	"tenkhours/pkg/db/analyticsdb"
-	"tenkhours/pkg/db/coredb"
+	"tenkhours/pkg/middlewares"
+
+	"tenkhours/services/analytics/business"
 	"tenkhours/services/analytics/graph"
 	"tenkhours/services/analytics/graph/model"
+	analyticsRepo "tenkhours/services/analytics/repo"
+	"tenkhours/services/core/repo"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -42,11 +43,11 @@ func main() {
 
 	// Init dependencies and perform DI manually
 	mongodb := db.GetDBManager().DB
-	profilesRepo := coredb.NewProfilesRepo(mongodb)
-	charactersRepo := coredb.NewCharactersRepo(mongodb)
-	snapshotsRepo := analyticsdb.NewSnapshotRepo(mongodb)
-	capturedRecordsRepo := analyticsdb.NewCapturedRecordRepo(mongodb)
-	charactersHandler := analytics.NewCharactersHandler(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo)
+	profilesRepo := repo.NewProfilesRepo(mongodb)
+	charactersRepo := repo.NewCharactersRepo(mongodb)
+	snapshotsRepo := analyticsRepo.NewSnapshotRepo(mongodb)
+	capturedRecordsRepo := analyticsRepo.NewCapturedRecordRepo(mongodb)
+	charactersBiz := business.NewCharactersBusiness(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo)
 	redisClient := db.GetRedisClient()
 
 	// Make a cron run daily for captured records
@@ -98,12 +99,12 @@ func main() {
 	})
 
 	// Check authentication
-	authMiddleware := auth.NewMiddleware(profilesRepo)
+	authMiddleware := middlewares.NewMiddleware(redisClient)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &graph.Resolver{
-			CharactersHandler: charactersHandler,
+			CharactersBusiness: charactersBiz,
 		},
 	}))
 

@@ -87,21 +87,19 @@ models:
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
   Profile:
-    model: tenkhours/pkg/db/coredb.Profile
+    model: tenkhours/services/core/repo.Profile
     fields:
       characters:
         resolver: true
   Character:
-    model: tenkhours/pkg/db/coredb.Character
+    model: tenkhours/services/core/repo.Character
   CustomMetric:
-    model: tenkhours/pkg/db/coredb.CustomMetric
+    model: tenkhours/services/core/repo.CustomMetric
   MetricProperty:
-    model: tenkhours/pkg/db/coredb.MetricProperty
+    model: tenkhours/services/core/repo.MetricProperty
   ObjectID:
     model: tenkhours/pkg/graphql.ObjectID
   MetricStyle:
-    model: tenkhours/pkg/db/coredb.MetricStyle
+    model: tenkhours/services/core/repo.MetricStyle
   NullableString:
     model: tenkhours/pkg/graphql.NullableString
-  MetricPropertyType:
-    model: tenkhours/pkg/db/coredb.MetricPropertyType

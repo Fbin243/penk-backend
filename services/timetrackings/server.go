@@ -5,12 +5,12 @@ import (
 	"log"
 	"os"
 
-	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
-	"tenkhours/pkg/db/coredb"
-	"tenkhours/pkg/db/timetrackingsdb"
-	"tenkhours/pkg/timetrackings"
+	"tenkhours/pkg/middlewares"
+	"tenkhours/services/core/repo"
+	"tenkhours/services/timetrackings/business"
 	"tenkhours/services/timetrackings/graph"
+	timetrackingsRepo "tenkhours/services/timetrackings/repo"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -38,24 +38,18 @@ func main() {
 
 	// Init dependencies and perform DI manually
 	mongodb := db.GetDBManager().DB
-	profilesRepo := coredb.NewProfilesRepo(mongodb)
-	charactersRepo := coredb.NewCharactersRepo(mongodb)
+	charactersRepo := repo.NewCharactersRepo(mongodb)
 	redisClient := db.GetRedisClient()
-	timetrackingsRepo := timetrackingsdb.NewTimeTrackingsRepo(mongodb)
-	timetrackingsHandler := timetrackings.NewTimeTrackingsHandler(timetrackingsRepo, charactersRepo, redisClient)
+	timetrackingsRepo := timetrackingsRepo.NewTimeTrackingsRepo(mongodb)
+	timetrackingsBiz := business.NewTimeTrackingsBusiness(timetrackingsRepo, charactersRepo, redisClient)
 
 	// Check authentication
-	authMiddleware := auth.NewMiddleware(profilesRepo)
+	authMiddleware := middlewares.NewMiddleware(redisClient)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: &graph.Resolver{TimeTrackingsHandler: timetrackingsHandler},
+		Resolvers: &graph.Resolver{TimeTrackingsBusiness: timetrackingsBiz},
 	}))
-
-	// app.GET("/", func(c *gin.Context) {
-	// 	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
-	// 	playgroundHandler.ServeHTTP(c.Writer, c.Request)
-	// })
 
 	app.POST("/graphql", func(c *gin.Context) {
 		srv.ServeHTTP(c.Writer, c.Request)

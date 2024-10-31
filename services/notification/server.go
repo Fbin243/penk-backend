@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"tenkhours/pkg/notification"
+	"tenkhours/services/notification/business"
 	"tenkhours/services/notification/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -34,11 +34,11 @@ func main() {
 		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
 
-	notificationService := notification.NewNotificationService()
+	notificationBiz := business.NewNotificationBusiness()
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &graph.Resolver{
-			NotificationService: notificationService,
+			NotificationBusiness: notificationBiz,
 		},
 	}))
 

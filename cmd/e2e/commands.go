@@ -16,7 +16,7 @@ var TestUserFlowCommand = cli.Command{
 			Name:        "uid",
 			Aliases:     []string{"u"},
 			Usage:       "firebase `UID` of the user",
-			Value:       "p4oqtfuvuUUmTX5yHqccIFqp89A2",
+			Value:       "lstMYDOFoXWQ2s4TGyR4GTrGpKO2",
 			DefaultText: "UID",
 		},
 	},

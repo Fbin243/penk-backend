@@ -61,37 +61,37 @@ func (s CreateSnapshotStage) Exec(ctx *context.Context) error {
 		})
 }
 
-type GetCharacterSnapshotsStage struct {
+type GetSnapshotsStage struct {
 	common.Metadata
-	SnapshotKey    common.ContextKey
-	HasOneSnapshot bool
+	SnapshotKey     common.ContextKey
+	HasOneSnapshot  bool
+	HasTwoSnapshots bool
 }
 
-func (s GetCharacterSnapshotsStage) Exec(ctx *context.Context) error {
+func (s GetSnapshotsStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	testingT, ok := (*ctx).Value(common.TestingT).(apitest.TestingT)
 	if !ok {
 		return common.ErrNotFoundInContext("TestingT")
 	}
 
-	snapshot, ok := (*ctx).Value(s.SnapshotKey).(string)
-	if !ok {
-		return common.ErrNotFoundInContext("SnapshotKey")
-	}
-
-	variables := map[string]interface{}{
-		"characterID": gjson.Get(snapshot, "character.id").Value(),
-	}
+	variables := map[string]interface{}{}
 
 	assertion := common.AssertionSuccess.End()
 
 	if s.HasOneSnapshot {
+		snapshot, ok := (*ctx).Value(s.SnapshotKey).(string)
+		if !ok {
+			return common.ErrNotFoundInContext("SnapshotKey")
+		}
+
+		variables["characterID"] = gjson.Get(snapshot, "character.id").Value()
 		assertion = func(res *http.Response, req *http.Request) error {
 			json := common.ReadResponseJson(res)
 
 			passed := assert.Empty(testingT, gjson.Get(json, "errors").Value()) &&
-				assert.Equal(testingT, gjson.Get(json, "data.characterSnapshots.#").Int(), int64(1)) &&
-				assert.Equal(testingT, gjson.Get(json, "data.characterSnapshots.0").Value(), gjson.Parse(snapshot).Value())
+				assert.Equal(testingT, gjson.Get(json, "data.snapshots.#").Int(), int64(1)) &&
+				assert.Equal(testingT, gjson.Get(json, "data.snapshots.0").Value(), gjson.Parse(snapshot).Value())
 
 			if !passed {
 				return fmt.Errorf("assertion failed")
@@ -100,48 +100,13 @@ func (s GetCharacterSnapshotsStage) Exec(ctx *context.Context) error {
 			return nil
 		}
 	}
-
-	if s.ExpectError {
-		assertion = common.AssertionError.End()
-	}
-
-	return common.QueryGraphQL(ctx,
-		&common.QueryParams{
-			Query:     CharacterSnapshotsQuery,
-			Variables: variables,
-			Assertion: assertion,
-		})
-}
-
-type GetUserSnapshotsStage struct {
-	common.Metadata
-	HasTwoSnapshots bool
-}
-
-func (s GetUserSnapshotsStage) Exec(ctx *context.Context) error {
-	log.Println("--> Stage: ", s.Describe)
-	testingT, ok := (*ctx).Value(common.TestingT).(apitest.TestingT)
-	if !ok {
-		return common.ErrNotFoundInContext("TestingT")
-	}
-
-	profile, ok := (*ctx).Value(common.Profile).(string)
-	if !ok {
-		return common.ErrNotFoundInContext("Profile")
-	}
-
-	variables := map[string]interface{}{
-		"characterID": gjson.Get(profile, "id").Value(),
-	}
-
-	assertion := common.AssertionSuccess.End()
 
 	if s.HasTwoSnapshots {
 		assertion = func(res *http.Response, req *http.Request) error {
 			json := common.ReadResponseJson(res)
 
 			passed := assert.Empty(testingT, gjson.Get(json, "errors").Value()) &&
-				assert.Equal(testingT, gjson.Get(json, "data.userSnapshots.#").Int(), int64(2))
+				assert.Equal(testingT, gjson.Get(json, "data.snapshots.#").Int(), int64(2))
 
 			if !passed {
 				return fmt.Errorf("assertion failed")
@@ -157,7 +122,7 @@ func (s GetUserSnapshotsStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Query:     UserSnapshotsQuery,
+			Query:     SnapshotsQuery,
 			Variables: variables,
 			Assertion: assertion,
 		})

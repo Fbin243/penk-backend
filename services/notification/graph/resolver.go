@@ -1,11 +1,11 @@
 package graph
 
-import "tenkhours/pkg/notification"
+import "tenkhours/services/notification/business"
 
 // This file will not be regenerated automatically.
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	NotificationService notification.NotificationService
+	*business.NotificationBusiness
 }

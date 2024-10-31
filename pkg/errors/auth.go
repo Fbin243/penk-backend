@@ -1,0 +1,10 @@
+package errors
+
+import "fmt"
+
+var (
+	ErrorProfileNotFound    = fmt.Errorf("profile not found")
+	ErrorCannotParseProfile = fmt.Errorf("cannot parse profile")
+	ErrorPermissionDenied   = fmt.Errorf("permission denied")
+	ErrorUnauthorized       = fmt.Errorf("user unauthorized")
+)

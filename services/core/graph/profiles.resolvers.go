@@ -6,11 +6,11 @@ package graph
 
 import (
 	"context"
-	"tenkhours/pkg/db/coredb"
+	"tenkhours/services/core/repo"
 )
 
 // Characters is the resolver for the characters field.
-func (r *profileResolver) Characters(ctx context.Context, obj *coredb.Profile) ([]coredb.Character, error) {
+func (r *profileResolver) Characters(ctx context.Context, obj *repo.Profile) ([]repo.Character, error) {
 	return r.CharactersRepo.GetCharactersByProfileID(obj.ID)
 }
 

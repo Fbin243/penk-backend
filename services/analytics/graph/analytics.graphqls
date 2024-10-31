@@ -45,8 +45,8 @@ type Snapshot_MetricProperty {
 }
 
 enum MetricPropertyType {
-  STRING
-  NUMBER
+  String
+  Number
 }
 
 directive @goTag(key: String!, value: String) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION

@@ -10,7 +10,7 @@ type TimeTracking {
 }
 
 type Query {
-  currentTimeTracking(characterID: ObjectID!): TimeTracking
+  currentTimeTracking: TimeTracking
 }
 
 type Mutation {

@@ -123,6 +123,6 @@ input MetricPropertyInput {
 }
 
 enum MetricPropertyType {
-  STRING
-  NUMBER
+  String
+  Number
 }
