@@ -10,6 +10,7 @@ use (
 	./pkg/utils
 	./services/analytics
 	./services/core
+	./services/notification
 	./services/timetrackings
 	./test
 )
