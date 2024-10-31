@@ -8,12 +8,10 @@ exec:
   package: graph
 
 # Uncomment to enable federation
-# federation:
-#   filename: graph/federation.go
-#   package: graph
-#   version: 2
-#   options
-#     computed_requires: true
+federation:
+  filename: graph/federation.go
+  package: graph
+  version: 2
 
 # Where should any generated models go?
 model:
