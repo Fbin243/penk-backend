@@ -1,0 +1,18 @@
+type Cod {
+  id: ID!
+  profileID: ID!
+  """
+  Type of cod: can be get reward related to this(e.g. Yellow cod can make character hair's color turn to yellow)
+  """
+  type: String
+}
+
+"""
+Input for creating or updating cod
+"""
+input CodInput {
+  """
+  Type of cod
+  """
+  type: String
+}

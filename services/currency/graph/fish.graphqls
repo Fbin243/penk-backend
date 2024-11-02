@@ -1,0 +1,24 @@
+type Fish {
+  id: ID!
+  profileID: ID!
+  number: Int
+  """
+  Type of fishes: gold, normal (or maybe silver, etc in the future)
+  """
+  type: String
+}
+
+"""
+Input for creating or updating fish
+"""
+input FishInput {
+  """
+  The name of fish
+  """
+  number: Int
+
+  """
+  Type of Fishes
+  """
+  type: String
+}

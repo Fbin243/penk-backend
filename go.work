@@ -1,4 +1,6 @@
-go 1.22.3
+go 1.22.5
+
+toolchain go1.22.8
 
 use (
 	.
@@ -10,6 +12,7 @@ use (
 	./pkg/utils
 	./services/analytics
 	./services/core
+	./services/currency
 	./services/notification
 	./services/timetrackings
 	./test

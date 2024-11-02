@@ -1,0 +1,15 @@
+type Query {
+  getAllFish: [Fish!]!
+  getFishByProfileId: Fish!
+  getAllCods: [Cod!]!
+  getCodByProfileId: Cod!
+}
+
+type Mutation {
+  createFish(input: FishInput!): Fish!
+  updateFish(profileId: ID!, input: FishInput!): Fish!
+
+  createCod(input: CodInput!): Cod!
+  updateCustomMetric(profileId: ID!, input: CodInput!): Cod!
+
+}
