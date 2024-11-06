@@ -37,7 +37,7 @@ func ValidateUpdateCharacterInput(characterInput model.CharacterInput) error {
 		}
 	}
 
-	err := utils.NewValidateBuilder().OmitEmpty().AddCustomValidate("tags_valid", ValidateTag).Custom("tags_valid").Validate(characterInput.Tags)
+	err := utils.NewValidateBuilder().OmitEmpty().Custom("tags_valid", ValidateTag).Validate(characterInput.Tags)
 	if err != nil {
 		return err
 	}
