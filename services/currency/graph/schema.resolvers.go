@@ -17,12 +17,12 @@ func (r *mutationResolver) CreateFish(ctx context.Context, input model.FishInput
 
 // UpdateFish is the resolver for the updateFish field.
 func (r *mutationResolver) UpdateFish(ctx context.Context, profileID string, input model.FishInput) (*model.Fish, error) {
-	panic(fmt.Errorf("not implemented: UpdateFish - updateFish"))
+	return r.FishBusiness.UpdateFish(ctx, input)
 }
 
 // CatchFish is the resolver for the catchFish field.
 func (r *mutationResolver) CatchFish(ctx context.Context, profileID string) (*model.Fish, error) {
-	panic(fmt.Errorf("not implemented: CatchFish - catchFish"))
+	return r.FishBusiness.CatchFish(ctx)
 }
 
 // CreateCod is the resolver for the createCod field.
