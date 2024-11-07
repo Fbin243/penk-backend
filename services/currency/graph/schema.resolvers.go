@@ -16,12 +16,12 @@ func (r *mutationResolver) CreateFish(ctx context.Context, input model.FishInput
 }
 
 // UpdateFish is the resolver for the updateFish field.
-func (r *mutationResolver) UpdateFish(ctx context.Context, profileID string, input model.FishInput) (*model.Fish, error) {
+func (r *mutationResolver) UpdateFish(ctx context.Context, input model.FishInput) (*model.Fish, error) {
 	return r.FishBusiness.UpdateFish(ctx, input)
 }
 
 // CatchFish is the resolver for the catchFish field.
-func (r *mutationResolver) CatchFish(ctx context.Context, profileID string) (*model.Fish, error) {
+func (r *mutationResolver) CatchFish(ctx context.Context) (*model.Fish, error) {
 	return r.FishBusiness.CatchFish(ctx)
 }
 
@@ -31,33 +31,33 @@ func (r *mutationResolver) CreateCod(ctx context.Context, input model.CodInput) 
 }
 
 // UpdateCod is the resolver for the updateCod field.
-func (r *mutationResolver) UpdateCod(ctx context.Context, profileID string, input model.CodInput) (*model.Cod, error) {
+func (r *mutationResolver) UpdateCod(ctx context.Context, input model.CodInput) (*model.Cod, error) {
 	panic(fmt.Errorf("not implemented: UpdateCod - updateCod"))
 }
 
 // UnlockMetricsWithNormalFish is the resolver for the unlockMetricsWithNormalFish field.
-func (r *mutationResolver) UnlockMetricsWithNormalFish(ctx context.Context, profileID string) (bool, error) {
-	panic(fmt.Errorf("not implemented: UnlockMetricsWithNormalFish - unlockMetricsWithNormalFish"))
+func (r *mutationResolver) UnlockMetricsWithNormalFish(ctx context.Context, characterID string) (bool, error) {
+	return r.FishBusiness.UnlockMetricsWithNormalFish(ctx, characterID)
 }
 
 // BuySnapshotsWithNormalFish is the resolver for the buySnapshotsWithNormalFish field.
-func (r *mutationResolver) BuySnapshotsWithNormalFish(ctx context.Context, profileID string) (bool, error) {
-	panic(fmt.Errorf("not implemented: BuySnapshotsWithNormalFish - buySnapshotsWithNormalFish"))
+func (r *mutationResolver) BuySnapshotsWithNormalFish(ctx context.Context) (bool, error) {
+	return r.FishBusiness.BuySnapshotsWithNormalFish(ctx)
 }
 
 // OnBoardNewCharacterWithGoldFish is the resolver for the onBoardNewCharacterWithGoldFish field.
-func (r *mutationResolver) OnBoardNewCharacterWithGoldFish(ctx context.Context, profileID string) (bool, error) {
+func (r *mutationResolver) OnBoardNewCharacterWithGoldFish(ctx context.Context) (bool, error) {
 	panic(fmt.Errorf("not implemented: OnBoardNewCharacterWithGoldFish - onBoardNewCharacterWithGoldFish"))
 }
 
 // UnlockMetricsWithGoldFish is the resolver for the unlockMetricsWithGoldFish field.
-func (r *mutationResolver) UnlockMetricsWithGoldFish(ctx context.Context, profileID string) (bool, error) {
-	panic(fmt.Errorf("not implemented: UnlockMetricsWithGoldFish - unlockMetricsWithGoldFish"))
+func (r *mutationResolver) UnlockMetricsWithGoldFish(ctx context.Context, characterID string) (bool, error) {
+	return r.FishBusiness.UnlockMetricsWithGoldFish(ctx, characterID)
 }
 
-// UnlockAdvanceAnalyticsWithGoldFish is the resolver for the unlockAdvanceAnalyticsWithGoldFish field.
-func (r *mutationResolver) UnlockAdvanceAnalyticsWithGoldFish(ctx context.Context, profileID string) (bool, error) {
-	panic(fmt.Errorf("not implemented: UnlockAdvanceAnalyticsWithGoldFish - unlockAdvanceAnalyticsWithGoldFish"))
+// BuySnapshotsWithGoldFish is the resolver for the buySnapshotsWithGoldFish field.
+func (r *mutationResolver) BuySnapshotsWithGoldFish(ctx context.Context) (bool, error) {
+	return r.FishBusiness.BuySnapshotsWithGoldFish(ctx)
 }
 
 // GetAllFish is the resolver for the getAllFish field.

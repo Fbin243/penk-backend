@@ -8,20 +8,20 @@ type Query {
 
 type Mutation {
   createFish(input: FishInput!): Fish!
-  updateFish(profileId: ID!, input: FishInput!): Fish!
-  catchFish(profileId: ID!): Fish!
+  updateFish(input: FishInput!): Fish!
+  catchFish: Fish!
 
   createCod(input: CodInput!): Cod!
-  updateCod(profileId: ID!, input: CodInput!): Cod!
+  updateCod(input: CodInput!): Cod!
   """
   For Normal fish
   """
-  unlockMetricsWithNormalFish(profileId: ID!): Boolean!
-  buySnapshotsWithNormalFish(profileId: ID!): Boolean!
+  unlockMetricsWithNormalFish(characterID: ID!): Boolean!
+  buySnapshotsWithNormalFish: Boolean!
   """
   For gold fish
   """
-  onBoardNewCharacterWithGoldFish(profileId: ID!): Boolean!
-  unlockMetricsWithGoldFish(profileId: ID!): Boolean!
-  unlockAdvanceAnalyticsWithGoldFish(profileId: ID!): Boolean!
+  onBoardNewCharacterWithGoldFish: Boolean!
+  unlockMetricsWithGoldFish(characterID: ID!): Boolean!
+  buySnapshotsWithGoldFish: Boolean!
 }

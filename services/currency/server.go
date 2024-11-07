@@ -11,7 +11,6 @@ import (
 	"tenkhours/services/currency/graph"
 	"tenkhours/services/currency/repo"
 
-	coreBiz "tenkhours/services/core/business"
 	coreRepo "tenkhours/services/core/repo"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -42,11 +41,9 @@ func main() {
 	mongodb := db.GetDBManager().DB
 	FishRepo := repo.NewFishRepo(mongodb)
 	profilesRepo := coreRepo.NewProfilesRepo(mongodb)
-	FishBiz := business.NewFishBusiness(FishRepo)
 	charactersRepo := coreRepo.NewCharactersRepo(mongodb)
 	redisClient := db.GetRedisClient()
-	profilesBiz := coreBiz.NewProfilesBusiness(profilesRepo, redisClient)
-	charactersBiz := coreBiz.NewCharactersBusiness(charactersRepo, profilesRepo)
+	FishBiz := business.NewFishBusiness(FishRepo, charactersRepo, profilesRepo)
 
 	// Check authentication
 	authMiddleware := middlewares.NewMiddleware(redisClient)
@@ -54,9 +51,7 @@ func main() {
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &graph.Resolver{
-			FishBusiness:       FishBiz,
-			ProfilesBusiness:   profilesBiz,
-			CharactersBusiness: charactersBiz,
+			FishBusiness: FishBiz,
 		},
 	}))
 

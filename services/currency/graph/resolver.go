@@ -1,7 +1,6 @@
 package graph
 
 import (
-	corebiz "tenkhours/services/core/business"
 	"tenkhours/services/currency/business"
 )
 
@@ -11,6 +10,4 @@ import (
 
 type Resolver struct {
 	*business.FishBusiness
-	*corebiz.ProfilesBusiness
-	*corebiz.CharactersBusiness
 }

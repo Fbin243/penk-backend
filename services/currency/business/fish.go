@@ -11,16 +11,21 @@ import (
 	coreRepo "tenkhours/services/core/repo"
 	"tenkhours/services/currency/graph/model"
 	"tenkhours/services/currency/repo"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type FishBusiness struct {
-	FishRepo     *repo.FishRepo
-	ProfilesRepo *coreRepo.ProfilesRepo
+	FishRepo       *repo.FishRepo
+	ProfilesRepo   *coreRepo.ProfilesRepo
+	CharactersRepo *coreRepo.CharactersRepo
 }
 
-func NewFishBusiness(FishRepo *repo.FishRepo) *FishBusiness {
+func NewFishBusiness(FishRepo *repo.FishRepo, CharactersRepo *coreRepo.CharactersRepo, ProfilesRepo *coreRepo.ProfilesRepo) *FishBusiness {
 	return &FishBusiness{
-		FishRepo: FishRepo,
+		FishRepo:       FishRepo,
+		CharactersRepo: CharactersRepo,
+		ProfilesRepo:   ProfilesRepo,
 	}
 }
 
@@ -234,4 +239,156 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 	}
 
 	return modelFish, nil
+}
+
+//	THOSE FUNCTIONS BELOW ARE FOR TRADING
+
+func (biz *FishBusiness) UnlockMetricsWithNormalFish(ctx context.Context, characterID string) (bool, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
+	if !ok {
+		return false, errors.ErrorUnauthorized
+	}
+
+	repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, "normal")
+	if err != nil {
+		return false, fmt.Errorf("failed to find fish package: %v", err)
+	}
+
+	if repoFish.Numbers < 3 { // Check if the number of fish is enough to trade
+		return false, fmt.Errorf("There's no fish for you to trade")
+	}
+
+	characterOID, err := primitive.ObjectIDFromHex(characterID)
+	if err != nil {
+		return false, err
+	}
+
+	character, err := biz.CharactersRepo.GetCharacterByID(characterOID)
+	if err != nil {
+		return false, fmt.Errorf("failed to find character: %v", err)
+	}
+
+	// Update character metrics
+	character.LimitedMetricNumber += 1
+	if _, err := biz.CharactersRepo.UpdateCharacter(character); err != nil {
+		return false, fmt.Errorf("failed to update metrics limited: %v", err)
+	}
+
+	// Decrease fish count
+	repoFish.Numbers -= 3 //just a sample at this phase
+	if _, err := biz.FishRepo.UpdateFish(repoFish); err != nil {
+		return false, fmt.Errorf("failed to update fish: %v", err)
+	}
+
+	return true, nil
+}
+
+func (biz *FishBusiness) UnlockMetricsWithGoldFish(ctx context.Context, characterID string) (bool, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
+	if !ok {
+		return false, errors.ErrorUnauthorized
+	}
+
+	repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, "gold")
+	if err != nil {
+		return false, fmt.Errorf("failed to find fish package: %v", err)
+	}
+
+	if repoFish.Numbers < 1 { // Check if the number of fish is enough to trade
+		return false, fmt.Errorf("There's no fish for you to trade")
+	}
+
+	characterOID, err := primitive.ObjectIDFromHex(characterID)
+	if err != nil {
+		return false, err
+	}
+
+	character, err := biz.CharactersRepo.GetCharacterByID(characterOID)
+	if err != nil {
+		return false, fmt.Errorf("failed to find character: %v", err)
+	}
+
+	// Update character metrics
+	character.LimitedMetricNumber += 1
+	if _, err := biz.CharactersRepo.UpdateCharacter(character); err != nil {
+		return false, fmt.Errorf("failed to update metrics limited: %v", err)
+	}
+
+	// Decrease fish count
+	repoFish.Numbers -= 1 //just a sample at this phase
+	if _, err := biz.FishRepo.UpdateFish(repoFish); err != nil {
+		return false, fmt.Errorf("failed to update fish: %v", err)
+	}
+
+	return true, nil
+}
+
+func (biz *FishBusiness) BuySnapshotsWithNormalFish(ctx context.Context) (bool, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
+	if !ok {
+		return false, errors.ErrorUnauthorized
+	}
+
+	repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, "normal")
+	if err != nil {
+		return false, fmt.Errorf("failed to find fish package: %v", err)
+	}
+
+	if repoFish.Numbers < 3 { // Check if the number of fish is enough to trade
+		return false, fmt.Errorf("There's no fish for you to trade")
+	}
+
+	repoProfile, err := biz.ProfilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
+	if err != nil {
+		return false, fmt.Errorf("failed get profile: %v", err)
+	}
+
+	// Update profile available snapshots
+	repoProfile.AvailableSnapshots += 1
+	if _, err := biz.ProfilesRepo.UpdateProfile(repoProfile); err != nil {
+		return false, fmt.Errorf("failed to update available snapshots: %v", err)
+	}
+
+	// Decrease fish count
+	repoFish.Numbers -= 3 //just a sample at this phase
+	if _, err := biz.FishRepo.UpdateFish(repoFish); err != nil {
+		return false, fmt.Errorf("failed to update fish: %v", err)
+	}
+
+	return true, nil
+}
+
+func (biz *FishBusiness) BuySnapshotsWithGoldFish(ctx context.Context) (bool, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
+	if !ok {
+		return false, errors.ErrorUnauthorized
+	}
+
+	repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, "gold")
+	if err != nil {
+		return false, fmt.Errorf("failed to find fish package: %v", err)
+	}
+
+	if repoFish.Numbers < 1 { // Check if the number of fish is enough to trade
+		return false, fmt.Errorf("There's no fish for you to trade")
+	}
+
+	repoProfile, err := biz.ProfilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
+	if err != nil {
+		return false, fmt.Errorf("failed get profile: %v", err)
+	}
+
+	// Update profile available snapshots
+	repoProfile.AvailableSnapshots += 1
+	if _, err := biz.ProfilesRepo.UpdateProfile(repoProfile); err != nil {
+		return false, fmt.Errorf("failed to update available snapshots: %v", err)
+	}
+
+	// Decrease fish count
+	repoFish.Numbers -= 1 //just a sample at this phase
+	if _, err := biz.FishRepo.UpdateFish(repoFish); err != nil {
+		return false, fmt.Errorf("failed to update fish: %v", err)
+	}
+
+	return true, nil
 }
