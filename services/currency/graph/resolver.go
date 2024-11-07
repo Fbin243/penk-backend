@@ -1,6 +1,9 @@
 package graph
 
-import "tenkhours/services/currency/business"
+import (
+	corebiz "tenkhours/services/core/business"
+	"tenkhours/services/currency/business"
+)
 
 // This file will not be regenerated automatically.
 //
@@ -8,4 +11,6 @@ import "tenkhours/services/currency/business"
 
 type Resolver struct {
 	*business.FishBusiness
+	*corebiz.ProfilesBusiness
+	*corebiz.CharactersBusiness
 }

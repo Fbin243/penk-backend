@@ -62,11 +62,14 @@ func (biz *FishBusiness) CreateFish(ctx context.Context, input model.FishInput) 
 		return nil, fmt.Errorf("failed to create fish: %v", err)
 	}
 
+	tmpNumber := int(insertedFish.Numbers) //create a pointer to the int value directly
+	tmpType := insertedFish.Type           //same here
+
 	modelFish := &model.Fish{
 		ID:        insertedFish.ID.Hex(),
 		ProfileID: insertedFish.ProfileID.Hex(),
-		Numbers:   int(insertedFish.Numbers),
-		Type:      insertedFish.Type,
+		Numbers:   &tmpNumber,
+		Type:      &tmpType,
 	}
 
 	return modelFish, nil
