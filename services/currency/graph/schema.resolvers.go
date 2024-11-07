@@ -12,7 +12,7 @@ import (
 
 // CreateFish is the resolver for the createFish field.
 func (r *mutationResolver) CreateFish(ctx context.Context, input model.FishInput) (*model.Fish, error) {
-	panic(fmt.Errorf("not implemented: CreateFish - createFish"))
+	return r.FishBusiness.CreateFish(ctx, input)
 }
 
 // UpdateFish is the resolver for the updateFish field.
@@ -20,14 +20,44 @@ func (r *mutationResolver) UpdateFish(ctx context.Context, profileID string, inp
 	panic(fmt.Errorf("not implemented: UpdateFish - updateFish"))
 }
 
+// CatchFish is the resolver for the catchFish field.
+func (r *mutationResolver) CatchFish(ctx context.Context, profileID string) (*model.Fish, error) {
+	panic(fmt.Errorf("not implemented: CatchFish - catchFish"))
+}
+
 // CreateCod is the resolver for the createCod field.
 func (r *mutationResolver) CreateCod(ctx context.Context, input model.CodInput) (*model.Cod, error) {
 	panic(fmt.Errorf("not implemented: CreateCod - createCod"))
 }
 
-// UpdateCustomMetric is the resolver for the updateCustomMetric field.
-func (r *mutationResolver) UpdateCustomMetric(ctx context.Context, profileID string, input model.CodInput) (*model.Cod, error) {
-	panic(fmt.Errorf("not implemented: UpdateCustomMetric - updateCustomMetric"))
+// UpdateCod is the resolver for the updateCod field.
+func (r *mutationResolver) UpdateCod(ctx context.Context, profileID string, input model.CodInput) (*model.Cod, error) {
+	panic(fmt.Errorf("not implemented: UpdateCod - updateCod"))
+}
+
+// UnlockMetricsWithNormalFish is the resolver for the unlockMetricsWithNormalFish field.
+func (r *mutationResolver) UnlockMetricsWithNormalFish(ctx context.Context, profileID string) (bool, error) {
+	panic(fmt.Errorf("not implemented: UnlockMetricsWithNormalFish - unlockMetricsWithNormalFish"))
+}
+
+// BuySnapshotsWithNormalFish is the resolver for the buySnapshotsWithNormalFish field.
+func (r *mutationResolver) BuySnapshotsWithNormalFish(ctx context.Context, profileID string) (bool, error) {
+	panic(fmt.Errorf("not implemented: BuySnapshotsWithNormalFish - buySnapshotsWithNormalFish"))
+}
+
+// OnBoardNewCharacterWithGoldFish is the resolver for the onBoardNewCharacterWithGoldFish field.
+func (r *mutationResolver) OnBoardNewCharacterWithGoldFish(ctx context.Context, profileID string) (bool, error) {
+	panic(fmt.Errorf("not implemented: OnBoardNewCharacterWithGoldFish - onBoardNewCharacterWithGoldFish"))
+}
+
+// UnlockMetricsWithGoldFish is the resolver for the unlockMetricsWithGoldFish field.
+func (r *mutationResolver) UnlockMetricsWithGoldFish(ctx context.Context, profileID string) (bool, error) {
+	panic(fmt.Errorf("not implemented: UnlockMetricsWithGoldFish - unlockMetricsWithGoldFish"))
+}
+
+// UnlockAdvanceAnalyticsWithGoldFish is the resolver for the unlockAdvanceAnalyticsWithGoldFish field.
+func (r *mutationResolver) UnlockAdvanceAnalyticsWithGoldFish(ctx context.Context, profileID string) (bool, error) {
+	panic(fmt.Errorf("not implemented: UnlockAdvanceAnalyticsWithGoldFish - unlockAdvanceAnalyticsWithGoldFish"))
 }
 
 // GetAllFish is the resolver for the getAllFish field.
@@ -36,8 +66,8 @@ func (r *queryResolver) GetAllFish(ctx context.Context) ([]*model.Fish, error) {
 }
 
 // GetFishByProfileID is the resolver for the getFishByProfileId field.
-func (r *queryResolver) GetFishByProfileID(ctx context.Context) (*model.Fish, error) {
-	panic(fmt.Errorf("not implemented: GetFishByProfileID - getFishByProfileId"))
+func (r *queryResolver) GetFishByProfileID(ctx context.Context, profileID string) (*model.Fish, error) {
+	return r.Resolver.FishBusiness.GetFishByProfileID(ctx)
 }
 
 // GetAllCods is the resolver for the getAllCods field.
@@ -46,8 +76,13 @@ func (r *queryResolver) GetAllCods(ctx context.Context) ([]*model.Cod, error) {
 }
 
 // GetCodByProfileID is the resolver for the getCodByProfileId field.
-func (r *queryResolver) GetCodByProfileID(ctx context.Context) (*model.Cod, error) {
+func (r *queryResolver) GetCodByProfileID(ctx context.Context, profileID string) (*model.Cod, error) {
 	panic(fmt.Errorf("not implemented: GetCodByProfileID - getCodByProfileId"))
+}
+
+// GetGoldenFishByProfileID is the resolver for the getGoldenFishByProfileId field.
+func (r *queryResolver) GetGoldenFishByProfileID(ctx context.Context, profileID string) (*model.Fish, error) {
+	panic(fmt.Errorf("not implemented: GetGoldenFishByProfileID - getGoldenFishByProfileId"))
 }
 
 // Mutation returns MutationResolver implementation.

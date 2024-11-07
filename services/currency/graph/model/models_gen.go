@@ -18,7 +18,7 @@ type CodInput struct {
 type Fish struct {
 	ID        string `json:"id"`
 	ProfileID string `json:"profileID"`
-	Number    *int   `json:"number,omitempty"`
+	Numbers   *int   `json:"numbers,omitempty"`
 	// Type of fishes: gold, normal (or maybe silver, etc in the future)
 	Type *string `json:"type,omitempty"`
 }

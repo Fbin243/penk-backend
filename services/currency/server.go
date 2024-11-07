@@ -1,28 +1,70 @@
 package main
 
 import (
+	"fmt"
 	"log"
-	"net/http"
 	"os"
+
+	"tenkhours/pkg/db"
+	"tenkhours/pkg/middlewares"
+	"tenkhours/services/currency/business"
 	"tenkhours/services/currency/graph"
+	"tenkhours/services/currency/repo"
+
+	coreRepo "tenkhours/services/core/repo"
 
 	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
-const defaultPort = "8080"
-
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
+	env := os.Getenv("TENK_ENV")
+	if env == "" {
+		env = "development"
 	}
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	if godotenv.Load(".env."+env) != nil {
+		log.Fatal("Error loading .env." + env + " file")
+	}
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	fmt.Println("------------------Running in environment:", env)
 
+	app := gin.Default()
+	app.Use(cors.New(cors.Config{
+		AllowAllOrigins: true,
+		AllowHeaders:    []string{"Content-Type", "Authorization"},
+	}))
+
+	// Init dependencies and perform DI manually
+	mongodb := db.GetDBManager().DB
+	FishRepo := repo.NewFishRepo(mongodb)
+	ProfilesRepo := coreRepo.ProfilesRepo
+	FishBiz := business.NewFishBusiness(FishRepo)
+	ProfileBiz := coreBiz.NewProfilesRepo(ProfilesRepo)
+	redisClient := db.GetRedisClient()
+
+	// Check authentication
+	authMiddleware := middlewares.NewMiddleware(redisClient)
+	app.Use(authMiddleware.CheckAuth)
+
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
+		Resolvers: &graph.Resolver{
+			FishBusiness:    FishBiz,
+			ProfileBusiness: ProfileBiz,
+		},
+	}))
+
+	app.POST("/graphql", func(c *gin.Context) {
+		fmt.Print("Body", c.Request)
+		srv.ServeHTTP(c.Writer, c.Request)
+	})
+
+	port, found := os.LookupEnv("CURRENCY_PORT")
+	if !found {
+		port = "8085"
+	}
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	app.Run(":" + port)
 }
