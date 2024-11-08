@@ -8,21 +8,34 @@ import (
 	"context"
 	"fmt"
 	"tenkhours/services/currency/graph/model"
+	"tenkhours/services/currency/graph/validations"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // CreateFish is the resolver for the createFish field.
 func (r *mutationResolver) CreateFish(ctx context.Context, input model.FishInput) (*model.Fish, error) {
+	//validate fish input
+	if err := validations.ValidateFishInput(input); err != nil {
+		return nil, err
+	}
+
 	return r.FishBusiness.CreateFish(ctx, input)
 }
 
 // UpdateFish is the resolver for the updateFish field.
-func (r *mutationResolver) UpdateFish(ctx context.Context, input model.FishInput) (*model.Fish, error) {
-	return r.FishBusiness.UpdateFish(ctx, input)
+func (r *mutationResolver) UpdateFish(ctx context.Context, id primitive.ObjectID, input model.FishInput) (*model.Fish, error) {
+	//validate fish input
+	if err := validations.ValidateFishInput(input); err != nil {
+		return nil, err
+	}
+
+	return r.FishBusiness.UpdateFish(ctx, id, input)
 }
 
 // CatchFish is the resolver for the catchFish field.
-func (r *mutationResolver) CatchFish(ctx context.Context) (*model.Fish, error) {
-	return r.FishBusiness.CatchFish(ctx)
+func (r *mutationResolver) CatchFish(ctx context.Context, id primitive.ObjectID) (*model.Fish, error) {
+	return r.FishBusiness.CatchFish(ctx, id)
 }
 
 // CreateCod is the resolver for the createCod field.
@@ -36,53 +49,33 @@ func (r *mutationResolver) UpdateCod(ctx context.Context, input model.CodInput) 
 }
 
 // UnlockMetricsWithNormalFish is the resolver for the unlockMetricsWithNormalFish field.
-func (r *mutationResolver) UnlockMetricsWithNormalFish(ctx context.Context, characterID string) (bool, error) {
-	return r.FishBusiness.UnlockMetricsWithNormalFish(ctx, characterID)
+func (r *mutationResolver) UnlockMetricsWithNormalFish(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (bool, error) {
+	return r.FishBusiness.UnlockMetricsWithNormalFish(ctx, id, characterID)
 }
 
 // BuySnapshotsWithNormalFish is the resolver for the buySnapshotsWithNormalFish field.
-func (r *mutationResolver) BuySnapshotsWithNormalFish(ctx context.Context) (bool, error) {
-	return r.FishBusiness.BuySnapshotsWithNormalFish(ctx)
-}
-
-// OnBoardNewCharacterWithGoldFish is the resolver for the onBoardNewCharacterWithGoldFish field.
-func (r *mutationResolver) OnBoardNewCharacterWithGoldFish(ctx context.Context) (bool, error) {
-	panic(fmt.Errorf("not implemented: OnBoardNewCharacterWithGoldFish - onBoardNewCharacterWithGoldFish"))
+func (r *mutationResolver) BuySnapshotsWithNormalFish(ctx context.Context, id primitive.ObjectID) (bool, error) {
+	return r.FishBusiness.BuySnapshotsWithNormalFish(ctx, id)
 }
 
 // UnlockMetricsWithGoldFish is the resolver for the unlockMetricsWithGoldFish field.
-func (r *mutationResolver) UnlockMetricsWithGoldFish(ctx context.Context, characterID string) (bool, error) {
-	return r.FishBusiness.UnlockMetricsWithGoldFish(ctx, characterID)
+func (r *mutationResolver) UnlockMetricsWithGoldFish(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (bool, error) {
+	return r.FishBusiness.UnlockMetricsWithGoldFish(ctx, id, characterID)
 }
 
 // BuySnapshotsWithGoldFish is the resolver for the buySnapshotsWithGoldFish field.
-func (r *mutationResolver) BuySnapshotsWithGoldFish(ctx context.Context) (bool, error) {
-	return r.FishBusiness.BuySnapshotsWithGoldFish(ctx)
-}
-
-// GetAllFish is the resolver for the getAllFish field.
-func (r *queryResolver) GetAllFish(ctx context.Context) ([]*model.Fish, error) {
-	panic(fmt.Errorf("not implemented: GetAllFish - getAllFish"))
+func (r *mutationResolver) BuySnapshotsWithGoldFish(ctx context.Context, id primitive.ObjectID) (bool, error) {
+	return r.FishBusiness.BuySnapshotsWithGoldFish(ctx, id)
 }
 
 // GetFishByProfileID is the resolver for the getFishByProfileId field.
-func (r *queryResolver) GetFishByProfileID(ctx context.Context, profileID string) (*model.Fish, error) {
-	return r.Resolver.FishBusiness.GetFishByProfileID(ctx)
-}
-
-// GetAllCods is the resolver for the getAllCods field.
-func (r *queryResolver) GetAllCods(ctx context.Context) ([]*model.Cod, error) {
-	panic(fmt.Errorf("not implemented: GetAllCods - getAllCods"))
+func (r *queryResolver) GetFishByProfileID(ctx context.Context, fishType string) (*model.Fish, error) {
+	return r.Resolver.FishBusiness.GetFishByProfileID(ctx, fishType)
 }
 
 // GetCodByProfileID is the resolver for the getCodByProfileId field.
-func (r *queryResolver) GetCodByProfileID(ctx context.Context, profileID string) (*model.Cod, error) {
+func (r *queryResolver) GetCodByProfileID(ctx context.Context) (*model.Cod, error) {
 	panic(fmt.Errorf("not implemented: GetCodByProfileID - getCodByProfileId"))
-}
-
-// GetGoldenFishByProfileID is the resolver for the getGoldenFishByProfileId field.
-func (r *queryResolver) GetGoldenFishByProfileID(ctx context.Context, profileID string) (*model.Fish, error) {
-	panic(fmt.Errorf("not implemented: GetGoldenFishByProfileID - getGoldenFishByProfileId"))
 }
 
 // Mutation returns MutationResolver implementation.

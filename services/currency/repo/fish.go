@@ -37,11 +37,11 @@ func (r *FishRepo) CreateFish(fish *Fish) (*Fish, error) {
 	return fish, err
 }
 
-func (r *FishRepo) UpdateFish(fish *Fish) (*Fish, error) {
+func (r *FishRepo) UpdateFish(fish *Fish, id primitive.ObjectID) (*Fish, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := r.FindOneAndUpdate(ctx, bson.M{"_id": fish.ID}, bson.M{"$set": fish}, db.FindOneAndUpdateOptions).Decode(fish)
+	err := r.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.M{"$set": fish}, db.FindOneAndUpdateOptions).Decode(fish)
 
 	return fish, err
 }

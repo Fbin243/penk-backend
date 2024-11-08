@@ -1,6 +1,6 @@
 type Fish {
-  id: ID!
-  profileID: ID!
+  id: ObjectID!
+  profileID: ObjectID!
   numbers: Int
   """
   Type of fishes: gold, normal (or maybe silver, etc in the future)

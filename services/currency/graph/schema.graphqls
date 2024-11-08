@@ -1,27 +1,26 @@
+scalar ObjectID
+
 type Query {
-  getAllFish: [Fish!]!
-  getFishByProfileId(profileId: ID!): Fish!
-  getAllCods: [Cod!]!
-  getCodByProfileId(profileId: ID!): Cod!
-  getGoldenFishByProfileId(profileId: ID!): Fish!
+  getFishByProfileId(fishType: String!): Fish!
+  getCodByProfileId: Cod!
 }
 
 type Mutation {
   createFish(input: FishInput!): Fish!
-  updateFish(input: FishInput!): Fish!
-  catchFish: Fish!
+  updateFish(id: ObjectID!, input: FishInput!): Fish!
+  catchFish(id: ObjectID!): Fish!
 
   createCod(input: CodInput!): Cod!
   updateCod(input: CodInput!): Cod!
   """
   For Normal fish
   """
-  unlockMetricsWithNormalFish(characterID: ID!): Boolean!
-  buySnapshotsWithNormalFish: Boolean!
+  unlockMetricsWithNormalFish(id: ObjectID!, characterID: ObjectID!): Boolean!
+  buySnapshotsWithNormalFish(id: ObjectID!): Boolean!
   """
   For gold fish
   """
-  onBoardNewCharacterWithGoldFish: Boolean!
-  unlockMetricsWithGoldFish(characterID: ID!): Boolean!
-  buySnapshotsWithGoldFish: Boolean!
+  unlockMetricsWithGoldFish(id: ObjectID!, characterID: ObjectID!): Boolean!
+  buySnapshotsWithGoldFish(id: ObjectID!): Boolean!
 }
+
