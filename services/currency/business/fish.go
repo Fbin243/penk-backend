@@ -97,7 +97,7 @@ func (biz *FishBusiness) CreateFish(ctx context.Context, input model.FishInput) 
 	return modelFish, nil
 }
 
-func (biz *FishBusiness) UpdateFish(ctx context.Context, id primitive.ObjectID, input model.FishInput) (*model.Fish, error) {
+func (biz *FishBusiness) UpdateFish(ctx context.Context, input model.FishInput) (*model.Fish, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, errors.ErrorUnauthorized
@@ -117,7 +117,7 @@ func (biz *FishBusiness) UpdateFish(ctx context.Context, id primitive.ObjectID, 
 		Type:      *input.Type,
 	}
 
-	insertedFish, err := biz.FishRepo.UpdateFish(updatedFish, id)
+	insertedFish, err := biz.FishRepo.UpdateFish(updatedFish, profile.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update fish: %v", err)
 	}
@@ -136,7 +136,7 @@ func (biz *FishBusiness) UpdateFish(ctx context.Context, id primitive.ObjectID, 
 }
 
 // catchfish, This will be called in client when they finish their tracking
-func (biz *FishBusiness) CatchFish(ctx context.Context, id primitive.ObjectID) (*model.Fish, error) {
+func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, errors.ErrorUnauthorized
@@ -176,7 +176,7 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, id primitive.ObjectID) (
 			Numbers: tmpNum,
 		}
 
-		insertedFish, err = biz.FishRepo.UpdateFish(updatedFish, id)
+		insertedFish, err = biz.FishRepo.UpdateFish(updatedFish, profile.ID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to update fish: %v", err)
 		}
@@ -193,7 +193,7 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, id primitive.ObjectID) (
 				Numbers: tmpNum,
 			}
 
-			insertedFish, err = biz.FishRepo.UpdateFish(updatedFish, id)
+			insertedFish, err = biz.FishRepo.UpdateFish(updatedFish, profile.ID)
 			if err != nil {
 				return nil, fmt.Errorf("failed to update fish: %v", err)
 			}
@@ -209,7 +209,7 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, id primitive.ObjectID) (
 				Numbers: tmpNum,
 			}
 
-			insertedFish, err = biz.FishRepo.UpdateFish(updatedFish, id)
+			insertedFish, err = biz.FishRepo.UpdateFish(updatedFish, profile.ID)
 			if err != nil {
 				return nil, fmt.Errorf("failed to update fish: %v", err)
 			}
@@ -233,7 +233,7 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, id primitive.ObjectID) (
 
 //	THOSE FUNCTIONS BELOW ARE FOR TRADING
 
-func (biz *FishBusiness) UnlockMetricsWithNormalFish(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (bool, error) {
+func (biz *FishBusiness) UnlockMetricsWithNormalFish(ctx context.Context, characterID string) (bool, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return false, errors.ErrorUnauthorized
@@ -248,7 +248,11 @@ func (biz *FishBusiness) UnlockMetricsWithNormalFish(ctx context.Context, id pri
 		return false, fmt.Errorf("There's no fish for you to trade")
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	characterOID, err := primitive.ObjectIDFromHex(characterID)
+	if err != nil {
+		return false, err
+	}
+	character, err := biz.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
 		return false, fmt.Errorf("failed to find character: %v", err)
 	}
@@ -261,14 +265,14 @@ func (biz *FishBusiness) UnlockMetricsWithNormalFish(ctx context.Context, id pri
 
 	// Decrease fish count
 	repoFish.Numbers -= 3 //just a sample at this phase
-	if _, err := biz.FishRepo.UpdateFish(repoFish, id); err != nil {
+	if _, err := biz.FishRepo.UpdateFish(repoFish, profile.ID); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
 	}
 
 	return true, nil
 }
 
-func (biz *FishBusiness) UnlockMetricsWithGoldFish(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (bool, error) {
+func (biz *FishBusiness) UnlockMetricsWithGoldFish(ctx context.Context, characterID string) (bool, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return false, errors.ErrorUnauthorized
@@ -283,7 +287,11 @@ func (biz *FishBusiness) UnlockMetricsWithGoldFish(ctx context.Context, id primi
 		return false, fmt.Errorf("There's no fish for you to trade")
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	characterOID, err := primitive.ObjectIDFromHex(characterID)
+	if err != nil {
+		return false, err
+	}
+	character, err := biz.CharactersRepo.GetCharacterByID(characterOID)
 	if err != nil {
 		return false, fmt.Errorf("failed to find character: %v", err)
 	}
@@ -296,14 +304,14 @@ func (biz *FishBusiness) UnlockMetricsWithGoldFish(ctx context.Context, id primi
 
 	// Decrease fish count
 	repoFish.Numbers -= 1 //just a sample at this phase
-	if _, err := biz.FishRepo.UpdateFish(repoFish, id); err != nil {
+	if _, err := biz.FishRepo.UpdateFish(repoFish, profile.ID); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
 	}
 
 	return true, nil
 }
 
-func (biz *FishBusiness) BuySnapshotsWithNormalFish(ctx context.Context, id primitive.ObjectID) (bool, error) {
+func (biz *FishBusiness) BuySnapshotsWithNormalFish(ctx context.Context) (bool, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return false, errors.ErrorUnauthorized
@@ -331,14 +339,14 @@ func (biz *FishBusiness) BuySnapshotsWithNormalFish(ctx context.Context, id prim
 
 	// Decrease fish count
 	repoFish.Numbers -= 3 //just a sample at this phase
-	if _, err := biz.FishRepo.UpdateFish(repoFish, id); err != nil {
+	if _, err := biz.FishRepo.UpdateFish(repoFish, profile.ID); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
 	}
 
 	return true, nil
 }
 
-func (biz *FishBusiness) BuySnapshotsWithGoldFish(ctx context.Context, id primitive.ObjectID) (bool, error) {
+func (biz *FishBusiness) BuySnapshotsWithGoldFish(ctx context.Context) (bool, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return false, errors.ErrorUnauthorized
@@ -366,7 +374,7 @@ func (biz *FishBusiness) BuySnapshotsWithGoldFish(ctx context.Context, id primit
 
 	// Decrease fish count
 	repoFish.Numbers -= 1 //just a sample at this phase
-	if _, err := biz.FishRepo.UpdateFish(repoFish, id); err != nil {
+	if _, err := biz.FishRepo.UpdateFish(repoFish, profile.ID); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
 	}
 

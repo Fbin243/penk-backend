@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"fmt"
 	"tenkhours/pkg/db"
 	"time"
 
@@ -37,11 +38,18 @@ func (r *FishRepo) CreateFish(fish *Fish) (*Fish, error) {
 	return fish, err
 }
 
-func (r *FishRepo) UpdateFish(fish *Fish, id primitive.ObjectID) (*Fish, error) {
+func (r *FishRepo) UpdateFish(fish *Fish, profileID primitive.ObjectID) (*Fish, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := r.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.M{"$set": fish}, db.FindOneAndUpdateOptions).Decode(fish)
+	// update fish based on profile id and type
+	filter := bson.M{"profile_id": profileID, "type": fish.Type}
+	update := bson.M{"$set": fish}
 
-	return fish, err
+	err := r.FindOneAndUpdate(ctx, filter, update, db.FindOneAndUpdateOptions).Decode(fish)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update fish: %v", err)
+	}
+
+	return fish, nil
 }

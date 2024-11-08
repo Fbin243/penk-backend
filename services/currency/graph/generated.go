@@ -62,15 +62,15 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		BuySnapshotsWithGoldFish    func(childComplexity int, id string) int
-		BuySnapshotsWithNormalFish  func(childComplexity int, id string) int
-		CatchFish                   func(childComplexity int, id string) int
+		BuySnapshotsWithGoldFish    func(childComplexity int) int
+		BuySnapshotsWithNormalFish  func(childComplexity int) int
+		CatchFish                   func(childComplexity int) int
 		CreateCod                   func(childComplexity int, input model.CodInput) int
 		CreateFish                  func(childComplexity int, input model.FishInput) int
-		UnlockMetricsWithGoldFish   func(childComplexity int, id string, characterID string) int
-		UnlockMetricsWithNormalFish func(childComplexity int, id string, characterID string) int
+		UnlockMetricsWithGoldFish   func(childComplexity int, characterID string) int
+		UnlockMetricsWithNormalFish func(childComplexity int, characterID string) int
 		UpdateCod                   func(childComplexity int, input model.CodInput) int
-		UpdateFish                  func(childComplexity int, id string, input model.FishInput) int
+		UpdateFish                  func(childComplexity int, input model.FishInput) int
 	}
 
 	Query struct {
@@ -86,14 +86,14 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateFish(ctx context.Context, input model.FishInput) (*model.Fish, error)
-	UpdateFish(ctx context.Context, id string, input model.FishInput) (*model.Fish, error)
-	CatchFish(ctx context.Context, id string) (*model.Fish, error)
+	UpdateFish(ctx context.Context, input model.FishInput) (*model.Fish, error)
+	CatchFish(ctx context.Context) (*model.Fish, error)
 	CreateCod(ctx context.Context, input model.CodInput) (*model.Cod, error)
 	UpdateCod(ctx context.Context, input model.CodInput) (*model.Cod, error)
-	UnlockMetricsWithNormalFish(ctx context.Context, id string, characterID string) (bool, error)
-	BuySnapshotsWithNormalFish(ctx context.Context, id string) (bool, error)
-	UnlockMetricsWithGoldFish(ctx context.Context, id string, characterID string) (bool, error)
-	BuySnapshotsWithGoldFish(ctx context.Context, id string) (bool, error)
+	UnlockMetricsWithNormalFish(ctx context.Context, characterID string) (bool, error)
+	BuySnapshotsWithNormalFish(ctx context.Context) (bool, error)
+	UnlockMetricsWithGoldFish(ctx context.Context, characterID string) (bool, error)
+	BuySnapshotsWithGoldFish(ctx context.Context) (bool, error)
 }
 type QueryResolver interface {
 	GetFishByProfileID(ctx context.Context, fishType string) (*model.Fish, error)
@@ -173,36 +173,21 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_buySnapshotsWithGoldFish_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.BuySnapshotsWithGoldFish(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.BuySnapshotsWithGoldFish(childComplexity), true
 
 	case "Mutation.buySnapshotsWithNormalFish":
 		if e.complexity.Mutation.BuySnapshotsWithNormalFish == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_buySnapshotsWithNormalFish_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.BuySnapshotsWithNormalFish(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.BuySnapshotsWithNormalFish(childComplexity), true
 
 	case "Mutation.catchFish":
 		if e.complexity.Mutation.CatchFish == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_catchFish_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CatchFish(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.CatchFish(childComplexity), true
 
 	case "Mutation.createCod":
 		if e.complexity.Mutation.CreateCod == nil {
@@ -238,7 +223,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UnlockMetricsWithGoldFish(childComplexity, args["id"].(string), args["characterID"].(string)), true
+		return e.complexity.Mutation.UnlockMetricsWithGoldFish(childComplexity, args["characterID"].(string)), true
 
 	case "Mutation.unlockMetricsWithNormalFish":
 		if e.complexity.Mutation.UnlockMetricsWithNormalFish == nil {
@@ -250,7 +235,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UnlockMetricsWithNormalFish(childComplexity, args["id"].(string), args["characterID"].(string)), true
+		return e.complexity.Mutation.UnlockMetricsWithNormalFish(childComplexity, args["characterID"].(string)), true
 
 	case "Mutation.updateCod":
 		if e.complexity.Mutation.UpdateCod == nil {
@@ -274,7 +259,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateFish(childComplexity, args["id"].(string), args["input"].(model.FishInput)), true
+		return e.complexity.Mutation.UpdateFish(childComplexity, args["input"].(model.FishInput)), true
 
 	case "Query.getCodByProfileId":
 		if e.complexity.Query.GetCodByProfileID == nil {
@@ -497,75 +482,6 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_buySnapshotsWithGoldFish_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_buySnapshotsWithGoldFish_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_buySnapshotsWithGoldFish_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNObjectID2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_buySnapshotsWithNormalFish_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_buySnapshotsWithNormalFish_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_buySnapshotsWithNormalFish_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNObjectID2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_catchFish_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_catchFish_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_catchFish_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNObjectID2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_createCod_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -615,31 +531,13 @@ func (ec *executionContext) field_Mutation_createFish_argsInput(
 func (ec *executionContext) field_Mutation_unlockMetricsWithGoldFish_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_unlockMetricsWithGoldFish_argsID(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_unlockMetricsWithGoldFish_argsCharacterID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["id"] = arg0
-	arg1, err := ec.field_Mutation_unlockMetricsWithGoldFish_argsCharacterID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["characterID"] = arg1
+	args["characterID"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_unlockMetricsWithGoldFish_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNObjectID2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_unlockMetricsWithGoldFish_argsCharacterID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
@@ -656,31 +554,13 @@ func (ec *executionContext) field_Mutation_unlockMetricsWithGoldFish_argsCharact
 func (ec *executionContext) field_Mutation_unlockMetricsWithNormalFish_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_unlockMetricsWithNormalFish_argsID(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_unlockMetricsWithNormalFish_argsCharacterID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["id"] = arg0
-	arg1, err := ec.field_Mutation_unlockMetricsWithNormalFish_argsCharacterID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["characterID"] = arg1
+	args["characterID"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_unlockMetricsWithNormalFish_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNObjectID2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_unlockMetricsWithNormalFish_argsCharacterID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
@@ -720,31 +600,13 @@ func (ec *executionContext) field_Mutation_updateCod_argsInput(
 func (ec *executionContext) field_Mutation_updateFish_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_updateFish_argsID(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_updateFish_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["id"] = arg0
-	arg1, err := ec.field_Mutation_updateFish_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_updateFish_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNObjectID2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_updateFish_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
@@ -1236,7 +1098,7 @@ func (ec *executionContext) _Mutation_updateFish(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateFish(rctx, fc.Args["id"].(string), fc.Args["input"].(model.FishInput))
+		return ec.resolvers.Mutation().UpdateFish(rctx, fc.Args["input"].(model.FishInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1301,7 +1163,7 @@ func (ec *executionContext) _Mutation_catchFish(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CatchFish(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Mutation().CatchFish(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1318,7 +1180,7 @@ func (ec *executionContext) _Mutation_catchFish(ctx context.Context, field graph
 	return ec.marshalNFish2ᚖtenkhoursᚋservicesᚋcurrencyᚋgraphᚋmodelᚐFish(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_catchFish(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_catchFish(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -1337,17 +1199,6 @@ func (ec *executionContext) fieldContext_Mutation_catchFish(ctx context.Context,
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Fish", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_catchFish_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -1492,7 +1343,7 @@ func (ec *executionContext) _Mutation_unlockMetricsWithNormalFish(ctx context.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UnlockMetricsWithNormalFish(rctx, fc.Args["id"].(string), fc.Args["characterID"].(string))
+		return ec.resolvers.Mutation().UnlockMetricsWithNormalFish(rctx, fc.Args["characterID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1547,7 +1398,7 @@ func (ec *executionContext) _Mutation_buySnapshotsWithNormalFish(ctx context.Con
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().BuySnapshotsWithNormalFish(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Mutation().BuySnapshotsWithNormalFish(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1564,7 +1415,7 @@ func (ec *executionContext) _Mutation_buySnapshotsWithNormalFish(ctx context.Con
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_buySnapshotsWithNormalFish(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_buySnapshotsWithNormalFish(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -1573,17 +1424,6 @@ func (ec *executionContext) fieldContext_Mutation_buySnapshotsWithNormalFish(ctx
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_buySnapshotsWithNormalFish_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -1602,7 +1442,7 @@ func (ec *executionContext) _Mutation_unlockMetricsWithGoldFish(ctx context.Cont
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UnlockMetricsWithGoldFish(rctx, fc.Args["id"].(string), fc.Args["characterID"].(string))
+		return ec.resolvers.Mutation().UnlockMetricsWithGoldFish(rctx, fc.Args["characterID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1657,7 +1497,7 @@ func (ec *executionContext) _Mutation_buySnapshotsWithGoldFish(ctx context.Conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().BuySnapshotsWithGoldFish(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Mutation().BuySnapshotsWithGoldFish(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1674,7 +1514,7 @@ func (ec *executionContext) _Mutation_buySnapshotsWithGoldFish(ctx context.Conte
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_buySnapshotsWithGoldFish(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_buySnapshotsWithGoldFish(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -1683,17 +1523,6 @@ func (ec *executionContext) fieldContext_Mutation_buySnapshotsWithGoldFish(ctx c
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_buySnapshotsWithGoldFish_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
