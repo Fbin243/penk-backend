@@ -6,7 +6,10 @@ package graph
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"time"
+
 	"tenkhours/services/analytics/graph/model"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -43,8 +46,16 @@ func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.Ob
 }
 
 // AnalyticResults is the resolver for the analyticResults field.
-func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) (map[string]interface{}, error) {
-	return r.CharactersBusiness.GetAnalyticResults(ctx, characterID, filter)
+func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, captureRecordLocals *string) (map[string]interface{}, error) {
+	// Decode json string to capture records
+	decodedCaptureRecordLocals := make([]model.CapturedRecord, 0)
+	if captureRecordLocals != nil {
+		if err := json.Unmarshal([]byte(*captureRecordLocals), &decodedCaptureRecordLocals); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal capture records: %v", err)
+		}
+	}
+
+	return r.CharactersBusiness.GetAnalyticResults(ctx, characterID, startTime, endTime, decodedCaptureRecordLocals)
 }
 
 // Mutation returns MutationResolver implementation.
@@ -53,5 +64,7 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)

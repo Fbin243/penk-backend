@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"time"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
@@ -220,14 +221,19 @@ func (biz *CharactersBusiness) CreateCapturedRecord(ctx context.Context, charact
 	return capturedRecord, nil
 }
 
-func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) (map[string]interface{}, error) {
+// Get analytic results from the captured records might be from the client or the database
+func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, captureRecordLocals []model.CapturedRecord) (map[string]interface{}, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, errors.ErrorUnauthorized
 	}
 
-	pipeline := mongo.Pipeline{}
-	matchStage := bson.D{}
+	capturedRecordsFilter := CapturedRecordsFilter{}
+	capturedRecordsFilter.FilterMethod = FilterMethodServerSide
+	capturedRecordsFilter.FilterType = FilterTypeUser
+	capturedRecordsFilter.ProfileID = profile.ID
+	capturedRecordsFilter.EndTime = time.Now()
+	capturedRecordsFilter.CapturedRecordsRepo = biz.CapturedRecordsRepo
 
 	if characterID != nil {
 		character, err := biz.CharactersRepo.GetCharacterByID(*characterID)
@@ -239,17 +245,28 @@ func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, character
 			return nil, errors.ErrorPermissionDenied
 		}
 
-		matchStage = append(matchStage, bson.E{Key: "metadata.character_id", Value: *characterID})
-	} else {
-		matchStage = append(matchStage, bson.E{Key: "metadata.profile_id", Value: profile.ID})
+		capturedRecordsFilter.FilterType = FilterTypeCharacter
+		capturedRecordsFilter.CharacterID = *characterID
 	}
 
-	pipeline = append(pipeline, bson.D{{Key: "$match", Value: matchStage}})
+	if startTime != nil {
+		capturedRecordsFilter.StartTime = *startTime
+	}
 
-	capturedRecords, err := biz.CapturedRecordsRepo.GetCapturedRecords(pipeline)
+	if endTime != nil {
+		capturedRecordsFilter.EndTime = *endTime
+	}
+
+	// Check if there are captured records from the client
+	if len(captureRecordLocals) > 0 {
+		capturedRecordsFilter.FilterMethod = FilterMethodClientSide
+		capturedRecordsFilter.CapturedRecordLocals = captureRecordLocals
+	}
+
+	capturedRecords, err := capturedRecordsFilter.Filter()
 	if err != nil {
 		return nil, err
 	}
 
-	return processCapturedRecords(capturedRecords), nil
+	return processCapturedRecords(capturedRecordsFilter.FilterType, capturedRecords), nil
 }

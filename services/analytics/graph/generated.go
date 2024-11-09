@@ -75,7 +75,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AnalyticResults    func(childComplexity int, characterID *primitive.ObjectID, filter *model.DateTimeFilter) int
+		AnalyticResults    func(childComplexity int, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, captureRecordLocals *string) int
 		Snapshots          func(childComplexity int, characterID *primitive.ObjectID, filter *model.DateTimeFilter) int
 		__resolve__service func(childComplexity int) int
 	}
@@ -130,7 +130,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]model.Snapshot, error)
-	AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) (map[string]interface{}, error)
+	AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, captureRecordLocals *string) (map[string]interface{}, error)
 }
 
 type executableSchema struct {
@@ -249,7 +249,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.AnalyticResults(childComplexity, args["characterID"].(*primitive.ObjectID), args["filter"].(*model.DateTimeFilter)), true
+		return e.complexity.Query.AnalyticResults(childComplexity, args["characterID"].(*primitive.ObjectID), args["startTime"].(*time.Time), args["endTime"].(*time.Time), args["captureRecordLocals"].(*string)), true
 
 	case "Query.snapshots":
 		if e.complexity.Query.Snapshots == nil {
@@ -722,15 +722,33 @@ func (ec *executionContext) field_Query_analyticResults_args(ctx context.Context
 		}
 	}
 	args["characterID"] = arg0
-	var arg1 *model.DateTimeFilter
-	if tmp, ok := rawArgs["filter"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg1, err = ec.unmarshalODateTimeFilter2ᚖtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐDateTimeFilter(ctx, tmp)
+	var arg1 *time.Time
+	if tmp, ok := rawArgs["startTime"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
+		arg1, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["filter"] = arg1
+	args["startTime"] = arg1
+	var arg2 *time.Time
+	if tmp, ok := rawArgs["endTime"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endTime"))
+		arg2, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["endTime"] = arg2
+	var arg3 *string
+	if tmp, ok := rawArgs["captureRecordLocals"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("captureRecordLocals"))
+		arg3, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["captureRecordLocals"] = arg3
 	return args, nil
 }
 
@@ -1415,7 +1433,7 @@ func (ec *executionContext) _Query_analyticResults(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AnalyticResults(rctx, fc.Args["characterID"].(*primitive.ObjectID), fc.Args["filter"].(*model.DateTimeFilter))
+		return ec.resolvers.Query().AnalyticResults(rctx, fc.Args["characterID"].(*primitive.ObjectID), fc.Args["startTime"].(*time.Time), fc.Args["endTime"].(*time.Time), fc.Args["captureRecordLocals"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6495,6 +6513,22 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	res := graphql.MarshalString(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalTime(*v)
 	return res
 }
 
