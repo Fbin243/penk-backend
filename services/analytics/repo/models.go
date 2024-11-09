@@ -24,6 +24,7 @@ type Snapshot struct {
 
 type DFCapturedRecord struct {
 	ID               string `dataframe:"id"`
+	ProfileID        string `dataframe:"profile_id"`
 	CharacterID      string `dataframe:"character_id"`
 	Year             int    `dataframe:"year"`
 	Month            int    `dataframe:"month"`

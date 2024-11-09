@@ -79,6 +79,51 @@ type SnapshotMetricStyle struct {
 	Icon  *string `json:"icon,omitempty"`
 }
 
+type AnalyticSection string
+
+const (
+	AnalyticSectionOverall      AnalyticSection = "Overall"
+	AnalyticSectionDistribution AnalyticSection = "Distribution"
+	AnalyticSectionTimeline     AnalyticSection = "Timeline"
+	AnalyticSectionFrequency    AnalyticSection = "Frequency"
+)
+
+var AllAnalyticSection = []AnalyticSection{
+	AnalyticSectionOverall,
+	AnalyticSectionDistribution,
+	AnalyticSectionTimeline,
+	AnalyticSectionFrequency,
+}
+
+func (e AnalyticSection) IsValid() bool {
+	switch e {
+	case AnalyticSectionOverall, AnalyticSectionDistribution, AnalyticSectionTimeline, AnalyticSectionFrequency:
+		return true
+	}
+	return false
+}
+
+func (e AnalyticSection) String() string {
+	return string(e)
+}
+
+func (e *AnalyticSection) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AnalyticSection(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AnalyticSection", str)
+	}
+	return nil
+}
+
+func (e AnalyticSection) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type MetricPropertyType string
 
 const (

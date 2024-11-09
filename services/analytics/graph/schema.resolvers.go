@@ -8,10 +8,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"tenkhours/services/analytics/graph/model"
 	"time"
 
-	"tenkhours/services/analytics/graph/model"
-
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -46,7 +46,7 @@ func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.Ob
 }
 
 // AnalyticResults is the resolver for the analyticResults field.
-func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, captureRecordLocals *string) (map[string]interface{}, error) {
+func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, analyticSections []model.AnalyticSection, captureRecordLocals *string) (map[string]interface{}, error) {
 	// Decode json string to capture records
 	decodedCaptureRecordLocals := make([]model.CapturedRecord, 0)
 	if captureRecordLocals != nil {
@@ -55,7 +55,22 @@ func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primit
 		}
 	}
 
-	return r.CharactersBusiness.GetAnalyticResults(ctx, characterID, startTime, endTime, decodedCaptureRecordLocals)
+	if startTime != nil && endTime != nil && startTime.After(*endTime) {
+		return nil, fmt.Errorf("start time must be before end time")
+	}
+
+	if lo.Contains(analyticSections, model.AnalyticSectionFrequency) {
+		if startTime == nil || endTime == nil {
+			return nil, fmt.Errorf("start time and end time are required for frequency analytic section")
+		}
+
+		// Check if the time range is under 1 year
+		if endTime.Sub(*startTime) > time.Hour*24*366 {
+			return nil, fmt.Errorf("time range must be under 1 year")
+		}
+	}
+
+	return r.CharactersBusiness.GetAnalyticResults(ctx, characterID, startTime, endTime, analyticSections, decodedCaptureRecordLocals)
 }
 
 // Mutation returns MutationResolver implementation.
@@ -64,7 +79,5 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type (
-	mutationResolver struct{ *Resolver }
-	queryResolver    struct{ *Resolver }
-)
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

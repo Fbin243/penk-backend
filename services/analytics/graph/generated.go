@@ -75,7 +75,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AnalyticResults    func(childComplexity int, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, captureRecordLocals *string) int
+		AnalyticResults    func(childComplexity int, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, analyticSections []model.AnalyticSection, captureRecordLocals *string) int
 		Snapshots          func(childComplexity int, characterID *primitive.ObjectID, filter *model.DateTimeFilter) int
 		__resolve__service func(childComplexity int) int
 	}
@@ -130,7 +130,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]model.Snapshot, error)
-	AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, captureRecordLocals *string) (map[string]interface{}, error)
+	AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, analyticSections []model.AnalyticSection, captureRecordLocals *string) (map[string]interface{}, error)
 }
 
 type executableSchema struct {
@@ -249,7 +249,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.AnalyticResults(childComplexity, args["characterID"].(*primitive.ObjectID), args["startTime"].(*time.Time), args["endTime"].(*time.Time), args["captureRecordLocals"].(*string)), true
+		return e.complexity.Query.AnalyticResults(childComplexity, args["characterID"].(*primitive.ObjectID), args["startTime"].(*time.Time), args["endTime"].(*time.Time), args["analyticSections"].([]model.AnalyticSection), args["captureRecordLocals"].(*string)), true
 
 	case "Query.snapshots":
 		if e.complexity.Query.Snapshots == nil {
@@ -740,15 +740,24 @@ func (ec *executionContext) field_Query_analyticResults_args(ctx context.Context
 		}
 	}
 	args["endTime"] = arg2
-	var arg3 *string
-	if tmp, ok := rawArgs["captureRecordLocals"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("captureRecordLocals"))
-		arg3, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+	var arg3 []model.AnalyticSection
+	if tmp, ok := rawArgs["analyticSections"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("analyticSections"))
+		arg3, err = ec.unmarshalNAnalyticSection2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐAnalyticSectionᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["captureRecordLocals"] = arg3
+	args["analyticSections"] = arg3
+	var arg4 *string
+	if tmp, ok := rawArgs["captureRecordLocals"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("captureRecordLocals"))
+		arg4, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["captureRecordLocals"] = arg4
 	return args, nil
 }
 
@@ -1433,7 +1442,7 @@ func (ec *executionContext) _Query_analyticResults(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AnalyticResults(rctx, fc.Args["characterID"].(*primitive.ObjectID), fc.Args["startTime"].(*time.Time), fc.Args["endTime"].(*time.Time), fc.Args["captureRecordLocals"].(*string))
+		return ec.resolvers.Query().AnalyticResults(rctx, fc.Args["characterID"].(*primitive.ObjectID), fc.Args["startTime"].(*time.Time), fc.Args["endTime"].(*time.Time), fc.Args["analyticSections"].([]model.AnalyticSection), fc.Args["captureRecordLocals"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5557,6 +5566,77 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) unmarshalNAnalyticSection2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐAnalyticSection(ctx context.Context, v interface{}) (model.AnalyticSection, error) {
+	var res model.AnalyticSection
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAnalyticSection2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐAnalyticSection(ctx context.Context, sel ast.SelectionSet, v model.AnalyticSection) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNAnalyticSection2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐAnalyticSectionᚄ(ctx context.Context, v interface{}) ([]model.AnalyticSection, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]model.AnalyticSection, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNAnalyticSection2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐAnalyticSection(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNAnalyticSection2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐAnalyticSectionᚄ(ctx context.Context, sel ast.SelectionSet, v []model.AnalyticSection) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAnalyticSection2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐAnalyticSection(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)

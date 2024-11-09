@@ -16,6 +16,10 @@ type Query {
     """
     endTime: Time
     """
+    The analytic sections that the client wants to retrieve.
+    """
+    analyticSections: [AnalyticSection!]!
+    """
     The json string of the captured records stored in client side.
     """
     captureRecordLocals: String

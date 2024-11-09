@@ -222,7 +222,7 @@ func (biz *CharactersBusiness) CreateCapturedRecord(ctx context.Context, charact
 }
 
 // Get analytic results from the captured records might be from the client or the database
-func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, captureRecordLocals []model.CapturedRecord) (map[string]interface{}, error) {
+func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, analyticSections []model.AnalyticSection, captureRecordLocals []model.CapturedRecord) (map[string]interface{}, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, errors.ErrorUnauthorized
@@ -268,5 +268,14 @@ func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, character
 		return nil, err
 	}
 
-	return processCapturedRecords(capturedRecordsFilter.FilterType, capturedRecords), nil
+	analyticsProcessor := &AnalyticsProcessor{
+		AnalyticSections: analyticSections,
+		CapturedRecords:  capturedRecords,
+		AnalyticResults:  make(map[string]interface{}),
+		FilterType:       capturedRecordsFilter.FilterType,
+		StartTime:        capturedRecordsFilter.StartTime,
+		EndTime:          capturedRecordsFilter.EndTime,
+	}
+
+	return analyticsProcessor.ProcessCapturedRecords(), nil
 }

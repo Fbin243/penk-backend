@@ -68,3 +68,10 @@ type CapturedRecord_Metadata {
   characterID: ObjectID! @goTag(key: "bson", value: "character_id")
   profileID: ObjectID! @goTag(key: "bson", value: "profile_id")
 }
+
+enum AnalyticSection {
+  Overall
+  Distribution
+  Timeline
+  Frequency
+}
