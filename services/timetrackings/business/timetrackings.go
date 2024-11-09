@@ -55,6 +55,41 @@ func (biz *TimeTrackingsBusiness) GetCurrentTimeTracking(ctx context.Context) (*
 	return &currentTimetracking, nil
 }
 
+func (biz *TimeTrackingsBusiness) GetTotalCurrentTimeTracking(ctx context.Context, characterID *primitive.ObjectID, timeStamp time.Time) (int, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	if !ok {
+		return 0, errors.ErrorUnauthorized
+	}
+
+	character, err := biz.CharactersRepo.GetCharacterByID(*characterID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get character: %v", err)
+	}
+
+	if character.ProfileID != profile.ID {
+		return 0, errors.ErrorPermissionDenied
+	}
+
+	timeTrackings, err := biz.TimeTrackingsRepo.GetTimeTrackingsByCharacterID(*characterID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get time trackings: %v", err)
+	}
+
+	// Get the timetrackings from the timestamp to now
+	totalTime := 0
+	for _, timeTracking := range timeTrackings {
+		if timeTracking.StartTime.After(timeStamp) {
+			totalTime += int(timeTracking.EndTime.Sub(timeTracking.StartTime).Seconds())
+		}
+
+		if timeTracking.EndTime.After(timeStamp) {
+			totalTime += int(timeStamp.Sub(timeTracking.StartTime).Seconds())
+		}
+	}
+
+	return totalTime, nil
+}
+
 func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, metricID *primitive.ObjectID, startTime time.Time) (*timetrackingsRepo.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
