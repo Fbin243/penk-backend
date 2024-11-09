@@ -127,11 +127,5 @@ func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.Prof
 		return nil, fmt.Errorf("failed to update user profile: %v", err)
 	}
 
-	// Clear the profile from redis
-	err = biz.RedisClient.Del(ctx, profile.FirebaseUID).Err()
-	if err != nil {
-		return nil, fmt.Errorf("failed to clear profile from redis: %v", err)
-	}
-
 	return updatedProfile, nil
 }

@@ -19,7 +19,7 @@ func TestUserFlow(uid string) error {
 	}
 
 	// Remove the current profile in `dev` database
-	profileRepo := repo.NewProfilesRepo(db.GetDBManager().DB)
+	profileRepo := repo.NewProfilesRepo(db.GetDBManager().DB, nil)
 	err = profileRepo.DeleteProfileByFirebaseUID(uid)
 	if err != nil {
 		return fmt.Errorf("failed to delete profile: %v", err)

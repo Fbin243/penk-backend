@@ -43,12 +43,12 @@ func main() {
 
 	// Init dependencies and perform DI manually
 	mongodb := db.GetDBManager().DB
-	profilesRepo := repo.NewProfilesRepo(mongodb)
+	redisClient := db.GetRedisClient()
 	charactersRepo := repo.NewCharactersRepo(mongodb)
+	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
 	snapshotsRepo := analyticsRepo.NewSnapshotRepo(mongodb)
 	capturedRecordsRepo := analyticsRepo.NewCapturedRecordRepo(mongodb)
 	charactersBiz := business.NewCharactersBusiness(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo)
-	redisClient := db.GetRedisClient()
 
 	// Make a cron run daily for captured records
 	cron := cron.NewCron()

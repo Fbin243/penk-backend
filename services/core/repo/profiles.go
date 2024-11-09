@@ -2,11 +2,14 @@ package repo
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
 	"tenkhours/pkg/db"
 
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -14,9 +17,10 @@ import (
 
 type ProfilesRepo struct {
 	*mongo.Collection
+	*redis.Client
 }
 
-func NewProfilesRepo(mongodb *mongo.Database) *ProfilesRepo {
+func NewProfilesRepo(mongodb *mongo.Database, rdb *redis.Client) *ProfilesRepo {
 	profilesCollection := mongodb.Collection(db.ProfileCollection)
 	_, err := profilesCollection.Indexes().CreateMany(context.TODO(), []mongo.IndexModel{
 		{
@@ -33,7 +37,7 @@ func NewProfilesRepo(mongodb *mongo.Database) *ProfilesRepo {
 		return nil
 	}
 
-	return &ProfilesRepo{profilesCollection}
+	return &ProfilesRepo{profilesCollection, rdb}
 }
 
 func (r *ProfilesRepo) GetProfileByFirebaseUID(firebaseUID string) (*Profile, error) {
@@ -76,6 +80,19 @@ func (r *ProfilesRepo) UpdateProfile(profile *Profile) (*Profile, error) {
 	defer cancel()
 
 	err := r.FindOneAndUpdate(ctx, bson.M{"_id": profile.ID}, bson.M{"$set": profile}, db.FindOneAndUpdateOptions).Decode(profile)
+
+	if err == nil {
+		// Update profile in Redis
+		profileJSON, err := json.Marshal(profile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to serialize profile: %v", err)
+		}
+
+		err = r.Set(ctx, profile.FirebaseUID, profileJSON, time.Hour).Err()
+		if err != nil {
+			return profile, err
+		}
+	}
 
 	return profile, err
 }

@@ -37,9 +37,9 @@ func main() {
 
 	// Init dependencies and perform DI manually
 	mongodb := db.GetDBManager().DB
-	profilesRepo := repo.NewProfilesRepo(mongodb)
-	charactersRepo := repo.NewCharactersRepo(mongodb)
 	redisClient := db.GetRedisClient()
+	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
+	charactersRepo := repo.NewCharactersRepo(mongodb)
 	profilesBiz := business.NewProfilesBusiness(profilesRepo, redisClient)
 	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo)
 
