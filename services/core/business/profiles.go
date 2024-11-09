@@ -29,6 +29,7 @@ func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, redisClient *redis.Cli
 	}
 }
 
+// Get the user's profile if it exists, otherwise create a new profile
 func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, error) {
 	// Get Firebase profile from the context
 	firebaseProfile, ok := ctx.Value(auth.FirebaseProfileKey).(auth.FirebaseProfile)
@@ -98,12 +99,14 @@ func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, err
 	return profile, nil
 }
 
+// Update the user's profile
 func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, errors.ErrorUnauthorized
 	}
 
+	// Update the profile with the new input
 	if input.Name != nil {
 		profile.Name = *input.Name
 	}
@@ -124,6 +127,11 @@ func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.Prof
 		return nil, fmt.Errorf("failed to update user profile: %v", err)
 	}
 
-	fmt.Println("Updated profile: ", updatedProfile)
+	// Clear the profile from redis
+	err = biz.RedisClient.Del(ctx, profile.FirebaseUID).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to clear profile from redis: %v", err)
+	}
+
 	return updatedProfile, nil
 }

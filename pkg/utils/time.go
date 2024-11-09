@@ -9,6 +9,7 @@ func Now() time.Time {
 	return time.Now().Truncate(time.Second).UTC()
 }
 
+// MonthToIntMap maps month names to their respective integer values
 var MonthToIntMap = map[string]int{
 	"JANUARY":   1,
 	"FEBRUARY":  2,
