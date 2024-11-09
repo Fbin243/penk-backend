@@ -145,10 +145,11 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 	rand.Seed(time.Now().UnixNano()) // Seed the random number generator
 
 	// Determine fish type based on probability
-	var fishType string
+	var fishType = "none"
 	var fishFlag int32 //Check for condition
 
 	randomNumber := rand.Float64()
+	fmt.Println("hahduadfhsudfhusdfhusdfhufdshdfsuo", randomNumber)
 
 	if randomNumber <= 0.3015 { // 30.15% chance of 1 Fish
 		fishType = "normal"
@@ -158,9 +159,9 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 		fishType = "normal"
 		fishFlag = 2
 
-	} else { // 0.0053% chance of 1 Golden Fish
+	} else if randomNumber <= 0.3278 { // 0.0053% chance of 1 Golden Fish
 		fishType = "gold"
-		fishFlag = 3
+		fishFlag = 1
 	}
 
 	var insertedFish *repo.Fish
@@ -173,13 +174,16 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 
 		tmpNum := int32(repoFish.Numbers) + 1
 		updatedFish := &repo.Fish{
-			Numbers: tmpNum,
+			ProfileID: repoFish.ProfileID,
+			Numbers:   tmpNum,
+			Type:      repoFish.Type,
 		}
 
 		insertedFish, err = biz.FishRepo.UpdateFish(updatedFish, profile.ID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to update fish: %v", err)
 		}
+		fmt.Println("insertedFish ID:", insertedFish.ID.Hex())
 
 	} else if fishType == "normal" {
 		if fishFlag == 1 {
@@ -190,7 +194,9 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 
 			tmpNum := int32(repoFish.Numbers) + 1
 			updatedFish := &repo.Fish{
-				Numbers: tmpNum,
+				ProfileID: repoFish.ProfileID,
+				Numbers:   tmpNum,
+				Type:      repoFish.Type,
 			}
 
 			insertedFish, err = biz.FishRepo.UpdateFish(updatedFish, profile.ID)
@@ -206,7 +212,9 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 
 			tmpNum := int32(repoFish.Numbers) + 2
 			updatedFish := &repo.Fish{
-				Numbers: tmpNum,
+				ProfileID: repoFish.ProfileID,
+				Numbers:   tmpNum,
+				Type:      repoFish.Type,
 			}
 
 			insertedFish, err = biz.FishRepo.UpdateFish(updatedFish, profile.ID)
@@ -215,7 +223,10 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 			}
 
 		}
+	}
 
+	if insertedFish == nil {
+		return nil, fmt.Errorf("Unlucky, next time :)))")
 	}
 
 	tmpNumber := int(insertedFish.Numbers)
