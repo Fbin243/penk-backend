@@ -151,84 +151,24 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 	randomNumber := rand.Float64()
 	fmt.Println("hahduadfhsudfhusdfhusdfhufdshdfsuo", randomNumber)
 
-	if randomNumber <= 0.3015 { // 30.15% chance of 1 Fish
-		fishType = "normal"
-		fishFlag = 1
-
-	} else if randomNumber <= 0.3225 { // 2.10% chance of 2 Fish
-		fishType = "normal"
-		fishFlag = 2
-
-	} else if randomNumber <= 0.3278 { // 0.0053% chance of 1 Golden Fish
-		fishType = "gold"
-		fishFlag = 1
-	}
-
-	var insertedFish *repo.Fish
-
-	if fishType == "gold" {
-		repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, "gold")
-		if err != nil {
-			return nil, fmt.Errorf("failed to find fish package: %v", err)
-		}
-
-		tmpNum := int32(repoFish.Numbers) + 1
-		updatedFish := &repo.Fish{
-			ProfileID: repoFish.ProfileID,
-			Numbers:   tmpNum,
-			Type:      repoFish.Type,
-		}
-
-		insertedFish, err = biz.FishRepo.UpdateFish(updatedFish, profile.ID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to update fish: %v", err)
-		}
-		fmt.Println("insertedFish ID:", insertedFish.ID.Hex())
-
-	} else if fishType == "normal" {
-		if fishFlag == 1 {
-			repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, "normal")
-			if err != nil {
-				return nil, fmt.Errorf("failed to find fish package: %v", err)
-			}
-
-			tmpNum := int32(repoFish.Numbers) + 1
-			updatedFish := &repo.Fish{
-				ProfileID: repoFish.ProfileID,
-				Numbers:   tmpNum,
-				Type:      repoFish.Type,
-			}
-
-			insertedFish, err = biz.FishRepo.UpdateFish(updatedFish, profile.ID)
-			if err != nil {
-				return nil, fmt.Errorf("failed to update fish: %v", err)
-			}
-
-		} else if fishFlag == 2 {
-			repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, "normal")
-			if err != nil {
-				return nil, fmt.Errorf("failed to find fish package: %v", err)
-			}
-
-			tmpNum := int32(repoFish.Numbers) + 2
-			updatedFish := &repo.Fish{
-				ProfileID: repoFish.ProfileID,
-				Numbers:   tmpNum,
-				Type:      repoFish.Type,
-			}
-
-			insertedFish, err = biz.FishRepo.UpdateFish(updatedFish, profile.ID)
-			if err != nil {
-				return nil, fmt.Errorf("failed to update fish: %v", err)
-			}
-
-		}
-	}
-
-	if insertedFish == nil {
+	switch {
+	case randomNumber <= 0.3015: // 30.15% chance of 1 Fish
+		fishType, fishFlag = "normal", 1
+	case randomNumber <= 0.3225: // 2.10% chance of 2 Fish
+		fishType, fishFlag = "normal", 2
+	case randomNumber <= 0.3278: // 0.0053% chance of 1 Golden Fish
+		fishType, fishFlag = "gold", 1
+	default:
 		return nil, fmt.Errorf("Unlucky, next time :)))")
 	}
 
+	// Update fish count using the helper function
+	insertedFish, err := biz.updateFishCount(profile.ID, fishType, fishFlag)
+	if err != nil {
+		return nil, err
+	}
+
+	// Prepare response model
 	tmpNumber := int(insertedFish.Numbers)
 	tmpType := insertedFish.Type
 
@@ -240,6 +180,28 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 	}
 
 	return modelFish, nil
+}
+
+// helper function for catching fish
+func (biz *FishBusiness) updateFishCount(profileID primitive.ObjectID, fishType string, additionalCount int32) (*repo.Fish, error) {
+	// Get the current fish record by profileID and fishType
+	repoFish, err := biz.FishRepo.GetFishByProfileID(profileID, fishType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find fish package: %v", err)
+	}
+
+	updatedFish := &repo.Fish{
+		ProfileID: repoFish.ProfileID,
+		Numbers:   repoFish.Numbers + additionalCount,
+		Type:      repoFish.Type,
+	}
+
+	insertedFish, err := biz.FishRepo.UpdateFish(updatedFish, profileID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update fish: %v", err)
+	}
+
+	return insertedFish, nil
 }
 
 //	THOSE FUNCTIONS BELOW ARE FOR TRADING
