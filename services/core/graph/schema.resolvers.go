@@ -6,6 +6,9 @@ package graph
 
 import (
 	"context"
+	"os"
+	"strconv"
+
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/graph/validations"
 	"tenkhours/services/core/repo"
@@ -118,11 +121,44 @@ func (r *queryResolver) Profile(ctx context.Context) (*repo.Profile, error) {
 	return r.ProfilesBusiness.GetProfile(ctx)
 }
 
+// AppSettings is the resolver for the appSettings field.
+func (r *queryResolver) AppSettings(ctx context.Context) (*model.AppSettings, error) {
+	// Read the app settings from the environment variables
+	minDurationTime, found := os.LookupEnv("MIN_DURATION_TIME")
+	if !found {
+		minDurationTime = "600"
+	}
+
+	minDurationTimeInt, err := strconv.Atoi(minDurationTime)
+	if err != nil {
+		return nil, err
+	}
+
+	maxDurationTime, found := os.LookupEnv("MAX_DURATION_TIME")
+	if !found {
+		maxDurationTime = "14400"
+	}
+
+	maxDurationTimeInt, err := strconv.Atoi(maxDurationTime)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AppSettings{
+		TimeTrackingsSettings: &model.TimeTrackingsSettings{
+			MinDurationTime: minDurationTimeInt,
+			MaxDurationTime: maxDurationTimeInt,
+		},
+	}, nil
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)

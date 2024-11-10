@@ -1,6 +1,7 @@
 type Query {
   characters: [Character!]!
   profile: Profile!
+  appSettings: AppSettings!
 }
 
 type Mutation {

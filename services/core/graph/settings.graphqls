@@ -1,0 +1,8 @@
+type AppSettings {
+  timeTrackingsSettings: TimeTrackingsSettings!
+}
+
+type TimeTrackingsSettings {
+  minDurationTime: Int!
+  maxDurationTime: Int!
+}

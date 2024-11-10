@@ -10,6 +10,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type AppSettings struct {
+	TimeTrackingsSettings *TimeTrackingsSettings `json:"timeTrackingsSettings"`
+}
+
 // Input for creating or updating a character.
 type CharacterInput struct {
 	// The name of the character.
@@ -70,6 +74,11 @@ type ProfileInput struct {
 }
 
 type Query struct {
+}
+
+type TimeTrackingsSettings struct {
+	MinDurationTime int `json:"minDurationTime"`
+	MaxDurationTime int `json:"maxDurationTime"`
 }
 
 type MetricPropertyType string
