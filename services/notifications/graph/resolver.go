@@ -1,6 +1,6 @@
 package graph
 
-import "tenkhours/services/notification/business"
+import "tenkhours/services/notifications/business"
 
 // This file will not be regenerated automatically.
 //
