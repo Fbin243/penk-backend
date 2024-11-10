@@ -82,13 +82,19 @@ func (r *ProfilesRepo) UpdateProfile(profile *Profile) (*Profile, error) {
 	err := r.FindOneAndUpdate(ctx, bson.M{"_id": profile.ID}, bson.M{"$set": profile}, db.FindOneAndUpdateOptions).Decode(profile)
 
 	if err == nil {
-		// Update profile in Redis
 		profileJSON, err := json.Marshal(profile)
 		if err != nil {
 			return nil, fmt.Errorf("failed to serialize profile: %v", err)
 		}
 
-		err = r.Set(ctx, profile.FirebaseUID, profileJSON, time.Hour).Err()
+		// Get the current TTL of the profile in Redis
+		ttl, err := r.TTL(ctx, profile.FirebaseUID).Result()
+		if err != nil {
+			return nil, err
+		}
+
+		// Update the profile in Redis with the current TTL
+		err = r.Set(ctx, profile.FirebaseUID, profileJSON, ttl).Err()
 		if err != nil {
 			return profile, err
 		}

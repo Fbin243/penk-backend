@@ -59,7 +59,6 @@ func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, err
 		return &profile, nil
 	}
 
-	fmt.Print("key not found")
 	// Cache miss, create a new session from the profile in DB
 	profile, err := biz.ProfilesRepo.GetProfileByFirebaseUID(firebaseProfile.UID)
 	if err == mongo.ErrNoDocuments {
