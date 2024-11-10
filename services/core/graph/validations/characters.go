@@ -42,6 +42,14 @@ func ValidateUpdateCharacterInput(characterInput model.CharacterInput) error {
 		return err
 	}
 
+	if characterInput.CustomMetrics != nil {
+		for _, customMetric := range characterInput.CustomMetrics {
+			if err := ValidateCreateCustomMetricInput(customMetric); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 

@@ -22,10 +22,14 @@ type CharacterInput struct {
 	Gender *bool `json:"gender,omitempty"`
 	// List of string tags that describe the character.
 	Tags []string `json:"tags,omitempty"`
+	// List of custom metrics for the character.
+	CustomMetrics []CustomMetricInput `json:"customMetrics,omitempty"`
 }
 
 // Input for defining a custom metric.
 type CustomMetricInput struct {
+	// ID of the custom metric. If not provided, a new property will be created.
+	ID *primitive.ObjectID `json:"id,omitempty"`
 	// The name of the custom metric.
 	Name *string `json:"name,omitempty"`
 	// Description of the custom metric.

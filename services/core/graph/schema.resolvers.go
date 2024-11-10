@@ -8,7 +8,6 @@ import (
 	"context"
 	"os"
 	"strconv"
-
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/graph/validations"
 	"tenkhours/services/core/repo"
@@ -158,7 +157,5 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type (
-	mutationResolver struct{ *Resolver }
-	queryResolver    struct{ *Resolver }
-)
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

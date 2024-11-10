@@ -55,7 +55,6 @@ func main() {
 	}))
 
 	app.POST("/graphql", func(c *gin.Context) {
-		fmt.Print("Body", c.Request)
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 

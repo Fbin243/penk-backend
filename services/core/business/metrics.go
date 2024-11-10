@@ -13,22 +13,29 @@ import (
 )
 
 func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
-	if !ok {
-		return nil, errors.ErrorUnauthorized
-	}
+	var character *repo.Character
+	var err error
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get character: %v", err)
-	}
+	if !biz.FromCreateCharacter && !biz.FromUpdateCharacter {
+		profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+		if !ok {
+			return nil, errors.ErrorUnauthorized
+		}
 
-	if character.ProfileID != profile.ID {
-		return nil, errors.ErrorPermissionDenied
-	}
+		character, err = biz.CharactersRepo.GetCharacterByID(characterID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get character: %v", err)
+		}
 
-	if len(character.CustomMetrics) >= int(character.LimitedMetricNumber) {
-		return nil, fmt.Errorf("custom metric creation limit reached")
+		if character.ProfileID != profile.ID {
+			return nil, errors.ErrorPermissionDenied
+		}
+
+		if len(character.CustomMetrics) >= int(character.LimitedMetricNumber) {
+			return nil, fmt.Errorf("custom metric creation limit reached")
+		}
+	} else {
+		character = ctx.Value(CharacterKey).(*repo.Character)
 	}
 
 	customMetric := repo.CustomMetric{
@@ -87,6 +94,11 @@ func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, character
 		customMetric.Properties = properties
 	}
 
+	if biz.FromCreateCharacter || biz.FromUpdateCharacter {
+		character.CustomMetrics = append(character.CustomMetrics, customMetric)
+		return nil, nil
+	}
+
 	createdCustomMetric, err := biz.CharactersRepo.CreateCustomMetric(character.ID, &customMetric)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create custom metric: %v", err)
@@ -96,18 +108,25 @@ func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, character
 }
 
 func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
-	if !ok {
-		return nil, errors.ErrorUnauthorized
-	}
+	var character *repo.Character
+	var err error
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get character: %v", err)
-	}
+	if !biz.FromUpdateCharacter {
+		profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+		if !ok {
+			return nil, errors.ErrorUnauthorized
+		}
 
-	if character.ProfileID != profile.ID {
-		return nil, errors.ErrorPermissionDenied
+		character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get character: %v", err)
+		}
+
+		if character.ProfileID != profile.ID {
+			return nil, errors.ErrorPermissionDenied
+		}
+	} else {
+		character = ctx.Value(CharacterKey).(*repo.Character)
 	}
 
 	found := false
@@ -185,6 +204,10 @@ func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID 
 
 	if !found {
 		return nil, fmt.Errorf("custom metric does not belong to the character")
+	}
+
+	if biz.FromUpdateCharacter {
+		return nil, nil
 	}
 
 	_, err = biz.CharactersRepo.UpdateCharacter(character)

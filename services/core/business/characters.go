@@ -13,8 +13,10 @@ import (
 )
 
 type CharactersBusiness struct {
-	CharactersRepo *repo.CharactersRepo
-	ProfilesRepo   *repo.ProfilesRepo
+	CharactersRepo      *repo.CharactersRepo
+	ProfilesRepo        *repo.ProfilesRepo
+	FromCreateCharacter bool
+	FromUpdateCharacter bool
 }
 
 func NewCharactersBusiness(charactersRepo *repo.CharactersRepo, profilesRepo *repo.ProfilesRepo) *CharactersBusiness {
@@ -86,6 +88,16 @@ func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.
 		character.Tags = input.Tags
 	}
 
+	// Create custom metrics for the character
+	if input.CustomMetrics != nil {
+		for _, customMetric := range input.CustomMetrics {
+			// Insert the character into context
+			ctx := context.WithValue(ctx, CharacterKey, &character)
+			biz.FromCreateCharacter = true
+			biz.CreateCustomMetric(ctx, character.ID, customMetric)
+		}
+	}
+
 	createdCharacter, err := biz.CharactersRepo.CreateCharacter(&character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create character: %v", err)
@@ -122,6 +134,22 @@ func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive
 
 	if input.Tags != nil {
 		character.Tags = input.Tags
+	}
+
+	// Update custom metrics for the character
+	if input.CustomMetrics != nil {
+		// Insert the character into context
+		ctx := context.WithValue(ctx, CharacterKey, character)
+		biz.FromUpdateCharacter = true
+		for _, customMetric := range input.CustomMetrics {
+			if customMetric.ID != nil {
+				// Update custom metric
+				biz.UpdateCustomMetric(ctx, *customMetric.ID, character.ID, customMetric)
+			} else {
+				// Create custom metric
+				biz.CreateCustomMetric(ctx, character.ID, customMetric)
+			}
+		}
 	}
 
 	updatedCharacter, err := biz.CharactersRepo.UpdateCharacter(character)
