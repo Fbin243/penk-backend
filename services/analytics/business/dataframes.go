@@ -6,6 +6,7 @@ import (
 	"math"
 	"time"
 
+	"tenkhours/pkg/utils"
 	"tenkhours/services/analytics/graph/model"
 	"tenkhours/services/analytics/repo"
 
@@ -24,10 +25,7 @@ type AnalyticsProcessor struct {
 
 // ProcessCapturedRecords processes the captured records and returns the analytic results
 func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
-	if len(ap.CapturedRecords) == 0 {
-		return ap.AnalyticResults
-	}
-
+	numberOfCapturedRecords := len(ap.CapturedRecords)
 	dfCaptureRecordCustomMetricsData := make([]repo.DFCapturedRecordCustomMetric, 0)
 	dfCaptureRecordsData := lo.Map(ap.CapturedRecords, func(record model.CapturedRecord, index int) repo.DFCapturedRecord {
 		recordDay := record.Timestamp.Day()
@@ -58,7 +56,7 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 	dfInnerJoin := dfCaptureRecords.InnerJoin(dfCaptureRecordMetrics, "id")
 
 	// Process the captured records for the OVERALL section
-	if lo.Contains(ap.AnalyticSections, model.AnalyticSectionOverall) {
+	if numberOfCapturedRecords > 0 && lo.Contains(ap.AnalyticSections, model.AnalyticSectionOverall) {
 		// Total active days
 		totalFocusedDays := dfCaptureRecords.Nrow()
 
@@ -72,7 +70,7 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 			return record.Timestamp
 		})
 		for i := 0; i < len(timeStamps); i++ {
-			if i == 0 || timeStamps[i].Sub(timeStamps[i-1]) == 24*time.Hour {
+			if i == 0 || utils.ResetTimeToBeginningOfDay(timeStamps[i]).Sub(utils.ResetTimeToBeginningOfDay(timeStamps[i-1])) == 24*time.Hour {
 				currentStreak++
 			} else {
 				bestStreak = int(math.Max(float64(bestStreak), float64(currentStreak)))
@@ -91,7 +89,7 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 	}
 
 	// Process the captured records for the DISTRIBUTION section
-	if lo.Contains(ap.AnalyticSections, model.AnalyticSectionDistribution) {
+	if numberOfCapturedRecords > 0 && lo.Contains(ap.AnalyticSections, model.AnalyticSectionDistribution) {
 		// Total focused time
 		totalFocusedTime := dfCaptureRecords.Col("total_focused_time").Sum()
 		ap.AnalyticResults["distribution"] = make(map[string]interface{})
@@ -119,7 +117,7 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 	}
 
 	// Process the captured records for the TIMELINE section
-	if lo.Contains(ap.AnalyticSections, model.AnalyticSectionTimeline) {
+	if numberOfCapturedRecords > 0 && lo.Contains(ap.AnalyticSections, model.AnalyticSectionTimeline) {
 		dfa := &DataframeAggregator{}
 		dfa.SetAnalyticResults(ap.AnalyticResults)
 		switch ap.FilterType {
@@ -148,7 +146,12 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 
 	// Process the captured records for the FREQUENCY section
 	if lo.Contains(ap.AnalyticSections, model.AnalyticSectionFrequency) {
-		maxTotalFocusedTime := dfCaptureRecords.Col("total_focused_time").Max()
+		maxTotalFocusedTime := float64(0)
+		totalFocusedTimeCol := dfCaptureRecords.Col("total_focused_time")
+		if totalFocusedTimeCol.Error() == nil {
+			maxTotalFocusedTime = totalFocusedTimeCol.Max()
+		}
+
 		unitRange := math.Ceil(maxTotalFocusedTime / NUMBER_OF_FREQUENCY_RANGE)
 
 		// Calculate number of days between the start and end time

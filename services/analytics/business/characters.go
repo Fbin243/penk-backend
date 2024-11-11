@@ -250,11 +250,11 @@ func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, character
 	}
 
 	if startTime != nil {
-		capturedRecordsFilter.StartTime = *startTime
+		capturedRecordsFilter.StartTime = utils.ResetTimeToBeginningOfDay(*startTime)
 	}
 
 	if endTime != nil {
-		capturedRecordsFilter.EndTime = *endTime
+		capturedRecordsFilter.EndTime = utils.ResetTimeToBeginningOfDay(*endTime)
 	}
 
 	// Check if there are captured records from the client

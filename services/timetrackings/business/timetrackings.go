@@ -225,7 +225,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		// Make a new captured record if it doesn't exist
 		capturedRecord = model.CapturedRecord{
 			ID:               primitive.NewObjectID(),
-			Timestamp:        utils.ResetTimeToBeginningOfDay(timeTracking.StartTime),
+			Timestamp:        utils.ResetTimeToBeginningOfDay(timeTracking.EndTime),
 			TotalFocusedTime: 0,
 			Metadata: model.CapturedRecordMetadata{
 				CharacterID: timeTracking.CharacterID,
