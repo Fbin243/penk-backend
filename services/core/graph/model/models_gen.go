@@ -11,7 +11,10 @@ import (
 )
 
 type AppSettings struct {
-	TimeTrackingsSettings *TimeTrackingsSettings `json:"timeTrackingsSettings"`
+	MinDurationTime       int `json:"minDurationTime"`
+	MaxDurationTime       int `json:"maxDurationTime"`
+	LimitedMetricNumber   int `json:"limitedMetricNumber"`
+	LimitedPropertyNumber int `json:"limitedPropertyNumber"`
 }
 
 // Input for creating or updating a character.
@@ -78,11 +81,6 @@ type ProfileInput struct {
 }
 
 type Query struct {
-}
-
-type TimeTrackingsSettings struct {
-	MinDurationTime int `json:"minDurationTime"`
-	MaxDurationTime int `json:"maxDurationTime"`
 }
 
 type MetricPropertyType string

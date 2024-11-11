@@ -8,10 +8,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"tenkhours/services/analytics/graph/model"
 	"time"
 
-	"github.com/samber/lo"
+	"tenkhours/services/analytics/graph/model"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -59,17 +59,6 @@ func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primit
 		return nil, fmt.Errorf("start time must be before end time")
 	}
 
-	if lo.Contains(analyticSections, model.AnalyticSectionFrequency) {
-		if startTime == nil || endTime == nil {
-			return nil, fmt.Errorf("start time and end time are required for frequency analytic section")
-		}
-
-		// Check if the time range is under 1 year
-		if endTime.Sub(*startTime) > time.Hour*24*366 {
-			return nil, fmt.Errorf("time range must be under 1 year")
-		}
-	}
-
 	return r.CharactersBusiness.GetAnalyticResults(ctx, characterID, startTime, endTime, analyticSections, decodedCaptureRecordLocals)
 }
 
@@ -79,5 +68,7 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)

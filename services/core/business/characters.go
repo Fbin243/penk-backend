@@ -6,6 +6,7 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
@@ -75,7 +76,7 @@ func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.
 		ProfileID:           profile.ID,
 		TotalFocusedTime:    0,
 		CustomMetrics:       []repo.CustomMetric{},
-		LimitedMetricNumber: 2,
+		LimitedMetricNumber: utils.LimitedMetricNumber,
 	}
 
 	if input.Name != nil {

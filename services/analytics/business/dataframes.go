@@ -164,6 +164,7 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 		for i := 0; i < row; i++ {
 			frequencyMatrix[i] = make([]int, column)
 			for j := 0; j < column; j++ {
+				// Fill the days in previous year with -1
 				if i == 0 && j < startWeekDay {
 					frequencyMatrix[i][j] = -1
 				} else {
@@ -181,7 +182,7 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 			frequencyMatrix[dayRow][dayCol] = int(math.Ceil(float64(record.TotalFocusedTime) / unitRange))
 		}
 
-		// Fill the last redundant days with -1
+		// Fill the last redundant days in the next year with -1
 		for j := endWeekDay + 1; j < NUMBER_OF_DAYS_IN_A_WEEK; j++ {
 			frequencyMatrix[row-1][j] = -1
 		}

@@ -10,6 +10,7 @@ import (
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/analytics/graph/model"
 	"tenkhours/services/core/repo"
 	timetrackingsRepo "tenkhours/services/timetrackings/repo"
@@ -101,7 +102,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	duration := serverStartTime.Sub(startTime)
 	seconds := duration.Seconds()
 
-	if seconds > 20 {
+	if seconds > utils.MaxTimeDifference {
 		return nil, fmt.Errorf("server timeout, failed to start a new session")
 	}
 
@@ -144,8 +145,8 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 		ID:              primitive.NewObjectID(),
 		CharacterID:     characterID,
 		StartTime:       startTime,
-		MinDurationTime: 600,
-		MaxDurationTime: 14400,
+		MinDurationTime: utils.MinDurationTime,
+		MaxDurationTime: utils.MaxDurationTime,
 	}
 
 	if metricID != nil {
@@ -224,7 +225,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		// Make a new captured record if it doesn't exist
 		capturedRecord = model.CapturedRecord{
 			ID:               primitive.NewObjectID(),
-			Timestamp:        timeTracking.StartTime,
+			Timestamp:        utils.ResetTimeToBeginningOfDay(timeTracking.StartTime),
 			TotalFocusedTime: 0,
 			Metadata: model.CapturedRecordMetadata{
 				CharacterID: timeTracking.CharacterID,

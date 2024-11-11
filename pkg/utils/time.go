@@ -24,3 +24,7 @@ var MonthToIntMap = map[string]int{
 	"NOVEMBER":  11,
 	"DECEMBER":  12,
 }
+
+func ResetTimeToBeginningOfDay(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
+}

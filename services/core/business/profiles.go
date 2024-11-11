@@ -72,7 +72,7 @@ func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, err
 			CreatedAt:          utils.Now(),
 			UpdatedAt:          utils.Now(),
 			AutoSnapshot:       true,
-			AvailableSnapshots: 2,
+			AvailableSnapshots: utils.DefaultSnapshotsNumber,
 		}
 
 		// Create new profile for the new user in DB

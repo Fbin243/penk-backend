@@ -54,7 +54,10 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	AppSettings struct {
-		TimeTrackingsSettings func(childComplexity int) int
+		LimitedMetricNumber   func(childComplexity int) int
+		LimitedPropertyNumber func(childComplexity int) int
+		MaxDurationTime       func(childComplexity int) int
+		MinDurationTime       func(childComplexity int) int
 	}
 
 	Character struct {
@@ -127,11 +130,6 @@ type ComplexityRoot struct {
 		__resolve__service func(childComplexity int) int
 	}
 
-	TimeTrackingsSettings struct {
-		MaxDurationTime func(childComplexity int) int
-		MinDurationTime func(childComplexity int) int
-	}
-
 	_Service struct {
 		SDL func(childComplexity int) int
 	}
@@ -179,12 +177,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "AppSettings.timeTrackingsSettings":
-		if e.complexity.AppSettings.TimeTrackingsSettings == nil {
+	case "AppSettings.limitedMetricNumber":
+		if e.complexity.AppSettings.LimitedMetricNumber == nil {
 			break
 		}
 
-		return e.complexity.AppSettings.TimeTrackingsSettings(childComplexity), true
+		return e.complexity.AppSettings.LimitedMetricNumber(childComplexity), true
+
+	case "AppSettings.limitedPropertyNumber":
+		if e.complexity.AppSettings.LimitedPropertyNumber == nil {
+			break
+		}
+
+		return e.complexity.AppSettings.LimitedPropertyNumber(childComplexity), true
+
+	case "AppSettings.maxDurationTime":
+		if e.complexity.AppSettings.MaxDurationTime == nil {
+			break
+		}
+
+		return e.complexity.AppSettings.MaxDurationTime(childComplexity), true
+
+	case "AppSettings.minDurationTime":
+		if e.complexity.AppSettings.MinDurationTime == nil {
+			break
+		}
+
+		return e.complexity.AppSettings.MinDurationTime(childComplexity), true
 
 	case "Character.customMetrics":
 		if e.complexity.Character.CustomMetrics == nil {
@@ -588,20 +607,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.__resolve__service(childComplexity), true
-
-	case "TimeTrackingsSettings.maxDurationTime":
-		if e.complexity.TimeTrackingsSettings.MaxDurationTime == nil {
-			break
-		}
-
-		return e.complexity.TimeTrackingsSettings.MaxDurationTime(childComplexity), true
-
-	case "TimeTrackingsSettings.minDurationTime":
-		if e.complexity.TimeTrackingsSettings.MinDurationTime == nil {
-			break
-		}
-
-		return e.complexity.TimeTrackingsSettings.MinDurationTime(childComplexity), true
 
 	case "_Service.sdl":
 		if e.complexity._Service.SDL == nil {
@@ -1152,8 +1157,8 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AppSettings_timeTrackingsSettings(ctx context.Context, field graphql.CollectedField, obj *model.AppSettings) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppSettings_timeTrackingsSettings(ctx, field)
+func (ec *executionContext) _AppSettings_minDurationTime(ctx context.Context, field graphql.CollectedField, obj *model.AppSettings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AppSettings_minDurationTime(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1166,7 +1171,7 @@ func (ec *executionContext) _AppSettings_timeTrackingsSettings(ctx context.Conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TimeTrackingsSettings, nil
+		return obj.MinDurationTime, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1178,25 +1183,151 @@ func (ec *executionContext) _AppSettings_timeTrackingsSettings(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.TimeTrackingsSettings)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNTimeTrackingsSettings2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐTimeTrackingsSettings(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AppSettings_timeTrackingsSettings(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AppSettings_minDurationTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AppSettings",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "minDurationTime":
-				return ec.fieldContext_TimeTrackingsSettings_minDurationTime(ctx, field)
-			case "maxDurationTime":
-				return ec.fieldContext_TimeTrackingsSettings_maxDurationTime(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TimeTrackingsSettings", field.Name)
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AppSettings_maxDurationTime(ctx context.Context, field graphql.CollectedField, obj *model.AppSettings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AppSettings_maxDurationTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxDurationTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AppSettings_maxDurationTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AppSettings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AppSettings_limitedMetricNumber(ctx context.Context, field graphql.CollectedField, obj *model.AppSettings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AppSettings_limitedMetricNumber(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LimitedMetricNumber, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AppSettings_limitedMetricNumber(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AppSettings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AppSettings_limitedPropertyNumber(ctx context.Context, field graphql.CollectedField, obj *model.AppSettings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AppSettings_limitedPropertyNumber(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LimitedPropertyNumber, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AppSettings_limitedPropertyNumber(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AppSettings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3716,8 +3847,14 @@ func (ec *executionContext) fieldContext_Query_appSettings(_ context.Context, fi
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "timeTrackingsSettings":
-				return ec.fieldContext_AppSettings_timeTrackingsSettings(ctx, field)
+			case "minDurationTime":
+				return ec.fieldContext_AppSettings_minDurationTime(ctx, field)
+			case "maxDurationTime":
+				return ec.fieldContext_AppSettings_maxDurationTime(ctx, field)
+			case "limitedMetricNumber":
+				return ec.fieldContext_AppSettings_limitedMetricNumber(ctx, field)
+			case "limitedPropertyNumber":
+				return ec.fieldContext_AppSettings_limitedPropertyNumber(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AppSettings", field.Name)
 		},
@@ -3897,94 +4034,6 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TimeTrackingsSettings_minDurationTime(ctx context.Context, field graphql.CollectedField, obj *model.TimeTrackingsSettings) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TimeTrackingsSettings_minDurationTime(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MinDurationTime, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TimeTrackingsSettings_minDurationTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TimeTrackingsSettings",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TimeTrackingsSettings_maxDurationTime(ctx context.Context, field graphql.CollectedField, obj *model.TimeTrackingsSettings) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TimeTrackingsSettings_maxDurationTime(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MaxDurationTime, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TimeTrackingsSettings_maxDurationTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TimeTrackingsSettings",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6063,8 +6112,23 @@ func (ec *executionContext) _AppSettings(ctx context.Context, sel ast.SelectionS
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AppSettings")
-		case "timeTrackingsSettings":
-			out.Values[i] = ec._AppSettings_timeTrackingsSettings(ctx, field, obj)
+		case "minDurationTime":
+			out.Values[i] = ec._AppSettings_minDurationTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "maxDurationTime":
+			out.Values[i] = ec._AppSettings_maxDurationTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "limitedMetricNumber":
+			out.Values[i] = ec._AppSettings_limitedMetricNumber(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "limitedPropertyNumber":
+			out.Values[i] = ec._AppSettings_limitedPropertyNumber(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6683,50 +6747,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var timeTrackingsSettingsImplementors = []string{"TimeTrackingsSettings"}
-
-func (ec *executionContext) _TimeTrackingsSettings(ctx context.Context, sel ast.SelectionSet, obj *model.TimeTrackingsSettings) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, timeTrackingsSettingsImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TimeTrackingsSettings")
-		case "minDurationTime":
-			out.Values[i] = ec._TimeTrackingsSettings_minDurationTime(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "maxDurationTime":
-			out.Values[i] = ec._TimeTrackingsSettings_maxDurationTime(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7483,16 +7503,6 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNTimeTrackingsSettings2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐTimeTrackingsSettings(ctx context.Context, sel ast.SelectionSet, v *model.TimeTrackingsSettings) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TimeTrackingsSettings(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN_Service2githubᚗcomᚋ99designsᚋgqlgenᚋpluginᚋfederationᚋfedruntimeᚐService(ctx context.Context, sel ast.SelectionSet, v fedruntime.Service) graphql.Marshaler {

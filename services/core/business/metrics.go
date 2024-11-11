@@ -6,6 +6,7 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
@@ -44,7 +45,7 @@ func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, character
 		Time:                  0,
 		Style:                 repo.MetricStyle{},
 		Properties:            []repo.MetricProperty{},
-		LimitedPropertyNumber: 2,
+		LimitedPropertyNumber: utils.LimitedPropertyNumber,
 	}
 
 	if input.Name != nil {
