@@ -11,6 +11,7 @@ import (
 	coreRepo "tenkhours/services/core/repo"
 	"tenkhours/services/currency/graph/model"
 	"tenkhours/services/currency/repo"
+	config "tenkhours/services/currency/utils"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -61,7 +62,7 @@ func (biz *FishBusiness) CreateFish(ctx context.Context, input model.FishInput) 
 	}
 
 	if *input.Type != "gold" && *input.Type != "normal" { //checktype of input
-		return nil, fmt.Errorf("Wrong type of fish, accepted gold or normal fish")
+		return nil, fmt.Errorf("wrong type of fish, accepted gold or normal fish")
 	}
 
 	// Check that if the fish repo is existed or not
@@ -108,7 +109,7 @@ func (biz *FishBusiness) UpdateFish(ctx context.Context, input model.FishInput) 
 
 	// Check if the number is negative
 	if tmpNewFish < 0 {
-		return nil, fmt.Errorf("Number must be non-negative")
+		return nil, fmt.Errorf("number must be non-negative")
 	}
 
 	updatedFish := &repo.Fish{
@@ -142,33 +143,39 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 		return nil, errors.ErrorUnauthorized
 	}
 
-	rand.Seed(time.Now().UnixNano()) // Seed the random number generator
+	rand.Seed(time.Now().UnixNano())
+
+	// Load fish configurations
+	fishConfigs, err := config.LoadFishConfigs("fish_config.csv")
+	if err != nil {
+		return nil, fmt.Errorf("failed to load fish configurations: %v", err)
+	}
 
 	// Determine fish type based on probability
 	var fishType = "none"
-	var fishFlag int32 //Check for condition
-
+	var fishFlag int32
 	randomNumber := rand.Float64()
-	fmt.Println("hahduadfhsudfhusdfhusdfhufdshdfsuo", randomNumber)
 
-	switch {
-	case randomNumber <= 0.3015: // 30.15% chance of 1 Fish
-		fishType, fishFlag = "normal", 1
-	case randomNumber <= 0.3225: // 2.10% chance of 2 Fish
-		fishType, fishFlag = "normal", 2
-	case randomNumber <= 0.3278: // 0.0053% chance of 1 Golden Fish
-		fishType, fishFlag = "gold", 1
-	default:
-		return nil, fmt.Errorf("Unlucky, next time :)))")
+	// Calculate probability to catch fish
+	for _, cfg := range fishConfigs {
+		if randomNumber <= cfg.Rate {
+			fishType = cfg.Type
+			fishFlag = int32(cfg.Number)
+			break
+		}
+		randomNumber -= cfg.Rate
 	}
 
-	// Update fish count using the helper function
+	if fishType == "none" {
+		return nil, fmt.Errorf("unlucky, next time :)))")
+	}
+
+	// Update fish count
 	insertedFish, err := biz.updateFishCount(profile.ID, fishType, fishFlag)
 	if err != nil {
 		return nil, err
 	}
 
-	// Prepare response model
 	tmpNumber := int(insertedFish.Numbers)
 	tmpType := insertedFish.Type
 
@@ -182,12 +189,11 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 	return modelFish, nil
 }
 
-// helper function for catching fish
+// Helper function to update fish count
 func (biz *FishBusiness) updateFishCount(profileID primitive.ObjectID, fishType string, additionalCount int32) (*repo.Fish, error) {
-	// Get the current fish record by profileID and fishType
 	repoFish, err := biz.FishRepo.GetFishByProfileID(profileID, fishType)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find fish package: %v", err)
+		return nil, fmt.Errorf("failed to find fish record: %v", err)
 	}
 
 	updatedFish := &repo.Fish{
@@ -218,7 +224,7 @@ func (biz *FishBusiness) UnlockMetricsWithNormalFish(ctx context.Context, charac
 	}
 
 	if repoFish.Numbers < 3 { // Check if the number of fish is enough to trade
-		return false, fmt.Errorf("There's no fish for you to trade")
+		return false, fmt.Errorf("there's no fish for you to trade")
 	}
 
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
@@ -257,7 +263,7 @@ func (biz *FishBusiness) UnlockMetricsWithGoldFish(ctx context.Context, characte
 	}
 
 	if repoFish.Numbers < 1 { // Check if the number of fish is enough to trade
-		return false, fmt.Errorf("There's no fish for you to trade")
+		return false, fmt.Errorf("there's no fish for you to trade")
 	}
 
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
@@ -296,7 +302,7 @@ func (biz *FishBusiness) BuySnapshotsWithNormalFish(ctx context.Context) (bool, 
 	}
 
 	if repoFish.Numbers < 3 { // Check if the number of fish is enough to trade
-		return false, fmt.Errorf("There's no fish for you to trade")
+		return false, fmt.Errorf("there's no fish for you to trade")
 	}
 
 	repoProfile, err := biz.ProfilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
@@ -331,7 +337,7 @@ func (biz *FishBusiness) BuySnapshotsWithGoldFish(ctx context.Context) (bool, er
 	}
 
 	if repoFish.Numbers < 1 { // Check if the number of fish is enough to trade
-		return false, fmt.Errorf("There's no fish for you to trade")
+		return false, fmt.Errorf("there's no fish for you to trade")
 	}
 
 	repoProfile, err := biz.ProfilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
