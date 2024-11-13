@@ -54,6 +54,9 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 	dfCaptureRecords := dataframe.LoadStructs(dfCaptureRecordsData)
 	dfCaptureRecordMetrics := dataframe.LoadStructs(dfCaptureRecordCustomMetricsData)
 	dfInnerJoin := dfCaptureRecords.InnerJoin(dfCaptureRecordMetrics, "id")
+	// Print the dfInnerJoin to debug if needed
+	// jsonOutput, _ := json.MarshalIndent(dfInnerJoin.Records(), "", "  ")
+	// fmt.Println(string(jsonOutput))
 
 	// Process the captured records for the OVERALL section
 	if numberOfCapturedRecords > 0 && lo.Contains(ap.AnalyticSections, model.AnalyticSectionOverall) {
@@ -81,7 +84,7 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 
 		ap.AnalyticResults["totalFocusedTime"] = totalFocusedTime
 		ap.AnalyticResults["totalFocusedDays"] = totalFocusedDays
-		ap.AnalyticResults["avarageFocusedTime"] = totalFocusedTime / float64(totalFocusedDays)
+		ap.AnalyticResults["averageFocusedTime"] = totalFocusedTime / float64(totalFocusedDays)
 		ap.AnalyticResults["bestStreak"] = bestStreak
 		ap.AnalyticResults["currentStreak"] = currentStreak
 		ap.AnalyticResults["startDate"] = timeStamps[0].Format(time.DateOnly)
@@ -240,13 +243,11 @@ func (dfa *DataframeAggregator) Aggregate() *DataframeAggregator {
 		curResultMap := dfa.analyticResults
 		for _, field := range dfa.groupByArr {
 			value := sumDF.Col(field).Elem(i).String()
-			fmt.Print(value + " ")
 			if _, ok := curResultMap[value]; !ok {
 				curResultMap[value] = make(map[string]interface{})
 			}
 			curResultMap = curResultMap[value].(map[string]interface{})
 		}
-		fmt.Println()
 		curResultMap["time"], _ = sumDF.Col(dfa.sumField).Elem(i).Int()
 	}
 
