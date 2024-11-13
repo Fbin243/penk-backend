@@ -67,28 +67,47 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 		totalFocusedTime := dfCaptureRecords.Col("total_focused_time").Sum()
 
 		// Best & Current streak (count continuous days)
-		bestStreak := 0
-		currentStreak := 0
 		timeStamps := lo.Map(ap.CapturedRecords, func(record model.CapturedRecord, index int) time.Time {
 			return record.Timestamp
 		})
-		for i := 0; i < len(timeStamps); i++ {
-			if i == 0 || utils.ResetTimeToBeginningOfDay(timeStamps[i]).Sub(utils.ResetTimeToBeginningOfDay(timeStamps[i-1])) == 24*time.Hour {
+		bestStreak := 1
+		currentStreak := 1
+		bestStreakStartDate := timeStamps[0]
+		bestStreakEndDate := timeStamps[0]
+		currentStreakStartDate := timeStamps[0]
+		currentStreakEndDate := timeStamps[0]
+		for i := 1; i < len(timeStamps); i++ {
+			if utils.ResetTimeToBeginningOfDay(timeStamps[i]).Sub(utils.ResetTimeToBeginningOfDay(timeStamps[i-1])) == 24*time.Hour {
 				currentStreak++
+				currentStreakEndDate = timeStamps[i]
 			} else {
-				bestStreak = int(math.Max(float64(bestStreak), float64(currentStreak)))
+				if currentStreak > bestStreak {
+					bestStreak = currentStreak
+					bestStreakStartDate = currentStreakStartDate
+					bestStreakEndDate = currentStreakEndDate
+				}
 				currentStreak = 1
+				currentStreakStartDate = timeStamps[i]
 			}
 		}
-		bestStreak = int(math.Max(float64(bestStreak), float64(currentStreak)))
 
-		ap.AnalyticResults["totalFocusedTime"] = totalFocusedTime
-		ap.AnalyticResults["totalFocusedDays"] = totalFocusedDays
-		ap.AnalyticResults["averageFocusedTime"] = totalFocusedTime / float64(totalFocusedDays)
-		ap.AnalyticResults["bestStreak"] = bestStreak
-		ap.AnalyticResults["currentStreak"] = currentStreak
-		ap.AnalyticResults["startDate"] = timeStamps[0].Format(time.DateOnly)
-		ap.AnalyticResults["endDate"] = timeStamps[len(timeStamps)-1].Format(time.DateOnly)
+		if currentStreak > bestStreak {
+			bestStreak = currentStreak
+			bestStreakStartDate = currentStreakStartDate
+			bestStreakEndDate = currentStreakEndDate
+		}
+
+		ap.AnalyticResults["overall"] = make(map[string]interface{})
+		analyticResultsOverall := ap.AnalyticResults["overall"].(map[string]interface{})
+		analyticResultsOverall["totalFocusedTime"] = totalFocusedTime
+		analyticResultsOverall["totalFocusedDays"] = totalFocusedDays
+		analyticResultsOverall["averageFocusedTime"] = totalFocusedTime / float64(totalFocusedDays)
+		analyticResultsOverall["bestStreak"] = bestStreak
+		analyticResultsOverall["currentStreak"] = currentStreak
+		analyticResultsOverall["bestStreakStartDate"] = bestStreakStartDate
+		analyticResultsOverall["bestStreakEndDate"] = bestStreakEndDate
+		analyticResultsOverall["currentStreakStartDate"] = currentStreakStartDate
+		analyticResultsOverall["currentStreakEndDate"] = currentStreakEndDate
 	}
 
 	// Process the captured records for the DISTRIBUTION section
@@ -122,7 +141,9 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 	// Process the captured records for the TIMELINE section
 	if numberOfCapturedRecords > 0 && lo.Contains(ap.AnalyticSections, model.AnalyticSectionTimeline) {
 		dfa := &DataframeAggregator{}
-		dfa.SetAnalyticResults(ap.AnalyticResults)
+		ap.AnalyticResults["timeline"] = make(map[string]interface{})
+		analyticResultsTimeline := ap.AnalyticResults["timeline"].(map[string]interface{})
+		dfa.SetAnalyticResults(analyticResultsTimeline)
 		switch ap.FilterType {
 		case FilterTypeUser:
 			dfa.SetDataframe(dfCaptureRecords).SetSumField("total_focused_time").
