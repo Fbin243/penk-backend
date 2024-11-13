@@ -60,16 +60,23 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 
 	// Process the captured records for the OVERALL section
 	if numberOfCapturedRecords > 0 && lo.Contains(ap.AnalyticSections, model.AnalyticSectionOverall) {
-		// Total active days
-		totalFocusedDays := dfCaptureRecords.Nrow()
+		// Total active days (count distinct days)
+		uniqTimeStampStrings := lo.Uniq(lo.Map(ap.CapturedRecords, func(record model.CapturedRecord, index int) string {
+			return record.Timestamp.Format(time.DateOnly)
+		}))
+
+		fmt.Print(uniqTimeStampStrings)
+		totalFocusedDays := len(uniqTimeStampStrings)
 
 		// Total focused time
 		totalFocusedTime := dfCaptureRecords.Col("total_focused_time").Sum()
 
 		// Best & Current streak (count continuous days)
-		timeStamps := lo.Map(ap.CapturedRecords, func(record model.CapturedRecord, index int) time.Time {
-			return record.Timestamp
+		timeStamps := lo.Map(uniqTimeStampStrings, func(timeStampString string, index int) time.Time {
+			timeStamp, _ := time.Parse(time.DateOnly, timeStampString)
+			return timeStamp
 		})
+
 		bestStreak := 1
 		currentStreak := 1
 		bestStreakStartDate := timeStamps[0]

@@ -14,6 +14,7 @@ import (
 	analyticsRepo "tenkhours/services/analytics/repo"
 	coreRepo "tenkhours/services/core/repo"
 
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -24,14 +25,16 @@ type CharactersBusiness struct {
 	CharactersRepo      *coreRepo.CharactersRepo
 	ProfilesRepo        *coreRepo.ProfilesRepo
 	CapturedRecordsRepo *analyticsRepo.CapturedRecordsRepo
+	RedisClient         *redis.Client
 }
 
-func NewCharactersBusiness(snapshotsRepo *analyticsRepo.SnapshotsRepo, charactersRepo *coreRepo.CharactersRepo, profilesRepo *coreRepo.ProfilesRepo, capturedRepo *analyticsRepo.CapturedRecordsRepo) *CharactersBusiness {
+func NewCharactersBusiness(snapshotsRepo *analyticsRepo.SnapshotsRepo, charactersRepo *coreRepo.CharactersRepo, profilesRepo *coreRepo.ProfilesRepo, capturedRepo *analyticsRepo.CapturedRecordsRepo, redisClient *redis.Client) *CharactersBusiness {
 	return &CharactersBusiness{
 		SnapshotsRepo:       snapshotsRepo,
 		CharactersRepo:      charactersRepo,
 		ProfilesRepo:        profilesRepo,
 		CapturedRecordsRepo: capturedRepo,
+		RedisClient:         redisClient,
 	}
 }
 
@@ -176,64 +179,21 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 	return &newSnapshot, nil
 }
 
-func (biz *CharactersBusiness) CreateCapturedRecord(ctx context.Context, characterID primitive.ObjectID) (*model.CapturedRecord, error) {
+// Get analytic results from the captured records from the database
+func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, analyticSections []model.AnalyticSection) (map[string]interface{}, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
-	if err != nil {
-		return nil, err
+	capturedRecordsFilter := CapturedRecordsFilter{
+		FilterMethod:        FilterMethodServerSide,
+		FilterType:          FilterTypeUser,
+		ProfileID:           profile.ID,
+		EndTime:             time.Now(),
+		CapturedRecordsRepo: biz.CapturedRecordsRepo,
+		RedisClient:         biz.RedisClient,
 	}
-
-	if character.ProfileID != profile.ID {
-		return nil, errors.ErrorPermissionDenied
-	}
-
-	// Extract time from the custom metrics
-	metricRecord := model.CapturedRecordCustomMetric{}
-	metricRecords := make([]model.CapturedRecordCustomMetric, 0)
-	for _, metric := range character.CustomMetrics {
-		metricRecord.ID = metric.ID
-		metricRecord.Time = metric.Time
-		metricRecords = append(metricRecords, metricRecord)
-	}
-
-	// Make a new captured record
-	capturedRecord := &model.CapturedRecord{
-		ID:               primitive.NewObjectID(),
-		Timestamp:        utils.Now(),
-		TotalFocusedTime: character.TotalFocusedTime,
-		CustomMetrics:    metricRecords,
-		Metadata: model.CapturedRecordMetadata{
-			ProfileID:   profile.ID,
-			CharacterID: characterID,
-		},
-	}
-
-	// Save the captured record
-	err = biz.CapturedRecordsRepo.CreateCapturedRecord(capturedRecord)
-	if err != nil {
-		return nil, err
-	}
-
-	return capturedRecord, nil
-}
-
-// Get analytic results from the captured records might be from the client or the database
-func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, analyticSections []model.AnalyticSection, captureRecordLocals []model.CapturedRecord) (map[string]interface{}, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
-	if !ok {
-		return nil, errors.ErrorUnauthorized
-	}
-
-	capturedRecordsFilter := CapturedRecordsFilter{}
-	capturedRecordsFilter.FilterMethod = FilterMethodServerSide
-	capturedRecordsFilter.FilterType = FilterTypeUser
-	capturedRecordsFilter.ProfileID = profile.ID
-	capturedRecordsFilter.EndTime = time.Now()
-	capturedRecordsFilter.CapturedRecordsRepo = biz.CapturedRecordsRepo
 
 	if characterID != nil {
 		character, err := biz.CharactersRepo.GetCharacterByID(*characterID)
@@ -255,12 +215,6 @@ func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, character
 
 	if endTime != nil {
 		capturedRecordsFilter.EndTime = utils.ResetTimeToBeginningOfDay(*endTime)
-	}
-
-	// Check if there are captured records from the client
-	if len(captureRecordLocals) > 0 {
-		capturedRecordsFilter.FilterMethod = FilterMethodClientSide
-		capturedRecordsFilter.CapturedRecordLocals = captureRecordLocals
 	}
 
 	capturedRecords, err := capturedRecordsFilter.Filter()

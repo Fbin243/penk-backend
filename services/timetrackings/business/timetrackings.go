@@ -207,13 +207,13 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	// Check if the duration time is in the valid range
 	if duration < timeTracking.MinDurationTime {
 		duration = 0
-		log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
+		log.Printf("the period time is less than min duration time, so the time tracking will be deleted")
 		return &timeTracking, nil
 	}
 
 	if duration > timeTracking.MaxDurationTime {
 		duration = int32(timeTracking.MaxDurationTime)
-		log.Printf("the period time is more than 4 hours, so the time tracking will be limited to 4 hours")
+		log.Printf("the period time is more than max duration time, so the time tracking will be limited to max duration time")
 	}
 
 	timeTracking.EndTime = timeTracking.StartTime.Add(time.Duration(duration) * time.Second)
@@ -231,6 +231,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 				CharacterID: timeTracking.CharacterID,
 				ProfileID:   profile.ID,
 			},
+			TimeTrackings: []model.CapturedRecordTimeTracking{},
 			CustomMetrics: []model.CapturedRecordCustomMetric{},
 		}
 	} else if err != nil {
@@ -245,6 +246,14 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	// Add the time to the captured record for character
 	capturedRecord.TotalFocusedTime += duration
 
+	// Add the time tracking to the captured record
+	capturedRecord.TimeTrackings = append(capturedRecord.TimeTrackings, model.CapturedRecordTimeTracking{
+		CustomMetricID: timeTracking.CustomMetricID,
+		Time:           int32(duration),
+		StartTime:      timeTracking.StartTime,
+		EndTime:        timeTracking.EndTime,
+	})
+
 	// Get the character to update the time
 	character, err := biz.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
 	if err != nil {
@@ -253,6 +262,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 
 	character.TotalFocusedTime += duration
 	if !timeTracking.CustomMetricID.IsZero() {
+		// Add the time to the custom metric
 		for i, customMetric := range character.CustomMetrics {
 			if customMetric.ID == timeTracking.CustomMetricID {
 				character.CustomMetrics[i].Time += int32(duration)
@@ -279,11 +289,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		}
 	}
 
-	_, err = biz.TimeTrackingsRepo.CreateTimeTracking(&timeTracking)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create time tracking in DB: %v", err)
-	}
-
+	// Update the character in the database
 	_, err = biz.CharactersRepo.UpdateCharacter(character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update character: %v", err)

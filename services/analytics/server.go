@@ -48,7 +48,7 @@ func main() {
 	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
 	snapshotsRepo := analyticsRepo.NewSnapshotRepo(mongodb)
 	capturedRecordsRepo := analyticsRepo.NewCapturedRecordRepo(mongodb)
-	charactersBiz := business.NewCharactersBusiness(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo)
+	charactersBiz := business.NewCharactersBusiness(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo, redisClient)
 
 	// Make a cron run daily for captured records
 	cron := cron.NewCron()

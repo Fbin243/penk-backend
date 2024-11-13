@@ -1,12 +1,18 @@
 package business
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
 	"sort"
 	"time"
 
+	"tenkhours/pkg/db"
 	"tenkhours/services/analytics/graph/model"
 	"tenkhours/services/analytics/repo"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -34,6 +40,7 @@ type CapturedRecordsFilter struct {
 	ProfileID            primitive.ObjectID
 	StartTime            time.Time
 	EndTime              time.Time
+	RedisClient          *redis.Client
 	CapturedRecordsRepo  *repo.CapturedRecordsRepo
 	CapturedRecordLocals []model.CapturedRecord
 }
@@ -55,7 +62,41 @@ func (c *CapturedRecordsFilter) Filter() ([]model.CapturedRecord, error) {
 		pipeline = append(pipeline, bson.D{{Key: "$match", Value: matchStage}})
 		pipeline = append(pipeline, bson.D{{Key: "$sort", Value: bson.D{{Key: "timestamp", Value: 1}}}})
 
-		return c.CapturedRecordsRepo.GetCapturedRecords(pipeline)
+		// Get captured records from the database
+		capturedRecords, err := c.CapturedRecordsRepo.GetCapturedRecords(pipeline)
+		if err != nil {
+			return nil, err
+		}
+
+		// Get the current captured record from redis\
+		currentCapturedRecords := []model.CapturedRecord{}
+		currentCapturedRecordsJSON, err := c.RedisClient.HGetAll(context.Background(), db.CapturedRecordKey+c.ProfileID.Hex()).Result()
+		if err == redis.Nil {
+			log.Printf("no current captured record found in redis for profile: %s", c.ProfileID.Hex())
+		} else if err != nil {
+			log.Printf("failed to get current captured record from redis: %v", err)
+		}
+
+		for characterID, capturedRecordJSON := range currentCapturedRecordsJSON {
+			if !c.CharacterID.IsZero() && characterID != c.CharacterID.Hex() {
+				continue
+			}
+
+			var capturedRecord model.CapturedRecord
+			err = json.Unmarshal([]byte(capturedRecordJSON), &capturedRecord)
+			if err != nil {
+				return nil, fmt.Errorf("failed to unmarshal current captured record: %v", err)
+			}
+
+			if capturedRecord.Timestamp.After(c.StartTime) && capturedRecord.Timestamp.Before(c.EndTime) {
+				currentCapturedRecords = append(currentCapturedRecords, capturedRecord)
+			}
+		}
+
+		// Append the current captured record to the list if it is within the time range
+		capturedRecords = append(capturedRecords, currentCapturedRecords...)
+
+		return capturedRecords, nil
 
 	case FilterMethodClientSide:
 		capturedRecordLocals := c.CapturedRecordLocals
