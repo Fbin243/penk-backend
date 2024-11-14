@@ -16,13 +16,21 @@ const (
 )
 
 type (
-	UpdateCustomMetricCase int
+	// Character
+	CreateCharacterCase int
+
+	// Custom metric
 	CreateCustomMetricCase int
+	UpdateCustomMetricCase int
 )
 
 const (
-	CreateProperties UpdateCustomMetricCase = iota + 1
+	// Character cases
+	CreateCharacterWithCustomMetrics CreateCharacterCase = iota + 1
+
+	// Custom metric cases
+	CreateMetricWithProperties CreateCustomMetricCase = iota + 1
+	CreateProperties           UpdateCustomMetricCase = iota + 1
 	UpdateProperties
 	DeleteProperties
-	CreateMetricWithProperties CreateCustomMetricCase = iota + 1
 )

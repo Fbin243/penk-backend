@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"tenkhours/pkg/utils"
 	"tenkhours/test/common"
 
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
@@ -12,6 +13,7 @@ import (
 
 type CreateCharacterStage struct {
 	common.Metadata
+	common.CreateCharacterCase
 }
 
 func (s CreateCharacterStage) Exec(ctx *context.Context) error {
@@ -32,10 +34,44 @@ func (s CreateCharacterStage) Exec(ctx *context.Context) error {
 		Equal("$.data.createCharacter.name", variables["name"]).
 		Equal("$.data.createCharacter.gender", variables["gender"]).
 		Equal("$.data.createCharacter.tags", variables["tags"]).
-		Equal("$.data.createCharacter.limitedMetricNumber", float64(2)).
+		Equal("$.data.createCharacter.limitedMetricNumber", float64(utils.LimitedMetricNumber)).
 		Equal("$.data.createCharacter.totalFocusedTime", float64(0)).
-		Equal("$.data.createCharacter.profileID", gjson.Get(profile, "id").Value()).
-		Equal("$.data.createCharacter.customMetrics", []interface{}{})
+		Equal("$.data.createCharacter.profileID", gjson.Get(profile, "id").Value())
+
+	switch s.CreateCharacterCase {
+	case common.CreateCharacterWithCustomMetrics:
+		variables["customMetrics"] = []interface{}{
+			map[string]interface{}{
+				"name":        "Metric name",
+				"description": "This is the custom metric description",
+				"style": map[string]interface{}{
+					"color": "#000000",
+					"icon":  "icon.png",
+				},
+			},
+			map[string]interface{}{
+				"name":        "Metric name",
+				"description": "This is the custom metric description",
+				"style": map[string]interface{}{
+					"color": "#000000",
+					"icon":  "icon.png",
+				},
+			},
+			map[string]interface{}{
+				"name":        "Metric name",
+				"description": "This is the custom metric description",
+				"style": map[string]interface{}{
+					"color": "#000000",
+					"icon":  "icon.png",
+				},
+			},
+		}
+
+		assertion = assertion.Equal("$.data.createCharacter.customMetrics", variables["customMetrics"])
+
+	default:
+		assertion = assertion.Equal("$.data.createCharacter.customMetrics", []interface{}{})
+	}
 
 	if s.ExpectError {
 		assertion = common.AssertionError

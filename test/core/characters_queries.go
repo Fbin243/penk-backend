@@ -1,12 +1,13 @@
 package core
 
 var CreateCharacterQuery = `
-mutation CreateCharacter($name: String!, $gender: Boolean, $tags: [String!]) {
+mutation CreateCharacter($name: String!, $gender: Boolean, $tags: [String!], $customMetrics: [CustomMetricInput!]) {
 	createCharacter(
 		input: { 
 			name: $name, 
 			gender: $gender, 
 			tags: $tags 
+			customMetrics: $customMetrics
 		}
 	) {
         gender
@@ -18,17 +19,7 @@ mutation CreateCharacter($name: String!, $gender: Boolean, $tags: [String!]) {
         profileID
         customMetrics {
             description
-            id
-            limitedPropertyNumber
             name
-            time
-            properties {
-                id
-                name
-                type
-                unit
-                value
-            }
             style {
                 color
                 icon
@@ -48,9 +39,30 @@ mutation UpdateCharacter($id: ObjectID!, $gender: Boolean, $name: String, $tags:
 		}
 	) {
 		id
-		gender
+		profileID
 		name
+		gender
 		tags
+		totalFocusedTime
+		limitedMetricNumber
+		customMetrics {
+				id
+				name
+				description
+				time
+				limitedPropertyNumber
+				style {
+						color
+						icon
+				}
+				properties {
+						id
+						name
+						type
+						value
+						unit
+				}
+		}
 	}
 }`
 

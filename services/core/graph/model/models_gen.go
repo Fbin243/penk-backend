@@ -49,7 +49,7 @@ type MetricPropertyInput struct {
 	ID *primitive.ObjectID `json:"id,omitempty"`
 	// Name of the property.
 	Name *string `json:"name,omitempty"`
-	// Data type of the property (STRING or NUMBER).
+	// Data type of the property (String or Number).
 	Type *MetricPropertyType `json:"type,omitempty"`
 	// Specific value of the property based on its data type.
 	Value *string `json:"value,omitempty"`

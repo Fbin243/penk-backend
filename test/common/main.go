@@ -90,7 +90,7 @@ func (s SaveToContextStage) Exec(ctx *context.Context) error {
 
 // The stage to check if end stage is reached or not
 type CheckEndStage struct {
-	EndStage EndStage
+	CurrentStage EndStage
 }
 
 func (s CheckEndStage) Exec(ctx *context.Context) error {
@@ -101,7 +101,7 @@ func (s CheckEndStage) Exec(ctx *context.Context) error {
 	}
 
 	// Check if the end stage is reached
-	if s.EndStage == EndStage(endStage) {
+	if s.CurrentStage == EndStage(endStage) {
 		return ErrEndStageReached
 	}
 

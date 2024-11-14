@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"tenkhours/pkg/utils"
 	"tenkhours/test/common"
 
 	"github.com/steinfletcher/apitest"
@@ -43,20 +44,20 @@ func (s CreateCustomMetricStage) Exec(ctx *context.Context) error {
 		Equal("$.data.createCustomMetric.description", variables["description"]).
 		Equal("$.data.createCustomMetric.style", variables["style"]).
 		Equal("$.data.createCustomMetric.time", float64(0)).
-		Equal("$.data.createCustomMetric.limitedPropertyNumber", float64(2))
+		Equal("$.data.createCustomMetric.limitedPropertyNumber", float64(utils.LimitedPropertyNumber))
 
 	if s.Case == common.CreateMetricWithProperties {
 		log.Println("---> Creating custom metric with properties")
 		variables["properties"] = []interface{}{
 			map[string]interface{}{
 				"name":  "property 1",
-				"type":  "NUMBER",
+				"type":  "Number",
 				"value": "10",
 				"unit":  "Steps",
 			},
 			map[string]interface{}{
 				"name":  "property 2",
-				"type":  "STRING",
+				"type":  "String",
 				"value": "ABCD",
 				"unit":  "Characters",
 			},
@@ -112,7 +113,7 @@ func (s UpdateCustomMetricStage) Exec(ctx *context.Context) error {
 		variables["properties"] = []interface{}{
 			map[string]interface{}{
 				"name":  "property 1",
-				"type":  "NUMBER",
+				"type":  "Number",
 				"value": "20",
 				"unit":  "Steps",
 			},
@@ -123,13 +124,13 @@ func (s UpdateCustomMetricStage) Exec(ctx *context.Context) error {
 			map[string]interface{}{
 				"id":    gjson.Get(customMetric, "properties.0.id").Value(),
 				"name":  "updated property 1",
-				"type":  "NUMBER",
+				"type":  "Number",
 				"value": "30",
 				"unit":  "CM",
 			},
 			map[string]interface{}{
 				"name":  "new property",
-				"type":  "STRING",
+				"type":  "String",
 				"value": "ABCD",
 				"unit":  "Characters",
 			},
@@ -141,7 +142,7 @@ func (s UpdateCustomMetricStage) Exec(ctx *context.Context) error {
 			map[string]interface{}{
 				"id":    gjson.Get(customMetric, "properties.1.id").Value(),
 				"name":  "new property",
-				"type":  "STRING",
+				"type":  "String",
 				"value": "ABCD",
 				"unit":  "Characters",
 			},

@@ -14,10 +14,8 @@ import (
 )
 
 type CharactersBusiness struct {
-	CharactersRepo      *repo.CharactersRepo
-	ProfilesRepo        *repo.ProfilesRepo
-	FromCreateCharacter bool
-	FromUpdateCharacter bool
+	CharactersRepo *repo.CharactersRepo
+	ProfilesRepo   *repo.ProfilesRepo
 }
 
 func NewCharactersBusiness(charactersRepo *repo.CharactersRepo, profilesRepo *repo.ProfilesRepo) *CharactersBusiness {
@@ -91,10 +89,10 @@ func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.
 
 	// Create custom metrics for the character
 	if input.CustomMetrics != nil {
+		ctx = context.WithValue(ctx, FromCreateCharacter, true)
 		for _, customMetric := range input.CustomMetrics {
 			// Insert the character into context
 			ctx := context.WithValue(ctx, CharacterKey, &character)
-			biz.FromCreateCharacter = true
 			biz.CreateCustomMetric(ctx, character.ID, customMetric)
 		}
 	}
@@ -139,9 +137,9 @@ func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive
 
 	// Update custom metrics for the character
 	if input.CustomMetrics != nil {
+		ctx = context.WithValue(ctx, FromUpdateCharacter, true)
 		// Insert the character into context
-		ctx := context.WithValue(ctx, CharacterKey, character)
-		biz.FromUpdateCharacter = true
+		ctx = context.WithValue(ctx, CharacterKey, character)
 		for _, customMetric := range input.CustomMetrics {
 			if customMetric.ID != nil {
 				// Update custom metric

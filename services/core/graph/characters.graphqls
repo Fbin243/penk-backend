@@ -117,7 +117,7 @@ input MetricPropertyInput {
   name: String
 
   """
-  Data type of the property (STRING or NUMBER).
+  Data type of the property (String or Number).
   """
   type: MetricPropertyType
 

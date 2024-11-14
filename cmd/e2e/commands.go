@@ -35,6 +35,7 @@ var TestUserFlowCommand = cli.Command{
 		}
 
 		endStage := cCtx.String("end-stage")
+		fmt.Println("End stage: ", endStage)
 
 		err := TestUserFlow(uid, endStage)
 		if err != nil {
