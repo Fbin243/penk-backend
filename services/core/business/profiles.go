@@ -70,7 +70,6 @@ func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, err
 			FirebaseUID:        firebaseProfile.UID,
 			ImageURL:           "",
 			CreatedAt:          utils.Now(),
-			UpdatedAt:          utils.Now(),
 			AutoSnapshot:       true,
 			AvailableSnapshots: utils.DefaultSnapshotsNumber,
 		}
@@ -116,6 +115,7 @@ func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.Prof
 		profile.CurrentCharacterID = *input.CurrentCharacterID
 	}
 	if input.AutoSnapshot != nil {
+		fmt.Println("input.AutoSnapshot", *input.AutoSnapshot)
 		profile.AutoSnapshot = *input.AutoSnapshot
 	}
 

@@ -16,7 +16,7 @@ type Profile struct {
 	ImageURL           string             `json:"imageURL,omitempty" bson:"image_url,omitempty"`
 	CurrentCharacterID primitive.ObjectID `json:"currentCharacterID,omitempty" bson:"current_character_id,omitempty"`
 	AvailableSnapshots int32              `json:"availableSnapshots,omitempty" bson:"available_snapshots,omitempty"`
-	AutoSnapshot       bool               `json:"autoSnapshot,omitempty" bson:"auto_snapshot,omitempty"`
+	AutoSnapshot       bool               `json:"autoSnapshot,omitempty" bson:"auto_snapshot"`
 	CreatedAt          time.Time          `json:"createdAt,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt          time.Time          `json:"updatedAt,omitempty" bson:"updated_at,omitempty"`
 }

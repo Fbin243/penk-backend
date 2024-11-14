@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 
+	"tenkhours/test/common"
+
 	"github.com/urfave/cli/v2"
 )
 
@@ -19,6 +21,12 @@ var TestUserFlowCommand = cli.Command{
 			Value:       "lstMYDOFoXWQ2s4TGyR4GTrGpKO2",
 			DefaultText: "UID",
 		},
+		&cli.StringFlag{
+			Name:    "end-stage",
+			Aliases: []string{"et"},
+			Usage:   "end stage of the test",
+			Value:   string(common.ProfileStage),
+		},
 	},
 	Action: func(cCtx *cli.Context) error {
 		uid := cCtx.String("uid")
@@ -26,7 +34,9 @@ var TestUserFlowCommand = cli.Command{
 			return fmt.Errorf("user's UID is required")
 		}
 
-		err := TestUserFlow(uid)
+		endStage := cCtx.String("end-stage")
+
+		err := TestUserFlow(uid, endStage)
 		if err != nil {
 			log.Println(err)
 			return cli.Exit(err, 1)

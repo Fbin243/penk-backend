@@ -27,9 +27,13 @@ func TestUserFlow(t *testing.T) {
 	fmt.Printf("Token: %v\n", token)
 	common.IdToken = token
 
+	// Get the end stage of the test flow and put it into the context
+	endStage := os.Getenv("END_STAGE")
+	ctx = context.WithValue(ctx, common.EndStageKey, endStage)
+
 	p := pineline.Pineline(
 
-		// --------- USER -----------
+		// --------- START::PROFILE -----------
 
 		core.GetProfileStage{
 			Metadata: common.Metadata{
@@ -49,7 +53,13 @@ func TestUserFlow(t *testing.T) {
 			},
 		},
 
-		// --------- CHARACTER -----------
+		common.CheckEndStage{
+			EndStage: common.EndStage(endStage),
+		},
+
+		// --------- END::PROFILE -----------
+
+		// --------- START::CHARACTER -----------
 
 		core.CreateCharacterStage{
 			Metadata: common.Metadata{
@@ -86,6 +96,8 @@ func TestUserFlow(t *testing.T) {
 			},
 			CharacterKey: common.CurrentCharacter,
 		},
+
+		// --------- END::CHARACTER -----------
 
 		// --------- TIME TRACKING WITHOUT METRIC -----------
 
@@ -356,6 +368,10 @@ func TestUserFlow(t *testing.T) {
 	err := p(&ctx)
 	if err != nil {
 		common.LogResponse()
+	}
+
+	if err == common.ErrEndStageReached {
+		return
 	}
 
 	assert.Empty(t, err)

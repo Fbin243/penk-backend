@@ -13,7 +13,7 @@ type Profile {
   availableSnapshots: Int!
   autoSnapshot: Boolean!
   createdAt: Time!
-  updatedAt: Time!
+  updatedAt: Time
 }
 
 """

@@ -122,7 +122,7 @@ func ValidateUpdateMetricPropertyInput(metricPropertyInput model.MetricPropertyI
 	}
 
 	if metricPropertyInput.Unit != nil {
-		if err := utils.NewValidateBuilder().OmitEmpty().Max(10).Validate(*metricPropertyInput.Unit); err != nil {
+		if err := utils.NewValidateBuilder().OmitEmpty().Max(50).Validate(*metricPropertyInput.Unit); err != nil {
 			return err
 		}
 	}

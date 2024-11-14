@@ -11,7 +11,7 @@ import (
 	"tenkhours/services/core/repo"
 )
 
-func TestUserFlow(uid string) error {
+func TestUserFlow(uid string, endStage string) error {
 	// Get a new id token of the user
 	token, err := auth.GetIdTokenByUID(uid)
 	if err != nil {
@@ -41,6 +41,7 @@ func TestUserFlow(uid string) error {
 	cmd.Dir = rootDir
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, fmt.Sprintf("TOKEN=%s", token))
+	cmd.Env = append(cmd.Env, fmt.Sprintf("END_STAGE=%s", endStage))
 
 	// Redirect stdout and stderr to os.Stdout and os.Stderr
 	cmd.Stdout = os.Stdout

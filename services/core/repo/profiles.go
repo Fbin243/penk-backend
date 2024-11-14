@@ -81,6 +81,8 @@ func (r *ProfilesRepo) UpdateProfile(profile *Profile) (*Profile, error) {
 
 	err := r.FindOneAndUpdate(ctx, bson.M{"_id": profile.ID}, bson.M{"$set": profile}, db.FindOneAndUpdateOptions).Decode(profile)
 
+	fmt.Println("profile after update", profile)
+
 	if err == nil {
 		profileJSON, err := json.Marshal(profile)
 		if err != nil {

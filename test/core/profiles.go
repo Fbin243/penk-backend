@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"tenkhours/pkg/utils"
 	"tenkhours/test/common"
 
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
@@ -22,7 +23,7 @@ func (s GetProfileStage) Exec(ctx *context.Context) error {
 		assertion = jsonpath.Chain().NotPresent("$.errors").
 			NotEqual("$.data.profile.id", nil).
 			NotEqual("$.data.profile.firebaseUID", nil).
-			Equal("$.data.profile.availableSnapshots", float64(2)).
+			Equal("$.data.profile.availableSnapshots", float64(utils.DefaultSnapshotsNumber)).
 			Equal("$.data.profile.autoSnapshot", true).
 			Equal("$.data.profile.characters", []interface{}{}).
 			Equal("$.data.profile.currentCharacterID", nil)
