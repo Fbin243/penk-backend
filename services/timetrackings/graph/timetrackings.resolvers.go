@@ -27,9 +27,9 @@ func (r *queryResolver) CurrentTimeTracking(ctx context.Context) (*repo.TimeTrac
 	return r.TimeTrackingsBusiness.GetCurrentTimeTracking(ctx)
 }
 
-// TotalCurrentTimeTraking is the resolver for the totalCurrentTimeTraking field.
-func (r *queryResolver) TotalCurrentTimeTraking(ctx context.Context, characterID *primitive.ObjectID, timeStamp time.Time) (int, error) {
-	return r.TimeTrackingsBusiness.GetTotalCurrentTimeTracking(ctx, characterID, timeStamp)
+// TotalCurrentTimeTracking is the resolver for the totalCurrentTimeTracking field.
+func (r *queryResolver) TotalCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID, timestamp time.Time) (int, error) {
+	return r.TimeTrackingsBusiness.GetTotalCurrentTimeTracking(ctx, characterID, timestamp)
 }
 
 // Mutation returns MutationResolver implementation.

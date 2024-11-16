@@ -56,13 +56,14 @@ func (biz *TimeTrackingsBusiness) GetCurrentTimeTracking(ctx context.Context) (*
 	return &currentTimetracking, nil
 }
 
-func (biz *TimeTrackingsBusiness) GetTotalCurrentTimeTracking(ctx context.Context, characterID *primitive.ObjectID, timeStamp time.Time) (int, error) {
+func (biz *TimeTrackingsBusiness) GetTotalCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID, timestamp time.Time) (int, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return 0, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(*characterID)
+	// Check permissions
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
 		return 0, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -71,20 +72,29 @@ func (biz *TimeTrackingsBusiness) GetTotalCurrentTimeTracking(ctx context.Contex
 		return 0, errors.ErrorPermissionDenied
 	}
 
-	timeTrackings, err := biz.TimeTrackingsRepo.GetTimeTrackingsByCharacterID(*characterID)
+	// Get the timetrackings from the current captured record in Redis
+	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, db.CapturedRecordKey+profile.ID.Hex(), characterID.Hex()).Result()
+	if err == redis.Nil {
+		return 0, nil
+	} else if err != nil {
+		return 0, fmt.Errorf("failed to get captured record from redis: %v", err)
+	}
+
+	var capturedRecord model.CapturedRecord
+	err = json.Unmarshal([]byte(capturedRecordJSON), &capturedRecord)
 	if err != nil {
-		return 0, fmt.Errorf("failed to get time trackings: %v", err)
+		return 0, fmt.Errorf("failed to deserialize captured record: %v", err)
 	}
 
 	// Get the timetrackings from the timestamp to now
 	totalTime := 0
-	for _, timeTracking := range timeTrackings {
-		if timeTracking.StartTime.After(timeStamp) {
-			totalTime += int(timeTracking.EndTime.Sub(timeTracking.StartTime).Seconds())
-		}
-
-		if timeTracking.EndTime.After(timeStamp) {
-			totalTime += int(timeStamp.Sub(timeTracking.StartTime).Seconds())
+	for _, timeTracking := range capturedRecord.TimeTrackings {
+		if timestamp.After(timeTracking.StartTime) && timestamp.Before(timeTracking.EndTime) {
+			// Case 1: The timestamp after the startTime and before the endTime
+			totalTime += int(timeTracking.EndTime.Sub(timestamp).Seconds())
+		} else if timestamp.Before(timeTracking.StartTime) {
+			// Case 2: The timestamp before the startTime
+			totalTime += int(timeTracking.Time)
 		}
 	}
 

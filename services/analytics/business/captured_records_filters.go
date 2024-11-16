@@ -68,7 +68,7 @@ func (c *CapturedRecordsFilter) Filter() ([]model.CapturedRecord, error) {
 			return nil, err
 		}
 
-		// Get the current captured record from redis\
+		// Get the current captured record from redis
 		currentCapturedRecords := []model.CapturedRecord{}
 		currentCapturedRecordsJSON, err := c.RedisClient.HGetAll(context.Background(), db.CapturedRecordKey+c.ProfileID.Hex()).Result()
 		if err == redis.Nil {

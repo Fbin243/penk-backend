@@ -57,9 +57,9 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		CurrentTimeTracking     func(childComplexity int) int
-		TotalCurrentTimeTraking func(childComplexity int, characterID *primitive.ObjectID, timeStamp time.Time) int
-		__resolve__service      func(childComplexity int) int
+		CurrentTimeTracking      func(childComplexity int) int
+		TotalCurrentTimeTracking func(childComplexity int, characterID primitive.ObjectID, timestamp time.Time) int
+		__resolve__service       func(childComplexity int) int
 	}
 
 	TimeTracking struct {
@@ -81,7 +81,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	CurrentTimeTracking(ctx context.Context) (*repo.TimeTracking, error)
-	TotalCurrentTimeTraking(ctx context.Context, characterID *primitive.ObjectID, timeStamp time.Time) (int, error)
+	TotalCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID, timestamp time.Time) (int, error)
 }
 
 type executableSchema struct {
@@ -129,17 +129,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.CurrentTimeTracking(childComplexity), true
 
-	case "Query.totalCurrentTimeTraking":
-		if e.complexity.Query.TotalCurrentTimeTraking == nil {
+	case "Query.totalCurrentTimeTracking":
+		if e.complexity.Query.TotalCurrentTimeTracking == nil {
 			break
 		}
 
-		args, err := ec.field_Query_totalCurrentTimeTraking_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_totalCurrentTimeTracking_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.TotalCurrentTimeTraking(childComplexity, args["characterID"].(*primitive.ObjectID), args["timeStamp"].(time.Time)), true
+		return e.complexity.Query.TotalCurrentTimeTracking(childComplexity, args["characterID"].(primitive.ObjectID), args["timestamp"].(time.Time)), true
 
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
@@ -421,27 +421,27 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_totalCurrentTimeTraking_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_totalCurrentTimeTracking_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *primitive.ObjectID
+	var arg0 primitive.ObjectID
 	if tmp, ok := rawArgs["characterID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-		arg0, err = ec.unmarshalOObjectID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
+		arg0, err = ec.unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["characterID"] = arg0
 	var arg1 time.Time
-	if tmp, ok := rawArgs["timeStamp"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeStamp"))
+	if tmp, ok := rawArgs["timestamp"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
 		arg1, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["timeStamp"] = arg1
+	args["timestamp"] = arg1
 	return args, nil
 }
 
@@ -659,8 +659,8 @@ func (ec *executionContext) fieldContext_Query_currentTimeTracking(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_totalCurrentTimeTraking(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_totalCurrentTimeTraking(ctx, field)
+func (ec *executionContext) _Query_totalCurrentTimeTracking(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_totalCurrentTimeTracking(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -673,7 +673,7 @@ func (ec *executionContext) _Query_totalCurrentTimeTraking(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().TotalCurrentTimeTraking(rctx, fc.Args["characterID"].(*primitive.ObjectID), fc.Args["timeStamp"].(time.Time))
+		return ec.resolvers.Query().TotalCurrentTimeTracking(rctx, fc.Args["characterID"].(primitive.ObjectID), fc.Args["timestamp"].(time.Time))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -690,7 +690,7 @@ func (ec *executionContext) _Query_totalCurrentTimeTraking(ctx context.Context, 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_totalCurrentTimeTraking(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_totalCurrentTimeTracking(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -707,7 +707,7 @@ func (ec *executionContext) fieldContext_Query_totalCurrentTimeTraking(ctx conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_totalCurrentTimeTraking_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_totalCurrentTimeTracking_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3021,7 +3021,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "totalCurrentTimeTraking":
+		case "totalCurrentTimeTracking":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -3030,7 +3030,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_totalCurrentTimeTraking(ctx, field)
+				res = ec._Query_totalCurrentTimeTracking(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

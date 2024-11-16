@@ -11,12 +11,12 @@ type TimeTracking {
 
 type Query {
   currentTimeTracking: TimeTracking
-  totalCurrentTimeTraking(
+  totalCurrentTimeTracking(
     characterID: ObjectID!
     """
     The timestamp to calculate the total time tracked from it to now.
     """
-    timeStamp: Time!
+    timestamp: Time!
   ): Int!
 }
 
