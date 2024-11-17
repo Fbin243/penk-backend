@@ -1,0 +1,44 @@
+extend type Query {
+  # Get all available character templates
+  templates: [CharacterTemplate!]!
+  
+  # Get a specific template by ID
+  template(id: ID!): CharacterTemplate
+}
+
+type CharacterTemplate {
+  id: ID!
+  name: String!
+  description: String!
+  icon: String! 
+  category: String!
+  metrics: [TemplateMetric!]!
+}
+
+type TemplateMetric {
+  name: String!
+  description: String!
+  style: MetricStyle!
+  properties: [TemplateProperty!]!
+}
+
+type TemplateProperty {
+  name: String!
+  type: MetricPropertyType! # Reusing existing MetricPropertyType enum
+  value: String
+  unit: String
+}
+
+extend type Mutation {
+  # Create a character from a template
+  createCharacterFromTemplate(
+    templateId: ID!
+    input: CharacterFromTemplateInput!
+  ): Character!
+}
+
+input CharacterFromTemplateInput {
+  name: String!
+  gender: Boolean
+  tags: [String!]
+}
