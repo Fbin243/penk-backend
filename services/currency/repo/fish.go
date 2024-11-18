@@ -19,12 +19,12 @@ func NewFishRepo(mongodb *mongo.Database) *FishRepo {
 	return &FishRepo{mongodb.Collection(db.FishCollection)}
 }
 
-func (r *FishRepo) GetFishByProfileID(profileID primitive.ObjectID, fishType string) (*Fish, error) {
+func (r *FishRepo) GetFishByProfileID(profileID primitive.ObjectID) (*Fish, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	fish := Fish{}
-	err := r.FindOne(ctx, bson.M{"profile_id": profileID, "type": fishType}).Decode(&fish)
+	err := r.FindOne(ctx, bson.M{"profile_id": profileID}).Decode(&fish)
 
 	return &fish, err
 }
@@ -43,7 +43,7 @@ func (r *FishRepo) UpdateFish(fish *Fish, profileID primitive.ObjectID) (*Fish, 
 	defer cancel()
 
 	// update fish based on profile id and type
-	filter := bson.M{"profile_id": profileID, "type": fish.Type}
+	filter := bson.M{"profile_id": profileID}
 	update := bson.M{"$set": fish}
 
 	err := r.FindOneAndUpdate(ctx, filter, update, db.FindOneAndUpdateOptions).Decode(fish)

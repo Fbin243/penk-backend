@@ -18,17 +18,20 @@ type CodInput struct {
 type Fish struct {
 	ID        string `json:"id"`
 	ProfileID string `json:"profileID"`
-	Numbers   *int   `json:"numbers,omitempty"`
-	// Type of fishes: gold, normal (or maybe silver, etc in the future)
-	Type *string `json:"type,omitempty"`
+	// An object representing the counts of different fish types.
+	Counts *FishCounts `json:"counts"`
 }
 
-// Input for creating or updating fish
+// Represents the counts of various fish types.
+type FishCounts struct {
+	Gold   *int `json:"gold,omitempty"`
+	Normal *int `json:"normal,omitempty"`
+}
+
+// Input for creating or updating fish counts.
 type FishInput struct {
-	// The name of fish
-	Number *int `json:"number,omitempty"`
-	// Type of Fishes
-	Type *string `json:"type,omitempty"`
+	Gold   *int `json:"gold,omitempty"`
+	Normal *int `json:"normal,omitempty"`
 }
 
 type Mutation struct {

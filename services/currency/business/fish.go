@@ -14,7 +14,6 @@ import (
 	config "tenkhours/services/currency/utils"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type FishBusiness struct {
@@ -31,109 +30,18 @@ func NewFishBusiness(FishRepo *repo.FishRepo, CharactersRepo *coreRepo.Character
 	}
 }
 
-func (biz *FishBusiness) GetFishByProfileID(ctx context.Context, fishType string) (*model.Fish, error) {
+func (biz *FishBusiness) GetFishByProfileID(ctx context.Context) (*model.Fish, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return nil, errors.ErrorUnauthorized
 	}
 
-	repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, fishType)
+	repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find fish repo: %v", err)
 	}
 
-	// Convert type repo.fish to type model.fish
-	tempNum := int(repoFish.Numbers) //create a pointer to the int value directly
-	tempType := repoFish.Type
-	modelFish := &model.Fish{
-		ID:        repoFish.ID.Hex(),
-		ProfileID: repoFish.ProfileID.Hex(),
-		Numbers:   &tempNum,
-		Type:      &tempType,
-	}
-
-	return modelFish, nil
-}
-
-func (biz *FishBusiness) CreateFish(ctx context.Context, input model.FishInput) (*model.Fish, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
-	if !ok {
-		return nil, errors.ErrorUnauthorized
-	}
-
-	if *input.Type != "gold" && *input.Type != "normal" { //checktype of input
-		return nil, fmt.Errorf("wrong type of fish, accepted gold or normal fish")
-	}
-
-	// Check that if the fish repo is existed or not
-	existingFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, *input.Type)
-	if err == nil && existingFish != nil {
-		return nil, fmt.Errorf("fish with type %s already exists for this profile", *input.Type)
-	} else if err != nil && err != mongo.ErrNoDocuments {
-		return nil, fmt.Errorf("failed to check existing fish: %v", err)
-	}
-
-	// Create new fish
-	newFish := &repo.Fish{
-		ProfileID: profile.ID,
-		Numbers:   0,
-		Type:      *input.Type,
-	}
-
-	insertedFish, err := biz.FishRepo.CreateFish(newFish)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create fish: %v", err)
-	}
-
-	tmpNumber := int(insertedFish.Numbers) //create a pointer to the int value directly
-	tmpType := insertedFish.Type
-
-	modelFish := &model.Fish{
-		ID:        insertedFish.ID.Hex(),
-		ProfileID: insertedFish.ProfileID.Hex(),
-		Numbers:   &tmpNumber,
-		Type:      &tmpType,
-	}
-
-	return modelFish, nil
-}
-
-func (biz *FishBusiness) UpdateFish(ctx context.Context, input model.FishInput) (*model.Fish, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
-	if !ok {
-		return nil, errors.ErrorUnauthorized
-	}
-
-	// Dereference input.Number to get the int value
-	tmpNewFish := int32(*input.Number)
-
-	// Check if the number is negative
-	if tmpNewFish < 0 {
-		return nil, fmt.Errorf("number must be non-negative")
-	}
-
-	updatedFish := &repo.Fish{
-		ProfileID: profile.ID,
-		Numbers:   tmpNewFish,
-		Type:      *input.Type,
-	}
-
-	insertedFish, err := biz.FishRepo.UpdateFish(updatedFish, profile.ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to update fish: %v", err)
-	}
-
-	tmpNumber := int(insertedFish.Numbers)
-	tmpType := insertedFish.Type
-
-	modelFish := &model.Fish{
-		ID:        insertedFish.ID.Hex(),
-		ProfileID: insertedFish.ProfileID.Hex(),
-		Numbers:   &tmpNumber,
-		Type:      &tmpType,
-	}
-
-	return modelFish, nil
+	return biz.fishRepoToModel(repoFish), nil
 }
 
 // catchfish, This will be called in client when they finish their tracking
@@ -151,16 +59,12 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 		return nil, fmt.Errorf("failed to load fish configurations: %v", err)
 	}
 
-	// Determine fish type based on probability
-	var fishType = "none"
-	var fishFlag int32
+	fishType := "none"
 	randomNumber := rand.Float64()
 
-	// Calculate probability to catch fish
 	for _, cfg := range fishConfigs {
 		if randomNumber <= cfg.Rate {
 			fishType = cfg.Type
-			fishFlag = int32(cfg.Number)
 			break
 		}
 		randomNumber -= cfg.Rate
@@ -170,61 +74,75 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 		return nil, fmt.Errorf("unlucky, next time :)))")
 	}
 
-	// Update fish count
-	insertedFish, err := biz.updateFishCount(profile.ID, fishType, fishFlag)
+	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
 	if err != nil {
-		return nil, err
+		// If no fish document exists, create a new one
+		fish = &repo.Fish{
+			ID:        primitive.NewObjectID(),
+			ProfileID: profile.ID,
+			Counts:    repo.FishCounts{}, // Initialize empty counts
+		}
 	}
 
-	tmpNumber := int(insertedFish.Numbers)
-	tmpType := insertedFish.Type
-
-	modelFish := &model.Fish{
-		ID:        insertedFish.ID.Hex(),
-		ProfileID: insertedFish.ProfileID.Hex(),
-		Numbers:   &tmpNumber,
-		Type:      &tmpType,
+	switch fishType {
+	case "normal":
+		fish.Counts.Normal++
+	case "gold":
+		fish.Counts.Gold++
 	}
 
-	return modelFish, nil
+	if _, err = biz.FishRepo.UpdateFish(fish, profile.ID); err != nil {
+		return nil, fmt.Errorf("failed to update fish counts: %v", err)
+	}
+
+	return biz.fishRepoToModel(fish), nil
 }
 
-// Helper function to update fish count
-func (biz *FishBusiness) updateFishCount(profileID primitive.ObjectID, fishType string, additionalCount int32) (*repo.Fish, error) {
-	repoFish, err := biz.FishRepo.GetFishByProfileID(profileID, fishType)
-	if err != nil {
-		return nil, fmt.Errorf("failed to find fish record: %v", err)
-	}
+// Helper function to convert repo.Fish to model.Fish
+func (biz *FishBusiness) fishRepoToModel(repoFish *repo.Fish) *model.Fish {
+	gold := int(repoFish.Counts.Gold)
+	normal := int(repoFish.Counts.Normal)
 
-	updatedFish := &repo.Fish{
-		ProfileID: repoFish.ProfileID,
-		Numbers:   repoFish.Numbers + additionalCount,
-		Type:      repoFish.Type,
+	counts := model.FishCounts{ // Create FishCounts
+		Gold:   &gold,
+		Normal: &normal,
 	}
-
-	insertedFish, err := biz.FishRepo.UpdateFish(updatedFish, profileID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to update fish: %v", err)
+	return &model.Fish{
+		ID:        repoFish.ID.Hex(),
+		ProfileID: repoFish.ProfileID.Hex(),
+		Counts:    &counts,
 	}
-
-	return insertedFish, nil
 }
 
 //	THOSE FUNCTIONS BELOW ARE FOR TRADING
 
-func (biz *FishBusiness) UnlockMetricsWithNormalFish(ctx context.Context, characterID string) (bool, error) {
+func (biz *FishBusiness) UnlockMetrics(ctx context.Context, fishType string, characterID string) (bool, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return false, errors.ErrorUnauthorized
 	}
 
-	repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, "normal")
+	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
 	if err != nil {
-		return false, fmt.Errorf("failed to find fish package: %v", err)
+		return false, fmt.Errorf("failed to find fish: %v", err)
 	}
 
-	if repoFish.Numbers < 3 { // Check if the number of fish is enough to trade
-		return false, fmt.Errorf("there's no fish for you to trade")
+	cost := int32(0)
+	switch fishType {
+	case "normal":
+		cost = 3
+		if fish.Counts.Normal < cost {
+			return false, fmt.Errorf("not enough normal fish to trade")
+		}
+		fish.Counts.Normal -= cost
+	case "gold":
+		cost = 1
+		if fish.Counts.Gold < cost {
+			return false, fmt.Errorf("not enough gold fish to trade")
+		}
+		fish.Counts.Gold -= cost
+	default:
+		return false, fmt.Errorf("invalid fish type: %s", fishType)
 	}
 
 	characterOID, err := primitive.ObjectIDFromHex(characterID)
@@ -236,124 +154,58 @@ func (biz *FishBusiness) UnlockMetricsWithNormalFish(ctx context.Context, charac
 		return false, fmt.Errorf("failed to find character: %v", err)
 	}
 
-	// Update character metrics
-	character.LimitedMetricNumber += 1
+	character.LimitedMetricNumber++
 	if _, err := biz.CharactersRepo.UpdateCharacter(character); err != nil {
 		return false, fmt.Errorf("failed to update metrics limited: %v", err)
 	}
 
-	// Decrease fish count
-	repoFish.Numbers -= 3 //just a sample at this phase
-	if _, err := biz.FishRepo.UpdateFish(repoFish, profile.ID); err != nil {
+	if _, err := biz.FishRepo.UpdateFish(fish, profile.ID); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
 	}
 
 	return true, nil
 }
 
-func (biz *FishBusiness) UnlockMetricsWithGoldFish(ctx context.Context, characterID string) (bool, error) {
+func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType string) (bool, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return false, errors.ErrorUnauthorized
 	}
 
-	repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, "gold")
+	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
 	if err != nil {
-		return false, fmt.Errorf("failed to find fish package: %v", err)
+		return false, fmt.Errorf("failed to find fish: %v", err)
 	}
 
-	if repoFish.Numbers < 1 { // Check if the number of fish is enough to trade
-		return false, fmt.Errorf("there's no fish for you to trade")
+	cost := int32(0)
+	switch fishType {
+	case "normal":
+		cost = 3
+		if fish.Counts.Normal < cost {
+			return false, fmt.Errorf("not enough normal fish to trade")
+		}
+		fish.Counts.Normal -= cost
+	case "gold":
+		cost = 1
+		if fish.Counts.Gold < cost {
+			return false, fmt.Errorf("not enough gold fish to trade")
+		}
+		fish.Counts.Gold -= cost
+	default:
+		return false, fmt.Errorf("invalid fish type: %s", fishType)
 	}
 
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
+	profileData, err := biz.ProfilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
 	if err != nil {
-		return false, err
-	}
-	character, err := biz.CharactersRepo.GetCharacterByID(characterOID)
-	if err != nil {
-		return false, fmt.Errorf("failed to find character: %v", err)
+		return false, fmt.Errorf("failed to get profile: %v", err)
 	}
 
-	// Update character metrics
-	character.LimitedMetricNumber += 1
-	if _, err := biz.CharactersRepo.UpdateCharacter(character); err != nil {
-		return false, fmt.Errorf("failed to update metrics limited: %v", err)
-	}
-
-	// Decrease fish count
-	repoFish.Numbers -= 1 //just a sample at this phase
-	if _, err := biz.FishRepo.UpdateFish(repoFish, profile.ID); err != nil {
-		return false, fmt.Errorf("failed to update fish: %v", err)
-	}
-
-	return true, nil
-}
-
-func (biz *FishBusiness) BuySnapshotsWithNormalFish(ctx context.Context) (bool, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
-	if !ok {
-		return false, errors.ErrorUnauthorized
-	}
-
-	repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, "normal")
-	if err != nil {
-		return false, fmt.Errorf("failed to find fish package: %v", err)
-	}
-
-	if repoFish.Numbers < 3 { // Check if the number of fish is enough to trade
-		return false, fmt.Errorf("there's no fish for you to trade")
-	}
-
-	repoProfile, err := biz.ProfilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
-	if err != nil {
-		return false, fmt.Errorf("failed get profile: %v", err)
-	}
-
-	// Update profile available snapshots
-	repoProfile.AvailableSnapshots += 1
-	if _, err := biz.ProfilesRepo.UpdateProfile(repoProfile); err != nil {
+	profileData.AvailableSnapshots++
+	if _, err := biz.ProfilesRepo.UpdateProfile(profileData); err != nil {
 		return false, fmt.Errorf("failed to update available snapshots: %v", err)
 	}
 
-	// Decrease fish count
-	repoFish.Numbers -= 3 //just a sample at this phase
-	if _, err := biz.FishRepo.UpdateFish(repoFish, profile.ID); err != nil {
-		return false, fmt.Errorf("failed to update fish: %v", err)
-	}
-
-	return true, nil
-}
-
-func (biz *FishBusiness) BuySnapshotsWithGoldFish(ctx context.Context) (bool, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
-	if !ok {
-		return false, errors.ErrorUnauthorized
-	}
-
-	repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID, "gold")
-	if err != nil {
-		return false, fmt.Errorf("failed to find fish package: %v", err)
-	}
-
-	if repoFish.Numbers < 1 { // Check if the number of fish is enough to trade
-		return false, fmt.Errorf("there's no fish for you to trade")
-	}
-
-	repoProfile, err := biz.ProfilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
-	if err != nil {
-		return false, fmt.Errorf("failed get profile: %v", err)
-	}
-
-	// Update profile available snapshots
-	repoProfile.AvailableSnapshots += 1
-	if _, err := biz.ProfilesRepo.UpdateProfile(repoProfile); err != nil {
-		return false, fmt.Errorf("failed to update available snapshots: %v", err)
-	}
-
-	// Decrease fish count
-	repoFish.Numbers -= 1 //just a sample at this phase
-	if _, err := biz.FishRepo.UpdateFish(repoFish, profile.ID); err != nil {
+	if _, err := biz.FishRepo.UpdateFish(fish, profile.ID); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
 	}
 

@@ -69,7 +69,7 @@ resolver:
 #
 # This enables argumment directives to not just mutate
 # argument values but to set them even if they're null.
-call_argument_directives_with_null: true
+# call_argument_directives_with_null: true
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.

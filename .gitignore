@@ -13,3 +13,4 @@ node_modules
 waitlist.*.json
 
 fish_config.csv
+exchange_config.csv

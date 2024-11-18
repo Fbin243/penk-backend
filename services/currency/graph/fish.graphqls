@@ -1,24 +1,24 @@
 type Fish {
   id: ObjectID!
   profileID: ObjectID!
-  numbers: Int
   """
-  Type of fishes: gold, normal (or maybe silver, etc in the future)
+  An object representing the counts of different fish types.
   """
-  type: String
+  counts: FishCounts!
 }
 
 """
-Input for creating or updating fish
+Represents the counts of various fish types.
+"""
+type FishCounts {
+  gold: Int
+  normal: Int
+}
+
+"""
+Input for creating or updating fish counts.
 """
 input FishInput {
-  """
-  The name of fish
-  """
-  number: Int
-
-  """
-  Type of Fishes
-  """
-  type: String
+  gold: Int
+  normal: Int
 }
