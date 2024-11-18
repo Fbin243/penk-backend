@@ -14,6 +14,7 @@ import (
 	config "tenkhours/services/currency/utils"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type FishBusiness struct {
@@ -36,12 +37,24 @@ func (biz *FishBusiness) GetFishByProfileID(ctx context.Context) (*model.Fish, e
 		return nil, errors.ErrorUnauthorized
 	}
 
-	repoFish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
+	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find fish repo: %v", err)
+		if err == mongo.ErrNoDocuments { // Check if fish document doesn't exist
+			newFish := &repo.Fish{
+				ID:        primitive.NewObjectID(),
+				ProfileID: profile.ID,
+				Counts:    repo.FishCounts{},
+			}
+			fish, err = biz.FishRepo.CreateFish(newFish) // Create new fish document
+			if err != nil {
+				return nil, fmt.Errorf("failed to create fish data: %v", err)
+			}
+		} else {
+			return nil, fmt.Errorf("failed to get fish data: %v", err)
+		}
 	}
 
-	return biz.fishRepoToModel(repoFish), nil
+	return biz.fishRepoToModel(fish), nil
 }
 
 // catchfish, This will be called in client when they finish their tracking
@@ -76,13 +89,24 @@ func (biz *FishBusiness) CatchFish(ctx context.Context) (*model.Fish, error) {
 
 	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
 	if err != nil {
-		// If no fish document exists, create a new one
-		fish = &repo.Fish{
-			ID:        primitive.NewObjectID(),
-			ProfileID: profile.ID,
-			Counts:    repo.FishCounts{}, // Initialize empty counts
-		}
+		return nil, fmt.Errorf("failed to find fish: %v", err)
 	}
+	// if err != nil {
+	// 	if err == mongo.ErrNoDocuments { // Check for missing fish document
+	// 		newFish := &repo.Fish{
+	// 			ID:        primitive.NewObjectID(),
+	// 			ProfileID: profile.ID,
+	// 			Counts:    repo.FishCounts{},
+	// 		}
+	// 		fish, err = biz.FishRepo.CreateFish(newFish) // Create if not found
+	// 		if err != nil {
+	// 			return nil, fmt.Errorf("failed to create fish data: %v", err)
+	// 		}
+
+	// 	} else {
+	// 		return nil, fmt.Errorf("failed to get fish data: %v", err)
+	// 	}
+	// }
 
 	switch fishType {
 	case "normal":
@@ -127,20 +151,39 @@ func (biz *FishBusiness) UnlockMetrics(ctx context.Context, fishType string, cha
 		return false, fmt.Errorf("failed to find fish: %v", err)
 	}
 
-	cost := int32(0)
-	switch fishType {
+	exchangeConfigs, err := config.LoadExchangeConfigs("exchange_config.csv") // Load configs
+	if err != nil {
+		return false, fmt.Errorf("failed to load exchange configs: %v", err)
+	}
+
+	cost := 0
+	increase := 0
+	foundConfig := false
+
+	for _, cfg := range exchangeConfigs {
+		if cfg.ItemType == "metric" && cfg.FishType == fishType { // Find matching config
+			cost = cfg.Number
+			increase = cfg.Increase
+			foundConfig = true
+			break
+		}
+	}
+
+	if !foundConfig {
+		return false, fmt.Errorf("invalid exchange configuration for metric and %s fish", fishType)
+	}
+
+	switch fishType { // Deduct fish based on loaded config
 	case "normal":
-		cost = 3
-		if fish.Counts.Normal < cost {
+		if fish.Counts.Normal < int32(cost) { // Correct type comparison
 			return false, fmt.Errorf("not enough normal fish to trade")
 		}
-		fish.Counts.Normal -= cost
+		fish.Counts.Normal -= int32(cost)
 	case "gold":
-		cost = 1
-		if fish.Counts.Gold < cost {
+		if fish.Counts.Gold < int32(cost) { // Correct type comparison
 			return false, fmt.Errorf("not enough gold fish to trade")
 		}
-		fish.Counts.Gold -= cost
+		fish.Counts.Gold -= int32(cost)
 	default:
 		return false, fmt.Errorf("invalid fish type: %s", fishType)
 	}
@@ -154,7 +197,8 @@ func (biz *FishBusiness) UnlockMetrics(ctx context.Context, fishType string, cha
 		return false, fmt.Errorf("failed to find character: %v", err)
 	}
 
-	character.LimitedMetricNumber++
+	character.LimitedMetricNumber += int32(increase) // Increment based on config
+
 	if _, err := biz.CharactersRepo.UpdateCharacter(character); err != nil {
 		return false, fmt.Errorf("failed to update metrics limited: %v", err)
 	}
@@ -177,20 +221,39 @@ func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType string) (boo
 		return false, fmt.Errorf("failed to find fish: %v", err)
 	}
 
-	cost := int32(0)
+	exchangeConfigs, err := config.LoadExchangeConfigs("exchange_config.csv") // read the config from csv
+	if err != nil {
+		return false, fmt.Errorf("failed to load exchange configs: %v", err)
+	}
+
+	cost := 0
+	increase := 0
+	foundConfig := false
+
+	for _, cfg := range exchangeConfigs {
+		if cfg.ItemType == "snapshot" && cfg.FishType == fishType {
+			cost = cfg.Number
+			increase = cfg.Increase
+			foundConfig = true
+			break
+		}
+	}
+
+	if !foundConfig {
+		return false, fmt.Errorf("invalid exchange configuration for snapshots and %s fish", fishType)
+	}
+
 	switch fishType {
 	case "normal":
-		cost = 3
-		if fish.Counts.Normal < cost {
+		if fish.Counts.Normal < int32(cost) {
 			return false, fmt.Errorf("not enough normal fish to trade")
 		}
-		fish.Counts.Normal -= cost
+		fish.Counts.Normal -= int32(cost)
 	case "gold":
-		cost = 1
-		if fish.Counts.Gold < cost {
+		if fish.Counts.Gold < int32(cost) {
 			return false, fmt.Errorf("not enough gold fish to trade")
 		}
-		fish.Counts.Gold -= cost
+		fish.Counts.Gold -= int32(cost)
 	default:
 		return false, fmt.Errorf("invalid fish type: %s", fishType)
 	}
@@ -200,7 +263,8 @@ func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType string) (boo
 		return false, fmt.Errorf("failed to get profile: %v", err)
 	}
 
-	profileData.AvailableSnapshots++
+	profileData.AvailableSnapshots += int32(increase)
+
 	if _, err := biz.ProfilesRepo.UpdateProfile(profileData); err != nil {
 		return false, fmt.Errorf("failed to update available snapshots: %v", err)
 	}
