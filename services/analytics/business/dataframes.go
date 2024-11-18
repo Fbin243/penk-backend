@@ -29,7 +29,7 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 	dfCaptureRecordCustomMetricsData := make([]repo.DFCapturedRecordCustomMetric, 0)
 	dfCaptureRecordsData := lo.Map(ap.CapturedRecords, func(record model.CapturedRecord, index int) repo.DFCapturedRecord {
 		recordDay := record.Timestamp.Day()
-		recordWeek := math.Min(math.Ceil(float64(recordDay)/NUMBER_OF_DAYS_IN_A_WEEK), NUMBER_OF_WEEKS_IN_A_MONTH)
+		recordYear, recordWeek := record.Timestamp.ISOWeek()
 
 		for _, metric := range record.CustomMetrics {
 			dfCaptureRecordCustomMetricsData = append(dfCaptureRecordCustomMetricsData, repo.DFCapturedRecordCustomMetric{
@@ -43,9 +43,9 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 			ID:               record.ID.Hex(),
 			ProfileID:        record.Metadata.ProfileID.Hex(),
 			CharacterID:      record.Metadata.CharacterID.Hex(),
-			Year:             record.Timestamp.Year(),
+			Year:             recordYear,
 			Month:            int(record.Timestamp.Month()),
-			Week:             int(recordWeek),
+			Week:             recordWeek,
 			Day:              recordDay,
 			TotalFocusedTime: int(record.TotalFocusedTime),
 		}
