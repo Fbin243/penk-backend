@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
@@ -40,6 +41,8 @@ func (biz *FishBusiness) GetFishByProfileID(ctx context.Context) (*model.Fish, e
 	if !ok {
 		return nil, errors.ErrorUnauthorized
 	}
+
+	log.Println("This IS ID", profile.ID)
 
 	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
 	if err != nil {
@@ -130,7 +133,24 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.Obje
 }
 
 func (biz *FishBusiness) UpdateFishFromRedis(fish *repo.Fish, profileID primitive.ObjectID) (bool, error) {
-	_, err := biz.FishRepo.UpdateFish(fish, profileID)
+	log.Println("ID 2", profileID)
+
+	currentFish, err := biz.FishRepo.GetFishByProfileID(profileID)
+	if err != nil {
+		return false, fmt.Errorf("failed to get fish data from DB: %v", err)
+	}
+
+	log.Println("go h")
+
+	// Cộng dồn giá trị gold và normal
+	if fish.Gold != 0 {
+		currentFish.Gold += fish.Gold
+	}
+	if fish.Normal != 0 {
+		currentFish.Normal += fish.Normal
+	}
+
+	_, err = biz.FishRepo.UpdateFish(currentFish, profileID)
 	if err != nil {
 		return false, fmt.Errorf("failed to save updated fish data to DB: %v", err)
 	}

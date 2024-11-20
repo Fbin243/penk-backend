@@ -2,8 +2,8 @@ package repo
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"log"
 	"tenkhours/pkg/db"
 	"time"
 
@@ -26,7 +26,7 @@ func (r *FishRepo) GetFishByProfileID(profileID primitive.ObjectID) (*Fish, erro
 
 	fish := Fish{}
 	err := r.FindOne(ctx, bson.M{"profile_id": profileID}).Decode(&fish)
-
+	log.Printf("hello here")
 	return &fish, err
 }
 
@@ -43,26 +43,26 @@ func (r *FishRepo) UpdateFish(fish *Fish, profileID primitive.ObjectID) (*Fish, 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// Use $inc to increase the number of fish
-	update := bson.M{
-		"$inc": bson.M{
-			"gold":   fish.Gold,
-			"normal": fish.Normal,
-		},
+	update := bson.M{}
+	if fish.Gold != 0 {
+		update["gold"] = fish.Gold
+	}
+	if fish.Normal != 0 {
+		update["normal"] = fish.Normal
 	}
 
-	filter := bson.M{"profile_id": profileID}
-
-	err := r.FindOneAndUpdate(ctx, filter, update, db.FindOneAndUpdateOptions).Decode(fish)
+	if len(update) == 0 {
+		return nil, fmt.Errorf("no valid values to update")
+	}
+	log.Println("go 6")
+	var updatedFish Fish
+	err := r.FindOneAndUpdate(ctx, bson.M{"profile_id": profileID}, bson.M{"$set": update}).Decode(&updatedFish)
+	log.Println("go 7")
 	if err != nil {
-
-		if errors.Is(err, mongo.ErrNoDocuments) { // or driver.ErrNoDocuments, depending on your driver
-			return nil, fmt.Errorf("fish not found for update: %v", err)
-		}
 		return nil, fmt.Errorf("failed to update fish: %v", err)
 	}
 
-	return fish, nil
+	return &updatedFish, nil
 }
 
 func (r *FishRepo) DeleteFish(profileID primitive.ObjectID, fishType string) (*Fish, error) {

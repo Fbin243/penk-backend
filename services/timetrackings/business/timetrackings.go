@@ -23,13 +23,15 @@ import (
 type TimeTrackingsBusiness struct {
 	TimeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo
 	CharactersRepo    *repo.CharactersRepo
+	FishRepo          *fishRepo.FishRepo
 	RedisClient       *redis.Client
 }
 
-func NewTimeTrackingsBusiness(timeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo, charactersRepo *repo.CharactersRepo, redisClient *redis.Client) *TimeTrackingsBusiness {
+func NewTimeTrackingsBusiness(timeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo, charactersRepo *repo.CharactersRepo, fishRepo *fishRepo.FishRepo, redisClient *redis.Client) *TimeTrackingsBusiness {
 	return &TimeTrackingsBusiness{
 		TimeTrackingsRepo: timeTrackingsRepo,
 		CharactersRepo:    charactersRepo,
+		FishRepo:          fishRepo,
 		RedisClient:       redisClient,
 	}
 }
@@ -314,6 +316,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 
 	// Now retrieve fish data from Redis and delete cache
 	fishData, err := biz.RedisClient.Get(ctx, fmt.Sprintf("fish:%s", profile.ID.Hex())).Result()
+	log.Printf("go here")
 	if err == redis.Nil {
 		log.Printf("No fish data found for profile %s", profileID)
 	} else if err != nil {
@@ -321,6 +324,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	} else {
 		// Delete the fish data cache
 		err = biz.RedisClient.Del(ctx, fmt.Sprintf("fish:%s", profile.ID.Hex())).Err()
+		log.Printf("go here 2")
 		if err != nil {
 			log.Printf("failed to delete fish data from redis: %v", err)
 		}
@@ -332,13 +336,16 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		}
 
 		err = json.Unmarshal([]byte(fishData), updatedFish)
+		log.Printf("go here 3")
 		if err != nil {
 			log.Printf("failed to unmarshal fish data from redis: %v", err)
 		}
 
-		fishBiz := &fishBiz.FishBusiness{RedisClient: biz.RedisClient}
+		fishBiz := &fishBiz.FishBusiness{FishRepo: biz.FishRepo}
 
 		_, err = fishBiz.UpdateFishFromRedis(updatedFish, profile.ID)
+
+		log.Printf("go here 4")
 
 		log.Printf("Successfully deleted fish data cache for profile %s", profileID)
 	}
