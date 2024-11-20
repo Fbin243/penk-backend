@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"tenkhours/pkg/db"
 	"time"
@@ -42,12 +43,22 @@ func (r *FishRepo) UpdateFish(fish *Fish, profileID primitive.ObjectID) (*Fish, 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// update fish based on profile id and type
+	// Use $inc to increase the number of fish
+	update := bson.M{
+		"$inc": bson.M{
+			"gold":   fish.Gold,
+			"normal": fish.Normal,
+		},
+	}
+
 	filter := bson.M{"profile_id": profileID}
-	update := bson.M{"$set": fish}
 
 	err := r.FindOneAndUpdate(ctx, filter, update, db.FindOneAndUpdateOptions).Decode(fish)
 	if err != nil {
+
+		if errors.Is(err, mongo.ErrNoDocuments) { // or driver.ErrNoDocuments, depending on your driver
+			return nil, fmt.Errorf("fish not found for update: %v", err)
+		}
 		return nil, fmt.Errorf("failed to update fish: %v", err)
 	}
 

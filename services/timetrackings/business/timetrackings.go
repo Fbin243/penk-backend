@@ -217,11 +217,11 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	// duration = 14401 // Test for the max duration time
 
 	// Check if the duration time is in the valid range
-	if duration < timeTracking.MinDurationTime {
-		duration = 0
-		log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
-		return &timeTracking, nil
-	}
+	// if duration < timeTracking.MinDurationTime {
+	// 	duration = 0
+	// 	log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
+	// 	return &timeTracking, nil
+	// }
 
 	if duration > timeTracking.MaxDurationTime {
 		duration = int32(timeTracking.MaxDurationTime)
@@ -310,6 +310,37 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	err = biz.RedisClient.HSet(ctx, db.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex(), capturedRecordBytes).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to save captured record to redis: %v", err)
+	}
+
+	// Now retrieve fish data from Redis and delete cache
+	fishData, err := biz.RedisClient.Get(ctx, fmt.Sprintf("fish:%s", profile.ID.Hex())).Result()
+	if err == redis.Nil {
+		log.Printf("No fish data found for profile %s", profileID)
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to get fish data from redis: %v", err)
+	} else {
+		// Delete the fish data cache
+		err = biz.RedisClient.Del(ctx, fmt.Sprintf("fish:%s", profile.ID.Hex())).Err()
+		if err != nil {
+			log.Printf("failed to delete fish data from redis: %v", err)
+		}
+
+		updatedFish := &fishRepo.Fish{
+			ProfileID: profile.ID,
+			Gold:      0,
+			Normal:    0,
+		}
+
+		err = json.Unmarshal([]byte(fishData), updatedFish)
+		if err != nil {
+			log.Printf("failed to unmarshal fish data from redis: %v", err)
+		}
+
+		fishBiz := &fishBiz.FishBusiness{RedisClient: biz.RedisClient}
+
+		_, err = fishBiz.UpdateFishFromRedis(updatedFish, profile.ID)
+
+		log.Printf("Successfully deleted fish data cache for profile %s", profileID)
 	}
 
 	return &timeTracking, nil

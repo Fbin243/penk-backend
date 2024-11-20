@@ -129,6 +129,15 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.Obje
 	return fishType, nil
 }
 
+func (biz *FishBusiness) UpdateFishFromRedis(fish *repo.Fish, profileID primitive.ObjectID) (bool, error) {
+	_, err := biz.FishRepo.UpdateFish(fish, profileID)
+	if err != nil {
+		return false, fmt.Errorf("failed to save updated fish data to DB: %v", err)
+	}
+
+	return true, nil
+}
+
 // Helper function to convert repo.Fish to model.Fish
 func (biz *FishBusiness) fishRepoToModel(repoFish *repo.Fish) *model.Fish {
 	gold := int(repoFish.Gold)
