@@ -64,7 +64,7 @@ func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.
 		return nil, fmt.Errorf("failed to find characters: %v", err)
 	}
 
-	if len(characters) >= 2 {
+	if len(characters) >= int(profile.LimitedCharacterNumber) {
 		return nil, fmt.Errorf("user have already created 2 characters")
 	}
 

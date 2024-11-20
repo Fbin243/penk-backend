@@ -9,16 +9,17 @@ import (
 )
 
 type Profile struct {
-	ID                 primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name               string             `json:"name,omitempty" bson:"name,omitempty"`
-	Email              string             `json:"email,omitempty" bson:"email,omitempty"`
-	FirebaseUID        string             `json:"firebaseUID,omitempty" bson:"firebase_uid,omitempty"`
-	ImageURL           string             `json:"imageURL,omitempty" bson:"image_url,omitempty"`
-	CurrentCharacterID primitive.ObjectID `json:"currentCharacterID,omitempty" bson:"current_character_id,omitempty"`
-	AvailableSnapshots int32              `json:"availableSnapshots,omitempty" bson:"available_snapshots,omitempty"`
-	AutoSnapshot       bool               `json:"autoSnapshot,omitempty" bson:"auto_snapshot"`
-	CreatedAt          time.Time          `json:"createdAt,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt          time.Time          `json:"updatedAt,omitempty" bson:"updated_at,omitempty"`
+	ID                     primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name                   string             `json:"name,omitempty" bson:"name,omitempty"`
+	Email                  string             `json:"email,omitempty" bson:"email,omitempty"`
+	FirebaseUID            string             `json:"firebaseUID,omitempty" bson:"firebase_uid,omitempty"`
+	ImageURL               string             `json:"imageURL,omitempty" bson:"image_url,omitempty"`
+	CurrentCharacterID     primitive.ObjectID `json:"currentCharacterID,omitempty" bson:"current_character_id,omitempty"`
+	AvailableSnapshots     int32              `json:"availableSnapshots,omitempty" bson:"available_snapshots,omitempty"`
+	LimitedCharacterNumber int32              `json:"limitedCharacterNumber,omitempty" bson:"limited_character_number,omitempty"`
+	AutoSnapshot           bool               `json:"autoSnapshot,omitempty" bson:"auto_snapshot"`
+	CreatedAt              time.Time          `json:"createdAt,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt              time.Time          `json:"updatedAt,omitempty" bson:"updated_at,omitempty"`
 }
 
 // Character

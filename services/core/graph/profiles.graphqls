@@ -11,6 +11,7 @@ type Profile {
   currentCharacterID: ObjectID
   characters: [Character!]!
   availableSnapshots: Int!
+  limitedCharacterNumber: Int!
   autoSnapshot: Boolean!
   createdAt: Time!
   updatedAt: Time!

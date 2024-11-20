@@ -64,15 +64,16 @@ func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, err
 	if err == mongo.ErrNoDocuments {
 		// profile not found, mean the new account
 		newProfile := repo.Profile{
-			ID:                 primitive.NewObjectID(),
-			Name:               firebaseProfile.Name,
-			Email:              firebaseProfile.Email,
-			FirebaseUID:        firebaseProfile.UID,
-			ImageURL:           "",
-			CreatedAt:          utils.Now(),
-			UpdatedAt:          utils.Now(),
-			AutoSnapshot:       true,
-			AvailableSnapshots: 2,
+			ID:                     primitive.NewObjectID(),
+			Name:                   firebaseProfile.Name,
+			Email:                  firebaseProfile.Email,
+			FirebaseUID:            firebaseProfile.UID,
+			ImageURL:               "",
+			CreatedAt:              utils.Now(),
+			UpdatedAt:              utils.Now(),
+			AutoSnapshot:           true,
+			AvailableSnapshots:     2,
+			LimitedCharacterNumber: 2,
 		}
 
 		// Create new profile for the new user in DB
