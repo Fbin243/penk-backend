@@ -2,23 +2,8 @@ type Fish {
   id: ObjectID!
   profileID: ObjectID!
   """
-  An object representing the counts of different fish types.
+  Numbers of different fish types.
   """
-  counts: FishCounts!
-}
-
-"""
-Represents the counts of various fish types.
-"""
-type FishCounts {
-  gold: Int
-  normal: Int
-}
-
-"""
-Input for creating or updating fish counts.
-"""
-input FishInput {
   gold: Int
   normal: Int
 }

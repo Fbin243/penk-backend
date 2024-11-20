@@ -43,7 +43,7 @@ func main() {
 	profilesRepo := coreRepo.NewProfilesRepo(mongodb)
 	charactersRepo := coreRepo.NewCharactersRepo(mongodb)
 	redisClient := db.GetRedisClient()
-	FishBiz := business.NewFishBusiness(FishRepo, charactersRepo, profilesRepo)
+	FishBiz := business.NewFishBusiness(FishRepo, charactersRepo, profilesRepo, redisClient)
 
 	// Check authentication
 	authMiddleware := middlewares.NewMiddleware(redisClient)

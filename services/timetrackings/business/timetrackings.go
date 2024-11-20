@@ -12,6 +12,8 @@ import (
 	"tenkhours/pkg/errors"
 	"tenkhours/services/analytics/graph/model"
 	"tenkhours/services/core/repo"
+	fishBiz "tenkhours/services/currency/business"
+	fishRepo "tenkhours/services/currency/repo"
 	timetrackingsRepo "tenkhours/services/timetrackings/repo"
 
 	"github.com/go-redis/redis/v8"
@@ -62,14 +64,16 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	}
 
 	// Calculate the difference between the server time and the client time
-	serverStartTime := time.Now()
-	duration := serverStartTime.Sub(startTime)
-	seconds := duration.Seconds()
+	// serverStartTime := time.Now()
+	// duration := serverStartTime.Sub(startTime)
+	// seconds := duration.Seconds()
 
-	if seconds > 20 {
-		return nil, fmt.Errorf("server timeout, failed to start a new session")
-	}
+	// if seconds > 20 {
+	// 	return nil, fmt.Errorf("server timeout, failed to start a new session")
+	// }
 
+	//for testing only
+	startTime = time.Now()
 	// Check permissions
 	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
@@ -127,6 +131,50 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	if err != nil {
 		return nil, fmt.Errorf("failed to save time tracking to redis: %v", err)
 	}
+
+	// Create null data for the first time
+	fishKey := fmt.Sprintf("fish:%s", profile.ID.Hex())
+	fish := fishRepo.Fish{
+		ID:        primitive.NewObjectID(),
+		ProfileID: profile.ID,
+		Normal:    0,
+		Gold:      0,
+	}
+
+	fishJSON, err := json.Marshal(fish)
+	err = biz.RedisClient.Set(ctx, fishKey, fishJSON, 4*time.Hour).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to save initial fish data to Redis: %v", err)
+	}
+
+	// Start fish-catching goroutine
+	go func() {
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		log.Println("Start the goroutine")
+
+		redisCtx := context.Background() // tạo ctx con do ctx cha bị huỷ sớm
+
+		for {
+			select {
+			case <-ticker.C:
+				fishBiz := &fishBiz.FishBusiness{RedisClient: biz.RedisClient}
+				fishType, err := fishBiz.CatchFish(redisCtx, profile.ID)
+				if err != nil {
+					log.Printf("Failed to catch fish: %v", err)
+					return
+				}
+
+				log.Printf("Caught fish: %s", fishType)
+			}
+
+			// Check if `fishData` still exists in Redis
+			if _, err := biz.RedisClient.Get(ctx, fishKey).Result(); err == redis.Nil {
+				fmt.Println("Fish data not found, stopping goroutine.")
+				return
+			}
+		}
+	}()
 
 	return &timeTracking, nil
 }

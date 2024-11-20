@@ -9,11 +9,6 @@ import (
 	"tenkhours/services/currency/graph/model"
 )
 
-// CatchFish is the resolver for the catchFish field.
-func (r *mutationResolver) CatchFish(ctx context.Context) (*model.Fish, error) {
-	return r.FishBusiness.CatchFish(ctx)
-}
-
 // UnlockMetrics is the resolver for the unlockMetrics field.
 func (r *mutationResolver) UnlockMetrics(ctx context.Context, fishType string, characterID string) (bool, error) {
 	return r.FishBusiness.UnlockMetrics(ctx, fishType, characterID)

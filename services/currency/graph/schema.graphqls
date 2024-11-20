@@ -5,7 +5,6 @@ type Query {
 }
 
 type Mutation {
-  catchFish: Fish!
   """
   For trading fish
   """

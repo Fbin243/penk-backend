@@ -18,18 +18,7 @@ type CodInput struct {
 type Fish struct {
 	ID        string `json:"id"`
 	ProfileID string `json:"profileID"`
-	// An object representing the counts of different fish types.
-	Counts *FishCounts `json:"counts"`
-}
-
-// Represents the counts of various fish types.
-type FishCounts struct {
-	Gold   *int `json:"gold,omitempty"`
-	Normal *int `json:"normal,omitempty"`
-}
-
-// Input for creating or updating fish counts.
-type FishInput struct {
+	// Numbers of different fish types.
 	Gold   *int `json:"gold,omitempty"`
 	Normal *int `json:"normal,omitempty"`
 }
