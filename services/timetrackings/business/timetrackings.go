@@ -314,9 +314,8 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		return nil, fmt.Errorf("failed to save captured record to redis: %v", err)
 	}
 
-	// Now retrieve fish data from Redis and delete cache
+	// retrieve fish data from Redis and delete cache
 	fishData, err := biz.RedisClient.Get(ctx, fmt.Sprintf("fish:%s", profile.ID.Hex())).Result()
-	log.Printf("go here")
 	if err == redis.Nil {
 		log.Printf("No fish data found for profile %s", profileID)
 	} else if err != nil {
@@ -324,7 +323,6 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	} else {
 		// Delete the fish data cache
 		err = biz.RedisClient.Del(ctx, fmt.Sprintf("fish:%s", profile.ID.Hex())).Err()
-		log.Printf("go here 2")
 		if err != nil {
 			log.Printf("failed to delete fish data from redis: %v", err)
 		}
@@ -336,7 +334,6 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		}
 
 		err = json.Unmarshal([]byte(fishData), updatedFish)
-		log.Printf("go here 3")
 		if err != nil {
 			log.Printf("failed to unmarshal fish data from redis: %v", err)
 		}
@@ -344,8 +341,6 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		fishBiz := &fishBiz.FishBusiness{FishRepo: biz.FishRepo}
 
 		_, err = fishBiz.UpdateFishFromRedis(updatedFish, profile.ID)
-
-		log.Printf("go here 4")
 
 		log.Printf("Successfully deleted fish data cache for profile %s", profileID)
 	}

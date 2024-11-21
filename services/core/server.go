@@ -10,6 +10,7 @@ import (
 	"tenkhours/services/core/business"
 	"tenkhours/services/core/graph"
 	"tenkhours/services/core/repo"
+	fishRepo "tenkhours/services/currency/repo"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -39,8 +40,9 @@ func main() {
 	mongodb := db.GetDBManager().DB
 	profilesRepo := repo.NewProfilesRepo(mongodb)
 	charactersRepo := repo.NewCharactersRepo(mongodb)
+	fishRepo := fishRepo.NewFishRepo(mongodb)
 	redisClient := db.GetRedisClient()
-	profilesBiz := business.NewProfilesBusiness(profilesRepo, redisClient)
+	profilesBiz := business.NewProfilesBusiness(profilesRepo, fishRepo, redisClient)
 	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo)
 
 	// Check authentication

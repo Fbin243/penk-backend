@@ -11,6 +11,7 @@ import (
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
+	fishRepo "tenkhours/services/currency/repo"
 
 	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,12 +20,14 @@ import (
 
 type ProfilesBusiness struct {
 	ProfilesRepo *repo.ProfilesRepo
+	FishRepo     *fishRepo.FishRepo
 	RedisClient  *redis.Client
 }
 
-func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, redisClient *redis.Client) *ProfilesBusiness {
+func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, fishRepo *fishRepo.FishRepo, redisClient *redis.Client) *ProfilesBusiness {
 	return &ProfilesBusiness{
 		ProfilesRepo: profilesRepo,
+		FishRepo:     fishRepo,
 		RedisClient:  redisClient,
 	}
 }
@@ -81,6 +84,20 @@ func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, err
 		if err != nil {
 			return nil, err
 		}
+
+		newFish := fishRepo.Fish{
+			ID:        primitive.NewObjectID(),
+			ProfileID: newProfile.ID,
+			Gold:      0,
+			Normal:    0,
+		}
+
+		createdFish, err := biz.FishRepo.CreateFish(&newFish)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create fish for new profile: %v", err)
+		}
+		fmt.Printf("Created fish: %+v\n", createdFish)
+
 	} else if err != nil {
 		return nil, err
 	}
