@@ -86,7 +86,6 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 		for i := 1; i < len(timeStamps); i++ {
 			if utils.ResetTimeToBeginningOfDay(timeStamps[i]).Sub(utils.ResetTimeToBeginningOfDay(timeStamps[i-1])) == 24*time.Hour {
 				currentStreak++
-				currentStreakEndDate = timeStamps[i]
 			} else {
 				if currentStreak > bestStreak {
 					bestStreak = currentStreak
@@ -96,6 +95,8 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 				currentStreak = 1
 				currentStreakStartDate = timeStamps[i]
 			}
+
+			currentStreakEndDate = timeStamps[i]
 		}
 
 		if currentStreak > bestStreak {
