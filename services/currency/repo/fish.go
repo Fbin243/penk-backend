@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type FishRepo struct {
@@ -26,7 +27,7 @@ func (r *FishRepo) GetFishByProfileID(profileID primitive.ObjectID) (*Fish, erro
 
 	fish := Fish{}
 	err := r.FindOne(ctx, bson.M{"profile_id": profileID}).Decode(&fish)
-	log.Printf("hello here")
+
 	return &fish, err
 }
 
@@ -43,6 +44,8 @@ func (r *FishRepo) UpdateFish(fish *Fish, profileID primitive.ObjectID) (*Fish, 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	log.Println("gold f: ", fish.Gold, " Nor f: ", fish.Normal)
+
 	update := bson.M{}
 	if fish.Gold != 0 {
 		update["gold"] = fish.Gold
@@ -54,10 +57,11 @@ func (r *FishRepo) UpdateFish(fish *Fish, profileID primitive.ObjectID) (*Fish, 
 	if len(update) == 0 {
 		return nil, fmt.Errorf("no valid values to update")
 	}
-	log.Println("go 6")
+
 	var updatedFish Fish
-	err := r.FindOneAndUpdate(ctx, bson.M{"profile_id": profileID}, bson.M{"$set": update}).Decode(&updatedFish)
-	log.Println("go 7")
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	err := r.Collection.FindOneAndUpdate(ctx, bson.M{"profile_id": profileID}, bson.M{"$set": update}, opts).Decode(&updatedFish)
+	log.Println("gold: ", updatedFish.Gold, " Nor: ", updatedFish.Normal)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update fish: %v", err)
 	}

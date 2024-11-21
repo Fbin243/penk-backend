@@ -10,5 +10,6 @@ type Mutation {
   """
   unlockMetrics(fishType: String!, characterID: ObjectID!): Boolean!
   buySnapshots(fishType: String!): Boolean!
+  onBoardCharacters(fishType: String!): Boolean!
 }
 

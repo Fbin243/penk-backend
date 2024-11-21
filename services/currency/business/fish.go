@@ -308,3 +308,70 @@ func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType string) (boo
 
 	return true, nil
 }
+
+func (biz *FishBusiness) OnBoardNewCharacters(ctx context.Context, fishType string) (bool, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
+	if !ok {
+		return false, errors.ErrorUnauthorized
+	}
+
+	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
+	if err != nil {
+		return false, fmt.Errorf("failed to find fish: %v", err)
+	}
+
+	exchangeConfigs, err := config.LoadExchangeConfigs("exchange_config.csv")
+	if err != nil {
+		return false, fmt.Errorf("failed to load exchange configs: %v", err)
+	}
+
+	cost := 0
+	increase := 0
+	foundConfig := false
+
+	for _, cfg := range exchangeConfigs {
+		if cfg.ItemType == "character" && cfg.FishType == fishType {
+			cost = cfg.Number
+			increase = cfg.Increase
+			foundConfig = true
+			break
+		}
+	}
+
+	if !foundConfig {
+		return false, fmt.Errorf("invalid exchange configuration for characters and %s fish", fishType)
+	}
+
+	switch fishType {
+	case "normal":
+		if fish.Normal < int32(cost) {
+			return false, fmt.Errorf("not enough normal fish to onboard new characters")
+		}
+		fish.Normal -= int32(cost)
+	case "gold":
+		if fish.Gold < int32(cost) {
+			return false, fmt.Errorf("not enough gold fish to onboard new characters")
+		}
+		fish.Gold -= int32(cost)
+	default:
+		return false, fmt.Errorf("invalid fish type: %s", fishType)
+	}
+
+	profileData, err := biz.ProfilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
+	if err != nil {
+		return false, fmt.Errorf("failed to get profile: %v", err)
+	}
+
+	// increase the limited char number
+	profileData.LimitedCharacterNumber += int32(increase)
+
+	if _, err := biz.ProfilesRepo.UpdateProfile(profileData); err != nil {
+		return false, fmt.Errorf("failed to update character count: %v", err)
+	}
+
+	if _, err := biz.FishRepo.UpdateFish(fish, profile.ID); err != nil {
+		return false, fmt.Errorf("failed to update fish: %v", err)
+	}
+
+	return true, nil
+}

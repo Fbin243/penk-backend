@@ -1,90 +1,72 @@
 package repo_test
 
-// import (
-// 	"context"
-// 	"testing"
+import (
+	"context"
+	"testing"
 
-// 	"tenkhours/services/currency/repo"
+	"tenkhours/services/currency/repo"
 
-// 	"github.com/stretchr/testify/assert"
-// 	"go.mongodb.org/mongo-driver/bson"
-// 	"go.mongodb.org/mongo-driver/bson/primitive"
-// )
+	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
-// type fishInputType struct {
-// 	ProfileID primitive.ObjectID
-// 	Numbers   int32
-// 	Type      string
-// }
+func setupTestRepo(t *testing.T) *repo.FishRepo {
+	// Assuming `fishRepo` is globally accessible and properly initialized
+	_, err := fishRepo.Collection.DeleteMany(context.Background(), bson.M{})
+	assert.Nil(t, err)
+	return fishRepo
+}
 
-// var fishInput = &fishInputType{
-// 	ProfileID: primitive.NewObjectID(),
-// 	Numbers:   3,
-// 	Type:      "gold",
-// }
+func newFish(profileID primitive.ObjectID, gold, normal int32) *repo.Fish {
+	return &repo.Fish{
+		ID:        primitive.NewObjectID(),
+		ProfileID: profileID,
+		Gold:      gold,
+		Normal:    normal,
+	}
+}
 
-// func newFishFromInput(input *fishInputType) *repo.Fish {
-// 	return &repo.Fish{
-// 		ID:        primitive.NewObjectID(),
-// 		ProfileID: input.ProfileID,
-// 		Numbers:   input.Numbers,
-// 		Type:      input.Type,
-// 	}
-// }
+func TestCreateFish(t *testing.T) {
+	repo := setupTestRepo(t)
+	fish := newFish(primitive.NewObjectID(), 10, 5)
 
-// func assertWithFishInput(t *testing.T, fish *repo.Fish, input *fishInputType) {
-// 	assert.Equal(t, fish.ProfileID, input.ProfileID)
-// 	assert.Equal(t, fish.Numbers, input.Numbers)
-// 	assert.Equal(t, fish.Type, input.Type)
-// }
+	createdFish, err := repo.CreateFish(fish)
+	assert.Nil(t, err)
+	assert.Equal(t, fish.Gold, createdFish.Gold)
+	assert.Equal(t, fish.Normal, createdFish.Normal)
+}
 
-// func setupTest(t *testing.T) *repo.Fish {
-// 	_, err := fishRepo.Collection.DeleteMany(context.Background(), bson.M{})
-// 	if err != nil {
-// 		t.Fatalf("Failed to clean up collection: %v", err)
-// 	}
+func TestGetFishByProfileID(t *testing.T) {
+	repo := setupTestRepo(t)
+	profileID := primitive.NewObjectID()
+	fish := newFish(profileID, 10, 5)
 
-// 	fish := newFishFromInput(fishInput)
+	_, err := repo.CreateFish(fish)
+	assert.Nil(t, err)
 
-// 	_, err = fishRepo.CreateFish(fish)
-// 	if err != nil {
-// 		t.Fatalf("Failed to create fish: %v", err)
-// 	}
+	retrievedFish, err := repo.GetFishByProfileID(profileID)
+	assert.Nil(t, err)
+	assert.Equal(t, fish.Gold, retrievedFish.Gold)
+	assert.Equal(t, fish.Normal, retrievedFish.Normal)
+}
 
-// 	return fish
-// }
+func TestUpdateFish(t *testing.T) {
+	repo := setupTestRepo(t)
+	profileID := primitive.NewObjectID()
+	fish := newFish(profileID, 10, 5)
 
-// func TestCreateFish(t *testing.T) {
-// 	fish := newFishFromInput(fishInput)
+	_, err := repo.CreateFish(fish)
+	assert.Nil(t, err)
 
-// 	createdFish, err := fishRepo.CreateFish(fish)
-// 	assert.Nil(t, err)
-// 	assertWithFishInput(t, createdFish, fishInput)
-// }
+	fish.Gold = 15
+	fish.Normal = 8
 
-// func TestGetFishByProfileID(t *testing.T) {
-// 	fish := newFishFromInput(fishInput)
+	updatedFish, err := repo.UpdateFish(fish, profileID)
+	assert.Nil(t, err)
 
-// 	_, err := fishRepo.CreateFish(fish)
-// 	assert.Nil(t, err)
+	t.Logf("Updated Fish - Gold: %v, Normal: %v", updatedFish.Gold, updatedFish.Normal)
 
-// 	queriedFish, err := fishRepo.GetFishByProfileID(fish.ProfileID, fish.Type)
-// 	assert.Nil(t, err)
-
-// 	queriedFish.ID = fish.ID
-// 	assert.Equal(t, *queriedFish, *fish)
-// }
-
-// func TestUpdateFish(t *testing.T) {
-// 	fish := setupTest(t)
-
-// 	// Update the Numbers field
-// 	updatedNumbers := fish.Numbers + 5
-// 	fish.Numbers = updatedNumbers
-
-// 	updatedFish, err := fishRepo.UpdateFish(fish, fish.ProfileID)
-// 	assert.Nil(t, err)
-// 	assert.Equal(t, updatedFish.Numbers, updatedNumbers)
-// 	assert.Equal(t, updatedFish.Type, fish.Type)
-// 	assert.Equal(t, updatedFish.ProfileID, fish.ProfileID)
-// }
+	assert.Equal(t, fish.Gold, updatedFish.Gold)
+	assert.Equal(t, fish.Normal, updatedFish.Normal)
+}

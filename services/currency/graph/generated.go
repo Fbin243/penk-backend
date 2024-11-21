@@ -62,8 +62,9 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		BuySnapshots  func(childComplexity int, fishType string) int
-		UnlockMetrics func(childComplexity int, fishType string, characterID string) int
+		BuySnapshots      func(childComplexity int, fishType string) int
+		OnBoardCharacters func(childComplexity int, fishType string) int
+		UnlockMetrics     func(childComplexity int, fishType string, characterID string) int
 	}
 
 	Query struct {
@@ -79,6 +80,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	UnlockMetrics(ctx context.Context, fishType string, characterID string) (bool, error)
 	BuySnapshots(ctx context.Context, fishType string) (bool, error)
+	OnBoardCharacters(ctx context.Context, fishType string) (bool, error)
 }
 type QueryResolver interface {
 	GetFishByProfileID(ctx context.Context) (*model.Fish, error)
@@ -163,6 +165,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.BuySnapshots(childComplexity, args["fishType"].(string)), true
+
+	case "Mutation.onBoardCharacters":
+		if e.complexity.Mutation.OnBoardCharacters == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_onBoardCharacters_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.OnBoardCharacters(childComplexity, args["fishType"].(string)), true
 
 	case "Mutation.unlockMetrics":
 		if e.complexity.Mutation.UnlockMetrics == nil {
@@ -385,6 +399,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // region    ***************************** args.gotpl *****************************
 
 func (ec *executionContext) field_Mutation_buySnapshots_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["fishType"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fishType"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["fishType"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_onBoardCharacters_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -879,6 +908,61 @@ func (ec *executionContext) fieldContext_Mutation_buySnapshots(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_buySnapshots_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_onBoardCharacters(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_onBoardCharacters(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().OnBoardCharacters(rctx, fc.Args["fishType"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_onBoardCharacters(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_onBoardCharacters_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3088,6 +3172,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "buySnapshots":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_buySnapshots(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "onBoardCharacters":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_onBoardCharacters(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

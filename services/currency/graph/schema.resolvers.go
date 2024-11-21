@@ -20,6 +20,11 @@ func (r *mutationResolver) BuySnapshots(ctx context.Context, fishType string) (b
 	return r.FishBusiness.BuySnapshots(ctx, fishType)
 }
 
+// OnBoardCharacters is the resolver for the onBoardCharacters field.
+func (r *mutationResolver) OnBoardCharacters(ctx context.Context, fishType string) (bool, error) {
+	return r.FishBusiness.OnBoardNewCharacters(ctx, fishType)
+}
+
 // GetFishByProfileID is the resolver for the getFishByProfileId field.
 func (r *queryResolver) GetFishByProfileID(ctx context.Context) (*model.Fish, error) {
 	return r.FishBusiness.GetFishByProfileID(ctx)
