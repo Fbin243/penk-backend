@@ -46,9 +46,15 @@ func GetProfileByIDToken(idToken string) (*FirebaseProfile, error) {
 	}
 
 	authProfile := FirebaseProfile{
-		UID:   token.UID,
-		Email: token.Claims["email"].(string),
-		Name:  token.Claims["name"].(string),
+		UID: token.UID,
+	}
+
+	if token.Claims["email"] != nil {
+		authProfile.Email = token.Claims["email"].(string)
+	}
+
+	if token.Claims["name"] != nil {
+		authProfile.Name = token.Claims["name"].(string)
 	}
 
 	return &authProfile, nil
