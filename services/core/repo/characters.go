@@ -99,6 +99,15 @@ func (r *CharactersRepo) DeleteCharacter(id primitive.ObjectID) (*Character, err
 	return character, err
 }
 
+func (r *CharactersRepo) DeleteCharactersByProfileID(profileID primitive.ObjectID) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := r.DeleteMany(ctx, bson.M{"profile_id": profileID})
+
+	return err
+}
+
 func (r *CharactersRepo) CreateCustomMetric(characterID primitive.ObjectID, metric *CustomMetric) (*CustomMetric, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

@@ -7,6 +7,7 @@ import (
 
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/middlewares"
+	analyticsRepo "tenkhours/services/analytics/repo"
 	"tenkhours/services/core/business"
 	"tenkhours/services/core/graph"
 	"tenkhours/services/core/repo"
@@ -40,7 +41,12 @@ func main() {
 	redisClient := db.GetRedisClient()
 	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
 	charactersRepo := repo.NewCharactersRepo(mongodb)
-	profilesBiz := business.NewProfilesBusiness(profilesRepo, redisClient)
+
+	// TODO: Temporary inject analyticsRepos into profilesBiz for deleting related data
+	capturedRepordsRepo := analyticsRepo.NewCapturedRecordsRepo(mongodb)
+	snapshotsRepo := analyticsRepo.NewSnapshotsRepo(mongodb)
+
+	profilesBiz := business.NewProfilesBusiness(profilesRepo, charactersRepo, capturedRepordsRepo, snapshotsRepo, redisClient)
 	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo)
 
 	// Check authentication

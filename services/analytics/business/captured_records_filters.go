@@ -70,7 +70,7 @@ func (c *CapturedRecordsFilter) Filter() ([]model.CapturedRecord, error) {
 
 		// Get the current captured record from redis
 		currentCapturedRecords := []model.CapturedRecord{}
-		currentCapturedRecordsJSON, err := c.RedisClient.HGetAll(context.Background(), db.CapturedRecordKey+c.ProfileID.Hex()).Result()
+		currentCapturedRecordsJSON, err := c.RedisClient.HGetAll(context.Background(), db.GetCapturedRecordKey(c.ProfileID.Hex())).Result()
 		if err == redis.Nil {
 			log.Printf("no current captured record found in redis for profile: %s", c.ProfileID.Hex())
 		} else if err != nil {

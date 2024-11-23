@@ -16,7 +16,7 @@ type SnapshotsRepo struct {
 	*mongo.Collection
 }
 
-func NewSnapshotRepo(mongodb *mongo.Database) *SnapshotsRepo {
+func NewSnapshotsRepo(mongodb *mongo.Database) *SnapshotsRepo {
 	return &SnapshotsRepo{mongodb.Collection(db.SnapshotsCollection)}
 }
 
@@ -68,4 +68,16 @@ func (r *SnapshotsRepo) CreateSnapshot(snapshot *Snapshot) (*Snapshot, error) {
 	}
 
 	return snapshot, nil
+}
+
+func (r *SnapshotsRepo) DeleteSnapshotsByProfileID(profileID primitive.ObjectID) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := r.DeleteMany(ctx, bson.M{"metadata.profile_id": profileID})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
+	analyticsRepo "tenkhours/services/analytics/repo"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
@@ -18,14 +20,20 @@ import (
 )
 
 type ProfilesBusiness struct {
-	ProfilesRepo *repo.ProfilesRepo
-	RedisClient  *redis.Client
+	ProfilesRepo        *repo.ProfilesRepo
+	CharactersRepo      *repo.CharactersRepo
+	CapturedRecordsRepo *analyticsRepo.CapturedRecordsRepo
+	SnapshotsRepo       *analyticsRepo.SnapshotsRepo
+	RedisClient         *redis.Client
 }
 
-func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, redisClient *redis.Client) *ProfilesBusiness {
+func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, charactersRepo *repo.CharactersRepo, capturedRecordsRepo *analyticsRepo.CapturedRecordsRepo, snapshotsRepo *analyticsRepo.SnapshotsRepo, redisClient *redis.Client) *ProfilesBusiness {
 	return &ProfilesBusiness{
-		ProfilesRepo: profilesRepo,
-		RedisClient:  redisClient,
+		ProfilesRepo:        profilesRepo,
+		CharactersRepo:      charactersRepo,
+		CapturedRecordsRepo: capturedRecordsRepo,
+		SnapshotsRepo:       snapshotsRepo,
+		RedisClient:         redisClient,
 	}
 }
 
@@ -127,4 +135,80 @@ func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.Prof
 	}
 
 	return updatedProfile, nil
+}
+
+// Delete the user's profile and all related data
+func (biz *ProfilesBusiness) DeleteProfile(ctx context.Context) (*repo.Profile, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	if !ok {
+		return nil, errors.ErrorUnauthorized
+	}
+
+	// Make a callback for deleting profile and related data
+	callback := func(ctx mongo.SessionContext) (interface{}, error) {
+		// Delete all captured records in database
+		err := biz.CapturedRecordsRepo.DeleteCapturedRecordsByProfileID(profile.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete captured records: %v", err)
+		}
+
+		// Delete all snapshots in database
+		err = biz.SnapshotsRepo.DeleteSnapshotsByProfileID(profile.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete snapshots: %v", err)
+		}
+
+		// Delete all characters in database
+		err = biz.CharactersRepo.DeleteCharactersByProfileID(profile.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete characters: %v", err)
+		}
+
+		// Delete the profile in database
+		err = biz.ProfilesRepo.DeleteProfileByFirebaseUID(profile.FirebaseUID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete user profile: %v", err)
+		}
+
+		return nil, nil
+	}
+
+	// Execute the callback in a transaction
+	session, err := db.GetDBManager().Client.StartSession()
+	if err != nil {
+		return nil, err
+	}
+
+	defer session.EndSession(context.Background())
+
+	_, err = session.WithTransaction(context.Background(), callback)
+	if err != nil {
+		return nil, err
+	}
+
+	// Delete current captured record in redis
+	err = biz.RedisClient.Del(ctx, db.GetCapturedRecordKey(profile.ID.Hex())).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete current captured record in redis: %v", err)
+	}
+
+	// Delete current timetracking in redis
+	err = biz.RedisClient.Del(ctx, profile.ID.Hex()).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete current timetracking in redis: %v", err)
+	}
+
+	// Delete profile in redis
+	err = biz.RedisClient.Del(ctx, profile.FirebaseUID).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete profile in redis: %v", err)
+	}
+
+	// Delete user profile in Firebase
+	err = auth.DeleteProfileOnFirebase(profile.FirebaseUID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete user profile in Firebase: %v", err)
+	}
+
+	return &profile, nil
 }

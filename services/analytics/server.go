@@ -46,8 +46,8 @@ func main() {
 	redisClient := db.GetRedisClient()
 	charactersRepo := repo.NewCharactersRepo(mongodb)
 	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
-	snapshotsRepo := analyticsRepo.NewSnapshotRepo(mongodb)
-	capturedRecordsRepo := analyticsRepo.NewCapturedRecordRepo(mongodb)
+	snapshotsRepo := analyticsRepo.NewSnapshotsRepo(mongodb)
+	capturedRecordsRepo := analyticsRepo.NewCapturedRecordsRepo(mongodb)
 	charactersBiz := business.NewCharactersBusiness(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo, redisClient)
 
 	// Make a cron run daily for captured records

@@ -59,3 +59,7 @@ func GetProfileByIDToken(idToken string) (*FirebaseProfile, error) {
 
 	return &authProfile, nil
 }
+
+func DeleteProfileOnFirebase(uid string) error {
+	return GetFirebaseManager().Client.DeleteUser(context.Background(), uid)
+}

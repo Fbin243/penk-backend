@@ -73,7 +73,7 @@ func (biz *TimeTrackingsBusiness) GetTotalCurrentTimeTracking(ctx context.Contex
 	}
 
 	// Get the timetrackings from the current captured record in Redis
-	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, db.CapturedRecordKey+profile.ID.Hex(), characterID.Hex()).Result()
+	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, db.GetCapturedRecordKey(profile.ID.Hex()), characterID.Hex()).Result()
 	if err == redis.Nil {
 		return 0, nil
 	} else if err != nil {
@@ -230,7 +230,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 
 	// Check if the captured record already exists in Redis
 	capturedRecord := model.CapturedRecord{}
-	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, db.CapturedRecordKey+profile.ID.Hex(), timeTracking.CharacterID.Hex()).Result()
+	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, db.GetCapturedRecordKey(profileID), timeTracking.CharacterID.Hex()).Result()
 	if err == redis.Nil {
 		// Make a new captured record if it doesn't exist
 		capturedRecord = model.CapturedRecord{
@@ -311,7 +311,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		return nil, fmt.Errorf("failed to serialize captured record: %v", err)
 	}
 
-	err = biz.RedisClient.HSet(ctx, db.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex(), capturedRecordBytes).Err()
+	err = biz.RedisClient.HSet(ctx, db.GetCapturedRecordKey(profileID), character.ID.Hex(), capturedRecordBytes).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to save captured record to redis: %v", err)
 	}

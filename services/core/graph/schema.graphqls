@@ -6,6 +6,7 @@ type Query {
 
 type Mutation {
   updateProfile(input: ProfileInput!): Profile!
+  deleteProfile: Profile!
 
   createCharacter(input: CharacterInput!): Character!
   updateCharacter(id: ObjectID!, input: CharacterInput!): Character!

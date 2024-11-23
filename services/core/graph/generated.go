@@ -101,6 +101,7 @@ type ComplexityRoot struct {
 		DeleteCharacter      func(childComplexity int, id primitive.ObjectID) int
 		DeleteCustomMetric   func(childComplexity int, id primitive.ObjectID, characterID primitive.ObjectID) int
 		DeleteMetricProperty func(childComplexity int, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) int
+		DeleteProfile        func(childComplexity int) int
 		ResetCharacter       func(childComplexity int, id primitive.ObjectID) int
 		ResetCustomMetric    func(childComplexity int, id primitive.ObjectID, characterID primitive.ObjectID) int
 		UpdateCharacter      func(childComplexity int, id primitive.ObjectID, input model.CharacterInput) int
@@ -137,6 +138,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error)
+	DeleteProfile(ctx context.Context) (*repo.Profile, error)
 	CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error)
 	UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error)
 	DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error)
@@ -431,6 +433,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteMetricProperty(childComplexity, args["id"].(primitive.ObjectID), args["characterID"].(primitive.ObjectID), args["metricID"].(primitive.ObjectID)), true
 
+	case "Mutation.deleteProfile":
+		if e.complexity.Mutation.DeleteProfile == nil {
+			break
+		}
+
+		return e.complexity.Mutation.DeleteProfile(childComplexity), true
+
 	case "Mutation.resetCharacter":
 		if e.complexity.Mutation.ResetCharacter == nil {
 			break
@@ -724,7 +733,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "characters.graphqls" "profiles.graphqls" "schema.graphqls" "settings.graphqls"
+//go:embed "characters.graphqls" "profiles.graphqls" "schema.graphqls" "settings.graphqls" "templates.graphqls"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -740,6 +749,7 @@ var sources = []*ast.Source{
 	{Name: "profiles.graphqls", Input: sourceData("profiles.graphqls"), BuiltIn: false},
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
 	{Name: "settings.graphqls", Input: sourceData("settings.graphqls"), BuiltIn: false},
+	{Name: "templates.graphqls", Input: sourceData("templates.graphqls"), BuiltIn: false},
 	{Name: "../federation/directives.graphql", Input: `
 	directive @authenticated on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM
 	directive @composeDirective(name: String!) repeatable on SCHEMA
@@ -2398,6 +2408,74 @@ func (ec *executionContext) fieldContext_Mutation_updateProfile(ctx context.Cont
 	if fc.Args, err = ec.field_Mutation_updateProfile_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteProfile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteProfile(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteProfile(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*repo.Profile)
+	fc.Result = res
+	return ec.marshalNProfile2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐProfile(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteProfile(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Profile_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Profile_name(ctx, field)
+			case "email":
+				return ec.fieldContext_Profile_email(ctx, field)
+			case "firebaseUID":
+				return ec.fieldContext_Profile_firebaseUID(ctx, field)
+			case "imageURL":
+				return ec.fieldContext_Profile_imageURL(ctx, field)
+			case "currentCharacterID":
+				return ec.fieldContext_Profile_currentCharacterID(ctx, field)
+			case "characters":
+				return ec.fieldContext_Profile_characters(ctx, field)
+			case "availableSnapshots":
+				return ec.fieldContext_Profile_availableSnapshots(ctx, field)
+			case "autoSnapshot":
+				return ec.fieldContext_Profile_autoSnapshot(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Profile_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Profile_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Profile", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -6408,6 +6486,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "updateProfile":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateProfile(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteProfile":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteProfile(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

@@ -7,6 +7,8 @@ import (
 	"tenkhours/pkg/db"
 	"tenkhours/services/analytics/graph/model"
 
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -14,7 +16,7 @@ type CapturedRecordsRepo struct {
 	*mongo.Collection
 }
 
-func NewCapturedRecordRepo(mongodb *mongo.Database) *CapturedRecordsRepo {
+func NewCapturedRecordsRepo(mongodb *mongo.Database) *CapturedRecordsRepo {
 	return &CapturedRecordsRepo{mongodb.Collection(db.CapturedRecordsCollection)}
 }
 
@@ -52,4 +54,16 @@ func (r *CapturedRecordsRepo) GetCapturedRecords(pineline mongo.Pipeline) ([]mod
 	}
 
 	return capturedRecords, nil
+}
+
+func (r *CapturedRecordsRepo) DeleteCapturedRecordsByProfileID(profileID primitive.ObjectID) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := r.DeleteMany(ctx, bson.M{"metadata.profile_id": profileID})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

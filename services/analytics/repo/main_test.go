@@ -28,7 +28,7 @@ func TestMain(m *testing.M) {
 			),
 	)
 
-	snapshotsRepo = repo.NewSnapshotRepo(testdb)
+	snapshotsRepo = repo.NewSnapshotsRepo(testdb)
 
 	code := m.Run()
 

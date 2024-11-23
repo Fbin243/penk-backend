@@ -41,7 +41,7 @@ run-all:
 	$(MAKE) notifications & \
 
 kill-all:
-	npx kill-port 8080 8082 8083 8084
+	npx kill-port 8080 8082 8083 8084 8070
 
 gateway:
 	cd services/gateway && npm run start
