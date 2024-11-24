@@ -76,7 +76,7 @@ func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, err
 			Name:               firebaseProfile.Name,
 			Email:              firebaseProfile.Email,
 			FirebaseUID:        firebaseProfile.UID,
-			ImageURL:           "",
+			ImageURL:           firebaseProfile.Picture,
 			CreatedAt:          utils.Now(),
 			AutoSnapshot:       true,
 			AvailableSnapshots: utils.DefaultSnapshotsNumber,

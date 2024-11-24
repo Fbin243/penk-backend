@@ -9,9 +9,10 @@ const (
 )
 
 type FirebaseProfile struct {
-	UID   string
-	Email string
-	Name  string
+	UID     string
+	Email   string
+	Name    string
+	Picture string
 }
 
 type AuthOption struct {
