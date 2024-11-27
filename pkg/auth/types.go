@@ -3,8 +3,7 @@ package auth
 type ContextKey int
 
 const (
-	FirebaseProfileKey ContextKey = iota
-	ProfileKey
+	ProfileKey ContextKey = iota
 	PostDataKey
 )
 

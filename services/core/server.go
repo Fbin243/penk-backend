@@ -50,7 +50,7 @@ func main() {
 	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo)
 
 	// Check authentication
-	authMiddleware := middlewares.NewMiddleware(redisClient)
+	authMiddleware := middlewares.NewMiddleware(redisClient, profilesRepo)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
