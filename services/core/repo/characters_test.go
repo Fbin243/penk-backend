@@ -130,6 +130,8 @@ func TestCreateNewCharacter(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 
 	createdCharacter, err := charactersRepo.CreateCharacter(character)
+	defer cleanUpCharacter(createdCharacter)
+
 	assert.Nil(t, err)
 	assertWithCharInput(t, createdCharacter, charInput)
 }
@@ -138,6 +140,7 @@ func TestGetCharacterByID(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 
 	_, err := charactersRepo.CreateCharacter(character)
+	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
 	queriedCharacter, err := charactersRepo.GetCharacterByID(character.ID)
@@ -149,6 +152,7 @@ func TestGetCharactersByProfileID(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 
 	_, err := charactersRepo.CreateCharacter(character)
+	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
 	characters, err := charactersRepo.GetCharactersByProfileID(character.ProfileID)
@@ -213,6 +217,7 @@ func TestUpdateCharacter(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 
 	_, err := charactersRepo.CreateCharacter(character)
+	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
 	updateInput := &characterInputType{
@@ -233,6 +238,7 @@ func TestUpdateCharacter(t *testing.T) {
 func TestCreateCustomMetric(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 	_, err := charactersRepo.CreateCharacter(character)
+	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
 	metric := newMetricFromInput(metricInput1)
@@ -244,6 +250,7 @@ func TestCreateCustomMetric(t *testing.T) {
 func TestUpdateCustomMetric(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 	_, err := charactersRepo.CreateCharacter(character)
+	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
 	metric := newMetricFromInput(metricInput1)
@@ -281,6 +288,7 @@ func TestUpdateCustomMetric(t *testing.T) {
 func TestAddMetricProperty(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 	_, err := charactersRepo.CreateCharacter(character)
+	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
 	metric := newMetricFromInput(metricInput1)
@@ -303,6 +311,7 @@ func TestAddMetricProperty(t *testing.T) {
 func TestUpdateMetricProperty(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 	_, err := charactersRepo.CreateCharacter(character)
+	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
 	metric := newMetricFromInput(metricInput1)
@@ -331,4 +340,11 @@ func TestUpdateMetricProperty(t *testing.T) {
 	updatedProperty, err := charactersRepo.UpdateMetricProperty(character.ID, metric.ID, &updateProperty)
 	assert.Nil(t, err)
 	assert.Equal(t, updatedProperty, &updateProperty)
+}
+
+func cleanUpCharacter(character *repo.Character) {
+	_, err := charactersRepo.DeleteCharacter(character.ID)
+	if err != nil {
+		panic(err)
+	}
 }

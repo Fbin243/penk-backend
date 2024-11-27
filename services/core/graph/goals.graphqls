@@ -1,7 +1,8 @@
 type Goal {
   ID: ObjectID!
   CreatedAt: Time!
-  UpdatedAt: Time
+  UpdatedAt: Time!
+  CharacterID: ObjectID!
   Name: String!
   Description: String!
   StartDate: Time!

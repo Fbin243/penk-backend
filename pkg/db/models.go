@@ -37,6 +37,7 @@ type IBaseRepo[M IBaseModel] interface {
 	InsertOne(m M) (*M, error)
 	FindById(id primitive.ObjectID) (*M, error)
 	UpdateById(id primitive.ObjectID, m M) (*M, error)
+	DeleteById(id primitive.ObjectID) (*M, error)
 }
 
 type BaseRepo[M IBaseModel] struct {
@@ -72,5 +73,14 @@ func (r *BaseRepo[M]) UpdateById(id primitive.ObjectID, m M) (*M, error) {
 
 	m.SetUpdatedAtByNow()
 	_, err := r.Collection.ReplaceOne(ctx, bson.M{"_id": id}, m)
+	return &m, err
+}
+
+func (r *BaseRepo[M]) DeleteById(id primitive.ObjectID) (*M, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var m M
+	err := r.Collection.FindOneAndDelete(ctx, bson.M{"_id": id}).Decode(&m)
 	return &m, err
 }

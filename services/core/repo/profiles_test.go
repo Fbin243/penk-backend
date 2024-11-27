@@ -1,11 +1,13 @@
 package repo_test
 
 import (
+	"context"
 	"testing"
 
 	"tenkhours/services/core/repo"
 
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -42,6 +44,8 @@ func TestCreateNewProfile(t *testing.T) {
 	profile := newProfileFromInput(profileInput)
 
 	createdProfile, err := profilesRepo.CreateNewProfile(profile)
+	defer cleanUpProfile(createdProfile)
+
 	assert.Nil(t, err)
 	assertWithProfileInput(t, createdProfile, profileInput)
 }
@@ -50,6 +54,7 @@ func TestCreateSameProfile(t *testing.T) {
 	profile := newProfileFromInput(profileInput)
 
 	_, err := profilesRepo.CreateNewProfile(profile)
+	defer cleanUpProfile(profile)
 	assert.Nil(t, err)
 
 	_, err = profilesRepo.CreateNewProfile(profile)
@@ -60,6 +65,7 @@ func TestGetProfileByFirebaseUID(t *testing.T) {
 	profile := newProfileFromInput(profileInput)
 
 	_, err := profilesRepo.CreateNewProfile(profile)
+	defer cleanUpProfile(profile)
 	assert.Nil(t, err)
 
 	queriedProfile, err := profilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
@@ -71,6 +77,7 @@ func TestUpdateProfile(t *testing.T) {
 	profile := newProfileFromInput(profileInput)
 
 	_, err := profilesRepo.CreateNewProfile(profile)
+	defer cleanUpProfile(profile)
 	assert.Nil(t, err)
 
 	updateInput := &profileInputType{
@@ -86,4 +93,18 @@ func TestUpdateProfile(t *testing.T) {
 	updatedProfile, err := profilesRepo.UpdateProfile(profile)
 	assert.Nil(t, err)
 	assertWithProfileInput(t, updatedProfile, updateInput)
+}
+
+func cleanUpProfile(profile *repo.Profile) {
+	// Delete profile from database
+	_, err := profilesRepo.Collection.DeleteOne(context.Background(), bson.M{"_id": profile.ID})
+	if err != nil {
+		panic(err)
+	}
+
+	// Delete profile from Redis
+	_, err = profilesRepo.Del(context.Background(), profile.FirebaseUID).Result()
+	if err != nil {
+		panic(err)
+	}
 }

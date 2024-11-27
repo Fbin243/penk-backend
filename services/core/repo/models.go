@@ -60,13 +60,14 @@ type Character struct {
 }
 
 type Goal struct {
-	db.BaseModel `bson:",inline"`
-	Name         string         `json:"name" bson:"name"`
-	Description  string         `json:"description" bson:"description"`
-	StartDate    time.Time      `json:"startDate" bson:"start_date"`
-	EndDate      time.Time      `json:"endDate" bson:"end_date"`
-	Status       GoalStatus     `json:"status" bson:"status"`
-	Target       []CustomMetric `json:"target" bson:"target"`
+	*db.BaseModel `bson:",inline"`
+	CharacterID   primitive.ObjectID `json:"characterID" bson:"character_id"`
+	Name          string             `json:"name" bson:"name"`
+	Description   string             `json:"description" bson:"description"`
+	StartDate     time.Time          `json:"startDate" bson:"start_date"`
+	EndDate       time.Time          `json:"endDate" bson:"end_date"`
+	Status        GoalStatus         `json:"status" bson:"status"`
+	Target        []CustomMetric     `json:"target" bson:"target"`
 }
 
 type GoalStatus string

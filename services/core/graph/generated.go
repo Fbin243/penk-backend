@@ -82,6 +82,7 @@ type ComplexityRoot struct {
 	}
 
 	Goal struct {
+		CharacterID func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
 		Description func(childComplexity int) int
 		EndDate     func(childComplexity int) int
@@ -327,6 +328,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CustomMetric.Time(childComplexity), true
+
+	case "Goal.CharacterID":
+		if e.complexity.Goal.CharacterID == nil {
+			break
+		}
+
+		return e.complexity.Goal.CharacterID(childComplexity), true
 
 	case "Goal.CreatedAt":
 		if e.complexity.Goal.CreatedAt == nil {
@@ -2287,11 +2295,14 @@ func (ec *executionContext) _Goal_UpdatedAt(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Goal_UpdatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2302,6 +2313,50 @@ func (ec *executionContext) fieldContext_Goal_UpdatedAt(_ context.Context, field
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Goal_CharacterID(ctx context.Context, field graphql.CollectedField, obj *repo.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_CharacterID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CharacterID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(primitive.ObjectID)
+	fc.Result = res
+	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_CharacterID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ObjectID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3852,6 +3907,8 @@ func (ec *executionContext) fieldContext_Mutation_createGoal(ctx context.Context
 				return ec.fieldContext_Goal_CreatedAt(ctx, field)
 			case "UpdatedAt":
 				return ec.fieldContext_Goal_UpdatedAt(ctx, field)
+			case "CharacterID":
+				return ec.fieldContext_Goal_CharacterID(ctx, field)
 			case "Name":
 				return ec.fieldContext_Goal_Name(ctx, field)
 			case "Description":
@@ -4607,6 +4664,8 @@ func (ec *executionContext) fieldContext_Query_goals(ctx context.Context, field 
 				return ec.fieldContext_Goal_CreatedAt(ctx, field)
 			case "UpdatedAt":
 				return ec.fieldContext_Goal_UpdatedAt(ctx, field)
+			case "CharacterID":
+				return ec.fieldContext_Goal_CharacterID(ctx, field)
 			case "Name":
 				return ec.fieldContext_Goal_Name(ctx, field)
 			case "Description":
@@ -7148,6 +7207,14 @@ func (ec *executionContext) _Goal(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "UpdatedAt":
 			out.Values[i] = ec._Goal_UpdatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "CharacterID":
+			out.Values[i] = ec._Goal_CharacterID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "Name":
 			out.Values[i] = ec._Goal_Name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
