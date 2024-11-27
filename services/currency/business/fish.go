@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"time"
 
 	"tenkhours/pkg/auth"
@@ -70,10 +71,11 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.Obje
 	rand.Seed(time.Now().UnixNano())
 
 	// Load fish configurations
-	fishConfigs, err := config.LoadFishConfigs("fish_config.csv")
-	if err != nil {
-		return "error", fmt.Errorf("failed to load fish configurations: %v", err)
+	fishConfigPath := os.Getenv("FISH_CONFIG_PATH")
+	if fishConfigPath == "" {
+		return "error", fmt.Errorf("FISH_CONFIG_PATH environment variable not set")
 	}
+	fishConfigs, err := config.LoadFishConfigs(fishConfigPath)
 
 	fishType := "none"
 	randomNumber := rand.Float64()
@@ -180,10 +182,12 @@ func (biz *FishBusiness) UnlockMetrics(ctx context.Context, fishType string, cha
 		return false, fmt.Errorf("failed to find fish: %v", err)
 	}
 
-	exchangeConfigs, err := config.LoadExchangeConfigs("exchange_config.csv") // Load configs
-	if err != nil {
-		return false, fmt.Errorf("failed to load exchange configs: %v", err)
+	exchangeConfigPath := os.Getenv("EXCHANGE_CONFIG_PATH") //load config
+	if exchangeConfigPath == "" {
+		return false, fmt.Errorf("EXCHANGE_CONFIG_PATH environment variable not set")
 	}
+
+	exchangeConfigs, err := config.LoadExchangeConfigs(exchangeConfigPath)
 
 	cost := 0
 	increase := 0
@@ -250,10 +254,12 @@ func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType string) (boo
 		return false, fmt.Errorf("failed to find fish: %v", err)
 	}
 
-	exchangeConfigs, err := config.LoadExchangeConfigs("exchange_config.csv") // read the config from csv
-	if err != nil {
-		return false, fmt.Errorf("failed to load exchange configs: %v", err)
+	exchangeConfigPath := os.Getenv("EXCHANGE_CONFIG_PATH")
+	if exchangeConfigPath == "" {
+		return false, fmt.Errorf("EXCHANGE_CONFIG_PATH environment variable not set")
 	}
+
+	exchangeConfigs, err := config.LoadExchangeConfigs(exchangeConfigPath)
 
 	cost := 0
 	increase := 0
@@ -316,10 +322,12 @@ func (biz *FishBusiness) OnBoardNewCharacters(ctx context.Context, fishType stri
 		return false, fmt.Errorf("failed to find fish: %v", err)
 	}
 
-	exchangeConfigs, err := config.LoadExchangeConfigs("exchange_config.csv")
-	if err != nil {
-		return false, fmt.Errorf("failed to load exchange configs: %v", err)
+	exchangeConfigPath := os.Getenv("EXCHANGE_CONFIG_PATH")
+	if exchangeConfigPath == "" {
+		return false, fmt.Errorf("EXCHANGE_CONFIG_PATH environment variable not set")
 	}
+
+	exchangeConfigs, err := config.LoadExchangeConfigs(exchangeConfigPath)
 
 	cost := 0
 	increase := 0

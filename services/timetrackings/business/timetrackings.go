@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"tenkhours/pkg/auth"
@@ -57,6 +59,22 @@ func (biz *TimeTrackingsBusiness) GetCurrentTimeTracking(ctx context.Context) (*
 	}
 
 	return &currentTimetracking, nil
+}
+
+// Helper function to get time interval fish catching
+func getFishCatchingInterval() int {
+	fishCatchingIntervalStr := os.Getenv("FISH_CATCHING_INTERVAL_SECONDS")
+	fishCatchingInterval := 5 // Default value (5 seconds) for testing
+
+	if fishCatchingIntervalStr != "" {
+		interval, err := strconv.Atoi(fishCatchingIntervalStr) // convert string to int
+		if err != nil {
+			log.Printf("Invalid FISH_CATCHING_INTERVAL_SECONDS: %v, using default 5 seconds", err)
+		} else {
+			fishCatchingInterval = interval
+		}
+	}
+	return fishCatchingInterval
 }
 
 func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, metricID *primitive.ObjectID, startTime time.Time) (*timetrackingsRepo.TimeTracking, error) {
@@ -151,7 +169,9 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 
 	// Start fish-catching goroutine
 	go func() {
-		ticker := time.NewTicker(5 * time.Second)
+		fishCatchingInterval := getFishCatchingInterval()
+
+		ticker := time.NewTicker(time.Duration(fishCatchingInterval) * time.Second)
 		defer ticker.Stop()
 		log.Println("Start the goroutine")
 
