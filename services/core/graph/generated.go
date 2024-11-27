@@ -81,6 +81,18 @@ type ComplexityRoot struct {
 		Time                  func(childComplexity int) int
 	}
 
+	Goal struct {
+		CreatedAt   func(childComplexity int) int
+		Description func(childComplexity int) int
+		EndDate     func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
+		StartDate   func(childComplexity int) int
+		Status      func(childComplexity int) int
+		Target      func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+	}
+
 	MetricProperty struct {
 		ID    func(childComplexity int) int
 		Name  func(childComplexity int) int
@@ -97,6 +109,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateCharacter      func(childComplexity int, input model.CharacterInput) int
 		CreateCustomMetric   func(childComplexity int, characterID primitive.ObjectID, input model.CustomMetricInput) int
+		CreateGoal           func(childComplexity int, characterID primitive.ObjectID, input model.GoalInput) int
 		CreateMetricProperty func(childComplexity int, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) int
 		DeleteCharacter      func(childComplexity int, id primitive.ObjectID) int
 		DeleteCustomMetric   func(childComplexity int, id primitive.ObjectID, characterID primitive.ObjectID) int
@@ -127,6 +140,7 @@ type ComplexityRoot struct {
 	Query struct {
 		AppSettings        func(childComplexity int) int
 		Characters         func(childComplexity int) int
+		Goals              func(childComplexity int, characterID primitive.ObjectID) int
 		Profile            func(childComplexity int) int
 		__resolve__service func(childComplexity int) int
 	}
@@ -150,6 +164,7 @@ type MutationResolver interface {
 	CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error)
 	UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error)
 	DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*repo.MetricProperty, error)
+	CreateGoal(ctx context.Context, characterID primitive.ObjectID, input model.GoalInput) (*repo.Goal, error)
 }
 type ProfileResolver interface {
 	Characters(ctx context.Context, obj *repo.Profile) ([]repo.Character, error)
@@ -158,6 +173,7 @@ type QueryResolver interface {
 	Characters(ctx context.Context) ([]repo.Character, error)
 	Profile(ctx context.Context) (*repo.Profile, error)
 	AppSettings(ctx context.Context) (*model.AppSettings, error)
+	Goals(ctx context.Context, characterID primitive.ObjectID) ([]repo.Goal, error)
 }
 
 type executableSchema struct {
@@ -312,6 +328,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CustomMetric.Time(childComplexity), true
 
+	case "Goal.CreatedAt":
+		if e.complexity.Goal.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Goal.CreatedAt(childComplexity), true
+
+	case "Goal.Description":
+		if e.complexity.Goal.Description == nil {
+			break
+		}
+
+		return e.complexity.Goal.Description(childComplexity), true
+
+	case "Goal.EndDate":
+		if e.complexity.Goal.EndDate == nil {
+			break
+		}
+
+		return e.complexity.Goal.EndDate(childComplexity), true
+
+	case "Goal.ID":
+		if e.complexity.Goal.ID == nil {
+			break
+		}
+
+		return e.complexity.Goal.ID(childComplexity), true
+
+	case "Goal.Name":
+		if e.complexity.Goal.Name == nil {
+			break
+		}
+
+		return e.complexity.Goal.Name(childComplexity), true
+
+	case "Goal.StartDate":
+		if e.complexity.Goal.StartDate == nil {
+			break
+		}
+
+		return e.complexity.Goal.StartDate(childComplexity), true
+
+	case "Goal.Status":
+		if e.complexity.Goal.Status == nil {
+			break
+		}
+
+		return e.complexity.Goal.Status(childComplexity), true
+
+	case "Goal.Target":
+		if e.complexity.Goal.Target == nil {
+			break
+		}
+
+		return e.complexity.Goal.Target(childComplexity), true
+
+	case "Goal.UpdatedAt":
+		if e.complexity.Goal.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Goal.UpdatedAt(childComplexity), true
+
 	case "MetricProperty.id":
 		if e.complexity.MetricProperty.ID == nil {
 			break
@@ -384,6 +463,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateCustomMetric(childComplexity, args["characterID"].(primitive.ObjectID), args["input"].(model.CustomMetricInput)), true
+
+	case "Mutation.createGoal":
+		if e.complexity.Mutation.CreateGoal == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createGoal_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateGoal(childComplexity, args["characterID"].(primitive.ObjectID), args["input"].(model.GoalInput)), true
 
 	case "Mutation.createMetricProperty":
 		if e.complexity.Mutation.CreateMetricProperty == nil {
@@ -603,6 +694,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Characters(childComplexity), true
 
+	case "Query.goals":
+		if e.complexity.Query.Goals == nil {
+			break
+		}
+
+		args, err := ec.field_Query_goals_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Goals(childComplexity, args["characterID"].(primitive.ObjectID)), true
+
 	case "Query.profile":
 		if e.complexity.Query.Profile == nil {
 			break
@@ -634,6 +737,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCharacterInput,
 		ec.unmarshalInputCustomMetricInput,
+		ec.unmarshalInputGoalInput,
 		ec.unmarshalInputMetricPropertyInput,
 		ec.unmarshalInputMetricStyleInput,
 		ec.unmarshalInputProfileInput,
@@ -733,7 +837,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "characters.graphqls" "profiles.graphqls" "schema.graphqls" "settings.graphqls" "templates.graphqls"
+//go:embed "characters.graphqls" "goals.graphqls" "profiles.graphqls" "schema.graphqls" "settings.graphqls" "templates.graphqls"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -746,6 +850,7 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "characters.graphqls", Input: sourceData("characters.graphqls"), BuiltIn: false},
+	{Name: "goals.graphqls", Input: sourceData("goals.graphqls"), BuiltIn: false},
 	{Name: "profiles.graphqls", Input: sourceData("profiles.graphqls"), BuiltIn: false},
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
 	{Name: "settings.graphqls", Input: sourceData("settings.graphqls"), BuiltIn: false},
@@ -848,6 +953,30 @@ func (ec *executionContext) field_Mutation_createCustomMetric_args(ctx context.C
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg1, err = ec.unmarshalNCustomMetricInput2tenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐCustomMetricInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createGoal_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 primitive.ObjectID
+	if tmp, ok := rawArgs["characterID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
+		arg0, err = ec.unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["characterID"] = arg0
+	var arg1 model.GoalInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNGoalInput2tenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐGoalInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1126,6 +1255,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_goals_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 primitive.ObjectID
+	if tmp, ok := rawArgs["characterID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
+		arg0, err = ec.unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["characterID"] = arg0
 	return args, nil
 }
 
@@ -2029,6 +2173,412 @@ func (ec *executionContext) fieldContext_CustomMetric_limitedPropertyNumber(_ co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Goal_ID(ctx context.Context, field graphql.CollectedField, obj *repo.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_ID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(primitive.ObjectID)
+	fc.Result = res
+	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_ID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ObjectID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Goal_CreatedAt(ctx context.Context, field graphql.CollectedField, obj *repo.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_CreatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_CreatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Goal_UpdatedAt(ctx context.Context, field graphql.CollectedField, obj *repo.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_UpdatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_UpdatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Goal_Name(ctx context.Context, field graphql.CollectedField, obj *repo.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_Name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_Name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Goal_Description(ctx context.Context, field graphql.CollectedField, obj *repo.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_Description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_Description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Goal_StartDate(ctx context.Context, field graphql.CollectedField, obj *repo.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_StartDate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_StartDate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Goal_EndDate(ctx context.Context, field graphql.CollectedField, obj *repo.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_EndDate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EndDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_EndDate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Goal_Status(ctx context.Context, field graphql.CollectedField, obj *repo.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_Status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(repo.GoalStatus)
+	fc.Result = res
+	return ec.marshalNGoalStatus2tenkhoursᚋservicesᚋcoreᚋrepoᚐGoalStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_Status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type GoalStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Goal_Target(ctx context.Context, field graphql.CollectedField, obj *repo.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_Target(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Target, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]repo.CustomMetric)
+	fc.Result = res
+	return ec.marshalOCustomMetric2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐCustomMetricᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_Target(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_CustomMetric_id(ctx, field)
+			case "name":
+				return ec.fieldContext_CustomMetric_name(ctx, field)
+			case "description":
+				return ec.fieldContext_CustomMetric_description(ctx, field)
+			case "time":
+				return ec.fieldContext_CustomMetric_time(ctx, field)
+			case "style":
+				return ec.fieldContext_CustomMetric_style(ctx, field)
+			case "properties":
+				return ec.fieldContext_CustomMetric_properties(ctx, field)
+			case "limitedPropertyNumber":
+				return ec.fieldContext_CustomMetric_limitedPropertyNumber(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CustomMetric", field.Name)
 		},
 	}
 	return fc, nil
@@ -3257,6 +3807,81 @@ func (ec *executionContext) fieldContext_Mutation_deleteMetricProperty(ctx conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createGoal(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createGoal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateGoal(rctx, fc.Args["characterID"].(primitive.ObjectID), fc.Args["input"].(model.GoalInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*repo.Goal)
+	fc.Result = res
+	return ec.marshalNGoal2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐGoal(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createGoal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_Goal_ID(ctx, field)
+			case "CreatedAt":
+				return ec.fieldContext_Goal_CreatedAt(ctx, field)
+			case "UpdatedAt":
+				return ec.fieldContext_Goal_UpdatedAt(ctx, field)
+			case "Name":
+				return ec.fieldContext_Goal_Name(ctx, field)
+			case "Description":
+				return ec.fieldContext_Goal_Description(ctx, field)
+			case "StartDate":
+				return ec.fieldContext_Goal_StartDate(ctx, field)
+			case "EndDate":
+				return ec.fieldContext_Goal_EndDate(ctx, field)
+			case "Status":
+				return ec.fieldContext_Goal_Status(ctx, field)
+			case "Target":
+				return ec.fieldContext_Goal_Target(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Goal", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createGoal_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Profile_id(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_id(ctx, field)
 	if err != nil {
@@ -3933,6 +4558,81 @@ func (ec *executionContext) fieldContext_Query_appSettings(_ context.Context, fi
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AppSettings", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_goals(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_goals(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Goals(rctx, fc.Args["characterID"].(primitive.ObjectID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]repo.Goal)
+	fc.Result = res
+	return ec.marshalNGoal2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐGoalᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_goals(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_Goal_ID(ctx, field)
+			case "CreatedAt":
+				return ec.fieldContext_Goal_CreatedAt(ctx, field)
+			case "UpdatedAt":
+				return ec.fieldContext_Goal_UpdatedAt(ctx, field)
+			case "Name":
+				return ec.fieldContext_Goal_Name(ctx, field)
+			case "Description":
+				return ec.fieldContext_Goal_Description(ctx, field)
+			case "StartDate":
+				return ec.fieldContext_Goal_StartDate(ctx, field)
+			case "EndDate":
+				return ec.fieldContext_Goal_EndDate(ctx, field)
+			case "Status":
+				return ec.fieldContext_Goal_Status(ctx, field)
+			case "Target":
+				return ec.fieldContext_Goal_Target(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Goal", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_goals_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -6031,6 +6731,61 @@ func (ec *executionContext) unmarshalInputCustomMetricInput(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGoalInput(ctx context.Context, obj interface{}) (model.GoalInput, error) {
+	var it model.GoalInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"Name", "Description", "StartDate", "EndDate", "Target"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "Name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "Description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		case "StartDate":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("StartDate"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StartDate = data
+		case "EndDate":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("EndDate"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EndDate = data
+		case "Target":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Target"))
+			data, err := ec.unmarshalOCustomMetricInput2ᚕtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐCustomMetricInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Target = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputMetricPropertyInput(ctx context.Context, obj interface{}) (model.MetricPropertyInput, error) {
 	var it model.MetricPropertyInput
 	asMap := map[string]interface{}{}
@@ -6370,6 +7125,79 @@ func (ec *executionContext) _CustomMetric(ctx context.Context, sel ast.Selection
 	return out
 }
 
+var goalImplementors = []string{"Goal"}
+
+func (ec *executionContext) _Goal(ctx context.Context, sel ast.SelectionSet, obj *repo.Goal) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, goalImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Goal")
+		case "ID":
+			out.Values[i] = ec._Goal_ID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "CreatedAt":
+			out.Values[i] = ec._Goal_CreatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "UpdatedAt":
+			out.Values[i] = ec._Goal_UpdatedAt(ctx, field, obj)
+		case "Name":
+			out.Values[i] = ec._Goal_Name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "Description":
+			out.Values[i] = ec._Goal_Description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "StartDate":
+			out.Values[i] = ec._Goal_StartDate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "EndDate":
+			out.Values[i] = ec._Goal_EndDate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "Status":
+			out.Values[i] = ec._Goal_Status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "Target":
+			out.Values[i] = ec._Goal_Target(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var metricPropertyImplementors = []string{"MetricProperty"}
 
 func (ec *executionContext) _MetricProperty(ctx context.Context, sel ast.SelectionSet, obj *repo.MetricProperty) graphql.Marshaler {
@@ -6570,6 +7398,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteMetricProperty":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteMetricProperty(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createGoal":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createGoal(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -6784,6 +7619,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_appSettings(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "goals":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_goals(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -7373,6 +8230,85 @@ func (ec *executionContext) unmarshalNFieldSet2string(ctx context.Context, v int
 
 func (ec *executionContext) marshalNFieldSet2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) marshalNGoal2tenkhoursᚋservicesᚋcoreᚋrepoᚐGoal(ctx context.Context, sel ast.SelectionSet, v repo.Goal) graphql.Marshaler {
+	return ec._Goal(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGoal2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐGoalᚄ(ctx context.Context, sel ast.SelectionSet, v []repo.Goal) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNGoal2tenkhoursᚋservicesᚋcoreᚋrepoᚐGoal(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNGoal2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐGoal(ctx context.Context, sel ast.SelectionSet, v *repo.Goal) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Goal(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGoalInput2tenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐGoalInput(ctx context.Context, v interface{}) (model.GoalInput, error) {
+	res, err := ec.unmarshalInputGoalInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNGoalStatus2tenkhoursᚋservicesᚋcoreᚋrepoᚐGoalStatus(ctx context.Context, v interface{}) (repo.GoalStatus, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := repo.GoalStatus(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGoalStatus2tenkhoursᚋservicesᚋcoreᚋrepoᚐGoalStatus(ctx context.Context, sel ast.SelectionSet, v repo.GoalStatus) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -8025,6 +8961,53 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) marshalOCustomMetric2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐCustomMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []repo.CustomMetric) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNCustomMetric2tenkhoursᚋservicesᚋcoreᚋrepoᚐCustomMetric(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalOCustomMetricInput2ᚕtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐCustomMetricInputᚄ(ctx context.Context, v interface{}) ([]model.CustomMetricInput, error) {
 	if v == nil {
 		return nil, nil
@@ -8196,6 +9179,22 @@ func (ec *executionContext) unmarshalOTime2timeᚐTime(ctx context.Context, v in
 
 func (ec *executionContext) marshalOTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
 	res := graphql.MarshalTime(v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalTime(*v)
 	return res
 }
 

@@ -6,7 +6,7 @@ package graph
 
 import (
 	"context"
-
+	"fmt"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/graph/validations"
@@ -115,6 +115,11 @@ func (r *mutationResolver) DeleteMetricProperty(ctx context.Context, id primitiv
 	return r.CharactersBusiness.DeleteMetricProperty(ctx, id, characterID, metricID)
 }
 
+// CreateGoal is the resolver for the createGoal field.
+func (r *mutationResolver) CreateGoal(ctx context.Context, characterID primitive.ObjectID, input model.GoalInput) (*repo.Goal, error) {
+	panic(fmt.Errorf("not implemented: CreateGoal - createGoal"))
+}
+
 // Characters is the resolver for the characters field.
 func (r *queryResolver) Characters(ctx context.Context) ([]repo.Character, error) {
 	return r.CharactersBusiness.GetCharactersByProfileID(ctx)
@@ -135,13 +140,16 @@ func (r *queryResolver) AppSettings(ctx context.Context) (*model.AppSettings, er
 	}, nil
 }
 
+// Goals is the resolver for the goals field.
+func (r *queryResolver) Goals(ctx context.Context, characterID primitive.ObjectID) ([]repo.Goal, error) {
+	panic(fmt.Errorf("not implemented: Goals - goals"))
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type (
-	mutationResolver struct{ *Resolver }
-	queryResolver    struct{ *Resolver }
-)
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

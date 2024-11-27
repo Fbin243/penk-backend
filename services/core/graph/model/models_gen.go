@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -41,6 +42,14 @@ type CustomMetricInput struct {
 	Style *MetricStyleInput `json:"style,omitempty"`
 	// List of properties that describe the metric.
 	Properties []MetricPropertyInput `json:"properties,omitempty"`
+}
+
+type GoalInput struct {
+	Name        *string             `json:"Name,omitempty"`
+	Description *string             `json:"Description,omitempty"`
+	StartDate   *time.Time          `json:"StartDate,omitempty"`
+	EndDate     *time.Time          `json:"EndDate,omitempty"`
+	Target      []CustomMetricInput `json:"Target,omitempty"`
 }
 
 // Input for defining a property of a custom metric.

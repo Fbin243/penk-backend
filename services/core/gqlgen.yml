@@ -97,6 +97,10 @@ models:
     model: tenkhours/services/core/repo.CustomMetric
   MetricProperty:
     model: tenkhours/services/core/repo.MetricProperty
+  Goal:
+    model: tenkhours/services/core/repo.Goal
+  GoalStatus:
+    model: tenkhours/services/core/repo.GoalStatus
   ObjectID:
     model: tenkhours/pkg/graphql.ObjectID
   MetricStyle:

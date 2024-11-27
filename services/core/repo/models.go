@@ -3,6 +3,7 @@ package repo
 import (
 	"time"
 
+	"tenkhours/pkg/db"
 	"tenkhours/services/core/graph/model"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -39,11 +40,11 @@ type CustomMetric struct {
 	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id"`
 	Name        string             `json:"name,omitempty" bson:"name"`
 	Description string             `json:"description,omitempty" bson:"description"`
-	Time        int32              `json:"time" bson:"time,omitempty"`
+	Time        int32              `json:"time,omitempty" bson:"time,omitempty"`
 	Style       MetricStyle        `json:"style,omitempty" bson:"style"`
 	Properties  []MetricProperty   `json:"properties,omitempty" bson:"properties"`
 	// Should be migrated later
-	LimitedPropertyNumber int32 `json:"limitedPropertyNumber" bson:"limited_property_number"`
+	LimitedPropertyNumber int32 `json:"limitedPropertyNumber,omitempty" bson:"limited_property_number,omitempty"`
 }
 
 type Character struct {
@@ -55,8 +56,26 @@ type Character struct {
 	TotalFocusedTime int32              `json:"totalFocusedTime,omitempty" bson:"total_focused_time"`
 	CustomMetrics    []CustomMetric     `json:"customMetrics,omitempty" bson:"custom_metrics"`
 	// Should be migrated later
-	LimitedMetricNumber int32 `json:"limitedMetricNumber" bson:"limited_metric_number"`
+	LimitedMetricNumber int32 `json:"limitedMetricNumber,omitempty" bson:"limited_metric_number,omitempty"`
 }
+
+type Goal struct {
+	db.BaseModel `bson:",inline"`
+	Name         string         `json:"name" bson:"name"`
+	Description  string         `json:"description" bson:"description"`
+	StartDate    time.Time      `json:"startDate" bson:"start_date"`
+	EndDate      time.Time      `json:"endDate" bson:"end_date"`
+	Status       GoalStatus     `json:"status" bson:"status"`
+	Target       []CustomMetric `json:"target" bson:"target"`
+}
+
+type GoalStatus string
+
+const (
+	GoalStatusActive   GoalStatus = "Active"
+	GoalStatusFinished GoalStatus = "Finished"
+	GoalStatusExpired  GoalStatus = "Expired"
+)
 
 // Make Character satisfy the Entity interface required by federation
 func (Character) IsEntity() {}

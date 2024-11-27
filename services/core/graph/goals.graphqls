@@ -1,0 +1,25 @@
+type Goal {
+  ID: ObjectID!
+  CreatedAt: Time!
+  UpdatedAt: Time
+  Name: String!
+  Description: String!
+  StartDate: Time!
+  EndDate: Time!
+  Status: GoalStatus!
+  Target: [CustomMetric!]
+}
+
+enum GoalStatus {
+  Active
+  Finished
+  Expired
+}
+
+input GoalInput {
+  Name: String
+  Description: String
+  StartDate: Time
+  EndDate: Time
+  Target: [CustomMetricInput!]
+}

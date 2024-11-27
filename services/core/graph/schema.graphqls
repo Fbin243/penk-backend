@@ -2,6 +2,7 @@ type Query {
   characters: [Character!]!
   profile: Profile!
   appSettings: AppSettings!
+  goals(characterID: ObjectID!): [Goal!]!
 }
 
 type Mutation {
@@ -26,4 +27,6 @@ type Mutation {
     input: MetricPropertyInput!
   ): MetricProperty!
   deleteMetricProperty(id: ObjectID!, characterID: ObjectID!, metricID: ObjectID!): MetricProperty!
+
+  createGoal(characterID: ObjectID!, input: GoalInput!): Goal!
 }
