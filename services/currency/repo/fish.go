@@ -3,7 +3,6 @@ package repo
 import (
 	"context"
 	"fmt"
-	"log"
 	"tenkhours/pkg/db"
 	"time"
 
@@ -44,8 +43,6 @@ func (r *FishRepo) UpdateFish(fish *Fish, profileID primitive.ObjectID) (*Fish, 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	log.Println("gold f: ", fish.Gold, " Nor f: ", fish.Normal)
-
 	update := bson.M{}
 	if fish.Gold != 0 {
 		update["gold"] = fish.Gold
@@ -61,7 +58,6 @@ func (r *FishRepo) UpdateFish(fish *Fish, profileID primitive.ObjectID) (*Fish, 
 	var updatedFish Fish
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	err := r.Collection.FindOneAndUpdate(ctx, bson.M{"profile_id": profileID}, bson.M{"$set": update}, opts).Decode(&updatedFish)
-	log.Println("gold: ", updatedFish.Gold, " Nor: ", updatedFish.Normal)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update fish: %v", err)
 	}

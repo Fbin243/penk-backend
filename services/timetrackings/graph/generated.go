@@ -12,6 +12,7 @@ import (
 	"sync"
 	"sync/atomic"
 	graphql1 "tenkhours/pkg/graphql"
+	"tenkhours/services/timetrackings/graph/model"
 	"tenkhours/services/timetrackings/repo"
 	"time"
 
@@ -69,6 +70,12 @@ type ComplexityRoot struct {
 		StartTime      func(childComplexity int) int
 	}
 
+	TimeTrackingWithFish struct {
+		Gold         func(childComplexity int) int
+		Normal       func(childComplexity int) int
+		TimeTracking func(childComplexity int) int
+	}
+
 	_Service struct {
 		SDL func(childComplexity int) int
 	}
@@ -76,7 +83,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) (*repo.TimeTracking, error)
-	UpdateTimeTracking(ctx context.Context) (*repo.TimeTracking, error)
+	UpdateTimeTracking(ctx context.Context) (*model.TimeTrackingWithFish, error)
 }
 type QueryResolver interface {
 	CurrentTimeTracking(ctx context.Context) (*repo.TimeTracking, error)
@@ -168,6 +175,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TimeTracking.StartTime(childComplexity), true
+
+	case "TimeTrackingWithFish.gold":
+		if e.complexity.TimeTrackingWithFish.Gold == nil {
+			break
+		}
+
+		return e.complexity.TimeTrackingWithFish.Gold(childComplexity), true
+
+	case "TimeTrackingWithFish.normal":
+		if e.complexity.TimeTrackingWithFish.Normal == nil {
+			break
+		}
+
+		return e.complexity.TimeTrackingWithFish.Normal(childComplexity), true
+
+	case "TimeTrackingWithFish.timeTracking":
+		if e.complexity.TimeTrackingWithFish.TimeTracking == nil {
+			break
+		}
+
+		return e.complexity.TimeTrackingWithFish.TimeTracking(childComplexity), true
 
 	case "_Service.sdl":
 		if e.complexity._Service.SDL == nil {
@@ -538,9 +566,9 @@ func (ec *executionContext) _Mutation_updateTimeTracking(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*repo.TimeTracking)
+	res := resTmp.(*model.TimeTrackingWithFish)
 	fc.Result = res
-	return ec.marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx, field.Selections, res)
+	return ec.marshalNTimeTrackingWithFish2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋgraphᚋmodelᚐTimeTrackingWithFish(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateTimeTracking(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -551,18 +579,14 @@ func (ec *executionContext) fieldContext_Mutation_updateTimeTracking(_ context.C
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_TimeTracking_id(ctx, field)
-			case "characterID":
-				return ec.fieldContext_TimeTracking_characterID(ctx, field)
-			case "customMetricID":
-				return ec.fieldContext_TimeTracking_customMetricID(ctx, field)
-			case "startTime":
-				return ec.fieldContext_TimeTracking_startTime(ctx, field)
-			case "endTime":
-				return ec.fieldContext_TimeTracking_endTime(ctx, field)
+			case "timeTracking":
+				return ec.fieldContext_TimeTrackingWithFish_timeTracking(ctx, field)
+			case "normal":
+				return ec.fieldContext_TimeTrackingWithFish_normal(ctx, field)
+			case "gold":
+				return ec.fieldContext_TimeTrackingWithFish_gold(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TimeTracking", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TimeTrackingWithFish", field.Name)
 		},
 	}
 	return fc, nil
@@ -1007,6 +1031,150 @@ func (ec *executionContext) fieldContext_TimeTracking_endTime(_ context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeTrackingWithFish_timeTracking(ctx context.Context, field graphql.CollectedField, obj *model.TimeTrackingWithFish) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTrackingWithFish_timeTracking(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TimeTracking, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*repo.TimeTracking)
+	fc.Result = res
+	return ec.marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeTrackingWithFish_timeTracking(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeTrackingWithFish",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TimeTracking_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_TimeTracking_characterID(ctx, field)
+			case "customMetricID":
+				return ec.fieldContext_TimeTracking_customMetricID(ctx, field)
+			case "startTime":
+				return ec.fieldContext_TimeTracking_startTime(ctx, field)
+			case "endTime":
+				return ec.fieldContext_TimeTracking_endTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TimeTracking", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeTrackingWithFish_normal(ctx context.Context, field graphql.CollectedField, obj *model.TimeTrackingWithFish) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTrackingWithFish_normal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Normal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeTrackingWithFish_normal(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeTrackingWithFish",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeTrackingWithFish_gold(ctx context.Context, field graphql.CollectedField, obj *model.TimeTrackingWithFish) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTrackingWithFish_gold(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Gold, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeTrackingWithFish_gold(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeTrackingWithFish",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3034,6 +3202,55 @@ func (ec *executionContext) _TimeTracking(ctx context.Context, sel ast.Selection
 	return out
 }
 
+var timeTrackingWithFishImplementors = []string{"TimeTrackingWithFish"}
+
+func (ec *executionContext) _TimeTrackingWithFish(ctx context.Context, sel ast.SelectionSet, obj *model.TimeTrackingWithFish) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, timeTrackingWithFishImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TimeTrackingWithFish")
+		case "timeTracking":
+			out.Values[i] = ec._TimeTrackingWithFish_timeTracking(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "normal":
+			out.Values[i] = ec._TimeTrackingWithFish_normal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "gold":
+			out.Values[i] = ec._TimeTrackingWithFish_gold(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var _ServiceImplementors = []string{"_Service"}
 
 func (ec *executionContext) __Service(ctx context.Context, sel ast.SelectionSet, obj *fedruntime.Service) graphql.Marshaler {
@@ -3426,6 +3643,21 @@ func (ec *executionContext) marshalNFieldSet2string(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, v interface{}) (primitive.ObjectID, error) {
 	res, err := graphql1.UnmarshalObjectID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3483,6 +3715,20 @@ func (ec *executionContext) marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimet
 		return graphql.Null
 	}
 	return ec._TimeTracking(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTimeTrackingWithFish2tenkhoursᚋservicesᚋtimetrackingsᚋgraphᚋmodelᚐTimeTrackingWithFish(ctx context.Context, sel ast.SelectionSet, v model.TimeTrackingWithFish) graphql.Marshaler {
+	return ec._TimeTrackingWithFish(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTimeTrackingWithFish2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋgraphᚋmodelᚐTimeTrackingWithFish(ctx context.Context, sel ast.SelectionSet, v *model.TimeTrackingWithFish) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TimeTrackingWithFish(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN_Service2githubᚗcomᚋ99designsᚋgqlgenᚋpluginᚋfederationᚋfedruntimeᚐService(ctx context.Context, sel ast.SelectionSet, v fedruntime.Service) graphql.Marshaler {

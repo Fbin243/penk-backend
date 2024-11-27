@@ -6,9 +6,9 @@ package graph
 
 import (
 	"context"
-	"time"
-
+	"tenkhours/services/timetrackings/graph/model"
 	"tenkhours/services/timetrackings/repo"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -19,8 +19,17 @@ func (r *mutationResolver) CreateTimeTracking(ctx context.Context, characterID p
 }
 
 // UpdateTimeTracking is the resolver for the updateTimeTracking field.
-func (r *mutationResolver) UpdateTimeTracking(ctx context.Context) (*repo.TimeTracking, error) {
-	return r.TimeTrackingsBusiness.UpdateTimeTracking(ctx)
+func (r *mutationResolver) UpdateTimeTracking(ctx context.Context) (*model.TimeTrackingWithFish, error) {
+	timeTracking, fishData, err := r.TimeTrackingsBusiness.UpdateTimeTracking(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.TimeTrackingWithFish{
+		TimeTracking: timeTracking,
+		Normal:       int(fishData.Normal),
+		Gold:         int(fishData.Gold),
+	}, nil
 }
 
 // CurrentTimeTracking is the resolver for the currentTimeTracking field.
@@ -34,7 +43,5 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type (
-	mutationResolver struct{ *Resolver }
-	queryResolver    struct{ *Resolver }
-)
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

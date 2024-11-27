@@ -133,14 +133,10 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.Obje
 }
 
 func (biz *FishBusiness) UpdateFishFromRedis(fish *repo.Fish, profileID primitive.ObjectID) (bool, error) {
-	log.Println("ID 2", profileID)
-
 	currentFish, err := biz.FishRepo.GetFishByProfileID(profileID)
 	if err != nil {
 		return false, fmt.Errorf("failed to get fish data from DB: %v", err)
 	}
-
-	log.Println("go h")
 
 	// Cộng dồn giá trị gold và normal
 	if fish.Gold != 0 {

@@ -1,6 +1,8 @@
 package graph
 
-import "tenkhours/services/timetrackings/business"
+import (
+	"tenkhours/services/timetrackings/business"
+)
 
 // This file will not be regenerated automatically.
 //
