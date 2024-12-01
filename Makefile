@@ -45,3 +45,14 @@ kill-all:
 
 gateway:
 	cd services/gateway && npm run start
+
+
+# Tidy go modules in workspace
+tidy:
+.PHONY: tidy
+
+tidy:
+	@for module in $(shell find . -name 'go.mod' -exec dirname {} \;); do \
+		echo "Running go mod tidy in $$module"; \
+		(cd $$module && go mod tidy); \
+	done
