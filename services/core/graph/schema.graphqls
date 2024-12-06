@@ -1,10 +1,12 @@
 type Query {
   characters: [Character!]!
   profile: Profile!
+  appSettings: AppSettings!
 }
 
 type Mutation {
   updateProfile(input: ProfileInput!): Profile!
+  deleteProfile: Profile!
 
   createCharacter(input: CharacterInput!): Character!
   updateCharacter(id: ObjectID!, input: CharacterInput!): Character!

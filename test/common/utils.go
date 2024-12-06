@@ -6,7 +6,12 @@ import (
 	"time"
 )
 
-const GatewayUrl = "http://localhost:8070/graphql"
+const (
+	GatewayUrl       = "http://localhost:8070/graphql"
+	CoreUrl          = "http://localhost:8080/graphql"
+	TimeTrackingsUrl = "http://localhost:8082/graphql"
+	AnalyticsUrl     = "http://localhost:8083/graphql"
+)
 
 var (
 	cookieJar, _ = cookiejar.New(nil)
@@ -14,5 +19,5 @@ var (
 		Timeout: time.Second * 20,
 		Jar:     cookieJar,
 	}
-	IdToken string   
+	IdToken string
 )

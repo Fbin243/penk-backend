@@ -24,9 +24,9 @@ type Profile struct {
 
 // Character
 type MetricProperty struct {
-	ID    primitive.ObjectID       `json:"id,omitempty" bson:"_id,omitempty"`
-	Name  string                   `json:"name,omitempty" bson:"name,omitempty"`
-	Type  model.MetricPropertyType `json:"type,omitempty" bson:"type,omitempty"`
+	ID    primitive.ObjectID       `json:"id,omitempty" bson:"_id"`
+	Name  string                   `json:"name,omitempty" bson:"name"`
+	Type  model.MetricPropertyType `json:"type,omitempty" bson:"type"`
 	Value string                   `json:"value,omitempty" bson:"value"`
 	Unit  string                   `json:"unit,omitempty" bson:"unit"`
 }
@@ -37,10 +37,10 @@ type MetricStyle struct {
 }
 
 type CustomMetric struct {
-	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name        string             `json:"name,omitempty" bson:"name,omitempty"`
-	Description string             `json:"description,omitempty" bson:"description,omitempty"`
-	Time        int32              `json:"time" bson:"time"`
+	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id"`
+	Name        string             `json:"name,omitempty" bson:"name"`
+	Description string             `json:"description,omitempty" bson:"description"`
+	Time        int32              `json:"time" bson:"time,omitempty"`
 	Style       MetricStyle        `json:"style,omitempty" bson:"style"`
 	Properties  []MetricProperty   `json:"properties,omitempty" bson:"properties"`
 	// Should be migrated later
@@ -49,8 +49,8 @@ type CustomMetric struct {
 
 type Character struct {
 	ID               primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	ProfileID        primitive.ObjectID `json:"profileID,omitempty" bson:"profile_id,omitempty"`
-	Name             string             `json:"name,omitempty" bson:"name,omitempty"`
+	ProfileID        primitive.ObjectID `json:"profileID,omitempty" bson:"profile_id"`
+	Name             string             `json:"name,omitempty" bson:"name"`
 	Gender           bool               `json:"gender,omitempty" bson:"gender"`
 	Tags             []string           `json:"tags,omitempty" bson:"tags"`
 	TotalFocusedTime int32              `json:"totalFocusedTime,omitempty" bson:"total_focused_time"`

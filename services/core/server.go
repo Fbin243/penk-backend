@@ -7,6 +7,7 @@ import (
 
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/middlewares"
+	analyticsRepo "tenkhours/services/analytics/repo"
 	"tenkhours/services/core/business"
 	"tenkhours/services/core/graph"
 	"tenkhours/services/core/repo"
@@ -38,15 +39,20 @@ func main() {
 
 	// Init dependencies and perform DI manually
 	mongodb := db.GetDBManager().DB
-	profilesRepo := repo.NewProfilesRepo(mongodb)
+	redisClient := db.GetRedisClient()
+	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
 	charactersRepo := repo.NewCharactersRepo(mongodb)
 	fishRepo := fishRepo.NewFishRepo(mongodb)
-	redisClient := db.GetRedisClient()
-	profilesBiz := business.NewProfilesBusiness(profilesRepo, fishRepo, redisClient)
+
+	// TODO: Temporary inject analyticsRepos into profilesBiz for deleting related data
+	capturedRepordsRepo := analyticsRepo.NewCapturedRecordsRepo(mongodb)
+	snapshotsRepo := analyticsRepo.NewSnapshotsRepo(mongodb)
+
+	profilesBiz := business.NewProfilesBusiness(profilesRepo, charactersRepo, capturedRepordsRepo, snapshotsRepo, fishRepo, redisClient)
 	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo)
 
 	// Check authentication
-	authMiddleware := middlewares.NewMiddleware(redisClient)
+	authMiddleware := middlewares.NewMiddleware(redisClient, profilesRepo)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
@@ -57,7 +63,6 @@ func main() {
 	}))
 
 	app.POST("/graphql", func(c *gin.Context) {
-		fmt.Print("Body", c.Request)
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 

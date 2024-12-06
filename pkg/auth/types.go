@@ -3,15 +3,15 @@ package auth
 type ContextKey int
 
 const (
-	FirebaseProfileKey ContextKey = iota
-	ProfileKey
+	ProfileKey ContextKey = iota
 	PostDataKey
 )
 
 type FirebaseProfile struct {
-	UID   string
-	Email string
-	Name  string
+	UID     string
+	Email   string
+	Name    string
+	Picture string
 }
 
 type AuthOption struct {

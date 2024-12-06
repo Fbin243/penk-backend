@@ -46,10 +46,24 @@ func GetProfileByIDToken(idToken string) (*FirebaseProfile, error) {
 	}
 
 	authProfile := FirebaseProfile{
-		UID:   token.UID,
-		Email: token.Claims["email"].(string),
-		Name:  token.Claims["name"].(string),
+		UID: token.UID,
+	}
+
+	if token.Claims["email"] != nil {
+		authProfile.Email = token.Claims["email"].(string)
+	}
+
+	if token.Claims["name"] != nil {
+		authProfile.Name = token.Claims["name"].(string)
+	}
+
+	if token.Claims["picture"] != nil {
+		authProfile.Picture = token.Claims["picture"].(string)
 	}
 
 	return &authProfile, nil
+}
+
+func DeleteProfileOnFirebase(uid string) error {
+	return GetFirebaseManager().Client.DeleteUser(context.Background(), uid)
 }

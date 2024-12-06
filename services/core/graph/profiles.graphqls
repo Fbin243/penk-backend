@@ -14,7 +14,7 @@ type Profile {
   limitedCharacterNumber: Int!
   autoSnapshot: Boolean!
   createdAt: Time!
-  updatedAt: Time!
+  updatedAt: Time
 }
 
 """

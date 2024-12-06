@@ -6,6 +6,8 @@ package graph
 
 import (
 	"context"
+
+	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/graph/validations"
 	"tenkhours/services/core/repo"
@@ -21,6 +23,11 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input model.Profil
 	}
 
 	return r.ProfilesBusiness.UpdateProfile(ctx, input)
+}
+
+// DeleteProfile is the resolver for the deleteProfile field.
+func (r *mutationResolver) DeleteProfile(ctx context.Context) (*repo.Profile, error) {
+	return r.ProfilesBusiness.DeleteProfile(ctx)
 }
 
 // CreateCharacter is the resolver for the createCharacter field.
@@ -116,6 +123,16 @@ func (r *queryResolver) Characters(ctx context.Context) ([]repo.Character, error
 // Profile is the resolver for the profile field.
 func (r *queryResolver) Profile(ctx context.Context) (*repo.Profile, error) {
 	return r.ProfilesBusiness.GetProfile(ctx)
+}
+
+// AppSettings is the resolver for the appSettings field.
+func (r *queryResolver) AppSettings(ctx context.Context) (*model.AppSettings, error) {
+	return &model.AppSettings{
+		MinDurationTime:       utils.MinDurationTime,
+		MaxDurationTime:       utils.MaxDurationTime,
+		LimitedMetricNumber:   utils.LimitedMetricNumber,
+		LimitedPropertyNumber: utils.LimitedPropertyNumber,
+	}, nil
 }
 
 // Mutation returns MutationResolver implementation.

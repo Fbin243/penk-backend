@@ -6,6 +6,7 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
@@ -73,7 +74,7 @@ func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.
 		ProfileID:           profile.ID,
 		TotalFocusedTime:    0,
 		CustomMetrics:       []repo.CustomMetric{},
-		LimitedMetricNumber: 2,
+		LimitedMetricNumber: utils.LimitedMetricNumber,
 	}
 
 	if input.Name != nil {
@@ -84,6 +85,16 @@ func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.
 	}
 	if input.Tags != nil {
 		character.Tags = input.Tags
+	}
+
+	// Create custom metrics for the character
+	if input.CustomMetrics != nil {
+		ctx = context.WithValue(ctx, FromCreateCharacter, true)
+		for _, customMetric := range input.CustomMetrics {
+			// Insert the character into context
+			ctx := context.WithValue(ctx, CharacterKey, &character)
+			biz.CreateCustomMetric(ctx, character.ID, customMetric)
+		}
 	}
 
 	createdCharacter, err := biz.CharactersRepo.CreateCharacter(&character)
@@ -122,6 +133,22 @@ func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive
 
 	if input.Tags != nil {
 		character.Tags = input.Tags
+	}
+
+	// Update custom metrics for the character
+	if input.CustomMetrics != nil {
+		ctx = context.WithValue(ctx, FromUpdateCharacter, true)
+		// Insert the character into context
+		ctx = context.WithValue(ctx, CharacterKey, character)
+		for _, customMetric := range input.CustomMetrics {
+			if customMetric.ID != nil {
+				// Update custom metric
+				biz.UpdateCustomMetric(ctx, *customMetric.ID, character.ID, customMetric)
+			} else {
+				// Create custom metric
+				biz.CreateCustomMetric(ctx, character.ID, customMetric)
+			}
+		}
 	}
 
 	updatedCharacter, err := biz.CharactersRepo.UpdateCharacter(character)

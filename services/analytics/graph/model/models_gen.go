@@ -12,21 +12,29 @@ import (
 )
 
 type CapturedRecord struct {
-	ID               primitive.ObjectID           `json:"id" bson:"_id"`
-	Timestamp        time.Time                    `json:"timestamp" bson:"timestamp"`
-	TotalFocusedTime int32                        `json:"totalFocusedTime" bson:"total_focused_time"`
-	CustomMetrics    []CapturedRecordCustomMetric `json:"customMetrics" bson:"custom_metrics"`
-	Metadata         CapturedRecordMetadata       `json:"metadata" bson:"metadata"`
+	ID               primitive.ObjectID           `json:"id" bson:"_id,omitempty"`
+	Timestamp        time.Time                    `json:"timestamp" bson:"timestamp,omitempty"`
+	TotalFocusedTime int32                        `json:"totalFocusedTime" bson:"total_focused_time,omitempty"`
+	CustomMetrics    []CapturedRecordCustomMetric `json:"customMetrics,omitempty" bson:"custom_metrics,omitempty"`
+	TimeTrackings    []CapturedRecordTimeTracking `json:"timeTrackings,omitempty" bson:"time_trackings,omitempty"`
+	Metadata         CapturedRecordMetadata       `json:"metadata" bson:"metadata,omitempty"`
 }
 
 type CapturedRecordCustomMetric struct {
-	ID   primitive.ObjectID `json:"id" bson:"_id"`
-	Time int32              `json:"time" bson:"time"`
+	ID   primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Time int32              `json:"time" bson:"time,omitempty"`
 }
 
 type CapturedRecordMetadata struct {
-	CharacterID primitive.ObjectID `json:"characterID" bson:"character_id"`
-	ProfileID   primitive.ObjectID `json:"profileID" bson:"profile_id"`
+	CharacterID primitive.ObjectID `json:"characterID" bson:"character_id,omitempty"`
+	ProfileID   primitive.ObjectID `json:"profileID" bson:"profile_id,omitempty"`
+}
+
+type CapturedRecordTimeTracking struct {
+	CustomMetricID primitive.ObjectID `json:"customMetricID" bson:"custom_metric_id,omitempty"`
+	Time           int32              `json:"time" bson:"time,omitempty"`
+	StartTime      time.Time          `json:"startTime" bson:"start_time,omitempty"`
+	EndTime        time.Time          `json:"endTime" bson:"end_time,omitempty"`
 }
 
 type DateTimeFilter struct {
@@ -77,6 +85,51 @@ type SnapshotMetricProperty struct {
 type SnapshotMetricStyle struct {
 	Color *string `json:"color,omitempty"`
 	Icon  *string `json:"icon,omitempty"`
+}
+
+type AnalyticSection string
+
+const (
+	AnalyticSectionOverall      AnalyticSection = "Overall"
+	AnalyticSectionDistribution AnalyticSection = "Distribution"
+	AnalyticSectionTimeline     AnalyticSection = "Timeline"
+	AnalyticSectionFrequency    AnalyticSection = "Frequency"
+)
+
+var AllAnalyticSection = []AnalyticSection{
+	AnalyticSectionOverall,
+	AnalyticSectionDistribution,
+	AnalyticSectionTimeline,
+	AnalyticSectionFrequency,
+}
+
+func (e AnalyticSection) IsValid() bool {
+	switch e {
+	case AnalyticSectionOverall, AnalyticSectionDistribution, AnalyticSectionTimeline, AnalyticSectionFrequency:
+		return true
+	}
+	return false
+}
+
+func (e AnalyticSection) String() string {
+	return string(e)
+}
+
+func (e *AnalyticSection) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AnalyticSection(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AnalyticSection", str)
+	}
+	return nil
+}
+
+func (e AnalyticSection) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type MetricPropertyType string

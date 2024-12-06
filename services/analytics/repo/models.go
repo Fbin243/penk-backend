@@ -18,12 +18,13 @@ type Snapshot struct {
 	Timestamp   time.Time          `json:"timestamp" bson:"timestamp"`
 	Metadata    Metadata           `json:"metadata" bson:"metadata"`
 	Character   repo.Character     `json:"character" bson:"character"`
-	Description string             `json:"description,omitempty" bson:"description,omitempty" validate:"omitempty,max=255"`
-	Asset       interface{}        `json:"asset,omitempty" bson:"asset,omitempty"`
+	Description string             `json:"description,omitempty" bson:"description" validate:"omitempty,max=255"`
+	Asset       interface{}        `json:"asset,omitempty" bson:"asset"`
 }
 
 type DFCapturedRecord struct {
 	ID               string `dataframe:"id"`
+	ProfileID        string `dataframe:"profile_id"`
 	CharacterID      string `dataframe:"character_id"`
 	Year             int    `dataframe:"year"`
 	Month            int    `dataframe:"month"`

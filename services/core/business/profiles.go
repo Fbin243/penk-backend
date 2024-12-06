@@ -2,13 +2,13 @@ package business
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"time"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
+	analyticsRepo "tenkhours/services/analytics/repo"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 	fishRepo "tenkhours/services/currency/repo"
@@ -19,109 +19,56 @@ import (
 )
 
 type ProfilesBusiness struct {
-	ProfilesRepo *repo.ProfilesRepo
-	FishRepo     *fishRepo.FishRepo
-	RedisClient  *redis.Client
+	ProfilesRepo        *repo.ProfilesRepo
+	FishRepo            *fishRepo.FishRepo
+	CharactersRepo      *repo.CharactersRepo
+	CapturedRecordsRepo *analyticsRepo.CapturedRecordsRepo
+	SnapshotsRepo       *analyticsRepo.SnapshotsRepo
+	RedisClient         *redis.Client
 }
 
-func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, fishRepo *fishRepo.FishRepo, redisClient *redis.Client) *ProfilesBusiness {
+func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, fishRepo *fishRepo.FishRepo, charactersRepo *repo.CharactersRepo, capturedRecordsRepo *analyticsRepo.CapturedRecordsRepo, snapshotsRepo *analyticsRepo.SnapshotsRepo, redisClient *redis.Client) *ProfilesBusiness {
 	return &ProfilesBusiness{
-		ProfilesRepo: profilesRepo,
-		FishRepo:     fishRepo,
-		RedisClient:  redisClient,
+		ProfilesRepo:        profilesRepo,
+		CharactersRepo:      charactersRepo,
+		CapturedRecordsRepo: capturedRecordsRepo,
+		SnapshotsRepo:       snapshotsRepo,
+		FishRepo:            fishRepo,
+		RedisClient:         redisClient,
 	}
 }
 
+// Get the user's profile if it exists, otherwise create a new profile
 func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, error) {
-	// Get Firebase profile from the context
-	firebaseProfile, ok := ctx.Value(auth.FirebaseProfileKey).(auth.FirebaseProfile)
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, errors.ErrorUnauthorized
 	}
 
-	// Check if this UID is in Redis
-	keyFound, err := biz.RedisClient.Exists(ctx, firebaseProfile.UID).Result()
+	// Create new fish for user
+	newFish := fishRepo.Fish{
+		ID:        primitive.NewObjectID(),
+		ProfileID: newProfile.ID,
+		Gold:      0,
+		Normal:    0,
+	}
+
+	createdFish, err := biz.FishRepo.CreateFish(&newFish)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create fish for new profile: %v", err)
 	}
-	// Cache hit, return the profile from redis
-	if keyFound == 1 {
-		fmt.Print("key found")
-		profileJSON, err := biz.RedisClient.Get(ctx, firebaseProfile.UID).Result()
-		if err != nil {
-			return nil, fmt.Errorf("login session not found in redis")
-		}
-
-		var profile repo.Profile
-		err = json.Unmarshal([]byte(profileJSON), &profile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decode profile in redis")
-		}
-
-		return &profile, nil
-	}
-
-	fmt.Print("key not found")
-	// Cache miss, create a new session from the profile in DB
-	profile, err := biz.ProfilesRepo.GetProfileByFirebaseUID(firebaseProfile.UID)
-	if err == mongo.ErrNoDocuments {
-		// profile not found, mean the new account
-		newProfile := repo.Profile{
-			ID:                     primitive.NewObjectID(),
-			Name:                   firebaseProfile.Name,
-			Email:                  firebaseProfile.Email,
-			FirebaseUID:            firebaseProfile.UID,
-			ImageURL:               "",
-			CreatedAt:              utils.Now(),
-			UpdatedAt:              utils.Now(),
-			AutoSnapshot:           true,
-			AvailableSnapshots:     2,
-			LimitedCharacterNumber: 2,
-		}
-
-		// Create new profile for the new user in DB
-		profile, err = biz.ProfilesRepo.CreateNewProfile(&newProfile)
-		if err != nil {
-			return nil, err
-		}
-
-		newFish := fishRepo.Fish{
-			ID:        primitive.NewObjectID(),
-			ProfileID: newProfile.ID,
-			Gold:      0,
-			Normal:    0,
-		}
-
-		createdFish, err := biz.FishRepo.CreateFish(&newFish)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create fish for new profile: %v", err)
-		}
-		fmt.Printf("Created fish: %+v\n", createdFish)
-
-	} else if err != nil {
-		return nil, err
-	}
-
-	// Save profile in redis
-	profileJSON, err := json.Marshal(profile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to serialize profile: %v", err)
-	}
-
-	err = biz.RedisClient.Set(ctx, firebaseProfile.UID, profileJSON, time.Hour).Err()
-	if err != nil {
-		return nil, err
-	}
-
-	return profile, nil
+	fmt.Printf("Created fish: %+v\n", createdFish)
+	return &profile, nil
 }
 
+// Update the user's profile
 func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, errors.ErrorUnauthorized
 	}
 
+	// Update the profile with the new input
 	if input.Name != nil {
 		profile.Name = *input.Name
 	}
@@ -132,6 +79,7 @@ func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.Prof
 		profile.CurrentCharacterID = *input.CurrentCharacterID
 	}
 	if input.AutoSnapshot != nil {
+		fmt.Println("input.AutoSnapshot", *input.AutoSnapshot)
 		profile.AutoSnapshot = *input.AutoSnapshot
 	}
 
@@ -142,6 +90,81 @@ func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.Prof
 		return nil, fmt.Errorf("failed to update user profile: %v", err)
 	}
 
-	fmt.Println("Updated profile: ", updatedProfile)
 	return updatedProfile, nil
+}
+
+// Delete the user's profile and all related data
+func (biz *ProfilesBusiness) DeleteProfile(ctx context.Context) (*repo.Profile, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	if !ok {
+		return nil, errors.ErrorUnauthorized
+	}
+
+	// Make a callback for deleting profile and related data
+	callback := func(ctx mongo.SessionContext) (interface{}, error) {
+		// Delete all captured records in database
+		err := biz.CapturedRecordsRepo.DeleteCapturedRecordsByProfileID(profile.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete captured records: %v", err)
+		}
+
+		// Delete all snapshots in database
+		err = biz.SnapshotsRepo.DeleteSnapshotsByProfileID(profile.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete snapshots: %v", err)
+		}
+
+		// Delete all characters in database
+		err = biz.CharactersRepo.DeleteCharactersByProfileID(profile.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete characters: %v", err)
+		}
+
+		// Delete the profile in database
+		err = biz.ProfilesRepo.DeleteProfileByFirebaseUID(profile.FirebaseUID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete user profile: %v", err)
+		}
+
+		return nil, nil
+	}
+
+	// Execute the callback in a transaction
+	session, err := db.GetDBManager().Client.StartSession()
+	if err != nil {
+		return nil, err
+	}
+
+	defer session.EndSession(context.Background())
+
+	_, err = session.WithTransaction(context.Background(), callback)
+	if err != nil {
+		return nil, err
+	}
+
+	// Delete current captured record in redis
+	err = biz.RedisClient.Del(ctx, db.GetCapturedRecordKey(profile.ID.Hex())).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete current captured record in redis: %v", err)
+	}
+
+	// Delete current timetracking in redis
+	err = biz.RedisClient.Del(ctx, profile.ID.Hex()).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete current timetracking in redis: %v", err)
+	}
+
+	// Delete profile in redis
+	err = biz.RedisClient.Del(ctx, profile.FirebaseUID).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete profile in redis: %v", err)
+	}
+
+	// Delete user profile in Firebase
+	err = auth.DeleteProfileOnFirebase(profile.FirebaseUID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete user profile in Firebase: %v", err)
+	}
+
+	return &profile, nil
 }

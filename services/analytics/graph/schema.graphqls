@@ -1,26 +1,27 @@
 type Mutation {
   createSnapshot(characterID: ObjectID!, description: String): Snapshot!
-  createCapturedRecord(characterID: ObjectID!): CapturedRecord!
 }
 
 type Query {
   snapshots(characterID: ObjectID, filter: DateTimeFilter): [Snapshot!]!
-  analyticResults(characterID: ObjectID, filter: DateTimeFilter): JSON!
+  analyticResults(
+    characterID: ObjectID
+    """
+    Start time in RFC3339Nano format.
+    """
+    startTime: Time
+    """
+    End time in RFC3339Nano format.
+    """
+    endTime: Time
+    """
+    The analytic sections that the client wants to retrieve.
+    """
+    analyticSections: [AnalyticSection!]!
+  ): JSON!
 }
 
 input DateTimeFilter {
   month: Month
   year: Int
 }
-
-# input Aggregate {
-#   type: AggregateType!
-#   value: Int!
-# }
-
-# enum AggregateType {
-#   YEARLY
-#   MONTHLY
-#   WEEKLY
-#   DAILY
-# }

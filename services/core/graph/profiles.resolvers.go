@@ -11,7 +11,7 @@ import (
 
 // Characters is the resolver for the characters field.
 func (r *profileResolver) Characters(ctx context.Context, obj *repo.Profile) ([]repo.Character, error) {
-	return r.CharactersRepo.GetCharactersByProfileID(obj.ID)
+	return r.CharactersBusiness.CharactersRepo.GetCharactersByProfileID(obj.ID)
 }
 
 // Profile returns ProfileResolver implementation.

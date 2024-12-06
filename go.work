@@ -9,11 +9,12 @@ use (
 	./pkg/cron
 	./pkg/db
 	./pkg/graphql
+	./pkg/middlewares
 	./pkg/utils
 	./services/analytics
 	./services/core
 	./services/currency
-	./services/notification
+	./services/notifications
 	./services/timetrackings
 	./test
 )

@@ -43,3 +43,7 @@ func initRedis() {
 	}
 	fmt.Println("Redis connected:", pong)
 }
+
+func GetCapturedRecordKey(profileID string) string {
+	return CapturedRecordKey + profileID
+}

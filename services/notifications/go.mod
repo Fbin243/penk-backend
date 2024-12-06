@@ -1,4 +1,4 @@
-module tenkhours/services/notification
+module tenkhours/services/notifications
 
 go 1.22.3
 

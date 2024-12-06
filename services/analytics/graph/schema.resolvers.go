@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"tenkhours/services/analytics/graph/model"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -20,11 +21,6 @@ func (r *mutationResolver) CreateSnapshot(ctx context.Context, characterID primi
 	}
 
 	return MapToSnapshotDto(snapshot), nil
-}
-
-// CreateCapturedRecord is the resolver for the createCapturedRecord field.
-func (r *mutationResolver) CreateCapturedRecord(ctx context.Context, characterID primitive.ObjectID) (*model.CapturedRecord, error) {
-	return r.CharactersBusiness.CreateCapturedRecord(ctx, characterID)
 }
 
 // Snapshots is the resolver for the snapshots field.
@@ -43,8 +39,12 @@ func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.Ob
 }
 
 // AnalyticResults is the resolver for the analyticResults field.
-func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) (map[string]interface{}, error) {
-	return r.CharactersBusiness.GetAnalyticResults(ctx, characterID, filter)
+func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, analyticSections []model.AnalyticSection) (map[string]interface{}, error) {
+	if startTime != nil && endTime != nil && startTime.After(*endTime) {
+		return nil, fmt.Errorf("start time must be before end time")
+	}
+
+	return r.CharactersBusiness.GetAnalyticResults(ctx, characterID, startTime, endTime, analyticSections)
 }
 
 // Mutation returns MutationResolver implementation.

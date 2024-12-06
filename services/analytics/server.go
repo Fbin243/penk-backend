@@ -43,12 +43,12 @@ func main() {
 
 	// Init dependencies and perform DI manually
 	mongodb := db.GetDBManager().DB
-	profilesRepo := repo.NewProfilesRepo(mongodb)
-	charactersRepo := repo.NewCharactersRepo(mongodb)
-	snapshotsRepo := analyticsRepo.NewSnapshotRepo(mongodb)
-	capturedRecordsRepo := analyticsRepo.NewCapturedRecordRepo(mongodb)
-	charactersBiz := business.NewCharactersBusiness(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo)
 	redisClient := db.GetRedisClient()
+	charactersRepo := repo.NewCharactersRepo(mongodb)
+	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
+	snapshotsRepo := analyticsRepo.NewSnapshotsRepo(mongodb)
+	capturedRecordsRepo := analyticsRepo.NewCapturedRecordsRepo(mongodb)
+	charactersBiz := business.NewCharactersBusiness(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo, redisClient)
 
 	// Make a cron run daily for captured records
 	cron := cron.NewCron()
@@ -99,7 +99,7 @@ func main() {
 	})
 
 	// Check authentication
-	authMiddleware := middlewares.NewMiddleware(redisClient)
+	authMiddleware := middlewares.NewMiddleware(redisClient, profilesRepo)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{

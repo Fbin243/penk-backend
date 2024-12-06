@@ -37,9 +37,17 @@ func ValidateUpdateCharacterInput(characterInput model.CharacterInput) error {
 		}
 	}
 
-	err := utils.NewValidateBuilder().OmitEmpty().AddCustomValidate("tags_valid", ValidateTag).Custom("tags_valid").Validate(characterInput.Tags)
+	err := utils.NewValidateBuilder().OmitEmpty().Custom("tags_valid", ValidateTag).Validate(characterInput.Tags)
 	if err != nil {
 		return err
+	}
+
+	if characterInput.CustomMetrics != nil {
+		for _, customMetric := range characterInput.CustomMetrics {
+			if err := ValidateCreateCustomMetricInput(customMetric); err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
@@ -114,7 +122,7 @@ func ValidateUpdateMetricPropertyInput(metricPropertyInput model.MetricPropertyI
 	}
 
 	if metricPropertyInput.Unit != nil {
-		if err := utils.NewValidateBuilder().OmitEmpty().Max(10).Validate(*metricPropertyInput.Unit); err != nil {
+		if err := utils.NewValidateBuilder().OmitEmpty().Max(50).Validate(*metricPropertyInput.Unit); err != nil {
 			return err
 		}
 	}

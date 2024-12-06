@@ -12,6 +12,7 @@ import (
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/analytics/graph/model"
 	"tenkhours/services/core/repo"
 	fishBiz "tenkhours/services/currency/business"
@@ -59,6 +60,51 @@ func (biz *TimeTrackingsBusiness) GetCurrentTimeTracking(ctx context.Context) (*
 	}
 
 	return &currentTimetracking, nil
+}
+
+func (biz *TimeTrackingsBusiness) GetTotalCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID, timestamp time.Time) (int, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	if !ok {
+		return 0, errors.ErrorUnauthorized
+	}
+
+	// Check permissions
+	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get character: %v", err)
+	}
+
+	if character.ProfileID != profile.ID {
+		return 0, errors.ErrorPermissionDenied
+	}
+
+	// Get the timetrackings from the current captured record in Redis
+	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, db.GetCapturedRecordKey(profile.ID.Hex()), characterID.Hex()).Result()
+	if err == redis.Nil {
+		return 0, nil
+	} else if err != nil {
+		return 0, fmt.Errorf("failed to get captured record from redis: %v", err)
+	}
+
+	var capturedRecord model.CapturedRecord
+	err = json.Unmarshal([]byte(capturedRecordJSON), &capturedRecord)
+	if err != nil {
+		return 0, fmt.Errorf("failed to deserialize captured record: %v", err)
+	}
+
+	// Get the timetrackings from the timestamp to now
+	totalTime := 0
+	for _, timeTracking := range capturedRecord.TimeTrackings {
+		if timestamp.After(timeTracking.StartTime) && timestamp.Before(timeTracking.EndTime) {
+			// Case 1: The timestamp after the startTime and before the endTime
+			totalTime += int(timeTracking.EndTime.Sub(timestamp).Seconds())
+		} else if timestamp.Before(timeTracking.StartTime) {
+			// Case 2: The timestamp before the startTime
+			totalTime += int(timeTracking.Time)
+		}
+	}
+
+	return totalTime, nil
 }
 
 // Helper function to get time interval fish catching
@@ -133,8 +179,8 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 		ID:              primitive.NewObjectID(),
 		CharacterID:     characterID,
 		StartTime:       startTime,
-		MinDurationTime: 600,
-		MaxDurationTime: 14400,
+		MinDurationTime: utils.MinDurationTime,
+		MaxDurationTime: utils.MaxDurationTime,
 	}
 
 	if metricID != nil {
@@ -247,24 +293,25 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 
 	if duration > timeTracking.MaxDurationTime {
 		duration = int32(timeTracking.MaxDurationTime)
-		log.Printf("the period time is more than 4 hours, so the time tracking will be limited to 4 hours")
+		log.Printf("the period time is more than max duration time, so the time tracking will be limited to max duration time")
 	}
 
 	timeTracking.EndTime = timeTracking.StartTime.Add(time.Duration(duration) * time.Second)
 
 	// Check if the captured record already exists in Redis
 	capturedRecord := model.CapturedRecord{}
-	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, db.CapturedRecordKey+profile.ID.Hex(), timeTracking.CharacterID.Hex()).Result()
+	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, db.GetCapturedRecordKey(profileID), timeTracking.CharacterID.Hex()).Result()
 	if err == redis.Nil {
 		// Make a new captured record if it doesn't exist
 		capturedRecord = model.CapturedRecord{
 			ID:               primitive.NewObjectID(),
-			Timestamp:        timeTracking.StartTime,
+			Timestamp:        utils.ResetTimeToBeginningOfDay(timeTracking.EndTime),
 			TotalFocusedTime: 0,
 			Metadata: model.CapturedRecordMetadata{
 				CharacterID: timeTracking.CharacterID,
 				ProfileID:   profile.ID,
 			},
+			TimeTrackings: []model.CapturedRecordTimeTracking{},
 			CustomMetrics: []model.CapturedRecordCustomMetric{},
 		}
 	} else if err != nil {
@@ -279,6 +326,14 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	// Add the time to the captured record for character
 	capturedRecord.TotalFocusedTime += duration
 
+	// Add the time tracking to the captured record
+	capturedRecord.TimeTrackings = append(capturedRecord.TimeTrackings, model.CapturedRecordTimeTracking{
+		CustomMetricID: timeTracking.CustomMetricID,
+		Time:           int32(duration),
+		StartTime:      timeTracking.StartTime,
+		EndTime:        timeTracking.EndTime,
+	})
+
 	// Get the character to update the time
 	character, err := biz.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
 	if err != nil {
@@ -287,6 +342,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 
 	character.TotalFocusedTime += duration
 	if !timeTracking.CustomMetricID.IsZero() {
+		// Add the time to the custom metric
 		for i, customMetric := range character.CustomMetrics {
 			if customMetric.ID == timeTracking.CustomMetricID {
 				character.CustomMetrics[i].Time += int32(duration)
@@ -329,7 +385,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		return nil, nil, fmt.Errorf("failed to serialize captured record: %v", err)
 	}
 
-	err = biz.RedisClient.HSet(ctx, db.CapturedRecordKey+profile.ID.Hex(), character.ID.Hex(), capturedRecordBytes).Err()
+	err = biz.RedisClient.HSet(ctx, db.GetCapturedRecordKey(profileID), character.ID.Hex(), capturedRecordBytes).Err()
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to save captured record to redis: %v", err)
 	}

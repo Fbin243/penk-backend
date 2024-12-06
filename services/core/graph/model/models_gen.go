@@ -10,6 +10,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type AppSettings struct {
+	MinDurationTime       int `json:"minDurationTime"`
+	MaxDurationTime       int `json:"maxDurationTime"`
+	LimitedMetricNumber   int `json:"limitedMetricNumber"`
+	LimitedPropertyNumber int `json:"limitedPropertyNumber"`
+}
+
 // Input for creating or updating a character.
 type CharacterInput struct {
 	// The name of the character.
@@ -18,10 +25,14 @@ type CharacterInput struct {
 	Gender *bool `json:"gender,omitempty"`
 	// List of string tags that describe the character.
 	Tags []string `json:"tags,omitempty"`
+	// List of custom metrics for the character.
+	CustomMetrics []CustomMetricInput `json:"customMetrics,omitempty"`
 }
 
 // Input for defining a custom metric.
 type CustomMetricInput struct {
+	// ID of the custom metric. If not provided, a new property will be created.
+	ID *primitive.ObjectID `json:"id,omitempty"`
 	// The name of the custom metric.
 	Name *string `json:"name,omitempty"`
 	// Description of the custom metric.
@@ -38,7 +49,7 @@ type MetricPropertyInput struct {
 	ID *primitive.ObjectID `json:"id,omitempty"`
 	// Name of the property.
 	Name *string `json:"name,omitempty"`
-	// Data type of the property (STRING or NUMBER).
+	// Data type of the property (String or Number).
 	Type *MetricPropertyType `json:"type,omitempty"`
 	// Specific value of the property based on its data type.
 	Value *string `json:"value,omitempty"`

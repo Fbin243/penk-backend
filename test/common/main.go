@@ -40,21 +40,6 @@ func ReadResponseJson(res *http.Response) string {
 	return string(body)
 }
 
-type SaveToContextStage struct {
-	Key      ContextKey
-	JsonPath string
-}
-
-func (s SaveToContextStage) Exec(ctx *context.Context) error {
-	value := gjson.Get(jsonResponse, s.JsonPath)
-	if !value.Exists() {
-		return fmt.Errorf("failed to get value with path %s", s.JsonPath)
-	}
-
-	*ctx = context.WithValue(*ctx, s.Key, value.Raw)
-	return nil
-}
-
 type QueryParams struct {
 	Url       string
 	Query     string
@@ -84,6 +69,41 @@ func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
 
 	jsonResponse = ReadResponseJson(result.Response)
 	LogResponse()
+
+	return nil
+}
+
+type SaveToContextStage struct {
+	Key      ContextKey
+	JsonPath string
+}
+
+func (s SaveToContextStage) Exec(ctx *context.Context) error {
+	value := gjson.Get(jsonResponse, s.JsonPath)
+	if !value.Exists() {
+		return fmt.Errorf("failed to get value with path %s", s.JsonPath)
+	}
+
+	*ctx = context.WithValue(*ctx, s.Key, value.Raw)
+	return nil
+}
+
+// The stage to check if end stage is reached or not
+type CheckEndStage struct {
+	CurrentStage EndStage
+}
+
+func (s CheckEndStage) Exec(ctx *context.Context) error {
+	// Get the end stage from the context
+	endStage, ok := (*ctx).Value(EndStageKey).(string)
+	if !ok {
+		return ErrNotFoundInContext("EndStageKey")
+	}
+
+	// Check if the end stage is reached
+	if s.CurrentStage == EndStage(endStage) {
+		return ErrEndStageReached
+	}
 
 	return nil
 }

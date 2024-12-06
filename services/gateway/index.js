@@ -1,9 +1,5 @@
 const { ApolloServer } = require("apollo-server");
-const {
-  ApolloGateway,
-  IntrospectAndCompose,
-  RemoteGraphQLDataSource,
-} = require("@apollo/gateway");
+const { ApolloGateway, IntrospectAndCompose, RemoteGraphQLDataSource } = require("@apollo/gateway");
 
 const gateway = new ApolloGateway({
   supergraphSdl: new IntrospectAndCompose({

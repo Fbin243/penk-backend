@@ -6,6 +6,7 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
@@ -13,22 +14,45 @@ import (
 )
 
 func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	var character *repo.Character
+	var err error
+
+	// Check if the request is from CreateCharacter or UpdateCharacter
+	fromCreateCharacter, ok := ctx.Value(FromCreateCharacter).(bool)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		fromCreateCharacter = false
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get character: %v", err)
+	fromUpdateCharacter, ok := ctx.Value(FromUpdateCharacter).(bool)
+	if !ok {
+		fromUpdateCharacter = false
 	}
 
-	if character.ProfileID != profile.ID {
-		return nil, errors.ErrorPermissionDenied
-	}
+	fmt.Println("fromCreateCharacter: ", fromCreateCharacter)
+	fmt.Println("fromUpdateCharacter: ", fromUpdateCharacter)
+	fmt.Println("characterID: ", characterID)
 
-	if len(character.CustomMetrics) >= int(character.LimitedMetricNumber) {
-		return nil, fmt.Errorf("custom metric creation limit reached")
+	if fromCreateCharacter || fromUpdateCharacter {
+		fmt.Println("vo duoc day")
+		character = ctx.Value(CharacterKey).(*repo.Character)
+	} else {
+		profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+		if !ok {
+			return nil, errors.ErrorUnauthorized
+		}
+
+		character, err = biz.CharactersRepo.GetCharacterByID(characterID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get character: %v", err)
+		}
+
+		if character.ProfileID != profile.ID {
+			return nil, errors.ErrorPermissionDenied
+		}
+
+		if len(character.CustomMetrics) >= int(character.LimitedMetricNumber) {
+			return nil, fmt.Errorf("custom metric creation limit reached")
+		}
 	}
 
 	customMetric := repo.CustomMetric{
@@ -37,7 +61,7 @@ func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, character
 		Time:                  0,
 		Style:                 repo.MetricStyle{},
 		Properties:            []repo.MetricProperty{},
-		LimitedPropertyNumber: 2,
+		LimitedPropertyNumber: utils.LimitedPropertyNumber,
 	}
 
 	if input.Name != nil {
@@ -87,6 +111,11 @@ func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, character
 		customMetric.Properties = properties
 	}
 
+	if fromCreateCharacter || fromUpdateCharacter {
+		character.CustomMetrics = append(character.CustomMetrics, customMetric)
+		return nil, nil
+	}
+
 	createdCustomMetric, err := biz.CharactersRepo.CreateCustomMetric(character.ID, &customMetric)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create custom metric: %v", err)
@@ -96,18 +125,31 @@ func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, character
 }
 
 func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	var character *repo.Character
+	var err error
+
+	// Check if the request is from UpdateCharacter
+	fromUpdateCharacter, ok := ctx.Value(FromCreateCharacter).(bool)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		fromUpdateCharacter = false
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get character: %v", err)
-	}
+	if fromUpdateCharacter {
+		character = ctx.Value(CharacterKey).(*repo.Character)
+	} else {
+		profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+		if !ok {
+			return nil, errors.ErrorUnauthorized
+		}
 
-	if character.ProfileID != profile.ID {
-		return nil, errors.ErrorPermissionDenied
+		character, err = biz.CharactersRepo.GetCharacterByID(characterID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get character: %v", err)
+		}
+
+		if character.ProfileID != profile.ID {
+			return nil, errors.ErrorPermissionDenied
+		}
 	}
 
 	found := false
@@ -185,6 +227,10 @@ func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID 
 
 	if !found {
 		return nil, fmt.Errorf("custom metric does not belong to the character")
+	}
+
+	if fromUpdateCharacter {
+		return nil, nil
 	}
 
 	_, err = biz.CharactersRepo.UpdateCharacter(character)

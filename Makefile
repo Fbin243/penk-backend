@@ -18,9 +18,16 @@ endif
 
 timetrackings:
 ifeq ($(OS),Windows_NT)
-	set TENK_ENV=development && air -c ./tools/air-configs/timetrackings.air.toml
+	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/timetrackings.air.toml
 else
-	export TENK_ENV=development && air -c ./tools/air-configs/timetrackings.air.toml
+	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/timetrackings.air.toml
+endif
+
+notifications:
+ifeq ($(OS),Windows_NT)
+	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/notifications.air.toml
+else
+	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/notifications.air.toml
 endif
 
 # Flow
@@ -31,9 +38,21 @@ run-all:
 	$(MAKE) core & \
 	$(MAKE) analytics & \
 	$(MAKE) timetrackings & \
+	$(MAKE) notifications & \
 
 kill-all:
-	npx kill-port 8080 8082 8083
+	npx kill-port 8080 8082 8083 8084 8070
 
 gateway:
 	cd services/gateway && npm run start
+
+
+# Tidy go modules in workspace
+tidy:
+.PHONY: tidy
+
+tidy:
+	@for module in $(shell find . -name 'go.mod' -exec dirname {} \;); do \
+		echo "Running go mod tidy in $$module"; \
+		(cd $$module && go mod tidy); \
+	done

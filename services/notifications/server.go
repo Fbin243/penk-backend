@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"tenkhours/services/notification/business"
-	"tenkhours/services/notification/graph"
+	"tenkhours/services/notifications/business"
+	"tenkhours/services/notifications/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"

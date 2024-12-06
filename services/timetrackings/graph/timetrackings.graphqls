@@ -11,6 +11,13 @@ type TimeTracking {
 
 type Query {
   currentTimeTracking: TimeTracking
+  totalCurrentTimeTracking(
+    characterID: ObjectID!
+    """
+    The timestamp to calculate the total time tracked from it to now.
+    """
+    timestamp: Time!
+  ): Int!
 }
 
 type Mutation {

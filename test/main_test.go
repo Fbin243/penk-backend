@@ -27,9 +27,14 @@ func TestUserFlow(t *testing.T) {
 	fmt.Printf("Token: %v\n", token)
 	common.IdToken = token
 
+	// Get the end stage of the test flow and put it into the context
+	endStage := os.Getenv("END_STAGE")
+	fmt.Printf("End stage: %v\n", endStage)
+	ctx = context.WithValue(ctx, common.EndStageKey, endStage)
+
 	p := pineline.Pineline(
 
-		// --------- USER -----------
+		// --------- START >> PROFILE -----------
 
 		core.GetProfileStage{
 			Metadata: common.Metadata{
@@ -49,12 +54,24 @@ func TestUserFlow(t *testing.T) {
 			},
 		},
 
-		// --------- CHARACTER -----------
+		common.SaveToContextStage{
+			Key:      common.Profile,
+			JsonPath: "data.updateProfile",
+		},
+
+		common.CheckEndStage{
+			CurrentStage: common.ProfileStage,
+		},
+
+		// --------- END << PROFILE -----------
+
+		// --------- START >> CHARACTER -----------
 
 		core.CreateCharacterStage{
 			Metadata: common.Metadata{
 				Describe: "Create the first character",
 			},
+			CreateCharacterCase: common.CreateCharacterWithCustomMetrics,
 		},
 
 		common.SaveToContextStage{
@@ -87,45 +104,13 @@ func TestUserFlow(t *testing.T) {
 			CharacterKey: common.CurrentCharacter,
 		},
 
-		// --------- TIME TRACKING WITHOUT METRIC -----------
-
-		timetrackings.CreateTimeTrackingStage{
-			Metadata: common.Metadata{
-				Describe: "Start a new tracking session of the current character",
-			},
-			CharacterKey: common.CurrentCharacter,
+		common.CheckEndStage{
+			CurrentStage: common.CharacterStage,
 		},
 
-		common.SaveToContextStage{
-			Key:      common.TimeTracking,
-			JsonPath: "data.createTimeTracking",
-		},
+		// --------- END << CHARACTER -----------
 
-		timetrackings.CreateTimeTrackingStage{
-			Metadata: common.Metadata{
-				Describe:    "Start an existing session again",
-				ExpectError: true,
-			},
-			CharacterKey: common.CurrentCharacter,
-		},
-
-		timetrackings.UpdateTimeTracking{
-			Metadata: common.Metadata{
-				Describe: "End an existing tracking session of the current character",
-			},
-			TimeTrackingKey: common.TimeTracking,
-		},
-
-		timetrackings.UpdateTimeTracking{
-			Metadata: common.Metadata{
-				Describe:    "End an finished session again",
-				ExpectError: true,
-			},
-			TimeTrackingKey: common.TimeTracking,
-		},
-
-		// --------- CUSTOM METRIC -----------
-
+		// --------- START >> CUSTOM METRIC -----------
 		core.CreateCustomMetricStage{
 			Metadata: common.Metadata{
 				Describe: "Create the first metric",
@@ -153,11 +138,63 @@ func TestUserFlow(t *testing.T) {
 
 		core.CreateCustomMetricStage{
 			Metadata: common.Metadata{
-				Describe:    "Create the third metric",
+				Describe: "Create the third metric",
+			},
+			CharacterKey: common.CurrentCharacter,
+		},
+
+		core.CreateCustomMetricStage{
+			Metadata: common.Metadata{
+				Describe:    "Create the fourth metric",
 				ExpectError: true,
 			},
 			CharacterKey: common.CurrentCharacter,
 		},
+
+		common.CheckEndStage{
+			CurrentStage: common.CustomMetricStage,
+		},
+
+		// --------- END << CUSTOM METRIC -----------
+
+		// --------- TIME TRACKING WITHOUT METRIC -----------
+
+		// timetrackings.CreateTimeTrackingStage{
+		// 	Metadata: common.Metadata{
+		// 		Describe: "Start a new tracking session of the current character",
+		// 	},
+		// 	CharacterKey: common.CurrentCharacter,
+		// },
+
+		// common.SaveToContextStage{
+		// 	Key:      common.TimeTracking,
+		// 	JsonPath: "data.createTimeTracking",
+		// },
+
+		// timetrackings.CreateTimeTrackingStage{
+		// 	Metadata: common.Metadata{
+		// 		Describe:    "Start an existing session again",
+		// 		ExpectError: true,
+		// 	},
+		// 	CharacterKey: common.CurrentCharacter,
+		// },
+
+		// timetrackings.UpdateTimeTracking{
+		// 	Metadata: common.Metadata{
+		// 		Describe: "End an existing tracking session of the current character",
+		// 	},
+		// 	TimeTrackingKey: common.TimeTracking,
+		// },
+
+		// timetrackings.UpdateTimeTracking{
+		// 	Metadata: common.Metadata{
+		// 		Describe:    "End an finished session again",
+		// 		ExpectError: true,
+		// 	},
+		// 	TimeTrackingKey: common.TimeTracking,
+		// },
+
+		// --------- CUSTOM METRIC -----------
 
 		core.UpdateCustomMetricStage{
 			Metadata: common.Metadata{
@@ -356,6 +393,10 @@ func TestUserFlow(t *testing.T) {
 	err := p(&ctx)
 	if err != nil {
 		common.LogResponse()
+	}
+
+	if err == common.ErrEndStageReached {
+		return
 	}
 
 	assert.Empty(t, err)

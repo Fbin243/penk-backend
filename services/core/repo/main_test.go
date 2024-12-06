@@ -18,7 +18,7 @@ var (
 
 func TestMain(m *testing.M) {
 	testdb = db.InitDBManagerFromURL("mongodb://localhost:27017", "test").DB
-	profilesRepo = repo.NewProfilesRepo(testdb)
+	profilesRepo = repo.NewProfilesRepo(testdb, nil)
 	charactersRepo = repo.NewCharactersRepo(testdb)
 
 	code := m.Run()
