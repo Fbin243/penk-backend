@@ -40,13 +40,13 @@ func main() {
 	// Init dependencies and perform DI manually
 	mongodb := db.GetDBManager().DB
 	FishRepo := repo.NewFishRepo(mongodb)
-	profilesRepo := coreRepo.NewProfilesRepo(mongodb)
-	charactersRepo := coreRepo.NewCharactersRepo(mongodb)
 	redisClient := db.GetRedisClient()
+	profilesRepo := coreRepo.NewProfilesRepo(mongodb, redisClient)
+	charactersRepo := coreRepo.NewCharactersRepo(mongodb)
 	FishBiz := business.NewFishBusiness(FishRepo, charactersRepo, profilesRepo, redisClient)
 
 	// Check authentication
-	authMiddleware := middlewares.NewMiddleware(redisClient)
+	authMiddleware := middlewares.NewMiddleware(redisClient, profilesRepo)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{

@@ -14,7 +14,6 @@ import (
 	fishRepo "tenkhours/services/currency/repo"
 
 	"github.com/go-redis/redis/v8"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -45,19 +44,20 @@ func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, err
 		return nil, errors.ErrorUnauthorized
 	}
 
-	// Create new fish for user
-	newFish := fishRepo.Fish{
-		ID:        primitive.NewObjectID(),
-		ProfileID: newProfile.ID,
-		Gold:      0,
-		Normal:    0,
-	}
+	// TODO-NAM: Help Fbin to move this logic to the middleware, after create new profile
+	// // Create new fish for user
+	// newFish := fishRepo.Fish{
+	// 	ID:        primitive.NewObjectID(),
+	// 	ProfileID: newProfile.ID,
+	// 	Gold:      0,
+	// 	Normal:    0,
+	// }
 
-	createdFish, err := biz.FishRepo.CreateFish(&newFish)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create fish for new profile: %v", err)
-	}
-	fmt.Printf("Created fish: %+v\n", createdFish)
+	// createdFish, err := biz.FishRepo.CreateFish(&newFish)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to create fish for new profile: %v", err)
+	// }
+	// fmt.Printf("Created fish: %+v\n", createdFish)
 	return &profile, nil
 }
 
