@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"tenkhours/services/core/repo"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -75,11 +76,11 @@ type SnapshotCustomMetric struct {
 }
 
 type SnapshotMetricProperty struct {
-	ID    primitive.ObjectID `json:"id"`
-	Name  string             `json:"name"`
-	Type  MetricPropertyType `json:"type"`
-	Value string             `json:"value"`
-	Unit  *string            `json:"unit,omitempty"`
+	ID    primitive.ObjectID      `json:"id"`
+	Name  string                  `json:"name"`
+	Type  repo.MetricPropertyType `json:"type"`
+	Value string                  `json:"value"`
+	Unit  *string                 `json:"unit,omitempty"`
 }
 
 type SnapshotMetricStyle struct {
@@ -129,47 +130,6 @@ func (e *AnalyticSection) UnmarshalGQL(v interface{}) error {
 }
 
 func (e AnalyticSection) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type MetricPropertyType string
-
-const (
-	MetricPropertyTypeString MetricPropertyType = "String"
-	MetricPropertyTypeNumber MetricPropertyType = "Number"
-)
-
-var AllMetricPropertyType = []MetricPropertyType{
-	MetricPropertyTypeString,
-	MetricPropertyTypeNumber,
-}
-
-func (e MetricPropertyType) IsValid() bool {
-	switch e {
-	case MetricPropertyTypeString, MetricPropertyTypeNumber:
-		return true
-	}
-	return false
-}
-
-func (e MetricPropertyType) String() string {
-	return string(e)
-}
-
-func (e *MetricPropertyType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = MetricPropertyType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid MetricPropertyType", str)
-	}
-	return nil
-}
-
-func (e MetricPropertyType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

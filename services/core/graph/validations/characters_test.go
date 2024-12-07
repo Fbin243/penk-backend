@@ -5,6 +5,7 @@ import (
 
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/graph/validations"
+	"tenkhours/services/core/repo"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -86,7 +87,7 @@ func TestValidateCustomMetric(t *testing.T) {
 		{
 			name: "invalid property",
 			metric: metricInput.Properties([]model.MetricPropertyInput{
-				NewMetricPropertyInput().Name("").Type(model.MetricPropertyTypeNumber).Value("10").Unit("kg").MetricPropertyInput,
+				NewMetricPropertyInput().Name("").Type(repo.MetricPropertyTypeNumber).Value("10").Unit("kg").MetricPropertyInput,
 			}),
 			hasError: true,
 		},
@@ -111,7 +112,7 @@ func TestValidateMetricProperty(t *testing.T) {
 		hasError bool
 	}
 
-	propertyInput := NewMetricPropertyInput().Name("Property").Type(model.MetricPropertyTypeNumber).Value("10").Unit("kg")
+	propertyInput := NewMetricPropertyInput().Name("Property").Type(repo.MetricPropertyTypeNumber).Value("10").Unit("kg")
 
 	tests := []testCase{
 		{

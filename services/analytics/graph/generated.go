@@ -13,6 +13,7 @@ import (
 	"sync/atomic"
 	graphql1 "tenkhours/pkg/graphql"
 	"tenkhours/services/analytics/graph/model"
+	"tenkhours/services/core/repo"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -2729,9 +2730,9 @@ func (ec *executionContext) _Snapshot_MetricProperty_type(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.MetricPropertyType)
+	res := resTmp.(repo.MetricPropertyType)
 	fc.Result = res
-	return ec.marshalNMetricPropertyType2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐMetricPropertyType(ctx, field.Selections, res)
+	return ec.marshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Snapshot_MetricProperty_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5924,14 +5925,20 @@ func (ec *executionContext) marshalNJSON2map(ctx context.Context, sel ast.Select
 	return res
 }
 
-func (ec *executionContext) unmarshalNMetricPropertyType2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐMetricPropertyType(ctx context.Context, v interface{}) (model.MetricPropertyType, error) {
-	var res model.MetricPropertyType
-	err := res.UnmarshalGQL(v)
+func (ec *executionContext) unmarshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx context.Context, v interface{}) (repo.MetricPropertyType, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := repo.MetricPropertyType(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNMetricPropertyType2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v model.MetricPropertyType) graphql.Marshaler {
-	return v
+func (ec *executionContext) marshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v repo.MetricPropertyType) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, v interface{}) (primitive.ObjectID, error) {

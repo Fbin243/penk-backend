@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"tenkhours/pkg/db"
-	"tenkhours/services/core/graph/model"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -22,14 +21,20 @@ type Profile struct {
 	UpdatedAt          time.Time          `json:"updatedAt,omitempty" bson:"updated_at"`
 }
 
-// Character
 type MetricProperty struct {
-	ID    primitive.ObjectID       `json:"id,omitempty" bson:"_id"`
-	Name  string                   `json:"name,omitempty" bson:"name"`
-	Type  model.MetricPropertyType `json:"type,omitempty" bson:"type"`
-	Value string                   `json:"value,omitempty" bson:"value"`
-	Unit  string                   `json:"unit,omitempty" bson:"unit"`
+	ID    primitive.ObjectID `json:"id,omitempty" bson:"_id"`
+	Name  string             `json:"name,omitempty" bson:"name"`
+	Type  MetricPropertyType `json:"type,omitempty" bson:"type"`
+	Value string             `json:"value,omitempty" bson:"value"`
+	Unit  string             `json:"unit,omitempty" bson:"unit"`
 }
+
+type MetricPropertyType string
+
+const (
+	MetricPropertyTypeNumber MetricPropertyType = "Number"
+	MetricPropertyTypeString MetricPropertyType = "String"
+)
 
 type MetricStyle struct {
 	Color string `json:"color,omitempty" bson:"color"`
@@ -59,6 +64,9 @@ type Character struct {
 	LimitedMetricNumber int32 `json:"limitedMetricNumber,omitempty" bson:"limited_metric_number,omitempty"`
 }
 
+// Make Character satisfy the Entity interface required by federation
+func (Character) IsEntity() {}
+
 type Goal struct {
 	*db.BaseModel `bson:",inline"`
 	CharacterID   primitive.ObjectID `json:"characterID" bson:"character_id"`
@@ -77,6 +85,3 @@ const (
 	GoalStatusFinished GoalStatus = "Finished"
 	GoalStatusExpired  GoalStatus = "Expired"
 )
-
-// Make Character satisfy the Entity interface required by federation
-func (Character) IsEntity() {}

@@ -28,5 +28,5 @@ type Mutation {
   ): MetricProperty!
   deleteMetricProperty(id: ObjectID!, characterID: ObjectID!, metricID: ObjectID!): MetricProperty!
 
-  createGoal(characterID: ObjectID!, input: GoalInput!): Goal!
+  upsertGoal(characterID: ObjectID!, input: GoalInput!): Goal!
 }

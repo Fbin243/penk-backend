@@ -86,6 +86,10 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
+  ObjectID:
+    model: tenkhours/pkg/graphql.ObjectID
+  NullableString:
+    model: tenkhours/pkg/graphql.NullableString
   Profile:
     model: tenkhours/services/core/repo.Profile
     fields:
@@ -97,13 +101,11 @@ models:
     model: tenkhours/services/core/repo.CustomMetric
   MetricProperty:
     model: tenkhours/services/core/repo.MetricProperty
+  MetricStyle:
+    model: tenkhours/services/core/repo.MetricStyle
+  MetricPropertyType:
+    model: tenkhours/services/core/repo.MetricPropertyType
   Goal:
     model: tenkhours/services/core/repo.Goal
   GoalStatus:
     model: tenkhours/services/core/repo.GoalStatus
-  ObjectID:
-    model: tenkhours/pkg/graphql.ObjectID
-  MetricStyle:
-    model: tenkhours/services/core/repo.MetricStyle
-  NullableString:
-    model: tenkhours/pkg/graphql.NullableString

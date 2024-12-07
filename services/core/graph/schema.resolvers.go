@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/graph/validations"
@@ -115,9 +114,14 @@ func (r *mutationResolver) DeleteMetricProperty(ctx context.Context, id primitiv
 	return r.CharactersBusiness.DeleteMetricProperty(ctx, id, characterID, metricID)
 }
 
-// CreateGoal is the resolver for the createGoal field.
-func (r *mutationResolver) CreateGoal(ctx context.Context, characterID primitive.ObjectID, input model.GoalInput) (*repo.Goal, error) {
-	panic(fmt.Errorf("not implemented: CreateGoal - createGoal"))
+// UpsertGoal is the resolver for the upsertGoal field.
+func (r *mutationResolver) UpsertGoal(ctx context.Context, characterID primitive.ObjectID, input model.GoalInput) (*repo.Goal, error) {
+	// Validate the input
+	if err := validations.ValidateGoalInput(input); err != nil {
+		return nil, err
+	}
+
+	return r.GoalsBusiness.UpsertGoal(ctx, characterID, input)
 }
 
 // Characters is the resolver for the characters field.
@@ -142,7 +146,7 @@ func (r *queryResolver) AppSettings(ctx context.Context) (*model.AppSettings, er
 
 // Goals is the resolver for the goals field.
 func (r *queryResolver) Goals(ctx context.Context, characterID primitive.ObjectID) ([]repo.Goal, error) {
-	panic(fmt.Errorf("not implemented: Goals - goals"))
+	return r.GoalsBusiness.GetGoals(ctx, characterID)
 }
 
 // Mutation returns MutationResolver implementation.

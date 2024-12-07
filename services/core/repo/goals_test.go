@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var goal = repo.Goal{
+var goal = &repo.Goal{
 	BaseModel: &db.BaseModel{
 		ID:        primitive.NewObjectID(),
 		CreatedAt: time.Now(),

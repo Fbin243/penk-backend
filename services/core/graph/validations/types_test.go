@@ -2,6 +2,7 @@ package validations_test
 
 import (
 	"tenkhours/services/core/graph/model"
+	"tenkhours/services/core/repo"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -93,7 +94,7 @@ func (m MetricPropertyInput) Name(name string) MetricPropertyInput {
 	return m
 }
 
-func (m MetricPropertyInput) Type(t model.MetricPropertyType) MetricPropertyInput {
+func (m MetricPropertyInput) Type(t repo.MetricPropertyType) MetricPropertyInput {
 	m.MetricPropertyInput.Type = toPtr(t)
 	return m
 }

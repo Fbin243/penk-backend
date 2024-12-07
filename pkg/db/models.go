@@ -34,10 +34,10 @@ func (m *BaseModel) SetUpdatedAtByNow() {
 }
 
 type IBaseRepo[M IBaseModel] interface {
-	InsertOne(m M) (*M, error)
-	FindById(id primitive.ObjectID) (*M, error)
-	UpdateById(id primitive.ObjectID, m M) (*M, error)
-	DeleteById(id primitive.ObjectID) (*M, error)
+	InsertOne(m *M) (*M, error)
+	FindByID(id primitive.ObjectID) (*M, error)
+	UpdateByID(id primitive.ObjectID, m *M) (*M, error)
+	DeleteByID(id primitive.ObjectID) (*M, error)
 }
 
 type BaseRepo[M IBaseModel] struct {
@@ -48,14 +48,16 @@ func NewBaseRepo[M IBaseModel](collection *mongo.Collection) *BaseRepo[M] {
 	return &BaseRepo[M]{collection}
 }
 
-func (r *BaseRepo[M]) InsertOne(m M) (*M, error) {
+func (r *BaseRepo[M]) InsertOne(m *M) (*M, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	m.SetCreatedAtByNow()
-	m.SetUpdatedAtByNow()
+	_m := *m
+	_m.SetID(primitive.NewObjectID())
+	_m.SetCreatedAtByNow()
+	_m.SetUpdatedAtByNow()
 	_, err := r.Collection.InsertOne(ctx, m)
-	return &m, err
+	return m, err
 }
 
 func (r *BaseRepo[M]) FindById(id primitive.ObjectID) (*M, error) {
@@ -67,13 +69,14 @@ func (r *BaseRepo[M]) FindById(id primitive.ObjectID) (*M, error) {
 	return &m, err
 }
 
-func (r *BaseRepo[M]) UpdateById(id primitive.ObjectID, m M) (*M, error) {
+func (r *BaseRepo[M]) UpdateById(id primitive.ObjectID, m *M) (*M, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	m.SetUpdatedAtByNow()
+	_m := *m
+	_m.SetUpdatedAtByNow()
 	_, err := r.Collection.ReplaceOne(ctx, bson.M{"_id": id}, m)
-	return &m, err
+	return m, err
 }
 
 func (r *BaseRepo[M]) DeleteById(id primitive.ObjectID) (*M, error) {

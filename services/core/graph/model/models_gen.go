@@ -3,9 +3,7 @@
 package model
 
 import (
-	"fmt"
-	"io"
-	"strconv"
+	"tenkhours/services/core/repo"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -44,12 +42,23 @@ type CustomMetricInput struct {
 	Properties []MetricPropertyInput `json:"properties,omitempty"`
 }
 
+type GoalCustomMetricInput struct {
+	ID         primitive.ObjectID        `json:"id"`
+	Properties []GoalMetricPropertyInput `json:"properties,omitempty"`
+}
+
 type GoalInput struct {
-	Name        *string             `json:"Name,omitempty"`
-	Description *string             `json:"Description,omitempty"`
-	StartDate   *time.Time          `json:"StartDate,omitempty"`
-	EndDate     *time.Time          `json:"EndDate,omitempty"`
-	Target      []CustomMetricInput `json:"Target,omitempty"`
+	ID          *primitive.ObjectID     `json:"id,omitempty"`
+	Name        string                  `json:"name" validate:"min=1,max=50"`
+	Description *string                 `json:"description,omitempty" validate:"max=255"`
+	StartDate   time.Time               `json:"startDate"`
+	EndDate     time.Time               `json:"endDate"`
+	Target      []GoalCustomMetricInput `json:"target,omitempty"`
+}
+
+type GoalMetricPropertyInput struct {
+	ID    primitive.ObjectID `json:"id"`
+	Value string             `json:"value"`
 }
 
 // Input for defining a property of a custom metric.
@@ -59,7 +68,7 @@ type MetricPropertyInput struct {
 	// Name of the property.
 	Name *string `json:"name,omitempty"`
 	// Data type of the property (String or Number).
-	Type *MetricPropertyType `json:"type,omitempty"`
+	Type *repo.MetricPropertyType `json:"type,omitempty"`
 	// Specific value of the property based on its data type.
 	Value *string `json:"value,omitempty"`
 	// Unit of the property value (e.g., seconds, meters, etc.).
@@ -90,45 +99,4 @@ type ProfileInput struct {
 }
 
 type Query struct {
-}
-
-type MetricPropertyType string
-
-const (
-	MetricPropertyTypeString MetricPropertyType = "String"
-	MetricPropertyTypeNumber MetricPropertyType = "Number"
-)
-
-var AllMetricPropertyType = []MetricPropertyType{
-	MetricPropertyTypeString,
-	MetricPropertyTypeNumber,
-}
-
-func (e MetricPropertyType) IsValid() bool {
-	switch e {
-	case MetricPropertyTypeString, MetricPropertyTypeNumber:
-		return true
-	}
-	return false
-}
-
-func (e MetricPropertyType) String() string {
-	return string(e)
-}
-
-func (e *MetricPropertyType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = MetricPropertyType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid MetricPropertyType", str)
-	}
-	return nil
-}
-
-func (e MetricPropertyType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
 }

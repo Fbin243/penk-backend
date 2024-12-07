@@ -66,8 +66,13 @@ func (v *ValidateBuilder) Custom(tag string, fn validator.Func) *ValidateBuilder
 	return v
 }
 
+// Reset resets the validation string
+func (v *ValidateBuilder) Reset() *ValidateBuilder {
+	v.validateString = ""
+	return v
+}
+
 // Validate validates the field with the validation string
 func (v *ValidateBuilder) Validate(field interface{}) error {
-	v.validateString = v.validateString[:len(v.validateString)-1]
-	return validate.Var(field, v.validateString)
+	return validate.Var(field, v.validateString[:len(v.validateString)-1])
 }
