@@ -52,5 +52,5 @@ func TestGetGoalsByCharacterID(t *testing.T) {
 }
 
 func cleanUpGoal(goal *repo.Goal) {
-	goalsRepo.DeleteById(goal.ID)
+	goalsRepo.DeleteByID(goal.ID)
 }

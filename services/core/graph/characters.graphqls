@@ -12,7 +12,7 @@ type Character {
 type CustomMetric {
   id: ObjectID!
   name: String!
-  description: NullableString
+  description: String
   time: Int!
   style: MetricStyle!
   properties: [MetricProperty!]!
@@ -20,8 +20,8 @@ type CustomMetric {
 }
 
 type MetricStyle {
-  color: NullableString
-  icon: NullableString
+  color: String
+  icon: String
 }
 
 type MetricProperty {
@@ -29,7 +29,7 @@ type MetricProperty {
   name: String!
   type: MetricPropertyType!
   value: String!
-  unit: NullableString
+  unit: String
 }
 
 """
@@ -39,22 +39,22 @@ input CharacterInput {
   """
   The name of the character.
   """
-  name: String
+  name: String! @goTag(key: "validate", value: "min=1,max=50")
 
   """
-  Male is true, Female is false. Defaults to false.
+  Male is true, Female is false.
   """
-  gender: Boolean
+  gender: Boolean!
 
   """
   List of string tags that describe the character.
   """
-  tags: [String!]
+  tags: [String!] @goTag(key: "validate", value: "tags_valid,dive")
 
   """
   List of custom metrics for the character.
   """
-  customMetrics: [CustomMetricInput!]
+  customMetrics: [CustomMetricInput!] @goTag(key: "validate", value: "dive")
 }
 
 """
@@ -69,12 +69,12 @@ input CustomMetricInput {
   """
   The name of the custom metric.
   """
-  name: String
+  name: String! @goTag(key: "validate", value: "min=1,max=50")
 
   """
   Description of the custom metric.
   """
-  description: String
+  description: String @goTag(key: "validate", value: "omitempty,max=255")
 
   """
   Visual style of the metric displayed on screen.
@@ -84,7 +84,7 @@ input CustomMetricInput {
   """
   List of properties that describe the metric.
   """
-  properties: [MetricPropertyInput!]
+  properties: [MetricPropertyInput!] @goTag(key: "validate", value: "dive")
 }
 
 """
@@ -94,12 +94,12 @@ input MetricStyleInput {
   """
   Color of the metric, in Hex format.
   """
-  color: String
+  color: String! @goTag(key: "validate", value: "hexcolor")
 
   """
   URL or file path of the icon for the metric.
   """
-  icon: String
+  icon: String! @goTag(key: "validate", value: "max=1")
 }
 
 """
@@ -114,22 +114,22 @@ input MetricPropertyInput {
   """
   Name of the property.
   """
-  name: String
+  name: String! @goTag(key: "validate", value: "min=1,max=50")
 
   """
   Data type of the property (String or Number).
   """
-  type: MetricPropertyType
+  type: MetricPropertyType!
 
   """
   Specific value of the property based on its data type.
   """
-  value: String
+  value: String!
 
   """
   Unit of the property value (e.g., seconds, meters, etc.).
   """
-  unit: String
+  unit: String! @goTag(key: "validate", value: "min=1,max=50")
 }
 
 enum MetricPropertyType {

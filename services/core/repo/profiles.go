@@ -16,7 +16,7 @@ import (
 )
 
 type ProfilesRepo struct {
-	*mongo.Collection
+	*db.BaseRepo[Profile]
 	*redis.Client
 }
 
@@ -37,7 +37,7 @@ func NewProfilesRepo(mongodb *mongo.Database, rdb *redis.Client) *ProfilesRepo {
 		return nil
 	}
 
-	return &ProfilesRepo{profilesCollection, rdb}
+	return &ProfilesRepo{db.NewBaseRepo[Profile](profilesCollection), rdb}
 }
 
 func (r *ProfilesRepo) GetProfileByFirebaseUID(firebaseUID string) (*Profile, error) {
@@ -66,38 +66,30 @@ func (r *ProfilesRepo) GetProfileByEmail(email string) (*Profile, error) {
 	return &profile, nil
 }
 
-func (r *ProfilesRepo) CreateNewProfile(profile *Profile) (*Profile, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err := r.InsertOne(ctx, profile)
-
-	return profile, err
-}
-
 func (r *ProfilesRepo) UpdateProfile(profile *Profile) (*Profile, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := r.FindOneAndUpdate(ctx, bson.M{"_id": profile.ID}, bson.M{"$set": profile}, db.FindOneAndUpdateOptions).Decode(profile)
+	profile, err := r.UpdateByID(profile.ID, bson.M{"$set": profile})
+	if err != nil {
+		return nil, err
+	}
 
-	if err == nil {
-		profileJSON, err := json.Marshal(profile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to serialize profile: %v", err)
-		}
+	profileJSON, err := json.Marshal(profile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to serialize profile: %v", err)
+	}
 
-		// Get the current TTL of the profile in Redis
-		ttl, err := r.TTL(ctx, profile.FirebaseUID).Result()
-		if err != nil {
-			return nil, err
-		}
+	// Get the current TTL of the profile in Redis
+	ttl, err := r.TTL(ctx, profile.FirebaseUID).Result()
+	if err != nil {
+		return nil, err
+	}
 
-		// Update the profile in Redis with the current TTL
-		err = r.Set(ctx, profile.FirebaseUID, profileJSON, ttl).Err()
-		if err != nil {
-			return profile, err
-		}
+	// Update the profile in Redis with the current TTL
+	err = r.Set(ctx, profile.FirebaseUID, profileJSON, ttl).Err()
+	if err != nil {
+		return nil, err
 	}
 
 	return profile, err

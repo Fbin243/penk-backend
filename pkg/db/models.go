@@ -16,9 +16,9 @@ type IBaseModel interface {
 }
 
 type BaseModel struct {
-	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	CreatedAt time.Time          `json:"createdAt" bson:"created_at,omitempty"`
-	UpdatedAt time.Time          `json:"updatedAt" bson:"updated_at,omitempty"`
+	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	CreatedAt time.Time          `json:"createdAt,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt time.Time          `json:"updatedAt,omitempty" bson:"updated_at,omitempty"`
 }
 
 func (m *BaseModel) SetID(id primitive.ObjectID) {
@@ -69,13 +69,13 @@ func (r *BaseRepo[M]) FindByID(id primitive.ObjectID) (*M, error) {
 	return &m, err
 }
 
-func (r *BaseRepo[M]) UpdateByID(id primitive.ObjectID, m *M) (*M, error) {
+func (r *BaseRepo[M]) UpdateByID(id primitive.ObjectID, update bson.M) (*M, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_m := *m
-	_m.SetUpdatedAtByNow()
-	_, err := r.Collection.ReplaceOne(ctx, bson.M{"_id": id}, m)
+	var m *M
+	update["$set"].(bson.M)["updated_at"] = time.Now()
+	err := r.Collection.FindOneAndUpdate(ctx, bson.M{"_id": id}, update, FindOneAndUpdateOptions).Decode(&m)
 	return m, err
 }
 

@@ -88,8 +88,6 @@ models:
       - github.com/99designs/gqlgen/graphql.Int32
   ObjectID:
     model: tenkhours/pkg/graphql.ObjectID
-  NullableString:
-    model: tenkhours/pkg/graphql.NullableString
   Profile:
     model: tenkhours/services/core/repo.Profile
     fields:

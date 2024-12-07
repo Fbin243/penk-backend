@@ -5,23 +5,27 @@ import (
 	"fmt"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type CharactersBusiness struct {
 	CharactersRepo *repo.CharactersRepo
 	ProfilesRepo   *repo.ProfilesRepo
+	Goals          *repo.GoalsRepo
 }
 
-func NewCharactersBusiness(charactersRepo *repo.CharactersRepo, profilesRepo *repo.ProfilesRepo) *CharactersBusiness {
+func NewCharactersBusiness(charactersRepo *repo.CharactersRepo, profilesRepo *repo.ProfilesRepo, goalsRepo *repo.GoalsRepo) *CharactersBusiness {
 	return &CharactersBusiness{
 		CharactersRepo: charactersRepo,
 		ProfilesRepo:   profilesRepo,
+		Goals:          goalsRepo,
 	}
 }
 
@@ -31,7 +35,7 @@ func (biz *CharactersBusiness) GetCharacterByID(ctx context.Context, id string) 
 		return nil, err
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := biz.CharactersRepo.FindByID(characterOID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find character: %v", err)
 	}
@@ -70,19 +74,15 @@ func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.
 	}
 
 	character := repo.Character{
-		ID:                  primitive.NewObjectID(),
+		BaseModel:           &db.BaseModel{},
+		Name:                input.Name,
+		Gender:              input.Gender,
 		ProfileID:           profile.ID,
 		TotalFocusedTime:    0,
 		CustomMetrics:       []repo.CustomMetric{},
 		LimitedMetricNumber: utils.LimitedMetricNumber,
 	}
 
-	if input.Name != nil {
-		character.Name = *input.Name
-	}
-	if input.Gender != nil {
-		character.Gender = *input.Gender
-	}
 	if input.Tags != nil {
 		character.Tags = input.Tags
 	}
@@ -97,7 +97,7 @@ func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.
 		}
 	}
 
-	createdCharacter, err := biz.CharactersRepo.CreateCharacter(&character)
+	createdCharacter, err := biz.CharactersRepo.InsertOne(&character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create character: %v", err)
 	}
@@ -118,7 +118,7 @@ func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(id)
+	character, err := biz.CharactersRepo.FindByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -127,10 +127,7 @@ func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive
 		return nil, errors.ErrorPermissionDenied
 	}
 
-	if input.Name != nil {
-		character.Name = *input.Name
-	}
-
+	character.Name = input.Name
 	if input.Tags != nil {
 		character.Tags = input.Tags
 	}
@@ -151,7 +148,7 @@ func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive
 		}
 	}
 
-	updatedCharacter, err := biz.CharactersRepo.UpdateCharacter(character)
+	updatedCharacter, err := biz.CharactersRepo.UpdateByID(id, bson.M{"$set": character})
 	if err != nil {
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
@@ -165,7 +162,7 @@ func (biz *CharactersBusiness) DeleteCharacter(ctx context.Context, id primitive
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(id)
+	character, err := biz.CharactersRepo.FindByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -188,7 +185,7 @@ func (biz *CharactersBusiness) ResetCharacter(ctx context.Context, id primitive.
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(id)
+	character, err := biz.CharactersRepo.FindByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -201,7 +198,7 @@ func (biz *CharactersBusiness) ResetCharacter(ctx context.Context, id primitive.
 	character.TotalFocusedTime = 0
 	character.CustomMetrics = []repo.CustomMetric{}
 
-	resetCharacter, err := biz.CharactersRepo.UpdateCharacter(character)
+	resetCharacter, err := biz.CharactersRepo.UpdateByID(id, bson.M{"$set": character})
 	if err != nil {
 		return nil, fmt.Errorf("failed to reset character: %v", err)
 	}

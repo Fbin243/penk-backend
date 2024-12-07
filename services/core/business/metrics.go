@@ -10,6 +10,7 @@ import (
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -41,7 +42,7 @@ func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, character
 			return nil, errors.ErrorUnauthorized
 		}
 
-		character, err = biz.CharactersRepo.GetCharacterByID(characterID)
+		character, err = biz.CharactersRepo.FindByID(characterID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get character: %v", err)
 		}
@@ -64,21 +65,15 @@ func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, character
 		LimitedPropertyNumber: utils.LimitedPropertyNumber,
 	}
 
-	if input.Name != nil {
-		customMetric.Name = *input.Name
-	}
-
+	customMetric.Name = input.Name
 	if input.Description != nil {
 		customMetric.Description = *input.Description
 	}
 
 	if input.Style != nil {
-		if input.Style.Color != nil {
-			customMetric.Style.Color = *input.Style.Color
-		}
-
-		if input.Style.Icon != nil {
-			customMetric.Style.Icon = *input.Style.Icon
+		customMetric.Style = repo.MetricStyle{
+			Color: input.Style.Color,
+			Icon:  input.Style.Icon,
 		}
 	}
 
@@ -88,18 +83,10 @@ func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, character
 			var metricProperty repo.MetricProperty
 			metricProperty.ID = primitive.NewObjectID()
 
-			if prop.Name != nil {
-				metricProperty.Name = *prop.Name
-			}
-			if prop.Type != nil {
-				metricProperty.Type = *prop.Type
-			}
-			if prop.Value != nil {
-				metricProperty.Value = *prop.Value
-			}
-			if prop.Unit != nil {
-				metricProperty.Unit = *prop.Unit
-			}
+			metricProperty.Name = prop.Name
+			metricProperty.Type = prop.Type
+			metricProperty.Value = prop.Value
+			metricProperty.Unit = prop.Unit
 
 			if len(properties) >= int(customMetric.LimitedPropertyNumber) {
 				return nil, fmt.Errorf("metric properties creation limit reached")
@@ -142,7 +129,7 @@ func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID 
 			return nil, errors.ErrorUnauthorized
 		}
 
-		character, err = biz.CharactersRepo.GetCharacterByID(characterID)
+		character, err = biz.CharactersRepo.FindByID(characterID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get character: %v", err)
 		}
@@ -158,19 +145,14 @@ func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID 
 		if cm.ID != metricID {
 			continue
 		}
-		if input.Name != nil {
-			cm.Name = *input.Name
-		}
+		cm.Name = input.Name
 		if input.Description != nil {
 			cm.Description = *input.Description
 		}
 		if input.Style != nil {
-			if input.Style.Color != nil {
-				cm.Style.Color = *input.Style.Color
-			}
-
-			if input.Style.Icon != nil {
-				cm.Style.Icon = *input.Style.Icon
+			cm.Style = repo.MetricStyle{
+				Color: input.Style.Color,
+				Icon:  input.Style.Icon,
 			}
 		}
 
@@ -197,18 +179,10 @@ func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID 
 					metricProperty.ID = primitive.NewObjectID()
 				}
 
-				if prop.Name != nil {
-					metricProperty.Name = *prop.Name
-				}
-				if prop.Type != nil {
-					metricProperty.Type = *prop.Type
-				}
-				if prop.Value != nil {
-					metricProperty.Value = *prop.Value
-				}
-				if prop.Unit != nil {
-					metricProperty.Unit = *prop.Unit
-				}
+				metricProperty.Name = prop.Name
+				metricProperty.Type = prop.Type
+				metricProperty.Value = prop.Value
+				metricProperty.Unit = prop.Unit
 
 				if len(properties) >= int(character.CustomMetrics[i].LimitedPropertyNumber) {
 					return nil, fmt.Errorf("metric properties creation limit reached")
@@ -233,7 +207,7 @@ func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID 
 		return nil, nil
 	}
 
-	_, err = biz.CharactersRepo.UpdateCharacter(character)
+	_, err = biz.CharactersRepo.UpdateByID(characterID, bson.M{"$set": character})
 	if err != nil {
 		return nil, fmt.Errorf("failed to update custom metric: %v", err)
 	}
@@ -247,7 +221,7 @@ func (biz *CharactersBusiness) DeleteCustomMetric(ctx context.Context, metricID 
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.FindByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -282,7 +256,7 @@ func (biz *CharactersBusiness) ResetCustomMetric(ctx context.Context, metricID p
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.FindByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -311,7 +285,7 @@ func (biz *CharactersBusiness) ResetCustomMetric(ctx context.Context, metricID p
 		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
-	_, err = biz.CharactersRepo.UpdateCharacter(character)
+	_, err = biz.CharactersRepo.UpdateByID(characterID, bson.M{"$set": character})
 	if err != nil {
 		return nil, fmt.Errorf("failed to reset custom metric: %v", err)
 	}
@@ -325,7 +299,7 @@ func (biz *CharactersBusiness) CreateMetricProperty(ctx context.Context, charact
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.FindByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -338,18 +312,10 @@ func (biz *CharactersBusiness) CreateMetricProperty(ctx context.Context, charact
 		ID: primitive.NewObjectID(),
 	}
 
-	if input.Name != nil {
-		metricProperty.Name = *input.Name
-	}
-	if input.Type != nil {
-		metricProperty.Type = (*input.Type)
-	}
-	if input.Value != nil {
-		metricProperty.Value = *input.Value
-	}
-	if input.Unit != nil {
-		metricProperty.Unit = *input.Unit
-	}
+	metricProperty.Name = input.Name
+	metricProperty.Type = input.Type
+	metricProperty.Value = input.Value
+	metricProperty.Unit = input.Unit
 
 	found := false
 	for i, cm := range character.CustomMetrics {
@@ -368,7 +334,7 @@ func (biz *CharactersBusiness) CreateMetricProperty(ctx context.Context, charact
 		return nil, fmt.Errorf("custom metric does not belong to the character")
 	}
 
-	_, err = biz.CharactersRepo.UpdateCharacter(character)
+	_, err = biz.CharactersRepo.UpdateByID(characterID, bson.M{"$set": character})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create metric property: %v", err)
 	}
@@ -382,7 +348,7 @@ func (biz *CharactersBusiness) UpdateMetricProperty(ctx context.Context, id prim
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.FindByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -401,18 +367,10 @@ func (biz *CharactersBusiness) UpdateMetricProperty(ctx context.Context, id prim
 					continue
 				}
 
-				if input.Name != nil {
-					prop.Name = *input.Name
-				}
-				if input.Type != nil {
-					prop.Type = (*input.Type)
-				}
-				if input.Value != nil {
-					prop.Value = *input.Value
-				}
-				if input.Unit != nil {
-					prop.Unit = *input.Unit
-				}
+				prop.Name = input.Name
+				prop.Type = input.Type
+				prop.Value = input.Value
+				prop.Unit = input.Unit
 
 				character.CustomMetrics[i].Properties[j] = prop
 				updatedProperty = prop
@@ -433,7 +391,7 @@ func (biz *CharactersBusiness) UpdateMetricProperty(ctx context.Context, id prim
 		return nil, fmt.Errorf("metric property does not belong to the metric")
 	}
 
-	_, err = biz.CharactersRepo.UpdateCharacter(character)
+	_, err = biz.CharactersRepo.UpdateByID(characterID, bson.M{"$set": character})
 	if err != nil {
 		return nil, fmt.Errorf("failed to update metric property: %v", err)
 	}
@@ -447,7 +405,7 @@ func (biz *CharactersBusiness) DeleteMetricProperty(ctx context.Context, id prim
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.FindByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -483,7 +441,7 @@ func (biz *CharactersBusiness) DeleteMetricProperty(ctx context.Context, id prim
 		return nil, fmt.Errorf("metric property does not belong to the metric")
 	}
 
-	_, err = biz.CharactersRepo.UpdateCharacter(character)
+	_, err = biz.CharactersRepo.UpdateByID(characterID, bson.M{"$set": character})
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete metric property: %v", err)
 	}

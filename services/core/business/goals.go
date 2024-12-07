@@ -11,6 +11,7 @@ import (
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -30,7 +31,7 @@ func (biz *GoalsBusiness) GetGoals(ctx context.Context, characterID primitive.Ob
 	}
 
 	// Check if the character belongs to the user
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.FindByID(characterID)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +50,7 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 	}
 
 	// Check if the character belongs to the user
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.FindByID(characterID)
 	if err != nil {
 		return nil, err
 	}
@@ -58,27 +59,33 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 		return nil, errors.ErrorUnauthorized
 	}
 
-	var goal *repo.Goal
+	var newGoal *repo.Goal
+	var existingGoal *repo.Goal
+	updateFields := bson.M{
+		"Name":      input.Name,
+		"StartDate": input.StartDate,
+		"EndDate":   input.EndDate,
+	}
 
 	if input.ID != nil {
 		// Get the existing goal
-		goal, err = biz.GoalsRepo.FindByID(*input.ID)
+		existingGoal, err = biz.GoalsRepo.FindByID(*input.ID)
 		if err != nil {
 			return nil, err
 		}
 
 		// Check permision
-		if goal.CharacterID != characterID {
+		if existingGoal.CharacterID != characterID {
 			return nil, errors.ErrorPermissionDenied
 		}
 
 		// Just update if the goal is still active
-		if goal.Status != repo.GoalStatusActive {
+		if existingGoal.Status != repo.GoalStatusActive {
 			return nil, fmt.Errorf("goal is not active")
 		}
 	} else {
 		// Create new goal
-		goal = &repo.Goal{
+		newGoal = &repo.Goal{
 			BaseModel:   &db.BaseModel{},
 			CharacterID: characterID,
 			Name:        input.Name,
@@ -89,11 +96,12 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 	}
 
 	if input.Description != nil {
-		goal.Description = *input.Description
+		newGoal.Description = *input.Description
+		updateFields["Description"] = *input.Description
 	}
 
 	if len(input.Target) > 0 {
-		goal.Target = make([]repo.CustomMetric, 0)
+		targets := make([]repo.CustomMetric, 0)
 
 		// Convert custom metrics to map for validation
 		customMetricsMap := make(map[primitive.ObjectID]repo.CustomMetric)
@@ -151,13 +159,16 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 				})
 			}
 
-			goal.Target = append(goal.Target, trackedMetric)
+			targets = append(targets, trackedMetric)
 		}
+
+		newGoal.Target = targets
+		updateFields["Target"] = targets
 	}
 
 	if input.ID != nil {
-		return biz.GoalsRepo.UpdateByID(*input.ID, goal)
+		return biz.GoalsRepo.UpdateByID(*input.ID, updateFields)
 	}
 
-	return biz.GoalsRepo.InsertOne(goal)
+	return biz.GoalsRepo.InsertOne(newGoal)
 }

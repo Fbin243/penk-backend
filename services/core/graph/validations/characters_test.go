@@ -7,39 +7,38 @@ import (
 	"tenkhours/services/core/graph/validations"
 	"tenkhours/services/core/repo"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateCharacterInput(t *testing.T) {
 	type testCase struct {
 		name      string
-		character CharacterInput
+		character model.CharacterInput
 		hasError  bool
 	}
-
-	characterInput := NewCharacterInput().Name("Hero").Gender(true).Tags([]string{"warrior", "legend"})
 
 	tests := []testCase{
 		{
 			name:      "valid character",
-			character: characterInput,
+			character: model.CharacterInput{Name: "Character"},
 			hasError:  false,
 		},
 		{
 			name:      "empty name",
-			character: characterInput.Name(""),
+			character: model.CharacterInput{Name: ""},
 			hasError:  true,
 		},
 		{
 			name:      "name too long",
-			character: characterInput.Name("This is a very long name that exceeds the maximum allowed length of fifty characters."),
+			character: model.CharacterInput{Name: "This is a very long name that exceeds the maximum allowed length of fifty characters. This is a very long name that exceeds the maximum allowed length of fifty characters."},
 			hasError:  true,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := validations.ValidateUpdateCharacterInput(tc.character.CharacterInput)
+			err := validations.ValidateCharacterInput(tc.character)
 			if tc.hasError {
 				assert.Error(t, err)
 			} else {
@@ -52,50 +51,78 @@ func TestValidateCharacterInput(t *testing.T) {
 func TestValidateCustomMetric(t *testing.T) {
 	type testCase struct {
 		name     string
-		metric   CustomMetricInput
+		metric   model.CustomMetricInput
 		hasError bool
 	}
 
-	metricInput := NewCustomMetricInput().Name("Metric").Description("Metric description").Style(model.MetricStyleInput{}).Properties([]model.MetricPropertyInput{})
-
 	tests := []testCase{
 		{
-			name:     "valid metric",
-			metric:   metricInput,
+			name: "valid metric",
+			metric: model.CustomMetricInput{
+				Name:        "Metric",
+				Description: lo.ToPtr("This is a description"),
+			},
 			hasError: false,
 		},
 		{
-			name:     "description with maximum length",
-			metric:   metricInput.Description("This is a enough description with maximum length. This is a enough description with maximum length. This is a enough description with maximum length. This is a enough description with maximum length. This is a enough description with maximum length. Th..."),
+			name: "description with maximum length",
+			metric: model.CustomMetricInput{
+				Name:        "Metric",
+				Description: lo.ToPtr("This is a enough description with maximum length. This is a enough description with maximum length. This is a enough description with maximum length. This is a enough description with maximum length. This is a enough description with maximum length. Th..."),
+			},
 			hasError: false,
 		},
 		{
-			name:     "too long description",
-			metric:   metricInput.Description("This is a very long description that exceeds the maximum allowed length of two hundred fifty five characters. This is a very long description that exceeds the maximum allowed length of two hundred fifty five characters. This is a very long description t..."),
+			name: "too long description",
+			metric: model.CustomMetricInput{
+				Name:        "Metric",
+				Description: lo.ToPtr("This is a very long description that exceeds the maximum allowed length of two hundred fifty five characters. This is a very long description that exceeds the maximum allowed length of two hundred fifty five characters. This is a very long description t..."),
+			},
 			hasError: true,
 		},
 		{
-			name:     "color with valid hex",
-			metric:   metricInput.Style(model.MetricStyleInput{Color: toPtr("#ff0000")}),
+			name: "color with valid hex",
+			metric: model.CustomMetricInput{
+				Name: "Metric",
+				Style: lo.ToPtr(model.MetricStyleInput{
+					Color: "#ff0000",
+				}),
+			},
 			hasError: false,
 		},
 		{
-			name:     "color with invalid hex",
-			metric:   metricInput.Style(model.MetricStyleInput{Color: toPtr("#ff000")}),
+			name: "color with invalid hex",
+			metric: model.CustomMetricInput{
+				Name: "Metric",
+				Style: lo.ToPtr(model.MetricStyleInput{
+					Color: "ff0000",
+				}),
+			},
 			hasError: true,
 		},
 		{
 			name: "invalid property",
-			metric: metricInput.Properties([]model.MetricPropertyInput{
-				NewMetricPropertyInput().Name("").Type(repo.MetricPropertyTypeNumber).Value("10").Unit("kg").MetricPropertyInput,
-			}),
+			metric: model.CustomMetricInput{
+				Name: "Metric",
+				Style: lo.ToPtr(model.MetricStyleInput{
+					Color: "ff0000",
+				}),
+				Properties: []model.MetricPropertyInput{
+					{
+						Name:  "Property",
+						Type:  "",
+						Value: "10",
+						Unit:  "kg",
+					},
+				},
+			},
 			hasError: true,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := validations.ValidateUpdateCustomMetricInput(tc.metric.CustomMetricInput)
+			err := validations.ValidateCustomMetricInput(tc.metric)
 			if tc.hasError {
 				assert.Error(t, err)
 			} else {
@@ -108,38 +135,55 @@ func TestValidateCustomMetric(t *testing.T) {
 func TestValidateMetricProperty(t *testing.T) {
 	type testCase struct {
 		name     string
-		property MetricPropertyInput
+		property model.MetricPropertyInput
 		hasError bool
 	}
 
-	propertyInput := NewMetricPropertyInput().Name("Property").Type(repo.MetricPropertyTypeNumber).Value("10").Unit("kg")
-
 	tests := []testCase{
 		{
-			name:     "valid property",
-			property: propertyInput,
+			name: "valid property",
+			property: model.MetricPropertyInput{
+				Name:  "Property",
+				Type:  repo.MetricPropertyTypeString,
+				Value: "10",
+				Unit:  "kg",
+			},
 			hasError: false,
 		},
 		{
-			name:     "without unit",
-			property: propertyInput.Unit(""),
-			hasError: false,
-		},
-		{
-			name:     "missing name",
-			property: propertyInput.Name(""),
+			name: "without unit",
+			property: model.MetricPropertyInput{
+				Name:  "Property",
+				Type:  repo.MetricPropertyTypeString,
+				Value: "10",
+				Unit:  "",
+			},
 			hasError: true,
 		},
 		{
-			name:     "missing value",
-			property: propertyInput.Value(""),
+			name: "missing name",
+			property: model.MetricPropertyInput{
+				Name:  "",
+				Type:  repo.MetricPropertyTypeString,
+				Value: "10",
+				Unit:  "kg",
+			},
+			hasError: true,
+		},
+		{
+			name: "missing value",
+			property: model.MetricPropertyInput{
+				Name:  "Property",
+				Type:  repo.MetricPropertyTypeString,
+				Value: "",
+				Unit:  "kg"},
 			hasError: false,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := validations.ValidateUpdateMetricPropertyInput(tc.property.MetricPropertyInput)
+			err := validations.ValidateMetricPropertyInput(tc.property)
 			if tc.hasError {
 				assert.Error(t, err)
 			} else {

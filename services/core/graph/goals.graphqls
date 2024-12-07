@@ -22,7 +22,7 @@ directive @goTag(key: String!, value: String) on INPUT_FIELD_DEFINITION | FIELD_
 input GoalInput {
   id: ObjectID
   name: String! @goTag(key: "validate", value: "min=1,max=50")
-  description: String @goTag(key: "validate", value: "max=255")
+  description: String @goTag(key: "validate", value: "omitempty,max=255")
   startDate: Time!
   endDate: Time!
   target: [GoalCustomMetricInput!]

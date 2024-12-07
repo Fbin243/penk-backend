@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"tenkhours/pkg/db"
 	"tenkhours/services/core/repo"
 
 	"github.com/stretchr/testify/assert"
@@ -37,7 +38,7 @@ var charInput = &characterInputType{
 
 func newCharacterFromInput(input *characterInputType) *repo.Character {
 	return &repo.Character{
-		ID:                  primitive.NewObjectID(),
+		BaseModel:           &db.BaseModel{},
 		ProfileID:           primitive.NewObjectID(),
 		Name:                input.Name,
 		Tags:                input.Tags,
@@ -129,7 +130,7 @@ func assertWithMetricInput(t *testing.T, metric *repo.CustomMetric, input *metri
 func TestCreateNewCharacter(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 
-	createdCharacter, err := charactersRepo.CreateCharacter(character)
+	createdCharacter, err := charactersRepo.InsertOne(character)
 	defer cleanUpCharacter(createdCharacter)
 
 	assert.Nil(t, err)
@@ -139,11 +140,11 @@ func TestCreateNewCharacter(t *testing.T) {
 func TestGetCharacterByID(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 
-	_, err := charactersRepo.CreateCharacter(character)
+	_, err := charactersRepo.InsertOne(character)
 	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
-	queriedCharacter, err := charactersRepo.GetCharacterByID(character.ID)
+	queriedCharacter, err := charactersRepo.FindByID(character.ID)
 	assert.Nil(t, err)
 	assertWithCharInput(t, queriedCharacter, charInput)
 }
@@ -151,7 +152,7 @@ func TestGetCharacterByID(t *testing.T) {
 func TestGetCharactersByProfileID(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 
-	_, err := charactersRepo.CreateCharacter(character)
+	_, err := charactersRepo.InsertOne(character)
 	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
@@ -174,12 +175,12 @@ func setupMultipleCharactersTest(t *testing.T) ([]*repo.Character, func()) {
 		Tags:   []string{"#tag3"},
 	})
 
-	_, err = charactersRepo.CreateCharacter(character1)
+	_, err = charactersRepo.InsertOne(character1)
 	if err != nil {
 		t.Fatalf("failed to create character 1: %v", err)
 	}
 
-	_, err = charactersRepo.CreateCharacter(character2)
+	_, err = charactersRepo.InsertOne(character2)
 	if err != nil {
 		t.Fatalf("failed to create character 2: %v", err)
 	}
@@ -216,7 +217,7 @@ func TestGetAllCharacters(t *testing.T) {
 func TestUpdateCharacter(t *testing.T) {
 	character := newCharacterFromInput(charInput)
 
-	_, err := charactersRepo.CreateCharacter(character)
+	_, err := charactersRepo.InsertOne(character)
 	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
@@ -230,14 +231,14 @@ func TestUpdateCharacter(t *testing.T) {
 	character.Gender = updateInput.Gender
 	character.Tags = updateInput.Tags
 
-	updatedCharacter, err := charactersRepo.UpdateCharacter(character)
+	updatedCharacter, err := charactersRepo.UpdateByID(character.ID, bson.M{"$set": character})
 	assert.Nil(t, err)
 	assertWithCharInput(t, updatedCharacter, updateInput)
 }
 
 func TestCreateCustomMetric(t *testing.T) {
 	character := newCharacterFromInput(charInput)
-	_, err := charactersRepo.CreateCharacter(character)
+	_, err := charactersRepo.InsertOne(character)
 	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
@@ -249,7 +250,7 @@ func TestCreateCustomMetric(t *testing.T) {
 
 func TestUpdateCustomMetric(t *testing.T) {
 	character := newCharacterFromInput(charInput)
-	_, err := charactersRepo.CreateCharacter(character)
+	_, err := charactersRepo.InsertOne(character)
 	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
@@ -287,7 +288,7 @@ func TestUpdateCustomMetric(t *testing.T) {
 
 func TestAddMetricProperty(t *testing.T) {
 	character := newCharacterFromInput(charInput)
-	_, err := charactersRepo.CreateCharacter(character)
+	_, err := charactersRepo.InsertOne(character)
 	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 
@@ -310,7 +311,7 @@ func TestAddMetricProperty(t *testing.T) {
 
 func TestUpdateMetricProperty(t *testing.T) {
 	character := newCharacterFromInput(charInput)
-	_, err := charactersRepo.CreateCharacter(character)
+	_, err := charactersRepo.InsertOne(character)
 	defer cleanUpCharacter(character)
 	assert.Nil(t, err)
 

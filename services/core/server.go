@@ -48,7 +48,7 @@ func main() {
 	snapshotsRepo := analyticsRepo.NewSnapshotsRepo(mongodb)
 
 	profilesBiz := business.NewProfilesBusiness(profilesRepo, charactersRepo, capturedRepordsRepo, snapshotsRepo, redisClient)
-	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo)
+	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo, goalsRepo)
 	goalsBiz := business.NewGoalsBusiness(goalsRepo, charactersRepo)
 
 	// Check authentication

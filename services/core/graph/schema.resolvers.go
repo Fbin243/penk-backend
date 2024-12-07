@@ -32,7 +32,7 @@ func (r *mutationResolver) DeleteProfile(ctx context.Context) (*repo.Profile, er
 // CreateCharacter is the resolver for the createCharacter field.
 func (r *mutationResolver) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
 	// Validate the input
-	if err := validations.ValidateCreateCharacterInput(input); err != nil {
+	if err := validations.ValidateCharacterInput(input); err != nil {
 		return nil, err
 	}
 
@@ -42,7 +42,7 @@ func (r *mutationResolver) CreateCharacter(ctx context.Context, input model.Char
 // UpdateCharacter is the resolver for the updateCharacter field.
 func (r *mutationResolver) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error) {
 	// Validate the input
-	if err := validations.ValidateUpdateCharacterInput(input); err != nil {
+	if err := validations.ValidateCharacterInput(input); err != nil {
 		return nil, err
 	}
 
@@ -62,7 +62,7 @@ func (r *mutationResolver) ResetCharacter(ctx context.Context, id primitive.Obje
 // CreateCustomMetric is the resolver for the createCustomMetric field.
 func (r *mutationResolver) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
 	// Validate the input
-	if err := validations.ValidateCreateCustomMetricInput(input); err != nil {
+	if err := validations.ValidateCustomMetricInput(input); err != nil {
 		return nil, err
 	}
 
@@ -72,7 +72,7 @@ func (r *mutationResolver) CreateCustomMetric(ctx context.Context, characterID p
 // UpdateCustomMetric is the resolver for the updateCustomMetric field.
 func (r *mutationResolver) UpdateCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
 	// Validate the input
-	if err := validations.ValidateUpdateCustomMetricInput(input); err != nil {
+	if err := validations.ValidateCustomMetricInput(input); err != nil {
 		return nil, err
 	}
 
@@ -92,7 +92,7 @@ func (r *mutationResolver) DeleteCustomMetric(ctx context.Context, id primitive.
 // CreateMetricProperty is the resolver for the createMetricProperty field.
 func (r *mutationResolver) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
 	// Validate the input
-	if err := validations.ValidateCreateMetricPropertyInput(input); err != nil {
+	if err := validations.ValidateMetricPropertyInput(input); err != nil {
 		return nil, err
 	}
 
@@ -102,7 +102,7 @@ func (r *mutationResolver) CreateMetricProperty(ctx context.Context, characterID
 // UpdateMetricProperty is the resolver for the updateMetricProperty field.
 func (r *mutationResolver) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
 	// Validate the input
-	if err := validations.ValidateUpdateMetricPropertyInput(input); err != nil {
+	if err := validations.ValidateMetricPropertyInput(input); err != nil {
 		return nil, err
 	}
 
