@@ -60,7 +60,7 @@ func (r *BaseRepo[M]) InsertOne(m *M) (*M, error) {
 	return m, err
 }
 
-func (r *BaseRepo[M]) FindById(id primitive.ObjectID) (*M, error) {
+func (r *BaseRepo[M]) FindByID(id primitive.ObjectID) (*M, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -69,7 +69,7 @@ func (r *BaseRepo[M]) FindById(id primitive.ObjectID) (*M, error) {
 	return &m, err
 }
 
-func (r *BaseRepo[M]) UpdateById(id primitive.ObjectID, m *M) (*M, error) {
+func (r *BaseRepo[M]) UpdateByID(id primitive.ObjectID, m *M) (*M, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -79,7 +79,7 @@ func (r *BaseRepo[M]) UpdateById(id primitive.ObjectID, m *M) (*M, error) {
 	return m, err
 }
 
-func (r *BaseRepo[M]) DeleteById(id primitive.ObjectID) (*M, error) {
+func (r *BaseRepo[M]) DeleteByID(id primitive.ObjectID) (*M, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

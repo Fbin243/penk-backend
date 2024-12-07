@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"tenkhours/pkg/auth"
@@ -61,9 +62,19 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 
 	if input.ID != nil {
 		// Get the existing goal
-		goal, err = biz.GoalsRepo.FindById(*input.ID)
+		goal, err = biz.GoalsRepo.FindByID(*input.ID)
 		if err != nil {
 			return nil, err
+		}
+
+		// Check permision
+		if goal.CharacterID != characterID {
+			return nil, errors.ErrorPermissionDenied
+		}
+
+		// Just update if the goal is still active
+		if goal.Status != repo.GoalStatusActive {
+			return nil, fmt.Errorf("goal is not active")
 		}
 	} else {
 		// Create new goal
@@ -77,73 +88,75 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 		}
 	}
 
-	goal.Target = make([]repo.CustomMetric, 0)
-
 	if input.Description != nil {
 		goal.Description = *input.Description
 	}
 
-	// Convert custom metrics to map for validation
-	customMetricsMap := make(map[primitive.ObjectID]repo.CustomMetric)
-	for _, metric := range character.CustomMetrics {
-		customMetricsMap[metric.ID] = metric
-	}
+	if len(input.Target) > 0 {
+		goal.Target = make([]repo.CustomMetric, 0)
 
-	// Add tracked metric to the goal
-	for _, metric := range input.Target {
-		// Validate metric in target
-		if _, ok := customMetricsMap[metric.ID]; !ok {
-			return nil, errors.ErrorPermissionDenied
+		// Convert custom metrics to map for validation
+		customMetricsMap := make(map[primitive.ObjectID]repo.CustomMetric)
+		for _, metric := range character.CustomMetrics {
+			customMetricsMap[metric.ID] = metric
 		}
 
-		currentMetric := customMetricsMap[metric.ID]
-
-		trackedMetric := repo.CustomMetric{
-			ID:          metric.ID,
-			Name:        currentMetric.Name,
-			Description: currentMetric.Description,
-			Time:        currentMetric.Time,
-			Style:       currentMetric.Style,
-			Properties:  make([]repo.MetricProperty, 0),
-		}
-
-		// Convert properties to map for validation
-		propertiesMap := make(map[primitive.ObjectID]repo.MetricProperty)
-		for _, property := range currentMetric.Properties {
-			propertiesMap[property.ID] = property
-		}
-
-		// Validate properties target metric
-		for _, property := range metric.Properties {
-			if _, ok := propertiesMap[property.ID]; !ok {
+		// Add tracked metric to the goal
+		for _, metric := range input.Target {
+			// Validate metric in target
+			if _, ok := customMetricsMap[metric.ID]; !ok {
 				return nil, errors.ErrorPermissionDenied
 			}
 
-			currentProperty := propertiesMap[property.ID]
+			currentMetric := customMetricsMap[metric.ID]
 
-			// Check if the property value is valid
-			switch currentProperty.Type {
-			case repo.MetricPropertyTypeNumber:
-				_, err := strconv.Atoi(property.Value)
-				if err != nil {
-					return nil, err
-				}
+			trackedMetric := repo.CustomMetric{
+				ID:          metric.ID,
+				Name:        currentMetric.Name,
+				Description: currentMetric.Description,
+				Time:        currentMetric.Time,
+				Style:       currentMetric.Style,
+				Properties:  make([]repo.MetricProperty, 0),
 			}
 
-			trackedMetric.Properties = append(trackedMetric.Properties, repo.MetricProperty{
-				ID:    property.ID,
-				Name:  currentProperty.Name,
-				Type:  currentProperty.Type,
-				Value: property.Value,
-				Unit:  currentProperty.Unit,
-			})
-		}
+			// Convert properties to map for validation
+			propertiesMap := make(map[primitive.ObjectID]repo.MetricProperty)
+			for _, property := range currentMetric.Properties {
+				propertiesMap[property.ID] = property
+			}
 
-		goal.Target = append(goal.Target, trackedMetric)
+			// Validate properties target metric
+			for _, property := range metric.Properties {
+				if _, ok := propertiesMap[property.ID]; !ok {
+					return nil, errors.ErrorPermissionDenied
+				}
+
+				currentProperty := propertiesMap[property.ID]
+
+				// Check if the property value is valid
+				switch currentProperty.Type {
+				case repo.MetricPropertyTypeNumber:
+					_, err := strconv.Atoi(property.Value)
+					if err != nil {
+						return nil, err
+					}
+				}
+
+				trackedMetric.Properties = append(trackedMetric.Properties, repo.MetricProperty{
+					ID:    property.ID,
+					Name:  currentProperty.Name,
+					Type:  currentProperty.Type,
+					Value: property.Value,
+					Unit:  currentProperty.Unit,
+				})
+			}
+
+			goal.Target = append(goal.Target, trackedMetric)
+		}
 	}
 
 	if input.ID != nil {
-		return biz.GoalsRepo.UpdateById(*input.ID, goal)
+		return biz.GoalsRepo.UpdateByID(*input.ID, goal)
 	}
 
 	return biz.GoalsRepo.InsertOne(goal)
