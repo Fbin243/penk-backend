@@ -2,9 +2,7 @@ package business
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"time"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
@@ -15,7 +13,6 @@ import (
 	"tenkhours/services/core/repo"
 
 	"github.com/go-redis/redis/v8"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -39,70 +36,12 @@ func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, charactersRepo *repo.C
 
 // Get the user's profile if it exists, otherwise create a new profile
 func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, error) {
-	// Get Firebase profile from the context
-	firebaseProfile, ok := ctx.Value(auth.FirebaseProfileKey).(auth.FirebaseProfile)
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, errors.ErrorUnauthorized
 	}
 
-	// Check if this UID is in Redis
-	keyFound, err := biz.RedisClient.Exists(ctx, firebaseProfile.UID).Result()
-	if err != nil {
-		return nil, err
-	}
-	// Cache hit, return the profile from redis
-	if keyFound == 1 {
-		fmt.Print("key found")
-		profileJSON, err := biz.RedisClient.Get(ctx, firebaseProfile.UID).Result()
-		if err != nil {
-			return nil, fmt.Errorf("login session not found in redis")
-		}
-
-		var profile repo.Profile
-		err = json.Unmarshal([]byte(profileJSON), &profile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decode profile in redis")
-		}
-
-		return &profile, nil
-	}
-
-	// Cache miss, create a new session from the profile in DB
-	profile, err := biz.ProfilesRepo.GetProfileByFirebaseUID(firebaseProfile.UID)
-	if err == mongo.ErrNoDocuments {
-		// profile not found, mean the new account
-		newProfile := repo.Profile{
-			ID:                 primitive.NewObjectID(),
-			Name:               firebaseProfile.Name,
-			Email:              firebaseProfile.Email,
-			FirebaseUID:        firebaseProfile.UID,
-			ImageURL:           firebaseProfile.Picture,
-			CreatedAt:          utils.Now(),
-			AutoSnapshot:       true,
-			AvailableSnapshots: utils.DefaultSnapshotsNumber,
-		}
-
-		// Create new profile for the new user in DB
-		profile, err = biz.ProfilesRepo.CreateNewProfile(&newProfile)
-		if err != nil {
-			return nil, err
-		}
-	} else if err != nil {
-		return nil, err
-	}
-
-	// Save profile in redis
-	profileJSON, err := json.Marshal(profile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to serialize profile: %v", err)
-	}
-
-	err = biz.RedisClient.Set(ctx, firebaseProfile.UID, profileJSON, time.Hour).Err()
-	if err != nil {
-		return nil, err
-	}
-
-	return profile, nil
+	return &profile, nil
 }
 
 // Update the user's profile

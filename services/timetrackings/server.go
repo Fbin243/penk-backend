@@ -38,13 +38,14 @@ func main() {
 
 	// Init dependencies and perform DI manually
 	mongodb := db.GetDBManager().DB
-	charactersRepo := repo.NewCharactersRepo(mongodb)
 	redisClient := db.GetRedisClient()
+	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
+	charactersRepo := repo.NewCharactersRepo(mongodb)
 	timetrackingsRepo := timetrackingsRepo.NewTimeTrackingsRepo(mongodb)
 	timetrackingsBiz := business.NewTimeTrackingsBusiness(timetrackingsRepo, charactersRepo, redisClient)
 
 	// Check authentication
-	authMiddleware := middlewares.NewMiddleware(redisClient)
+	authMiddleware := middlewares.NewMiddleware(redisClient, profilesRepo)
 	app.Use(authMiddleware.CheckAuth)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
