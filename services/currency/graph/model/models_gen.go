@@ -2,13 +2,11 @@
 
 package model
 
-type Fish struct {
-	ID        string `json:"id"`
-	ProfileID string `json:"profileID"`
-	// Numbers of different fish types.
-	Gold   *int `json:"gold,omitempty"`
-	Normal *int `json:"normal,omitempty"`
-}
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
 
 type Mutation struct {
 }
@@ -19,7 +17,7 @@ type Query struct {
 type Rod struct {
 	ID        string `json:"id"`
 	ProfileID string `json:"profileID"`
-	// Type of rod: can be get reward related to this(e.g. Yellow cod can make character hair's color turn to yellow)
+	// Type of rod: can be get reward related to this(e.g. Yellow rod can make character hair's color turn to yellow)
 	Type *string `json:"type,omitempty"`
 }
 
@@ -27,4 +25,45 @@ type Rod struct {
 type RodInput struct {
 	// Type of rod
 	Type *string `json:"type,omitempty"`
+}
+
+type FishType string
+
+const (
+	FishTypeNormal FishType = "normal"
+	FishTypeGold   FishType = "gold"
+)
+
+var AllFishType = []FishType{
+	FishTypeNormal,
+	FishTypeGold,
+}
+
+func (e FishType) IsValid() bool {
+	switch e {
+	case FishTypeNormal, FishTypeGold:
+		return true
+	}
+	return false
+}
+
+func (e FishType) String() string {
+	return string(e)
+}
+
+func (e *FishType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = FishType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid FishType", str)
+	}
+	return nil
+}
+
+func (e FishType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

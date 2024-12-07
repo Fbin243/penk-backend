@@ -199,7 +199,8 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	}
 
 	// Create null data for the first time
-	fishKey := fmt.Sprintf("fish:%s", profile.ID.Hex())
+	fishKey := db.GetFishKey(profile.ID.Hex())
+
 	fish := fishRepo.Fish{
 		ID:        primitive.NewObjectID(),
 		ProfileID: profile.ID,
@@ -208,7 +209,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	}
 
 	fishJSON, err := json.Marshal(fish)
-	err = biz.RedisClient.Set(ctx, fishKey, fishJSON, 4*time.Hour).Err()
+	err = biz.RedisClient.Set(ctx, fishKey, fishJSON, 24*time.Hour).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to save initial fish data to Redis: %v", err)
 	}
@@ -221,19 +222,19 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 		defer ticker.Stop()
 		log.Println("Start the goroutine")
 
-		redisCtx := context.Background() // tạo ctx con do ctx cha bị huỷ sớm
+		redisCtx := context.Background() // create context background
 
 		for {
 			select {
 			case <-ticker.C:
 				fishBiz := &fishBiz.FishBusiness{RedisClient: biz.RedisClient}
-				fishType, err := fishBiz.CatchFish(redisCtx, profile.ID)
+				catchResult, err := fishBiz.CatchFish(redisCtx, profile.ID)
 				if err != nil {
 					log.Printf("Failed to catch fish: %v", err)
-					return
+					continue // Retry on the next tick
 				}
 
-				log.Printf("Caught fish: %s", fishType)
+				log.Printf("Caught fish: ", catchResult)
 			}
 
 			// Check if `fishData` still exists in Redis
@@ -396,14 +397,17 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		Gold:      0,
 		Normal:    0,
 	}
-	fishData, err := biz.RedisClient.Get(ctx, fmt.Sprintf("fish:%s", profile.ID.Hex())).Result()
+
+	fishKey := db.GetFishKey(profileID)
+
+	fishData, err := biz.RedisClient.Get(ctx, fishKey).Result()
 	if err == redis.Nil {
 		log.Printf("No fish data found for profile %s", profileID)
 	} else if err != nil {
 		return nil, nil, fmt.Errorf("failed to get fish data from redis: %v", err)
 	} else {
 		// Delete the fish data cache
-		err = biz.RedisClient.Del(ctx, fmt.Sprintf("fish:%s", profile.ID.Hex())).Err()
+		err = biz.RedisClient.Del(ctx, fishKey).Err()
 		if err != nil {
 			log.Printf("failed to delete fish data from redis: %v", err)
 		}

@@ -1,3 +1,9 @@
+# Define the FishType enum
+enum FishType {
+  normal
+  gold
+}
+
 scalar ObjectID
 
 type Query {
@@ -8,8 +14,7 @@ type Mutation {
   """
   For trading fish
   """
-  unlockMetrics(fishType: String!, characterID: ObjectID!): Boolean!
-  buySnapshots(fishType: String!): Boolean!
-  onBoardCharacters(fishType: String!): Boolean!
+  unlockMetrics(fishType: FishType!, characterID: ObjectID!): Boolean!
+  buySnapshots(fishType: FishType!): Boolean!
+  onBoardCharacters(fishType: FishType!): Boolean!
 }
-

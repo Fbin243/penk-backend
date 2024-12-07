@@ -7,26 +7,27 @@ package graph
 import (
 	"context"
 	"tenkhours/services/currency/graph/model"
+	"tenkhours/services/currency/repo"
 )
 
 // UnlockMetrics is the resolver for the unlockMetrics field.
-func (r *mutationResolver) UnlockMetrics(ctx context.Context, fishType string, characterID string) (bool, error) {
+func (r *mutationResolver) UnlockMetrics(ctx context.Context, fishType model.FishType, characterID string) (bool, error) {
 	return r.FishBusiness.UnlockMetrics(ctx, fishType, characterID)
 }
 
 // BuySnapshots is the resolver for the buySnapshots field.
-func (r *mutationResolver) BuySnapshots(ctx context.Context, fishType string) (bool, error) {
+func (r *mutationResolver) BuySnapshots(ctx context.Context, fishType model.FishType) (bool, error) {
 	// No need for profileID as argument; get it from context
 	return r.FishBusiness.BuySnapshots(ctx, fishType)
 }
 
 // OnBoardCharacters is the resolver for the onBoardCharacters field.
-func (r *mutationResolver) OnBoardCharacters(ctx context.Context, fishType string) (bool, error) {
-	return r.FishBusiness.OnBoardNewCharacters(ctx, fishType)
+func (r *mutationResolver) OnBoardCharacters(ctx context.Context, fishType model.FishType) (bool, error) {
+	return r.FishBusiness.UnclockNewCharacters(ctx, fishType)
 }
 
 // GetFishByProfileID is the resolver for the getFishByProfileId field.
-func (r *queryResolver) GetFishByProfileID(ctx context.Context) (*model.Fish, error) {
+func (r *queryResolver) GetFishByProfileID(ctx context.Context) (*repo.Fish, error) {
 	return r.FishBusiness.GetFishByProfileID(ctx)
 }
 

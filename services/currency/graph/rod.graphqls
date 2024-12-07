@@ -2,7 +2,7 @@ type Rod {
   id: ObjectID!
   profileID: ObjectID!
   """
-  Type of rod: can be get reward related to this(e.g. Yellow cod can make character hair's color turn to yellow)
+  Type of rod: can be get reward related to this(e.g. Yellow rod can make character hair's color turn to yellow)
   """
   type: String
 }
