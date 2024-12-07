@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"os"
 	"time"
@@ -43,31 +42,34 @@ func (biz *FishBusiness) GetFishByProfileID(ctx context.Context) (*model.Fish, e
 		return nil, errors.ErrorUnauthorized
 	}
 
-	log.Println("This IS ID", profile.ID)
-
 	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
-	if err != nil {
-		if err == mongo.ErrNoDocuments { // Check if fish document doesn't exist
-			newFish := &repo.Fish{
-				ID:        primitive.NewObjectID(),
-				ProfileID: profile.ID,
-				Gold:      0,
-				Normal:    0,
-			}
-			fish, err = biz.FishRepo.CreateFish(newFish) // Create new fish document
-			if err != nil {
-				return nil, fmt.Errorf("failed to create fish data: %v", err)
-			}
-		} else {
-			return nil, fmt.Errorf("failed to get fish data: %v", err)
+	// Check the invalid case first, return if it's invalid as soon as possible
+	if err != nil && err != mongo.ErrNoDocuments {
+		return nil, fmt.Errorf("failed to get fish data: %v", err)
+	}
+
+	// Check if fish document doesn't exist
+	if err == mongo.ErrNoDocuments {
+		newFish := &repo.Fish{
+			ID:        primitive.NewObjectID(),
+			ProfileID: profile.ID,
+			Gold:      0,
+			Normal:    0,
+		}
+		// Create new fish document
+		fish, err = biz.FishRepo.CreateFish(newFish)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create fish data: %v", err)
 		}
 	}
 
 	return biz.fishRepoToModel(fish), nil
 }
 
-// catchfish, This will be called in client when they finish their tracking
+// CatchFish used to catch the fish for a user
+// This will be called in client when they finish their tracking sessions
 func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.ObjectID) (string, error) {
+	//Create a random number generator base on fish caught rate
 	rand.Seed(time.Now().UnixNano())
 
 	// Load fish configurations
@@ -78,6 +80,7 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.Obje
 	fishConfigs, err := config.LoadFishConfigs(fishConfigPath)
 
 	fishType := "none"
+	// Create a random float number from 0.0 to 1.0
 	randomNumber := rand.Float64()
 
 	for _, cfg := range fishConfigs {
@@ -86,10 +89,6 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.Obje
 			break
 		}
 		randomNumber -= cfg.Rate
-	}
-
-	if fishType == "none" {
-		return "unlucky, next time :)))", nil
 	}
 
 	// Retrieve current fish data from Redis
@@ -103,6 +102,10 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.Obje
 		return "error", fmt.Errorf("fish data not found in Redis")
 	} else if err != nil {
 		return "error", fmt.Errorf("failed to retrieve fish data from Redis: %v", err)
+	}
+
+	if fishType == "none" {
+		return "unlucky, next time :)))", nil
 	}
 
 	// Parse existing fish data using encoding/json

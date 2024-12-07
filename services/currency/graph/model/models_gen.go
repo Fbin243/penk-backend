@@ -2,19 +2,6 @@
 
 package model
 
-type Cod struct {
-	ID        string `json:"id"`
-	ProfileID string `json:"profileID"`
-	// Type of cod: can be get reward related to this(e.g. Yellow cod can make character hair's color turn to yellow)
-	Type *string `json:"type,omitempty"`
-}
-
-// Input for creating or updating cod
-type CodInput struct {
-	// Type of cod
-	Type *string `json:"type,omitempty"`
-}
-
 type Fish struct {
 	ID        string `json:"id"`
 	ProfileID string `json:"profileID"`
@@ -27,4 +14,17 @@ type Mutation struct {
 }
 
 type Query struct {
+}
+
+type Rod struct {
+	ID        string `json:"id"`
+	ProfileID string `json:"profileID"`
+	// Type of rod: can be get reward related to this(e.g. Yellow cod can make character hair's color turn to yellow)
+	Type *string `json:"type,omitempty"`
+}
+
+// Input for creating or updating rod
+type RodInput struct {
+	// Type of rod
+	Type *string `json:"type,omitempty"`
 }

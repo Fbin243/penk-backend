@@ -19,7 +19,7 @@ var (
 	SnapshotsCollection       = "snapshots"
 	CapturedRecordsCollection = "captured_records"
 	FishCollection            = "fish"
-	CodsCollection            = "cod"
+	RodsCollection            = "rod"
 	FindOneAndUpdateOptions   = options.FindOneAndUpdate().SetReturnDocument(options.After)
 )
 
