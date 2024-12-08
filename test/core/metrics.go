@@ -236,7 +236,7 @@ func (s DeleteCustomMetricStage) Exec(ctx *context.Context) error {
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Query:     UpdateCustomMetricQuery,
+			Query:     DeleteCustomMetricQuery,
 			Variables: variables,
 			Assertion: assertion.End(),
 		})

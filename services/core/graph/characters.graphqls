@@ -99,7 +99,7 @@ input MetricStyleInput {
   """
   URL or file path of the icon for the metric.
   """
-  icon: String! @goTag(key: "validate", value: "max=1")
+  icon: String!
 }
 
 """

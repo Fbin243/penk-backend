@@ -6,7 +6,8 @@ const (
 	// Key for context
 	EndStageKey EndStage = "END_STAGE"
 	// End stages
-	ProfileStage      EndStage = "profile"
-	CharacterStage    EndStage = "character"
-	CustomMetricStage EndStage = "custom_metric"
+	ProfileStage        EndStage = "profile"
+	CharacterStage      EndStage = "character"
+	CustomMetricStage   EndStage = "custom_metric"
+	MetricPropertyStage EndStage = "metric_property"
 )

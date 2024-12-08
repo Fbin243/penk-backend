@@ -1,7 +1,7 @@
 package core
 
 var CreateCharacterQuery = `
-mutation CreateCharacter($name: String!, $gender: Boolean, $tags: [String!], $customMetrics: [CustomMetricInput!]) {
+mutation CreateCharacter($name: String!, $gender: Boolean!, $tags: [String!], $customMetrics: [CustomMetricInput!]) {
 	createCharacter(
 		input: { 
 			name: $name, 
@@ -29,7 +29,7 @@ mutation CreateCharacter($name: String!, $gender: Boolean, $tags: [String!], $cu
 }`
 
 var UpdateCharacterQuery = `
-mutation UpdateCharacter($id: ObjectID!, $gender: Boolean, $name: String, $tags: [String!]) {
+mutation UpdateCharacter($id: ObjectID!, $gender: Boolean!, $name: String!, $tags: [String!]) {
 	updateCharacter(
 		id: $id
 		input: {

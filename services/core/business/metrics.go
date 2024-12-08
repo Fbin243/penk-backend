@@ -29,12 +29,7 @@ func (biz *CharactersBusiness) CreateCustomMetric(ctx context.Context, character
 		fromUpdateCharacter = false
 	}
 
-	fmt.Println("fromCreateCharacter: ", fromCreateCharacter)
-	fmt.Println("fromUpdateCharacter: ", fromUpdateCharacter)
-	fmt.Println("characterID: ", characterID)
-
 	if fromCreateCharacter || fromUpdateCharacter {
-		fmt.Println("vo duoc day")
 		character = ctx.Value(CharacterKey).(*repo.Character)
 	} else {
 		profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)

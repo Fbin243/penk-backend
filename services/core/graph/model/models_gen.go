@@ -80,7 +80,7 @@ type MetricStyleInput struct {
 	// Color of the metric, in Hex format.
 	Color string `json:"color" validate:"hexcolor"`
 	// URL or file path of the icon for the metric.
-	Icon string `json:"icon" validate:"max=1"`
+	Icon string `json:"icon"`
 }
 
 type Mutation struct {
