@@ -69,25 +69,14 @@ func (r *BaseRepo[M]) FindByID(id primitive.ObjectID) (*M, error) {
 	return &m, err
 }
 
-func (r *BaseRepo[M]) UpdateByID(id primitive.ObjectID, update bson.M) (*M, error) {
+func (r *BaseRepo[M]) UpdateByID(id primitive.ObjectID, m *M) (*M, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var m *M
-	if update["$set"] == nil {
-		update["$set"] = bson.M{}
-	}
+	_m := *m
+	_m.SetUpdatedAtByNow()
 
-	if _, ok := update["$set"].(bson.M); ok {
-		update["$set"].(bson.M)["updated_at"] = time.Now()
-	}
-
-	if m, ok := update["set"].(*M); ok {
-		_m := *m
-		_m.SetUpdatedAtByNow()
-	}
-
-	err := r.Collection.FindOneAndUpdate(ctx, bson.M{"_id": id}, update, FindOneAndUpdateOptions).Decode(&m)
+	err := r.Collection.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.M{"$set": _m}, FindOneAndUpdateOptions).Decode(&m)
 	return m, err
 }
 

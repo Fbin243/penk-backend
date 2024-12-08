@@ -61,6 +61,7 @@ type ComplexityRoot struct {
 	}
 
 	Character struct {
+		CreatedAt           func(childComplexity int) int
 		CustomMetrics       func(childComplexity int) int
 		Gender              func(childComplexity int) int
 		ID                  func(childComplexity int) int
@@ -69,6 +70,7 @@ type ComplexityRoot struct {
 		ProfileID           func(childComplexity int) int
 		Tags                func(childComplexity int) int
 		TotalFocusedTime    func(childComplexity int) int
+		UpdatedAt           func(childComplexity int) int
 	}
 
 	CustomMetric struct {
@@ -224,6 +226,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AppSettings.MinDurationTime(childComplexity), true
 
+	case "Character.createdAt":
+		if e.complexity.Character.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Character.CreatedAt(childComplexity), true
+
 	case "Character.customMetrics":
 		if e.complexity.Character.CustomMetrics == nil {
 			break
@@ -279,6 +288,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Character.TotalFocusedTime(childComplexity), true
+
+	case "Character.updatedAt":
+		if e.complexity.Character.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Character.UpdatedAt(childComplexity), true
 
 	case "CustomMetric.description":
 		if e.complexity.CustomMetric.Description == nil {
@@ -1536,6 +1552,94 @@ func (ec *executionContext) fieldContext_Character_id(_ context.Context, field g
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ObjectID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Character_createdAt(ctx context.Context, field graphql.CollectedField, obj *repo.Character) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Character_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Character_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Character",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Character_updatedAt(ctx context.Context, field graphql.CollectedField, obj *repo.Character) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Character_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Character_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Character",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3128,6 +3232,10 @@ func (ec *executionContext) fieldContext_Mutation_createCharacter(ctx context.Co
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Character_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Character_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Character_updatedAt(ctx, field)
 			case "profileID":
 				return ec.fieldContext_Character_profileID(ctx, field)
 			case "name":
@@ -3201,6 +3309,10 @@ func (ec *executionContext) fieldContext_Mutation_updateCharacter(ctx context.Co
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Character_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Character_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Character_updatedAt(ctx, field)
 			case "profileID":
 				return ec.fieldContext_Character_profileID(ctx, field)
 			case "name":
@@ -3274,6 +3386,10 @@ func (ec *executionContext) fieldContext_Mutation_deleteCharacter(ctx context.Co
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Character_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Character_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Character_updatedAt(ctx, field)
 			case "profileID":
 				return ec.fieldContext_Character_profileID(ctx, field)
 			case "name":
@@ -3347,6 +3463,10 @@ func (ec *executionContext) fieldContext_Mutation_resetCharacter(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Character_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Character_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Character_updatedAt(ctx, field)
 			case "profileID":
 				return ec.fieldContext_Character_profileID(ctx, field)
 			case "name":
@@ -4331,6 +4451,10 @@ func (ec *executionContext) fieldContext_Profile_characters(_ context.Context, f
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Character_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Character_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Character_updatedAt(ctx, field)
 			case "profileID":
 				return ec.fieldContext_Character_profileID(ctx, field)
 			case "name":
@@ -4481,6 +4605,10 @@ func (ec *executionContext) fieldContext_Query_characters(_ context.Context, fie
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Character_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Character_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Character_updatedAt(ctx, field)
 			case "profileID":
 				return ec.fieldContext_Character_profileID(ctx, field)
 			case "name":
@@ -7137,6 +7265,16 @@ func (ec *executionContext) _Character(ctx context.Context, sel ast.SelectionSet
 			out.Values[i] = graphql.MarshalString("Character")
 		case "id":
 			out.Values[i] = ec._Character_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._Character_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Character_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

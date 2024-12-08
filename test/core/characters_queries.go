@@ -12,6 +12,8 @@ mutation CreateCharacter($name: String!, $gender: Boolean!, $tags: [String!], $c
 	) {
         gender
         id
+				createdAt
+        updatedAt
         limitedMetricNumber
         name
         tags
@@ -39,6 +41,8 @@ mutation UpdateCharacter($id: ObjectID!, $gender: Boolean!, $name: String!, $tag
 		}
 	) {
 		id
+		createdAt
+		updatedAt
 		profileID
 		name
 		gender
@@ -71,6 +75,8 @@ mutation DeleteCharacter($id: ObjectID!) {
 	deleteCharacter(id: $id) {
 		gender
 		id
+		createdAt
+		updatedAt
 		limitedMetricNumber
 		name
 		tags

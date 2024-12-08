@@ -16,7 +16,6 @@ import (
 	timetrackingsRepo "tenkhours/services/timetrackings/repo"
 
 	"github.com/go-redis/redis/v8"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -301,7 +300,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	}
 
 	// Update the character in the database
-	_, err = biz.CharactersRepo.UpdateByID(character.ID, bson.M{"$set": character})
+	_, err = biz.CharactersRepo.UpdateByID(character.ID, character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}

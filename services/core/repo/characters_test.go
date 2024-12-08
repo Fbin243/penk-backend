@@ -231,7 +231,7 @@ func TestUpdateCharacter(t *testing.T) {
 	character.Gender = updateInput.Gender
 	character.Tags = updateInput.Tags
 
-	updatedCharacter, err := charactersRepo.UpdateByID(character.ID, bson.M{"$set": character})
+	updatedCharacter, err := charactersRepo.UpdateByID(character.ID, character)
 	assert.Nil(t, err)
 	assertWithCharInput(t, updatedCharacter, updateInput)
 }

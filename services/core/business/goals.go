@@ -11,7 +11,6 @@ import (
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -59,33 +58,27 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 		return nil, errors.ErrorUnauthorized
 	}
 
-	var newGoal *repo.Goal
-	var existingGoal *repo.Goal
-	updateFields := bson.M{
-		"Name":      input.Name,
-		"StartDate": input.StartDate,
-		"EndDate":   input.EndDate,
-	}
+	var goal *repo.Goal
 
 	if input.ID != nil {
 		// Get the existing goal
-		existingGoal, err = biz.GoalsRepo.FindByID(*input.ID)
+		goal, err = biz.GoalsRepo.FindByID(*input.ID)
 		if err != nil {
 			return nil, err
 		}
 
 		// Check permision
-		if existingGoal.CharacterID != characterID {
+		if goal.CharacterID != characterID {
 			return nil, errors.ErrorPermissionDenied
 		}
 
 		// Just update if the goal is still active
-		if existingGoal.Status != repo.GoalStatusActive {
+		if goal.Status != repo.GoalStatusActive {
 			return nil, fmt.Errorf("goal is not active")
 		}
 	} else {
 		// Create new goal
-		newGoal = &repo.Goal{
+		goal = &repo.Goal{
 			BaseModel:   &db.BaseModel{},
 			CharacterID: characterID,
 			Name:        input.Name,
@@ -96,8 +89,7 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 	}
 
 	if input.Description != nil {
-		newGoal.Description = *input.Description
-		updateFields["Description"] = *input.Description
+		goal.Description = *input.Description
 	}
 
 	if len(input.Target) > 0 {
@@ -162,13 +154,12 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 			targets = append(targets, trackedMetric)
 		}
 
-		newGoal.Target = targets
-		updateFields["Target"] = targets
+		goal.Target = targets
 	}
 
 	if input.ID != nil {
-		return biz.GoalsRepo.UpdateByID(*input.ID, updateFields)
+		return biz.GoalsRepo.UpdateByID(*input.ID, goal)
 	}
 
-	return biz.GoalsRepo.InsertOne(newGoal)
+	return biz.GoalsRepo.InsertOne(goal)
 }

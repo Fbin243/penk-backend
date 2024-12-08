@@ -70,7 +70,7 @@ func (r *ProfilesRepo) UpdateProfile(profile *Profile) (*Profile, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	profile, err := r.UpdateByID(profile.ID, bson.M{"$set": profile})
+	profile, err := r.UpdateByID(profile.ID, profile)
 	if err != nil {
 		return nil, err
 	}

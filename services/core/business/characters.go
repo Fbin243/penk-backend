@@ -11,7 +11,6 @@ import (
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -137,18 +136,32 @@ func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive
 		ctx = context.WithValue(ctx, FromUpdateCharacter, true)
 		// Insert the character into context
 		ctx = context.WithValue(ctx, CharacterKey, character)
+
+		metrics := make([]repo.CustomMetric, 0)
 		for _, customMetric := range input.CustomMetrics {
 			if customMetric.ID != nil {
 				// Update custom metric
-				biz.UpdateCustomMetric(ctx, *customMetric.ID, character.ID, customMetric)
+				metric, err := biz.UpdateCustomMetric(ctx, *customMetric.ID, character.ID, customMetric)
+				if err != nil {
+					return nil, fmt.Errorf("failed to update custom metric: %v", err)
+				}
+
+				metrics = append(metrics, *metric)
 			} else {
 				// Create custom metric
-				biz.CreateCustomMetric(ctx, character.ID, customMetric)
+				metric, err := biz.CreateCustomMetric(ctx, character.ID, customMetric)
+				if err != nil {
+					return nil, fmt.Errorf("failed to create custom metric: %v", err)
+				}
+
+				metrics = append(metrics, *metric)
 			}
 		}
+
+		character.CustomMetrics = metrics
 	}
 
-	updatedCharacter, err := biz.CharactersRepo.UpdateByID(id, bson.M{"$set": character})
+	updatedCharacter, err := biz.CharactersRepo.UpdateByID(id, character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
@@ -198,7 +211,7 @@ func (biz *CharactersBusiness) ResetCharacter(ctx context.Context, id primitive.
 	character.TotalFocusedTime = 0
 	character.CustomMetrics = []repo.CustomMetric{}
 
-	resetCharacter, err := biz.CharactersRepo.UpdateByID(id, bson.M{"$set": character})
+	resetCharacter, err := biz.CharactersRepo.UpdateByID(id, character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to reset character: %v", err)
 	}

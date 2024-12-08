@@ -1,5 +1,7 @@
 type Character {
   id: ObjectID!
+  createdAt: Time!
+  updatedAt: Time!
   profileID: ObjectID!
   name: String!
   gender: Boolean!
