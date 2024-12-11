@@ -123,6 +123,7 @@ type ComplexityRoot struct {
 		UpdateCustomMetric   func(childComplexity int, id primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) int
 		UpdateMetricProperty func(childComplexity int, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) int
 		UpdateProfile        func(childComplexity int, input model.ProfileInput) int
+		UpsertCharacter      func(childComplexity int, input model.CharacterInput) int
 		UpsertGoal           func(childComplexity int, characterID primitive.ObjectID, input model.GoalInput) int
 	}
 
@@ -156,6 +157,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error)
 	DeleteProfile(ctx context.Context) (*repo.Profile, error)
+	UpsertCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error)
 	CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error)
 	UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error)
 	DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error)
@@ -614,6 +616,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateProfile(childComplexity, args["input"].(model.ProfileInput)), true
+
+	case "Mutation.upsertCharacter":
+		if e.complexity.Mutation.UpsertCharacter == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_upsertCharacter_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpsertCharacter(childComplexity, args["input"].(model.CharacterInput)), true
 
 	case "Mutation.upsertGoal":
 		if e.complexity.Mutation.UpsertGoal == nil {
@@ -1237,6 +1251,21 @@ func (ec *executionContext) field_Mutation_updateProfile_args(ctx context.Contex
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNProfileInput2tenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐProfileInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_upsertCharacter_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CharacterInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCharacterInput2tenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐCharacterInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3187,6 +3216,83 @@ func (ec *executionContext) fieldContext_Mutation_deleteProfile(_ context.Contex
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Profile", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_upsertCharacter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_upsertCharacter(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpsertCharacter(rctx, fc.Args["input"].(model.CharacterInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*repo.Character)
+	fc.Result = res
+	return ec.marshalNCharacter2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐCharacter(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_upsertCharacter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Character_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Character_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Character_updatedAt(ctx, field)
+			case "profileID":
+				return ec.fieldContext_Character_profileID(ctx, field)
+			case "name":
+				return ec.fieldContext_Character_name(ctx, field)
+			case "gender":
+				return ec.fieldContext_Character_gender(ctx, field)
+			case "tags":
+				return ec.fieldContext_Character_tags(ctx, field)
+			case "totalFocusedTime":
+				return ec.fieldContext_Character_totalFocusedTime(ctx, field)
+			case "customMetrics":
+				return ec.fieldContext_Character_customMetrics(ctx, field)
+			case "limitedMetricNumber":
+				return ec.fieldContext_Character_limitedMetricNumber(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_upsertCharacter_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -7613,6 +7719,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteProfile":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteProfile(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "upsertCharacter":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_upsertCharacter(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

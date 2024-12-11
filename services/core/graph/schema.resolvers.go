@@ -29,6 +29,16 @@ func (r *mutationResolver) DeleteProfile(ctx context.Context) (*repo.Profile, er
 	return r.ProfilesBusiness.DeleteProfile(ctx)
 }
 
+// UpsertCharacter is the resolver for the upsertCharacter field.
+func (r *mutationResolver) UpsertCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
+	// Validate the input
+	if err := validations.ValidateCharacterInput(input); err != nil {
+		return nil, err
+	}
+
+	return r.CharactersBusiness.UpsertCharacter(ctx, input)
+}
+
 // CreateCharacter is the resolver for the createCharacter field.
 func (r *mutationResolver) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
 	// Validate the input

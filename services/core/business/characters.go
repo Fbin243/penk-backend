@@ -62,7 +62,7 @@ func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.
 		return nil, errors.ErrorUnauthorized
 	}
 
-	if input.ID != nil {
+	if input.ID == nil {
 		charactersCount, err := biz.CharactersRepo.CountCharactersByProfileID(profile.ID)
 		if err != nil {
 			return nil, err
@@ -87,12 +87,38 @@ func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.
 		}
 
 		if input.CustomMetrics != nil {
-
+			err := biz.upsertMetricInCharacter(&character, input.CustomMetrics)
+			if err != nil {
+				return nil, err
+			}
 		}
 
+		return biz.CharactersRepo.InsertOne(&character)
 	}
 
-	return nil, nil
+	character, err := biz.CharactersRepo.FindByID(*input.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find character: %v", err)
+	}
+
+	if character.ProfileID != profile.ID {
+		return nil, errors.ErrorPermissionDenied
+	}
+
+	character.Name = input.Name
+
+	if input.Tags != nil {
+		character.Tags = input.Tags
+	}
+
+	if input.CustomMetrics != nil {
+		err := biz.upsertMetricInCharacter(character, input.CustomMetrics)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return biz.CharactersRepo.UpdateByID(*input.ID, character)
 }
 
 func (biz *CharactersBusiness) upsertMetricInCharacter(character *repo.Character, metricInputs []model.CustomMetricInput) error {
@@ -126,6 +152,10 @@ func (biz *CharactersBusiness) upsertMetricInCharacter(character *repo.Character
 			}
 
 			if metricInput.Properties != nil {
+				err := biz.upsertPropertyInMetric(&metric, metricInput.Properties)
+				if err != nil {
+					return err
+				}
 			}
 
 			metrics = append(metrics, metric)
@@ -134,7 +164,7 @@ func (biz *CharactersBusiness) upsertMetricInCharacter(character *repo.Character
 			if _, ok := metricsMap[*metricInput.ID]; !ok {
 				return errors.ErrorPermissionDenied
 			}
-			
+
 			metric := metricsMap[*metricInput.ID]
 			metric.Name = metricInput.Name
 
@@ -150,6 +180,10 @@ func (biz *CharactersBusiness) upsertMetricInCharacter(character *repo.Character
 			}
 
 			if metricInput.Properties != nil {
+				err := biz.upsertPropertyInMetric(&metric, metricInput.Properties)
+				if err != nil {
+					return err
+				}
 			}
 
 			metrics = append(metrics, metric)
@@ -161,12 +195,47 @@ func (biz *CharactersBusiness) upsertMetricInCharacter(character *repo.Character
 	return nil
 }
 
-func (biz *CharactersBusiness) upsertPropertyInMetric(metric *repo.CustomMetric, propertyInputs []repo.) error {
-	
-	
-	
-}
+func (biz *CharactersBusiness) upsertPropertyInMetric(metric *repo.CustomMetric, propertyInputs []model.MetricPropertyInput) error {
+	// Convert metric properties to map
+	propertiesMap := make(map[primitive.ObjectID]repo.MetricProperty)
+	for _, property := range metric.Properties {
+		propertiesMap[property.ID] = property
+	}
 
+	properties := make([]repo.MetricProperty, 0)
+
+	for _, propertyInput := range propertyInputs {
+		if propertyInput.ID == nil {
+			// Insert new property
+			property := repo.MetricProperty{
+				ID:   primitive.NewObjectID(),
+				Name: propertyInput.Name,
+				Type: propertyInput.Type,
+				Value: propertyInput.Value,
+				Unit: propertyInput.Unit,
+			}
+
+			properties = append(properties, property)
+		} else {
+			// Update existing property
+			if _, ok := propertiesMap[*propertyInput.ID]; !ok {
+				return errors.ErrorPermissionDenied
+			}
+
+			property := propertiesMap[*propertyInput.ID]
+			property.Name = propertyInput.Name
+			property.Type = propertyInput.Type
+			property.Value = propertyInput.Value
+			property.Unit = propertyInput.Unit
+
+			properties = append(properties, property)
+		}
+	}
+
+	metric.Properties = properties
+
+	return nil
+}
 
 func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)

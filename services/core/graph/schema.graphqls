@@ -9,6 +9,7 @@ type Mutation {
   updateProfile(input: ProfileInput!): Profile!
   deleteProfile: Profile!
 
+  upsertCharacter(input: CharacterInput!): Character!
   createCharacter(input: CharacterInput!): Character!
   updateCharacter(id: ObjectID!, input: CharacterInput!): Character!
   deleteCharacter(id: ObjectID!): Character!
