@@ -2,14 +2,12 @@ package business
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
 	"time"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
 	coreRepo "tenkhours/services/core/repo"
 	"tenkhours/services/currency/graph/model"
@@ -29,8 +27,8 @@ type FishBusiness struct {
 }
 
 type CatchFishResult struct {
-	fishType string
-	number   int32
+	FishType string `json:"fishType"` // Sửa fishType thành FishType
+	Number   int32  `json:"number"`
 }
 
 func NewFishBusiness(FishRepo *repo.FishRepo, CharactersRepo *coreRepo.CharactersRepo, ProfilesRepo *coreRepo.ProfilesRepo, redisClient *redis.Client) *FishBusiness {
@@ -86,6 +84,9 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.Obje
 		return nil, fmt.Errorf("FISH_CONFIG_PATH environment variable not set")
 	}
 	fishConfigs, err := config.LoadFishConfigs(fishConfigPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load fish config %v", err)
+	}
 
 	// Create a random float number from 0.0 to 1.0
 	randomNumber := rand.Float64()
@@ -101,31 +102,12 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.Obje
 		randomNumber -= cfg.Rate
 	}
 
-	// Retrieve current fish data from Redis
-	fishKey := db.GetFishKey(profileID.Hex())
-
-	fishDataJSON, err := biz.RedisClient.Get(ctx, fishKey).Result()
-	if err == redis.Nil {
-		return nil, fmt.Errorf("fish data not found in Redis")
-	}
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve fish data from Redis: %v", err)
-	}
-
 	//Check for no fish caught
 	if selectedFishConfig == nil {
 		return &CatchFishResult{
-			fishType: "none",
-			number:   0,
+			FishType: "none",
+			Number:   0,
 		}, nil
-	}
-
-	// Parse existing fish data using encoding/json
-	fish := &repo.Fish{}
-	err = json.Unmarshal([]byte(fishDataJSON), fish)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse fish data: %v", err)
 	}
 
 	count := int32(0)
@@ -133,34 +115,21 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.Obje
 	// Update fish counts
 	switch selectedFishConfig.Type {
 	case "normal":
-		fish.Normal += int32(selectedFishConfig.Number)
 		count = int32(selectedFishConfig.Number)
 	case "gold":
-		fish.Gold += int32(selectedFishConfig.Number)
 		count = int32(selectedFishConfig.Number)
 	default:
 		return nil, fmt.Errorf("unknown fish type")
 	}
 
-	// Save updated fish data to Redis
-	updatedFishDataJSON, err := json.Marshal(fish)
-	if err != nil {
-		return nil, fmt.Errorf("failed to serialize updated fish data: %v", err)
-	}
-
-	err = biz.RedisClient.Set(ctx, fishKey, updatedFishDataJSON, 24*time.Hour).Err()
-	if err != nil {
-		return nil, fmt.Errorf("failed to save updated fish data to Redis: %v", err)
-	}
-
 	return &CatchFishResult{
-		fishType: selectedFishConfig.Type,
-		number:   count,
+		FishType: selectedFishConfig.Type,
+		Number:   count,
 	}, nil
 }
 
 // Get Fish data from Redis to store in db
-func (biz *FishBusiness) UpdateFishFromRedis(fish *repo.Fish, profileID primitive.ObjectID) (bool, error) {
+func (biz *FishBusiness) UpdateFishFromFinishSession(fish *repo.Fish, profileID primitive.ObjectID) (bool, error) {
 	currentFish, err := biz.FishRepo.GetFishByProfileID(profileID)
 	if err != nil {
 		return false, fmt.Errorf("failed to get fish data from DB: %v", err)

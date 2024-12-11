@@ -130,16 +130,14 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	}
 
 	// Calculate the difference between the server time and the client time
-	// serverStartTime := time.Now()
-	// duration := serverStartTime.Sub(startTime)
-	// seconds := duration.Seconds()
+	serverStartTime := time.Now()
+	duration := serverStartTime.Sub(startTime)
+	seconds := duration.Seconds()
 
-	// if seconds > 20 {
-	// 	return nil, fmt.Errorf("server timeout, failed to start a new session")
-	// }
+	if seconds > 20 {
+		return nil, fmt.Errorf("server timeout, failed to start a new session")
+	}
 
-	//for testing only
-	startTime = time.Now()
 	// Check permissions
 	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
 	if err != nil {
@@ -198,53 +196,6 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 		return nil, fmt.Errorf("failed to save time tracking to redis: %v", err)
 	}
 
-	// Create null data for the first time
-	fishKey := db.GetFishKey(profile.ID.Hex())
-
-	fish := fishRepo.Fish{
-		ID:        primitive.NewObjectID(),
-		ProfileID: profile.ID,
-		Normal:    0,
-		Gold:      0,
-	}
-
-	fishJSON, err := json.Marshal(fish)
-	err = biz.RedisClient.Set(ctx, fishKey, fishJSON, 24*time.Hour).Err()
-	if err != nil {
-		return nil, fmt.Errorf("failed to save initial fish data to Redis: %v", err)
-	}
-
-	// Start fish-catching goroutine
-	go func() {
-		fishCatchingInterval := getFishCatchingInterval()
-
-		ticker := time.NewTicker(time.Duration(fishCatchingInterval) * time.Second)
-		defer ticker.Stop()
-		log.Println("Start the goroutine")
-
-		redisCtx := context.Background() // create context background
-
-		for {
-			select {
-			case <-ticker.C:
-				fishBiz := &fishBiz.FishBusiness{RedisClient: biz.RedisClient}
-				catchResult, err := fishBiz.CatchFish(redisCtx, profile.ID)
-				if err != nil {
-					log.Printf("Failed to catch fish: %v", err)
-					continue // Retry on the next tick
-				}
-
-				log.Printf("Caught fish: ", catchResult)
-			}
-
-			// Check if `fishData` still exists in Redis
-			if _, err := biz.RedisClient.Get(ctx, fishKey).Result(); err == redis.Nil {
-				fmt.Println("Fish data not found, stopping goroutine.")
-				return
-			}
-		}
-	}()
-
 	return &timeTracking, nil
 }
 
@@ -286,11 +237,11 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	// duration = 14401 // Test for the max duration time
 
 	// Check if the duration time is in the valid range
-	// if duration < timeTracking.MinDurationTime {
-	// 	duration = 0
-	// 	log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
-	// 	return &timeTracking, nil
-	// }
+	if duration < timeTracking.MinDurationTime {
+		duration = 0
+		log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
+		return &timeTracking, nil, nil
+	}
 
 	if duration > timeTracking.MaxDurationTime {
 		duration = int32(timeTracking.MaxDurationTime)
@@ -391,6 +342,10 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		return nil, nil, fmt.Errorf("failed to save captured record to redis: %v", err)
 	}
 
+	//calculate the number of catches
+	fishCatchingInterval := getFishCatchingInterval()
+	numCatches := int(duration) / fishCatchingInterval
+
 	// retrieve fish data from Redis and delete cache
 	updatedFish := &fishRepo.Fish{
 		ProfileID: profile.ID,
@@ -398,30 +353,25 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		Normal:    0,
 	}
 
-	fishKey := db.GetFishKey(profileID)
+	fishBiz := &fishBiz.FishBusiness{FishRepo: biz.FishRepo}
 
-	fishData, err := biz.RedisClient.Get(ctx, fishKey).Result()
-	if err == redis.Nil {
-		log.Printf("No fish data found for profile %s", profileID)
-	} else if err != nil {
-		return nil, nil, fmt.Errorf("failed to get fish data from redis: %v", err)
-	} else {
-		// Delete the fish data cache
-		err = biz.RedisClient.Del(ctx, fishKey).Err()
+	for i := 0; i < numCatches; i++ {
+		catchResult, err := fishBiz.CatchFish(ctx, profile.ID)
 		if err != nil {
-			log.Printf("failed to delete fish data from redis: %v", err)
+			return nil, nil, fmt.Errorf("failed to catch fish%v", err)
 		}
 
-		err = json.Unmarshal([]byte(fishData), updatedFish)
-		if err != nil {
-			log.Printf("failed to unmarshal fish data from redis: %v", err)
+		switch catchResult.FishType {
+		case "normal":
+			updatedFish.Normal += catchResult.Number
+		case "gold":
+			updatedFish.Gold += catchResult.Number
 		}
+	}
 
-		fishBiz := &fishBiz.FishBusiness{FishRepo: biz.FishRepo}
-
-		_, err = fishBiz.UpdateFishFromRedis(updatedFish, profile.ID)
-
-		log.Printf("Successfully deleted fish data cache for profile %s", profileID)
+	_, err = fishBiz.UpdateFishFromFinishSession(updatedFish, profile.ID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to update fish %v", err)
 	}
 
 	return &timeTracking, updatedFish, nil
