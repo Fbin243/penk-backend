@@ -17,14 +17,14 @@ import (
 type CharactersBusiness struct {
 	CharactersRepo *repo.CharactersRepo
 	ProfilesRepo   *repo.ProfilesRepo
-	Goals          *repo.GoalsRepo
+	GoalsRepo      *repo.GoalsRepo
 }
 
 func NewCharactersBusiness(charactersRepo *repo.CharactersRepo, profilesRepo *repo.ProfilesRepo, goalsRepo *repo.GoalsRepo) *CharactersBusiness {
 	return &CharactersBusiness{
 		CharactersRepo: charactersRepo,
 		ProfilesRepo:   profilesRepo,
-		Goals:          goalsRepo,
+		GoalsRepo:      goalsRepo,
 	}
 }
 
@@ -208,11 +208,11 @@ func (biz *CharactersBusiness) upsertPropertyInMetric(metric *repo.CustomMetric,
 		if propertyInput.ID == nil {
 			// Insert new property
 			property := repo.MetricProperty{
-				ID:   primitive.NewObjectID(),
-				Name: propertyInput.Name,
-				Type: propertyInput.Type,
+				ID:    primitive.NewObjectID(),
+				Name:  propertyInput.Name,
+				Type:  propertyInput.Type,
 				Value: propertyInput.Value,
-				Unit: propertyInput.Unit,
+				Unit:  propertyInput.Unit,
 			}
 
 			properties = append(properties, property)

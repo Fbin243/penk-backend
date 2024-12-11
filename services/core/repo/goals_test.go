@@ -22,7 +22,7 @@ var goal = &repo.Goal{
 	Description: "example description",
 	StartDate:   time.Now(),
 	EndDate:     time.Now(),
-	Status:      repo.GoalStatusActive,
+	Status:      repo.GoalFinishStatusUnfinished,
 	Target:      []repo.CustomMetric{},
 }
 
@@ -43,7 +43,7 @@ func TestGetGoalsByCharacterID(t *testing.T) {
 		assert.Nil(t, err)
 	}
 
-	goals, err := goalsRepo.GetGoalsByCharacterID(goal.CharacterID)
+	goals, err := goalsRepo.GetGoalsByCharacterID(goal.CharacterID, nil)
 	assert.Nil(t, err)
 	assert.Equal(t, len(goals), 3)
 	for _, g := range goals {

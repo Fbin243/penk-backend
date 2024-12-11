@@ -2,7 +2,7 @@ type Query {
   characters: [Character!]!
   profile: Profile!
   appSettings: AppSettings!
-  goals(characterID: ObjectID!): [Goal!]!
+  goals(characterID: ObjectID!, status: GoalStatusFilter): [Goal!]!
 }
 
 type Mutation {

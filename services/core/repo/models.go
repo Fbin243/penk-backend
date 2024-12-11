@@ -67,14 +67,21 @@ type Goal struct {
 	Description   string             `json:"description" bson:"description"`
 	StartDate     time.Time          `json:"startDate" bson:"start_date"`
 	EndDate       time.Time          `json:"endDate" bson:"end_date"`
-	Status        GoalStatus         `json:"status" bson:"status"`
+	Status        GoalFinishStatus   `json:"status" bson:"status"`
 	Target        []CustomMetric     `json:"target" bson:"target"`
 }
 
-type GoalStatus string
+type GoalFinishStatus string
+type GoalExpireStatus string
 
 const (
-	GoalStatusActive   GoalStatus = "Active"
-	GoalStatusFinished GoalStatus = "Finished"
-	GoalStatusExpired  GoalStatus = "Expired"
+	GoalFinishStatusFinished   GoalFinishStatus = "Unfinnished"
+	GoalFinishStatusUnfinished GoalFinishStatus = "Finished"
+	GoalExpireStatusExpired    GoalExpireStatus = "Expired"
+	GoalExpireStatusUnexpired  GoalExpireStatus = "Unexpired"
 )
+
+type GoalStatusFilter struct {
+	FinishStatus *GoalFinishStatus
+	ExpireStatus *GoalExpireStatus
+}

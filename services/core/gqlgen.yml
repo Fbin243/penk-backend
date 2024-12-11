@@ -105,5 +105,10 @@ models:
     model: tenkhours/services/core/repo.MetricPropertyType
   Goal:
     model: tenkhours/services/core/repo.Goal
-  GoalStatus:
-    model: tenkhours/services/core/repo.GoalStatus
+  GoalFinishStatus:
+    model: tenkhours/services/core/repo.GoalFinishStatus
+  GoalExpireStatus:
+    model: tenkhours/services/core/repo.GoalExpireStatus
+  GoalStatusFilter:
+    model: tenkhours/services/core/repo.GoalStatusFilter
+    

@@ -144,7 +144,7 @@ type ComplexityRoot struct {
 	Query struct {
 		AppSettings        func(childComplexity int) int
 		Characters         func(childComplexity int) int
-		Goals              func(childComplexity int, characterID primitive.ObjectID) int
+		Goals              func(childComplexity int, characterID primitive.ObjectID, status *repo.GoalStatusFilter) int
 		Profile            func(childComplexity int) int
 		__resolve__service func(childComplexity int) int
 	}
@@ -178,7 +178,7 @@ type QueryResolver interface {
 	Characters(ctx context.Context) ([]repo.Character, error)
 	Profile(ctx context.Context) (*repo.Profile, error)
 	AppSettings(ctx context.Context) (*model.AppSettings, error)
-	Goals(ctx context.Context, characterID primitive.ObjectID) ([]repo.Goal, error)
+	Goals(ctx context.Context, characterID primitive.ObjectID, status *repo.GoalStatusFilter) ([]repo.Goal, error)
 }
 
 type executableSchema struct {
@@ -742,7 +742,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Goals(childComplexity, args["characterID"].(primitive.ObjectID)), true
+		return e.complexity.Query.Goals(childComplexity, args["characterID"].(primitive.ObjectID), args["status"].(*repo.GoalStatusFilter)), true
 
 	case "Query.profile":
 		if e.complexity.Query.Profile == nil {
@@ -778,6 +778,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputGoalCustomMetricInput,
 		ec.unmarshalInputGoalInput,
 		ec.unmarshalInputGoalMetricPropertyInput,
+		ec.unmarshalInputGoalStatusFilter,
 		ec.unmarshalInputMetricPropertyInput,
 		ec.unmarshalInputMetricStyleInput,
 		ec.unmarshalInputProfileInput,
@@ -1325,6 +1326,15 @@ func (ec *executionContext) field_Query_goals_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["characterID"] = arg0
+	var arg1 *repo.GoalStatusFilter
+	if tmp, ok := rawArgs["status"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+		arg1, err = ec.unmarshalOGoalStatusFilter2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐGoalStatusFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["status"] = arg1
 	return args, nil
 }
 
@@ -2699,9 +2709,9 @@ func (ec *executionContext) _Goal_status(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(repo.GoalStatus)
+	res := resTmp.(repo.GoalFinishStatus)
 	fc.Result = res
-	return ec.marshalNGoalStatus2tenkhoursᚋservicesᚋcoreᚋrepoᚐGoalStatus(ctx, field.Selections, res)
+	return ec.marshalNGoalFinishStatus2tenkhoursᚋservicesᚋcoreᚋrepoᚐGoalFinishStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Goal_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2711,7 +2721,7 @@ func (ec *executionContext) fieldContext_Goal_status(_ context.Context, field gr
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type GoalStatus does not have child fields")
+			return nil, errors.New("field of type GoalFinishStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4872,7 +4882,7 @@ func (ec *executionContext) _Query_goals(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Goals(rctx, fc.Args["characterID"].(primitive.ObjectID))
+		return ec.resolvers.Query().Goals(rctx, fc.Args["characterID"].(primitive.ObjectID), fc.Args["status"].(*repo.GoalStatusFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7166,6 +7176,40 @@ func (ec *executionContext) unmarshalInputGoalMetricPropertyInput(ctx context.Co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGoalStatusFilter(ctx context.Context, obj interface{}) (repo.GoalStatusFilter, error) {
+	var it repo.GoalStatusFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"finishStatus", "expireStatus"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "finishStatus":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("finishStatus"))
+			data, err := ec.unmarshalOGoalFinishStatus2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐGoalFinishStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FinishStatus = data
+		case "expireStatus":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expireStatus"))
+			data, err := ec.unmarshalOGoalExpireStatus2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐGoalExpireStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpireStatus = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputMetricPropertyInput(ctx context.Context, obj interface{}) (model.MetricPropertyInput, error) {
 	var it model.MetricPropertyInput
 	asMap := map[string]interface{}{}
@@ -8709,6 +8753,22 @@ func (ec *executionContext) unmarshalNGoalCustomMetricInput2tenkhoursᚋservices
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNGoalFinishStatus2tenkhoursᚋservicesᚋcoreᚋrepoᚐGoalFinishStatus(ctx context.Context, v interface{}) (repo.GoalFinishStatus, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := repo.GoalFinishStatus(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGoalFinishStatus2tenkhoursᚋservicesᚋcoreᚋrepoᚐGoalFinishStatus(ctx context.Context, sel ast.SelectionSet, v repo.GoalFinishStatus) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNGoalInput2tenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐGoalInput(ctx context.Context, v interface{}) (model.GoalInput, error) {
 	res, err := ec.unmarshalInputGoalInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -8717,22 +8777,6 @@ func (ec *executionContext) unmarshalNGoalInput2tenkhoursᚋservicesᚋcoreᚋgr
 func (ec *executionContext) unmarshalNGoalMetricPropertyInput2tenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐGoalMetricPropertyInput(ctx context.Context, v interface{}) (model.GoalMetricPropertyInput, error) {
 	res, err := ec.unmarshalInputGoalMetricPropertyInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNGoalStatus2tenkhoursᚋservicesᚋcoreᚋrepoᚐGoalStatus(ctx context.Context, v interface{}) (repo.GoalStatus, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := repo.GoalStatus(tmp)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNGoalStatus2tenkhoursᚋservicesᚋcoreᚋrepoᚐGoalStatus(ctx context.Context, sel ast.SelectionSet, v repo.GoalStatus) graphql.Marshaler {
-	res := graphql.MarshalString(string(v))
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
@@ -9472,6 +9516,40 @@ func (ec *executionContext) unmarshalOGoalCustomMetricInput2ᚕtenkhoursᚋservi
 	return res, nil
 }
 
+func (ec *executionContext) unmarshalOGoalExpireStatus2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐGoalExpireStatus(ctx context.Context, v interface{}) (*repo.GoalExpireStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	tmp, err := graphql.UnmarshalString(v)
+	res := repo.GoalExpireStatus(tmp)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOGoalExpireStatus2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐGoalExpireStatus(ctx context.Context, sel ast.SelectionSet, v *repo.GoalExpireStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalString(string(*v))
+	return res
+}
+
+func (ec *executionContext) unmarshalOGoalFinishStatus2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐGoalFinishStatus(ctx context.Context, v interface{}) (*repo.GoalFinishStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	tmp, err := graphql.UnmarshalString(v)
+	res := repo.GoalFinishStatus(tmp)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOGoalFinishStatus2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐGoalFinishStatus(ctx context.Context, sel ast.SelectionSet, v *repo.GoalFinishStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalString(string(*v))
+	return res
+}
+
 func (ec *executionContext) unmarshalOGoalMetricPropertyInput2ᚕtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐGoalMetricPropertyInputᚄ(ctx context.Context, v interface{}) ([]model.GoalMetricPropertyInput, error) {
 	if v == nil {
 		return nil, nil
@@ -9490,6 +9568,14 @@ func (ec *executionContext) unmarshalOGoalMetricPropertyInput2ᚕtenkhoursᚋser
 		}
 	}
 	return res, nil
+}
+
+func (ec *executionContext) unmarshalOGoalStatusFilter2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐGoalStatusFilter(ctx context.Context, v interface{}) (*repo.GoalStatusFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputGoalStatusFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOMetricPropertyInput2ᚕtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricPropertyInputᚄ(ctx context.Context, v interface{}) ([]model.MetricPropertyInput, error) {

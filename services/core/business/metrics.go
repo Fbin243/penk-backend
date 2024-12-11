@@ -189,6 +189,32 @@ func (biz *CharactersBusiness) UpdateCustomMetric(ctx context.Context, metricID 
 		updateMetric.Properties = properties
 	}
 
+	// Get all unfinished, unexpired goals of a character
+	goals, err := biz.GoalsRepo.GetGoalsByCharacterID(characterID, &repo.GoalStatusFilter{FinishStatus: lo.ToPtr(repo.GoalFinishStatusUnfinished), ExpireStatus: lo.ToPtr(repo.GoalExpireStatusUnexpired)})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get goals: %v", err)
+	}
+
+	// Filter goals that include the metric to be updated
+	updateGoals := lo.Filter(goals, func(goal repo.Goal, _ int) bool {
+		for _, metric := range goal.Target {
+			if metric.ID == metricID {
+				return true
+			}
+		}
+
+		return false
+	})
+
+	updateGoalsIDs := lo.Map(updateGoals, func(goal repo.Goal, _ int) primitive.ObjectID {
+		return goal.ID
+	})
+
+	err = biz.GoalsRepo.RemoveOneMetricFromGoals(metricID, updateGoalsIDs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update goals: %v", err)
+	}
+
 	if fromUpdateCharacter {
 		return &updateMetric, nil
 	}

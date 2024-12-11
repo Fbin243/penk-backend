@@ -155,8 +155,8 @@ func (r *queryResolver) AppSettings(ctx context.Context) (*model.AppSettings, er
 }
 
 // Goals is the resolver for the goals field.
-func (r *queryResolver) Goals(ctx context.Context, characterID primitive.ObjectID) ([]repo.Goal, error) {
-	return r.GoalsBusiness.GetGoals(ctx, characterID)
+func (r *queryResolver) Goals(ctx context.Context, characterID primitive.ObjectID, status *repo.GoalStatusFilter) ([]repo.Goal, error) {
+	return r.GoalsBusiness.GetGoals(ctx, characterID, status)
 }
 
 // Mutation returns MutationResolver implementation.

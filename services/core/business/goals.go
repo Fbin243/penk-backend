@@ -23,7 +23,7 @@ func NewGoalsBusiness(goalsRepo *repo.GoalsRepo, charactersRepo *repo.Characters
 	return &GoalsBusiness{goalsRepo, charactersRepo}
 }
 
-func (biz *GoalsBusiness) GetGoals(ctx context.Context, characterID primitive.ObjectID) ([]repo.Goal, error) {
+func (biz *GoalsBusiness) GetGoals(ctx context.Context, characterID primitive.ObjectID, status *repo.GoalStatusFilter) ([]repo.Goal, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
 		return nil, errors.ErrorUnauthorized
@@ -36,10 +36,10 @@ func (biz *GoalsBusiness) GetGoals(ctx context.Context, characterID primitive.Ob
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.ErrorPermissionDenied
 	}
 
-	return biz.GoalsRepo.GetGoalsByCharacterID(characterID)
+	return biz.GoalsRepo.GetGoalsByCharacterID(characterID, status)
 }
 
 func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.ObjectID, input model.GoalInput) (*repo.Goal, error) {
@@ -72,9 +72,9 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 			return nil, errors.ErrorPermissionDenied
 		}
 
-		// Just update if the goal is still active
-		if goal.Status != repo.GoalStatusActive {
-			return nil, fmt.Errorf("goal is not active")
+		// Just update if the goal is still unfinished
+		if goal.Status == repo.GoalFinishStatusFinished {
+			return nil, fmt.Errorf("goal is already finished")
 		}
 	} else {
 		// Create new goal
@@ -84,7 +84,7 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 			Name:        input.Name,
 			StartDate:   input.StartDate,
 			EndDate:     input.EndDate,
-			Status:      repo.GoalStatusActive,
+			Status:      repo.GoalFinishStatusUnfinished,
 		}
 	}
 
@@ -92,7 +92,7 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 		goal.Description = *input.Description
 	}
 
-	if len(input.Target) > 0 {
+	if input.Target != nil {
 		targets := make([]repo.CustomMetric, 0)
 
 		// Convert custom metrics to map for validation
@@ -125,7 +125,7 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 				propertiesMap[property.ID] = property
 			}
 
-			// Validate properties target metric
+			// Validate properties in a metric of the target
 			for _, property := range metric.Properties {
 				if _, ok := propertiesMap[property.ID]; !ok {
 					return nil, errors.ErrorPermissionDenied
