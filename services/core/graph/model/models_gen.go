@@ -18,6 +18,8 @@ type AppSettings struct {
 
 // Input for creating or updating a character.
 type CharacterInput struct {
+	// ID of the character. If not provided, a new character will be created.
+	ID *primitive.ObjectID `json:"id,omitempty"`
 	// The name of the character.
 	Name string `json:"name" validate:"min=1,max=50"`
 	// Male is true, Female is false.

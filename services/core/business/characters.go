@@ -56,6 +56,118 @@ func (biz *CharactersBusiness) GetCharactersByProfileID(ctx context.Context) ([]
 	return characters, nil
 }
 
+func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	if !ok {
+		return nil, errors.ErrorUnauthorized
+	}
+
+	if input.ID != nil {
+		charactersCount, err := biz.CharactersRepo.CountCharactersByProfileID(profile.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		if charactersCount >= 2 {
+			return nil, errors.ErrorCharacterLimitReached
+		}
+
+		character := repo.Character{
+			BaseModel:           &db.BaseModel{},
+			Name:                input.Name,
+			Gender:              input.Gender,
+			ProfileID:           profile.ID,
+			TotalFocusedTime:    0,
+			CustomMetrics:       []repo.CustomMetric{},
+			LimitedMetricNumber: utils.LimitedMetricNumber,
+		}
+
+		if input.Tags != nil {
+			character.Tags = input.Tags
+		}
+
+		if input.CustomMetrics != nil {
+
+		}
+
+	}
+
+	return nil, nil
+}
+
+func (biz *CharactersBusiness) upsertMetricInCharacter(character *repo.Character, metricInputs []model.CustomMetricInput) error {
+	// Convert character metrics to map
+	metricsMap := make(map[primitive.ObjectID]repo.CustomMetric)
+	for _, metric := range character.CustomMetrics {
+		metricsMap[metric.ID] = metric
+	}
+
+	metrics := make([]repo.CustomMetric, 0)
+
+	for _, metricInput := range metricInputs {
+		if metricInput.ID == nil {
+			// Insert new metric
+			metric := repo.CustomMetric{
+				ID:                    primitive.NewObjectID(),
+				Name:                  metricInput.Name,
+				Time:                  0,
+				LimitedPropertyNumber: utils.LimitedPropertyNumber,
+			}
+
+			if metricInput.Description != nil {
+				metric.Description = *metricInput.Description
+			}
+
+			if metricInput.Style != nil {
+				metric.Style = repo.MetricStyle{
+					Color: metricInput.Style.Color,
+					Icon:  metricInput.Style.Icon,
+				}
+			}
+
+			if metricInput.Properties != nil {
+			}
+
+			metrics = append(metrics, metric)
+		} else {
+			// Update existing metric
+			if _, ok := metricsMap[*metricInput.ID]; !ok {
+				return errors.ErrorPermissionDenied
+			}
+			
+			metric := metricsMap[*metricInput.ID]
+			metric.Name = metricInput.Name
+
+			if metricInput.Description != nil {
+				metric.Description = *metricInput.Description
+			}
+
+			if metricInput.Style != nil {
+				metric.Style = repo.MetricStyle{
+					Color: metricInput.Style.Color,
+					Icon:  metricInput.Style.Icon,
+				}
+			}
+
+			if metricInput.Properties != nil {
+			}
+
+			metrics = append(metrics, metric)
+		}
+	}
+
+	character.CustomMetrics = metrics
+
+	return nil
+}
+
+func (biz *CharactersBusiness) upsertPropertyInMetric(metric *repo.CustomMetric, propertyInputs []repo.) error {
+	
+	
+	
+}
+
+
 func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {

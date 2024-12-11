@@ -41,6 +41,13 @@ func (r *CharactersRepo) GetCharactersByProfileID(profileID primitive.ObjectID) 
 	return characters, nil
 }
 
+func (r *CharactersRepo) CountCharactersByProfileID(profileID primitive.ObjectID) (int64, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return r.CountDocuments(ctx, bson.M{"profile_id": profileID})
+}
+
 func (r *CharactersRepo) GetAllCharacters() ([]Character, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
