@@ -41,13 +41,15 @@ func main() {
 	redisClient := db.GetRedisClient()
 	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
 	charactersRepo := repo.NewCharactersRepo(mongodb)
+	goalsRepo := repo.NewGoalsRepo(mongodb)
 
 	// TODO: Temporary inject analyticsRepos into profilesBiz for deleting related data
 	capturedRepordsRepo := analyticsRepo.NewCapturedRecordsRepo(mongodb)
 	snapshotsRepo := analyticsRepo.NewSnapshotsRepo(mongodb)
 
 	profilesBiz := business.NewProfilesBusiness(profilesRepo, charactersRepo, capturedRepordsRepo, snapshotsRepo, redisClient)
-	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo)
+	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo, goalsRepo)
+	goalsBiz := business.NewGoalsBusiness(goalsRepo, charactersRepo)
 
 	// Check authentication
 	authMiddleware := middlewares.NewMiddleware(redisClient, profilesRepo)
@@ -57,6 +59,7 @@ func main() {
 		Resolvers: &graph.Resolver{
 			ProfilesBusiness:   profilesBiz,
 			CharactersBusiness: charactersBiz,
+			GoalsBusiness:      goalsBiz,
 		},
 	}))
 

@@ -3,9 +3,8 @@
 package model
 
 import (
-	"fmt"
-	"io"
-	"strconv"
+	"tenkhours/services/core/repo"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -19,14 +18,16 @@ type AppSettings struct {
 
 // Input for creating or updating a character.
 type CharacterInput struct {
+	// ID of the character. If not provided, a new character will be created.
+	ID *primitive.ObjectID `json:"id,omitempty"`
 	// The name of the character.
-	Name *string `json:"name,omitempty"`
-	// Male is true, Female is false. Defaults to false.
-	Gender *bool `json:"gender,omitempty"`
+	Name string `json:"name" validate:"min=1,max=50"`
+	// Male is true, Female is false.
+	Gender bool `json:"gender"`
 	// List of string tags that describe the character.
-	Tags []string `json:"tags,omitempty"`
+	Tags []string `json:"tags,omitempty" validate:"tags_valid,dive"`
 	// List of custom metrics for the character.
-	CustomMetrics []CustomMetricInput `json:"customMetrics,omitempty"`
+	CustomMetrics []CustomMetricInput `json:"customMetrics,omitempty" validate:"dive"`
 }
 
 // Input for defining a custom metric.
@@ -34,13 +35,32 @@ type CustomMetricInput struct {
 	// ID of the custom metric. If not provided, a new property will be created.
 	ID *primitive.ObjectID `json:"id,omitempty"`
 	// The name of the custom metric.
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name" validate:"min=1,max=50"`
 	// Description of the custom metric.
-	Description *string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty" validate:"omitempty,max=255"`
 	// Visual style of the metric displayed on screen.
 	Style *MetricStyleInput `json:"style,omitempty"`
 	// List of properties that describe the metric.
-	Properties []MetricPropertyInput `json:"properties,omitempty"`
+	Properties []MetricPropertyInput `json:"properties,omitempty" validate:"dive"`
+}
+
+type GoalCustomMetricInput struct {
+	ID         primitive.ObjectID        `json:"id"`
+	Properties []GoalMetricPropertyInput `json:"properties,omitempty"`
+}
+
+type GoalInput struct {
+	ID          *primitive.ObjectID     `json:"id,omitempty"`
+	Name        string                  `json:"name" validate:"min=1,max=50"`
+	Description *string                 `json:"description,omitempty" validate:"omitempty,max=255"`
+	StartDate   time.Time               `json:"startDate"`
+	EndDate     time.Time               `json:"endDate"`
+	Target      []GoalCustomMetricInput `json:"target,omitempty"`
+}
+
+type GoalMetricPropertyInput struct {
+	ID    primitive.ObjectID `json:"id"`
+	Value string             `json:"value"`
 }
 
 // Input for defining a property of a custom metric.
@@ -48,21 +68,21 @@ type MetricPropertyInput struct {
 	// ID of the property. If not provided, a new property will be created.
 	ID *primitive.ObjectID `json:"id,omitempty"`
 	// Name of the property.
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name" validate:"min=1,max=50"`
 	// Data type of the property (String or Number).
-	Type *MetricPropertyType `json:"type,omitempty"`
+	Type repo.MetricPropertyType `json:"type"`
 	// Specific value of the property based on its data type.
-	Value *string `json:"value,omitempty"`
+	Value string `json:"value"`
 	// Unit of the property value (e.g., seconds, meters, etc.).
-	Unit *string `json:"unit,omitempty"`
+	Unit string `json:"unit" validate:"min=1,max=50"`
 }
 
 // Input for specifying the visual style of a metric.
 type MetricStyleInput struct {
 	// Color of the metric, in Hex format.
-	Color *string `json:"color,omitempty"`
+	Color string `json:"color" validate:"hexcolor"`
 	// URL or file path of the icon for the metric.
-	Icon *string `json:"icon,omitempty"`
+	Icon string `json:"icon"`
 }
 
 type Mutation struct {
@@ -71,9 +91,9 @@ type Mutation struct {
 // Input type for creating or updating a user profile.
 type ProfileInput struct {
 	// The name of the user.
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name" validate:"min=1,max=50"`
 	// URL of the user's image.
-	ImageURL *string `json:"imageURL,omitempty"`
+	ImageURL string `json:"imageURL"`
 	// ID of the character currently being chosen by the user.
 	CurrentCharacterID *primitive.ObjectID `json:"currentCharacterID,omitempty"`
 	// Whether the user has enabled auto snapshot, default is true
@@ -81,45 +101,4 @@ type ProfileInput struct {
 }
 
 type Query struct {
-}
-
-type MetricPropertyType string
-
-const (
-	MetricPropertyTypeString MetricPropertyType = "String"
-	MetricPropertyTypeNumber MetricPropertyType = "Number"
-)
-
-var AllMetricPropertyType = []MetricPropertyType{
-	MetricPropertyTypeString,
-	MetricPropertyTypeNumber,
-}
-
-func (e MetricPropertyType) IsValid() bool {
-	switch e {
-	case MetricPropertyTypeString, MetricPropertyTypeNumber:
-		return true
-	}
-	return false
-}
-
-func (e MetricPropertyType) String() string {
-	return string(e)
-}
-
-func (e *MetricPropertyType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = MetricPropertyType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid MetricPropertyType", str)
-	}
-	return nil
-}
-
-func (e MetricPropertyType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
 }

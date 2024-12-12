@@ -1,9 +1,10 @@
 scalar Time
 scalar ObjectID
-scalar NullableString
 
 type Profile {
   id: ObjectID!
+  createdAt: Time!
+  updatedAt: Time!
   name: String!
   email: String!
   firebaseUID: String!
@@ -12,8 +13,7 @@ type Profile {
   characters: [Character!]!
   availableSnapshots: Int!
   autoSnapshot: Boolean!
-  createdAt: Time!
-  updatedAt: Time
+  limitedCharacterNumber: Int!
 }
 
 """
@@ -23,12 +23,12 @@ input ProfileInput {
   """
   The name of the user.
   """
-  name: String
+  name: String! @goTag(key: "validate", value: "min=1,max=50")
 
   """
   URL of the user's image.
   """
-  imageURL: String
+  imageURL: String!
 
   """
   ID of the character currently being chosen by the user.

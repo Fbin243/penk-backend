@@ -3,6 +3,7 @@ package test
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"testing"
 
@@ -13,6 +14,7 @@ import (
 
 	"tenkhours/test/timetrackings"
 
+	jsonpath "github.com/steinfletcher/apitest-jsonpath"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -31,6 +33,20 @@ func TestUserFlow(t *testing.T) {
 	endStage := os.Getenv("END_STAGE")
 	fmt.Printf("End stage: %v\n", endStage)
 	ctx = context.WithValue(ctx, common.EndStageKey, endStage)
+	cleanUp := func(ctx *context.Context) {
+		// Clean up the profile and related data
+		err := common.QueryGraphQL(ctx,
+			&common.QueryParams{
+				Query:     core.DeleteProfileQuery,
+				Assertion: jsonpath.Chain().NotPresent("$.errors").End(),
+			})
+
+		if err != nil {
+			log.Fatalf("Failed to clean up the profile and related data %v\n", err)
+		}
+	}
+
+	defer cleanUp(&ctx)
 
 	p := pineline.Pineline(
 
@@ -116,6 +132,7 @@ func TestUserFlow(t *testing.T) {
 				Describe: "Create the first metric",
 			},
 			CharacterKey: common.CurrentCharacter,
+			Case:         common.CreateMetricWithProperties,
 		},
 
 		common.SaveToContextStage{
@@ -128,7 +145,6 @@ func TestUserFlow(t *testing.T) {
 				Describe: "Create the second metric with properties",
 			},
 			CharacterKey: common.CurrentCharacter,
-			Case:         common.CreateMetricWithProperties,
 		},
 
 		common.SaveToContextStage{
@@ -156,6 +172,77 @@ func TestUserFlow(t *testing.T) {
 		},
 
 		// --------- END << CUSTOM METRIC -----------
+
+		// --------- START >> METRIC PROPERTY -----------
+		core.CreateMetricPropertyStage{
+			Metadata: common.Metadata{
+				Describe: "Create the first property for the second metric",
+			},
+			CharacterKey:    common.CurrentCharacter,
+			CustomMetricKey: common.SecondCustomMetric,
+		},
+
+		common.SaveToContextStage{
+			Key:      common.MetricProperty,
+			JsonPath: "data.createMetricProperty",
+		},
+
+		core.CreateMetricPropertyStage{
+			Metadata: common.Metadata{
+				Describe: "Create the second property for the second metric",
+			},
+			CharacterKey:    common.CurrentCharacter,
+			CustomMetricKey: common.SecondCustomMetric,
+		},
+
+		core.CreateMetricPropertyStage{
+			Metadata: common.Metadata{
+				Describe: "Create the third property for the second metric",
+			},
+			CharacterKey:    common.CurrentCharacter,
+			CustomMetricKey: common.SecondCustomMetric,
+		},
+
+		core.CreateMetricPropertyStage{
+			Metadata: common.Metadata{
+				Describe:    "Create the fourth property for the second metric",
+				ExpectError: true,
+			},
+			CharacterKey:    common.CurrentCharacter,
+			CustomMetricKey: common.SecondCustomMetric,
+		},
+
+		core.UpdateMetricPropertyStage{
+			Metadata: common.Metadata{
+				Describe: "Update the first property of the second metric",
+			},
+			CharacterKey:      common.CurrentCharacter,
+			CustomMetricKey:   common.SecondCustomMetric,
+			MetricPropertyKey: common.MetricProperty,
+		},
+
+		// core.DeleteMetricPropertyStage{
+		// 	Metadata: common.Metadata{
+		// 		Describe: "Delete the first property of the second metric",
+		// 	},
+		// 	CharacterKey:      common.CurrentCharacter,
+		// 	CustomMetricKey:   common.SecondCustomMetric,
+		// 	MetricPropertyKey: common.MetricProperty,
+		// },
+
+		core.DeleteCustomMetricStage{
+			Metadata: common.Metadata{
+				Describe: "Delete the first custom metric",
+			},
+			CustomMetricKey: common.FirstCustomMetric,
+			CharacterKey:    common.CurrentCharacter,
+		},
+
+		common.CheckEndStage{
+			CurrentStage: common.MetricPropertyStage,
+		},
+
+		// --------- END << METRIC PROPERTY -----------
 
 		// --------- TIME TRACKING WITHOUT METRIC -----------
 
@@ -391,12 +478,12 @@ func TestUserFlow(t *testing.T) {
 	)
 
 	err := p(&ctx)
-	if err != nil {
-		common.LogResponse()
-	}
-
 	if err == common.ErrEndStageReached {
 		return
+	}
+
+	if err != nil {
+		common.LogResponse()
 	}
 
 	assert.Empty(t, err)

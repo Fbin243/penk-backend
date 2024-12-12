@@ -5,23 +5,32 @@ import (
 	"fmt"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type CharactersBusiness struct {
 	CharactersRepo *repo.CharactersRepo
 	ProfilesRepo   *repo.ProfilesRepo
+	GoalsRepo      *repo.GoalsRepo
 }
 
-func NewCharactersBusiness(charactersRepo *repo.CharactersRepo, profilesRepo *repo.ProfilesRepo) *CharactersBusiness {
+type GoalsTodo struct {
+	removeMetric bool
+	checkFinish  bool
+}
+
+func NewCharactersBusiness(charactersRepo *repo.CharactersRepo, profilesRepo *repo.ProfilesRepo, goalsRepo *repo.GoalsRepo) *CharactersBusiness {
 	return &CharactersBusiness{
 		CharactersRepo: charactersRepo,
 		ProfilesRepo:   profilesRepo,
+		GoalsRepo:      goalsRepo,
 	}
 }
 
@@ -31,7 +40,7 @@ func (biz *CharactersBusiness) GetCharacterByID(ctx context.Context, id string) 
 		return nil, err
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := biz.CharactersRepo.FindByID(characterOID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find character: %v", err)
 	}
@@ -53,6 +62,248 @@ func (biz *CharactersBusiness) GetCharactersByProfileID(ctx context.Context) ([]
 	return characters, nil
 }
 
+func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	if !ok {
+		return nil, errors.ErrorUnauthorized
+	}
+
+	if input.ID == nil {
+		charactersCount, err := biz.CharactersRepo.CountCharactersByProfileID(profile.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		if charactersCount >= int64(profile.LimitedCharacterNumber) {
+			return nil, errors.ErrorCharacterLimitReached
+		}
+
+		character := repo.Character{
+			BaseModel:           &db.BaseModel{},
+			Name:                input.Name,
+			Gender:              input.Gender,
+			ProfileID:           profile.ID,
+			TotalFocusedTime:    0,
+			CustomMetrics:       []repo.CustomMetric{},
+			LimitedMetricNumber: utils.LimitedMetricNumber,
+		}
+
+		if input.Tags != nil {
+			character.Tags = input.Tags
+		}
+
+		if input.CustomMetrics != nil {
+			err := biz.upsertMetricInCharacter(&character, input.CustomMetrics)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		return biz.CharactersRepo.InsertOne(&character)
+	}
+
+	character, err := biz.CharactersRepo.FindByID(*input.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find character: %v", err)
+	}
+
+	if character.ProfileID != profile.ID {
+		return nil, errors.ErrorPermissionDenied
+	}
+
+	character.Name = input.Name
+
+	if input.Tags != nil {
+		character.Tags = input.Tags
+	}
+
+	if input.CustomMetrics != nil {
+		err := biz.upsertMetricInCharacter(character, input.CustomMetrics)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return biz.CharactersRepo.UpdateByID(*input.ID, character)
+}
+
+func (biz *CharactersBusiness) upsertMetricInCharacter(character *repo.Character, metricInputs []model.CustomMetricInput) error {
+	// Convert character metrics to map
+	metricsMap := make(map[primitive.ObjectID]repo.CustomMetric)
+	for _, metric := range character.CustomMetrics {
+		metricsMap[metric.ID] = metric
+	}
+
+	metrics := make([]repo.CustomMetric, 0)
+
+	// Get all unfinished, unexpired goals of a character
+	goals, err := biz.GoalsRepo.GetGoalsByCharacterID(character.ID, &repo.GoalStatusFilter{FinishStatus: lo.ToPtr(repo.GoalFinishStatusUnfinished), ExpireStatus: lo.ToPtr(repo.GoalExpireStatusUnexpired)})
+	if err != nil {
+		return fmt.Errorf("failed to get goals: %v", err)
+	}
+
+	goalsTodo := GoalsTodo{
+		removeMetric: false,
+		checkFinish:  false,
+	}
+
+	for _, metricInput := range metricInputs {
+		goalsTodo.removeMetric = false
+		if metricInput.ID == nil {
+			// Insert new metric
+			metric := repo.CustomMetric{
+				ID:                    primitive.NewObjectID(),
+				Name:                  metricInput.Name,
+				Time:                  0,
+				LimitedPropertyNumber: utils.LimitedPropertyNumber,
+			}
+
+			if metricInput.Description != nil {
+				metric.Description = *metricInput.Description
+			}
+
+			if metricInput.Style != nil {
+				metric.Style = repo.MetricStyle{
+					Color: metricInput.Style.Color,
+					Icon:  metricInput.Style.Icon,
+				}
+			}
+
+			if metricInput.Properties != nil {
+				_, err := biz.upsertPropertyInMetric(&metric, metricInput.Properties)
+				if err != nil {
+					return err
+				}
+			}
+
+			metrics = append(metrics, metric)
+		} else {
+			// Update existing metric
+			if _, ok := metricsMap[*metricInput.ID]; !ok {
+				return errors.ErrorPermissionDenied
+			}
+
+			existingMetric := metricsMap[*metricInput.ID]
+			if existingMetric.Name != metricInput.Name {
+				goalsTodo.removeMetric = true
+			}
+			existingMetric.Name = metricInput.Name
+
+			if metricInput.Description != nil {
+				goalsTodo.removeMetric = true
+				existingMetric.Description = *metricInput.Description
+			}
+
+			if metricInput.Style != nil {
+				goalsTodo.removeMetric = true
+				existingMetric.Style = repo.MetricStyle{
+					Color: metricInput.Style.Color,
+					Icon:  metricInput.Style.Icon,
+				}
+			}
+
+			if metricInput.Properties != nil {
+				propertyGoalsTodo, err := biz.upsertPropertyInMetric(&existingMetric, metricInput.Properties)
+				if err != nil {
+					return err
+				}
+
+				goalsTodo.removeMetric = goalsTodo.removeMetric || propertyGoalsTodo.removeMetric
+				goalsTodo.checkFinish = goalsTodo.checkFinish || propertyGoalsTodo.checkFinish
+			}
+
+			if goalsTodo.removeMetric {
+				// Filter goals that include the metric to be updated
+				updateGoals := lo.Filter(goals, func(goal repo.Goal, _ int) bool {
+					for _, metric := range goal.Target {
+						if metric.ID == existingMetric.ID {
+							return true
+						}
+					}
+
+					return false
+				})
+
+				updateGoalsIDs := lo.Map(updateGoals, func(goal repo.Goal, _ int) primitive.ObjectID {
+					return goal.ID
+				})
+
+				err = biz.GoalsRepo.RemoveOneMetricFromGoals(existingMetric.ID, updateGoalsIDs)
+				if err != nil {
+					return fmt.Errorf("failed to remove metric from goals: %v", err)
+				}
+			}
+
+			metrics = append(metrics, existingMetric)
+		}
+	}
+
+	character.CustomMetrics = metrics
+
+	return nil
+}
+
+func (biz *CharactersBusiness) upsertPropertyInMetric(metric *repo.CustomMetric, propertyInputs []model.MetricPropertyInput) (*GoalsTodo, error) {
+	// Convert metric properties to map
+	propertiesMap := make(map[primitive.ObjectID]repo.MetricProperty)
+	for _, property := range metric.Properties {
+		propertiesMap[property.ID] = property
+	}
+
+	properties := make([]repo.MetricProperty, 0)
+	goalsTodo := &GoalsTodo{
+		removeMetric: false,
+		checkFinish:  false,
+	}
+
+	for _, propertyInput := range propertyInputs {
+		if propertyInput.ID == nil {
+			// Insert new property
+			property := repo.MetricProperty{
+				ID:    primitive.NewObjectID(),
+				Name:  propertyInput.Name,
+				Type:  propertyInput.Type,
+				Value: propertyInput.Value,
+				Unit:  propertyInput.Unit,
+			}
+
+			properties = append(properties, property)
+		} else {
+			// Update existing property
+			if _, ok := propertiesMap[*propertyInput.ID]; !ok {
+				return nil, errors.ErrorPermissionDenied
+			}
+
+			property := propertiesMap[*propertyInput.ID]
+			if property.Name != propertyInput.Name ||
+				property.Type != propertyInput.Type ||
+				property.Unit != propertyInput.Unit {
+				goalsTodo.removeMetric = true
+			}
+			property.Name = propertyInput.Name
+			property.Type = propertyInput.Type
+			property.Unit = propertyInput.Unit
+
+			// Check if the value is changed, to check finish of the goal
+			if property.Value != propertyInput.Value {
+				goalsTodo.checkFinish = true
+			}
+
+			property.Value = propertyInput.Value
+
+			properties = append(properties, property)
+		}
+	}
+
+	metric.Properties = properties
+
+	return goalsTodo, nil
+}
+
+func (biz *CharactersBusiness) checkGoalsFinished() {
+
+}
+
 func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
@@ -70,19 +321,15 @@ func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.
 	}
 
 	character := repo.Character{
-		ID:                  primitive.NewObjectID(),
+		BaseModel:           &db.BaseModel{},
+		Name:                input.Name,
+		Gender:              input.Gender,
 		ProfileID:           profile.ID,
 		TotalFocusedTime:    0,
 		CustomMetrics:       []repo.CustomMetric{},
 		LimitedMetricNumber: utils.LimitedMetricNumber,
 	}
 
-	if input.Name != nil {
-		character.Name = *input.Name
-	}
-	if input.Gender != nil {
-		character.Gender = *input.Gender
-	}
 	if input.Tags != nil {
 		character.Tags = input.Tags
 	}
@@ -97,7 +344,7 @@ func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.
 		}
 	}
 
-	createdCharacter, err := biz.CharactersRepo.CreateCharacter(&character)
+	createdCharacter, err := biz.CharactersRepo.InsertOne(&character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create character: %v", err)
 	}
@@ -118,7 +365,7 @@ func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(id)
+	character, err := biz.CharactersRepo.FindByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -127,10 +374,7 @@ func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive
 		return nil, errors.ErrorPermissionDenied
 	}
 
-	if input.Name != nil {
-		character.Name = *input.Name
-	}
-
+	character.Name = input.Name
 	if input.Tags != nil {
 		character.Tags = input.Tags
 	}
@@ -140,18 +384,32 @@ func (biz *CharactersBusiness) UpdateCharacter(ctx context.Context, id primitive
 		ctx = context.WithValue(ctx, FromUpdateCharacter, true)
 		// Insert the character into context
 		ctx = context.WithValue(ctx, CharacterKey, character)
+
+		metrics := make([]repo.CustomMetric, 0)
 		for _, customMetric := range input.CustomMetrics {
 			if customMetric.ID != nil {
 				// Update custom metric
-				biz.UpdateCustomMetric(ctx, *customMetric.ID, character.ID, customMetric)
+				metric, err := biz.UpdateCustomMetric(ctx, *customMetric.ID, character.ID, customMetric)
+				if err != nil {
+					return nil, fmt.Errorf("failed to update custom metric: %v", err)
+				}
+
+				metrics = append(metrics, *metric)
 			} else {
 				// Create custom metric
-				biz.CreateCustomMetric(ctx, character.ID, customMetric)
+				metric, err := biz.CreateCustomMetric(ctx, character.ID, customMetric)
+				if err != nil {
+					return nil, fmt.Errorf("failed to create custom metric: %v", err)
+				}
+
+				metrics = append(metrics, *metric)
 			}
 		}
+
+		character.CustomMetrics = metrics
 	}
 
-	updatedCharacter, err := biz.CharactersRepo.UpdateCharacter(character)
+	updatedCharacter, err := biz.CharactersRepo.UpdateByID(id, character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update character: %v", err)
 	}
@@ -165,7 +423,7 @@ func (biz *CharactersBusiness) DeleteCharacter(ctx context.Context, id primitive
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(id)
+	character, err := biz.CharactersRepo.FindByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -188,7 +446,7 @@ func (biz *CharactersBusiness) ResetCharacter(ctx context.Context, id primitive.
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(id)
+	character, err := biz.CharactersRepo.FindByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("character not found: %v", err)
 	}
@@ -201,7 +459,7 @@ func (biz *CharactersBusiness) ResetCharacter(ctx context.Context, id primitive.
 	character.TotalFocusedTime = 0
 	character.CustomMetrics = []repo.CustomMetric{}
 
-	resetCharacter, err := biz.CharactersRepo.UpdateCharacter(character)
+	resetCharacter, err := biz.CharactersRepo.UpdateByID(id, character)
 	if err != nil {
 		return nil, fmt.Errorf("failed to reset character: %v", err)
 	}

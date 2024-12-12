@@ -1,7 +1,7 @@
 package core
 
 var CreateCustomMetricQuery = `
-mutation CreateCustomMetric($characterID: ObjectID!, $name: String, $style: MetricStyleInput, $description: String, $properties: [MetricPropertyInput!]) {
+mutation CreateCustomMetric($characterID: ObjectID!, $name: String!, $style: MetricStyleInput, $description: String, $properties: [MetricPropertyInput!]) {
 	createCustomMetric(
 		characterID: $characterID
 		input: {

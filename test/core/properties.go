@@ -23,7 +23,7 @@ func (s CreateMetricPropertyStage) Exec(ctx *context.Context) error {
 		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
-	customMetric, ok := (*ctx).Value("CustomMetricKey").(string)
+	customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
 	if !ok {
 		return common.ErrNotFoundInContext("CustomMetricKey")
 	}
@@ -32,6 +32,7 @@ func (s CreateMetricPropertyStage) Exec(ctx *context.Context) error {
 		"name":  "property 2",
 		"type":  "Number",
 		"value": "value 2",
+		"unit":  "unit",
 	}
 
 	variables := map[string]interface{}{

@@ -13,6 +13,7 @@ import (
 	"sync/atomic"
 	graphql1 "tenkhours/pkg/graphql"
 	"tenkhours/services/analytics/graph/model"
+	"tenkhours/services/core/repo"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -60,17 +61,17 @@ type ComplexityRoot struct {
 		TotalFocusedTime func(childComplexity int) int
 	}
 
-	CapturedRecord_CustomMetric struct {
+	CapturedRecordCustomMetric struct {
 		ID   func(childComplexity int) int
 		Time func(childComplexity int) int
 	}
 
-	CapturedRecord_Metadata struct {
+	CapturedRecordMetadata struct {
 		CharacterID func(childComplexity int) int
 		ProfileID   func(childComplexity int) int
 	}
 
-	CapturedRecord_TimeTracking struct {
+	CapturedRecordTimeTracking struct {
 		CustomMetricID func(childComplexity int) int
 		EndTime        func(childComplexity int) int
 		StartTime      func(childComplexity int) int
@@ -94,7 +95,7 @@ type ComplexityRoot struct {
 		Timestamp   func(childComplexity int) int
 	}
 
-	Snapshot_Character struct {
+	SnapshotCharacter struct {
 		CustomMetrics    func(childComplexity int) int
 		Gender           func(childComplexity int) int
 		ID               func(childComplexity int) int
@@ -104,7 +105,7 @@ type ComplexityRoot struct {
 		TotalFocusedTime func(childComplexity int) int
 	}
 
-	Snapshot_CustomMetric struct {
+	SnapshotCustomMetric struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
@@ -113,7 +114,7 @@ type ComplexityRoot struct {
 		Time        func(childComplexity int) int
 	}
 
-	Snapshot_MetricProperty struct {
+	SnapshotMetricProperty struct {
 		ID    func(childComplexity int) int
 		Name  func(childComplexity int) int
 		Type  func(childComplexity int) int
@@ -121,7 +122,7 @@ type ComplexityRoot struct {
 		Value func(childComplexity int) int
 	}
 
-	Snapshot_MetricStyle struct {
+	SnapshotMetricStyle struct {
 		Color func(childComplexity int) int
 		Icon  func(childComplexity int) int
 	}
@@ -200,61 +201,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CapturedRecord.TotalFocusedTime(childComplexity), true
 
-	case "CapturedRecord_CustomMetric.id":
-		if e.complexity.CapturedRecord_CustomMetric.ID == nil {
+	case "CapturedRecordCustomMetric.id":
+		if e.complexity.CapturedRecordCustomMetric.ID == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecord_CustomMetric.ID(childComplexity), true
+		return e.complexity.CapturedRecordCustomMetric.ID(childComplexity), true
 
-	case "CapturedRecord_CustomMetric.time":
-		if e.complexity.CapturedRecord_CustomMetric.Time == nil {
+	case "CapturedRecordCustomMetric.time":
+		if e.complexity.CapturedRecordCustomMetric.Time == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecord_CustomMetric.Time(childComplexity), true
+		return e.complexity.CapturedRecordCustomMetric.Time(childComplexity), true
 
-	case "CapturedRecord_Metadata.characterID":
-		if e.complexity.CapturedRecord_Metadata.CharacterID == nil {
+	case "CapturedRecordMetadata.characterID":
+		if e.complexity.CapturedRecordMetadata.CharacterID == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecord_Metadata.CharacterID(childComplexity), true
+		return e.complexity.CapturedRecordMetadata.CharacterID(childComplexity), true
 
-	case "CapturedRecord_Metadata.profileID":
-		if e.complexity.CapturedRecord_Metadata.ProfileID == nil {
+	case "CapturedRecordMetadata.profileID":
+		if e.complexity.CapturedRecordMetadata.ProfileID == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecord_Metadata.ProfileID(childComplexity), true
+		return e.complexity.CapturedRecordMetadata.ProfileID(childComplexity), true
 
-	case "CapturedRecord_TimeTracking.customMetricID":
-		if e.complexity.CapturedRecord_TimeTracking.CustomMetricID == nil {
+	case "CapturedRecordTimeTracking.customMetricID":
+		if e.complexity.CapturedRecordTimeTracking.CustomMetricID == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecord_TimeTracking.CustomMetricID(childComplexity), true
+		return e.complexity.CapturedRecordTimeTracking.CustomMetricID(childComplexity), true
 
-	case "CapturedRecord_TimeTracking.endTime":
-		if e.complexity.CapturedRecord_TimeTracking.EndTime == nil {
+	case "CapturedRecordTimeTracking.endTime":
+		if e.complexity.CapturedRecordTimeTracking.EndTime == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecord_TimeTracking.EndTime(childComplexity), true
+		return e.complexity.CapturedRecordTimeTracking.EndTime(childComplexity), true
 
-	case "CapturedRecord_TimeTracking.startTime":
-		if e.complexity.CapturedRecord_TimeTracking.StartTime == nil {
+	case "CapturedRecordTimeTracking.startTime":
+		if e.complexity.CapturedRecordTimeTracking.StartTime == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecord_TimeTracking.StartTime(childComplexity), true
+		return e.complexity.CapturedRecordTimeTracking.StartTime(childComplexity), true
 
-	case "CapturedRecord_TimeTracking.time":
-		if e.complexity.CapturedRecord_TimeTracking.Time == nil {
+	case "CapturedRecordTimeTracking.time":
+		if e.complexity.CapturedRecordTimeTracking.Time == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecord_TimeTracking.Time(childComplexity), true
+		return e.complexity.CapturedRecordTimeTracking.Time(childComplexity), true
 
 	case "Mutation.createSnapshot":
 		if e.complexity.Mutation.CreateSnapshot == nil {
@@ -327,145 +328,145 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Snapshot.Timestamp(childComplexity), true
 
-	case "Snapshot_Character.customMetrics":
-		if e.complexity.Snapshot_Character.CustomMetrics == nil {
+	case "SnapshotCharacter.customMetrics":
+		if e.complexity.SnapshotCharacter.CustomMetrics == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_Character.CustomMetrics(childComplexity), true
+		return e.complexity.SnapshotCharacter.CustomMetrics(childComplexity), true
 
-	case "Snapshot_Character.gender":
-		if e.complexity.Snapshot_Character.Gender == nil {
+	case "SnapshotCharacter.gender":
+		if e.complexity.SnapshotCharacter.Gender == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_Character.Gender(childComplexity), true
+		return e.complexity.SnapshotCharacter.Gender(childComplexity), true
 
-	case "Snapshot_Character.id":
-		if e.complexity.Snapshot_Character.ID == nil {
+	case "SnapshotCharacter.id":
+		if e.complexity.SnapshotCharacter.ID == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_Character.ID(childComplexity), true
+		return e.complexity.SnapshotCharacter.ID(childComplexity), true
 
-	case "Snapshot_Character.name":
-		if e.complexity.Snapshot_Character.Name == nil {
+	case "SnapshotCharacter.name":
+		if e.complexity.SnapshotCharacter.Name == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_Character.Name(childComplexity), true
+		return e.complexity.SnapshotCharacter.Name(childComplexity), true
 
-	case "Snapshot_Character.profileID":
-		if e.complexity.Snapshot_Character.ProfileID == nil {
+	case "SnapshotCharacter.profileID":
+		if e.complexity.SnapshotCharacter.ProfileID == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_Character.ProfileID(childComplexity), true
+		return e.complexity.SnapshotCharacter.ProfileID(childComplexity), true
 
-	case "Snapshot_Character.tags":
-		if e.complexity.Snapshot_Character.Tags == nil {
+	case "SnapshotCharacter.tags":
+		if e.complexity.SnapshotCharacter.Tags == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_Character.Tags(childComplexity), true
+		return e.complexity.SnapshotCharacter.Tags(childComplexity), true
 
-	case "Snapshot_Character.totalFocusedTime":
-		if e.complexity.Snapshot_Character.TotalFocusedTime == nil {
+	case "SnapshotCharacter.totalFocusedTime":
+		if e.complexity.SnapshotCharacter.TotalFocusedTime == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_Character.TotalFocusedTime(childComplexity), true
+		return e.complexity.SnapshotCharacter.TotalFocusedTime(childComplexity), true
 
-	case "Snapshot_CustomMetric.description":
-		if e.complexity.Snapshot_CustomMetric.Description == nil {
+	case "SnapshotCustomMetric.description":
+		if e.complexity.SnapshotCustomMetric.Description == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_CustomMetric.Description(childComplexity), true
+		return e.complexity.SnapshotCustomMetric.Description(childComplexity), true
 
-	case "Snapshot_CustomMetric.id":
-		if e.complexity.Snapshot_CustomMetric.ID == nil {
+	case "SnapshotCustomMetric.id":
+		if e.complexity.SnapshotCustomMetric.ID == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_CustomMetric.ID(childComplexity), true
+		return e.complexity.SnapshotCustomMetric.ID(childComplexity), true
 
-	case "Snapshot_CustomMetric.name":
-		if e.complexity.Snapshot_CustomMetric.Name == nil {
+	case "SnapshotCustomMetric.name":
+		if e.complexity.SnapshotCustomMetric.Name == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_CustomMetric.Name(childComplexity), true
+		return e.complexity.SnapshotCustomMetric.Name(childComplexity), true
 
-	case "Snapshot_CustomMetric.properties":
-		if e.complexity.Snapshot_CustomMetric.Properties == nil {
+	case "SnapshotCustomMetric.properties":
+		if e.complexity.SnapshotCustomMetric.Properties == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_CustomMetric.Properties(childComplexity), true
+		return e.complexity.SnapshotCustomMetric.Properties(childComplexity), true
 
-	case "Snapshot_CustomMetric.style":
-		if e.complexity.Snapshot_CustomMetric.Style == nil {
+	case "SnapshotCustomMetric.style":
+		if e.complexity.SnapshotCustomMetric.Style == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_CustomMetric.Style(childComplexity), true
+		return e.complexity.SnapshotCustomMetric.Style(childComplexity), true
 
-	case "Snapshot_CustomMetric.time":
-		if e.complexity.Snapshot_CustomMetric.Time == nil {
+	case "SnapshotCustomMetric.time":
+		if e.complexity.SnapshotCustomMetric.Time == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_CustomMetric.Time(childComplexity), true
+		return e.complexity.SnapshotCustomMetric.Time(childComplexity), true
 
-	case "Snapshot_MetricProperty.id":
-		if e.complexity.Snapshot_MetricProperty.ID == nil {
+	case "SnapshotMetricProperty.id":
+		if e.complexity.SnapshotMetricProperty.ID == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_MetricProperty.ID(childComplexity), true
+		return e.complexity.SnapshotMetricProperty.ID(childComplexity), true
 
-	case "Snapshot_MetricProperty.name":
-		if e.complexity.Snapshot_MetricProperty.Name == nil {
+	case "SnapshotMetricProperty.name":
+		if e.complexity.SnapshotMetricProperty.Name == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_MetricProperty.Name(childComplexity), true
+		return e.complexity.SnapshotMetricProperty.Name(childComplexity), true
 
-	case "Snapshot_MetricProperty.type":
-		if e.complexity.Snapshot_MetricProperty.Type == nil {
+	case "SnapshotMetricProperty.type":
+		if e.complexity.SnapshotMetricProperty.Type == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_MetricProperty.Type(childComplexity), true
+		return e.complexity.SnapshotMetricProperty.Type(childComplexity), true
 
-	case "Snapshot_MetricProperty.unit":
-		if e.complexity.Snapshot_MetricProperty.Unit == nil {
+	case "SnapshotMetricProperty.unit":
+		if e.complexity.SnapshotMetricProperty.Unit == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_MetricProperty.Unit(childComplexity), true
+		return e.complexity.SnapshotMetricProperty.Unit(childComplexity), true
 
-	case "Snapshot_MetricProperty.value":
-		if e.complexity.Snapshot_MetricProperty.Value == nil {
+	case "SnapshotMetricProperty.value":
+		if e.complexity.SnapshotMetricProperty.Value == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_MetricProperty.Value(childComplexity), true
+		return e.complexity.SnapshotMetricProperty.Value(childComplexity), true
 
-	case "Snapshot_MetricStyle.color":
-		if e.complexity.Snapshot_MetricStyle.Color == nil {
+	case "SnapshotMetricStyle.color":
+		if e.complexity.SnapshotMetricStyle.Color == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_MetricStyle.Color(childComplexity), true
+		return e.complexity.SnapshotMetricStyle.Color(childComplexity), true
 
-	case "Snapshot_MetricStyle.icon":
-		if e.complexity.Snapshot_MetricStyle.Icon == nil {
+	case "SnapshotMetricStyle.icon":
+		if e.complexity.SnapshotMetricStyle.Icon == nil {
 			break
 		}
 
-		return e.complexity.Snapshot_MetricStyle.Icon(childComplexity), true
+		return e.complexity.SnapshotMetricStyle.Icon(childComplexity), true
 
 	case "_Service.sdl":
 		if e.complexity._Service.SDL == nil {
@@ -985,7 +986,7 @@ func (ec *executionContext) _CapturedRecord_customMetrics(ctx context.Context, f
 	}
 	res := resTmp.([]model.CapturedRecordCustomMetric)
 	fc.Result = res
-	return ec.marshalOCapturedRecord_CustomMetric2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordCustomMetricᚄ(ctx, field.Selections, res)
+	return ec.marshalOCapturedRecordCustomMetric2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordCustomMetricᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CapturedRecord_customMetrics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -997,11 +998,11 @@ func (ec *executionContext) fieldContext_CapturedRecord_customMetrics(_ context.
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_CapturedRecord_CustomMetric_id(ctx, field)
+				return ec.fieldContext_CapturedRecordCustomMetric_id(ctx, field)
 			case "time":
-				return ec.fieldContext_CapturedRecord_CustomMetric_time(ctx, field)
+				return ec.fieldContext_CapturedRecordCustomMetric_time(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CapturedRecord_CustomMetric", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CapturedRecordCustomMetric", field.Name)
 		},
 	}
 	return fc, nil
@@ -1032,7 +1033,7 @@ func (ec *executionContext) _CapturedRecord_timeTrackings(ctx context.Context, f
 	}
 	res := resTmp.([]model.CapturedRecordTimeTracking)
 	fc.Result = res
-	return ec.marshalOCapturedRecord_TimeTracking2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordTimeTrackingᚄ(ctx, field.Selections, res)
+	return ec.marshalOCapturedRecordTimeTracking2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordTimeTrackingᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CapturedRecord_timeTrackings(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1044,15 +1045,15 @@ func (ec *executionContext) fieldContext_CapturedRecord_timeTrackings(_ context.
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "customMetricID":
-				return ec.fieldContext_CapturedRecord_TimeTracking_customMetricID(ctx, field)
+				return ec.fieldContext_CapturedRecordTimeTracking_customMetricID(ctx, field)
 			case "time":
-				return ec.fieldContext_CapturedRecord_TimeTracking_time(ctx, field)
+				return ec.fieldContext_CapturedRecordTimeTracking_time(ctx, field)
 			case "startTime":
-				return ec.fieldContext_CapturedRecord_TimeTracking_startTime(ctx, field)
+				return ec.fieldContext_CapturedRecordTimeTracking_startTime(ctx, field)
 			case "endTime":
-				return ec.fieldContext_CapturedRecord_TimeTracking_endTime(ctx, field)
+				return ec.fieldContext_CapturedRecordTimeTracking_endTime(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CapturedRecord_TimeTracking", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CapturedRecordTimeTracking", field.Name)
 		},
 	}
 	return fc, nil
@@ -1086,7 +1087,7 @@ func (ec *executionContext) _CapturedRecord_metadata(ctx context.Context, field 
 	}
 	res := resTmp.(model.CapturedRecordMetadata)
 	fc.Result = res
-	return ec.marshalNCapturedRecord_Metadata2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordMetadata(ctx, field.Selections, res)
+	return ec.marshalNCapturedRecordMetadata2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordMetadata(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CapturedRecord_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1098,18 +1099,18 @@ func (ec *executionContext) fieldContext_CapturedRecord_metadata(_ context.Conte
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "characterID":
-				return ec.fieldContext_CapturedRecord_Metadata_characterID(ctx, field)
+				return ec.fieldContext_CapturedRecordMetadata_characterID(ctx, field)
 			case "profileID":
-				return ec.fieldContext_CapturedRecord_Metadata_profileID(ctx, field)
+				return ec.fieldContext_CapturedRecordMetadata_profileID(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CapturedRecord_Metadata", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CapturedRecordMetadata", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _CapturedRecord_CustomMetric_id(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordCustomMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_CustomMetric_id(ctx, field)
+func (ec *executionContext) _CapturedRecordCustomMetric_id(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordCustomMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CapturedRecordCustomMetric_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1139,9 +1140,9 @@ func (ec *executionContext) _CapturedRecord_CustomMetric_id(ctx context.Context,
 	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CapturedRecord_CustomMetric_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CapturedRecordCustomMetric_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord_CustomMetric",
+		Object:     "CapturedRecordCustomMetric",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1152,8 +1153,8 @@ func (ec *executionContext) fieldContext_CapturedRecord_CustomMetric_id(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _CapturedRecord_CustomMetric_time(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordCustomMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_CustomMetric_time(ctx, field)
+func (ec *executionContext) _CapturedRecordCustomMetric_time(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordCustomMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CapturedRecordCustomMetric_time(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1183,9 +1184,9 @@ func (ec *executionContext) _CapturedRecord_CustomMetric_time(ctx context.Contex
 	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CapturedRecord_CustomMetric_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CapturedRecordCustomMetric_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord_CustomMetric",
+		Object:     "CapturedRecordCustomMetric",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1196,8 +1197,8 @@ func (ec *executionContext) fieldContext_CapturedRecord_CustomMetric_time(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _CapturedRecord_Metadata_characterID(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordMetadata) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_Metadata_characterID(ctx, field)
+func (ec *executionContext) _CapturedRecordMetadata_characterID(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CapturedRecordMetadata_characterID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1227,9 +1228,9 @@ func (ec *executionContext) _CapturedRecord_Metadata_characterID(ctx context.Con
 	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CapturedRecord_Metadata_characterID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CapturedRecordMetadata_characterID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord_Metadata",
+		Object:     "CapturedRecordMetadata",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1240,8 +1241,8 @@ func (ec *executionContext) fieldContext_CapturedRecord_Metadata_characterID(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _CapturedRecord_Metadata_profileID(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordMetadata) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_Metadata_profileID(ctx, field)
+func (ec *executionContext) _CapturedRecordMetadata_profileID(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordMetadata) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CapturedRecordMetadata_profileID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1271,9 +1272,9 @@ func (ec *executionContext) _CapturedRecord_Metadata_profileID(ctx context.Conte
 	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CapturedRecord_Metadata_profileID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CapturedRecordMetadata_profileID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord_Metadata",
+		Object:     "CapturedRecordMetadata",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1284,8 +1285,8 @@ func (ec *executionContext) fieldContext_CapturedRecord_Metadata_profileID(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _CapturedRecord_TimeTracking_customMetricID(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_TimeTracking_customMetricID(ctx, field)
+func (ec *executionContext) _CapturedRecordTimeTracking_customMetricID(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CapturedRecordTimeTracking_customMetricID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1315,9 +1316,9 @@ func (ec *executionContext) _CapturedRecord_TimeTracking_customMetricID(ctx cont
 	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CapturedRecord_TimeTracking_customMetricID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CapturedRecordTimeTracking_customMetricID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord_TimeTracking",
+		Object:     "CapturedRecordTimeTracking",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1328,8 +1329,8 @@ func (ec *executionContext) fieldContext_CapturedRecord_TimeTracking_customMetri
 	return fc, nil
 }
 
-func (ec *executionContext) _CapturedRecord_TimeTracking_time(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_TimeTracking_time(ctx, field)
+func (ec *executionContext) _CapturedRecordTimeTracking_time(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CapturedRecordTimeTracking_time(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1359,9 +1360,9 @@ func (ec *executionContext) _CapturedRecord_TimeTracking_time(ctx context.Contex
 	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CapturedRecord_TimeTracking_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CapturedRecordTimeTracking_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord_TimeTracking",
+		Object:     "CapturedRecordTimeTracking",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1372,8 +1373,8 @@ func (ec *executionContext) fieldContext_CapturedRecord_TimeTracking_time(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _CapturedRecord_TimeTracking_startTime(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_TimeTracking_startTime(ctx, field)
+func (ec *executionContext) _CapturedRecordTimeTracking_startTime(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CapturedRecordTimeTracking_startTime(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1403,9 +1404,9 @@ func (ec *executionContext) _CapturedRecord_TimeTracking_startTime(ctx context.C
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CapturedRecord_TimeTracking_startTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CapturedRecordTimeTracking_startTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord_TimeTracking",
+		Object:     "CapturedRecordTimeTracking",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1416,8 +1417,8 @@ func (ec *executionContext) fieldContext_CapturedRecord_TimeTracking_startTime(_
 	return fc, nil
 }
 
-func (ec *executionContext) _CapturedRecord_TimeTracking_endTime(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_TimeTracking_endTime(ctx, field)
+func (ec *executionContext) _CapturedRecordTimeTracking_endTime(ctx context.Context, field graphql.CollectedField, obj *model.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CapturedRecordTimeTracking_endTime(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1447,9 +1448,9 @@ func (ec *executionContext) _CapturedRecord_TimeTracking_endTime(ctx context.Con
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CapturedRecord_TimeTracking_endTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CapturedRecordTimeTracking_endTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord_TimeTracking",
+		Object:     "CapturedRecordTimeTracking",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1938,7 +1939,7 @@ func (ec *executionContext) _Snapshot_character(ctx context.Context, field graph
 	}
 	res := resTmp.(model.SnapshotCharacter)
 	fc.Result = res
-	return ec.marshalNSnapshot_Character2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotCharacter(ctx, field.Selections, res)
+	return ec.marshalNSnapshotCharacter2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotCharacter(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Snapshot_character(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1950,21 +1951,21 @@ func (ec *executionContext) fieldContext_Snapshot_character(_ context.Context, f
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Snapshot_Character_id(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_id(ctx, field)
 			case "profileID":
-				return ec.fieldContext_Snapshot_Character_profileID(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_profileID(ctx, field)
 			case "name":
-				return ec.fieldContext_Snapshot_Character_name(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_name(ctx, field)
 			case "gender":
-				return ec.fieldContext_Snapshot_Character_gender(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_gender(ctx, field)
 			case "tags":
-				return ec.fieldContext_Snapshot_Character_tags(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_tags(ctx, field)
 			case "totalFocusedTime":
-				return ec.fieldContext_Snapshot_Character_totalFocusedTime(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_totalFocusedTime(ctx, field)
 			case "customMetrics":
-				return ec.fieldContext_Snapshot_Character_customMetrics(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_customMetrics(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Snapshot_Character", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SnapshotCharacter", field.Name)
 		},
 	}
 	return fc, nil
@@ -2014,8 +2015,8 @@ func (ec *executionContext) fieldContext_Snapshot_description(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_Character_id(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_Character_id(ctx, field)
+func (ec *executionContext) _SnapshotCharacter_id(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2045,9 +2046,9 @@ func (ec *executionContext) _Snapshot_Character_id(ctx context.Context, field gr
 	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_Character_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCharacter_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_Character",
+		Object:     "SnapshotCharacter",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2058,8 +2059,8 @@ func (ec *executionContext) fieldContext_Snapshot_Character_id(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_Character_profileID(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_Character_profileID(ctx, field)
+func (ec *executionContext) _SnapshotCharacter_profileID(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_profileID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2089,9 +2090,9 @@ func (ec *executionContext) _Snapshot_Character_profileID(ctx context.Context, f
 	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_Character_profileID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCharacter_profileID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_Character",
+		Object:     "SnapshotCharacter",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2102,8 +2103,8 @@ func (ec *executionContext) fieldContext_Snapshot_Character_profileID(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_Character_name(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_Character_name(ctx, field)
+func (ec *executionContext) _SnapshotCharacter_name(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2133,9 +2134,9 @@ func (ec *executionContext) _Snapshot_Character_name(ctx context.Context, field 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_Character_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCharacter_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_Character",
+		Object:     "SnapshotCharacter",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2146,8 +2147,8 @@ func (ec *executionContext) fieldContext_Snapshot_Character_name(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_Character_gender(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_Character_gender(ctx, field)
+func (ec *executionContext) _SnapshotCharacter_gender(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_gender(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2177,9 +2178,9 @@ func (ec *executionContext) _Snapshot_Character_gender(ctx context.Context, fiel
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_Character_gender(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCharacter_gender(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_Character",
+		Object:     "SnapshotCharacter",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2190,8 +2191,8 @@ func (ec *executionContext) fieldContext_Snapshot_Character_gender(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_Character_tags(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_Character_tags(ctx, field)
+func (ec *executionContext) _SnapshotCharacter_tags(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_tags(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2221,9 +2222,9 @@ func (ec *executionContext) _Snapshot_Character_tags(ctx context.Context, field 
 	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_Character_tags(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCharacter_tags(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_Character",
+		Object:     "SnapshotCharacter",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2234,8 +2235,8 @@ func (ec *executionContext) fieldContext_Snapshot_Character_tags(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_Character_totalFocusedTime(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_Character_totalFocusedTime(ctx, field)
+func (ec *executionContext) _SnapshotCharacter_totalFocusedTime(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_totalFocusedTime(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2265,9 +2266,9 @@ func (ec *executionContext) _Snapshot_Character_totalFocusedTime(ctx context.Con
 	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_Character_totalFocusedTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCharacter_totalFocusedTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_Character",
+		Object:     "SnapshotCharacter",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2278,8 +2279,8 @@ func (ec *executionContext) fieldContext_Snapshot_Character_totalFocusedTime(_ c
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_Character_customMetrics(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_Character_customMetrics(ctx, field)
+func (ec *executionContext) _SnapshotCharacter_customMetrics(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_customMetrics(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2306,38 +2307,38 @@ func (ec *executionContext) _Snapshot_Character_customMetrics(ctx context.Contex
 	}
 	res := resTmp.([]model.SnapshotCustomMetric)
 	fc.Result = res
-	return ec.marshalNSnapshot_CustomMetric2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotCustomMetricᚄ(ctx, field.Selections, res)
+	return ec.marshalNSnapshotCustomMetric2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotCustomMetricᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_Character_customMetrics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCharacter_customMetrics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_Character",
+		Object:     "SnapshotCharacter",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Snapshot_CustomMetric_id(ctx, field)
+				return ec.fieldContext_SnapshotCustomMetric_id(ctx, field)
 			case "name":
-				return ec.fieldContext_Snapshot_CustomMetric_name(ctx, field)
+				return ec.fieldContext_SnapshotCustomMetric_name(ctx, field)
 			case "description":
-				return ec.fieldContext_Snapshot_CustomMetric_description(ctx, field)
+				return ec.fieldContext_SnapshotCustomMetric_description(ctx, field)
 			case "time":
-				return ec.fieldContext_Snapshot_CustomMetric_time(ctx, field)
+				return ec.fieldContext_SnapshotCustomMetric_time(ctx, field)
 			case "style":
-				return ec.fieldContext_Snapshot_CustomMetric_style(ctx, field)
+				return ec.fieldContext_SnapshotCustomMetric_style(ctx, field)
 			case "properties":
-				return ec.fieldContext_Snapshot_CustomMetric_properties(ctx, field)
+				return ec.fieldContext_SnapshotCustomMetric_properties(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Snapshot_CustomMetric", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SnapshotCustomMetric", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_CustomMetric_id(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCustomMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_CustomMetric_id(ctx, field)
+func (ec *executionContext) _SnapshotCustomMetric_id(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCustomMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCustomMetric_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2367,9 +2368,9 @@ func (ec *executionContext) _Snapshot_CustomMetric_id(ctx context.Context, field
 	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_CustomMetric_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCustomMetric_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_CustomMetric",
+		Object:     "SnapshotCustomMetric",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2380,8 +2381,8 @@ func (ec *executionContext) fieldContext_Snapshot_CustomMetric_id(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_CustomMetric_name(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCustomMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_CustomMetric_name(ctx, field)
+func (ec *executionContext) _SnapshotCustomMetric_name(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCustomMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCustomMetric_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2411,9 +2412,9 @@ func (ec *executionContext) _Snapshot_CustomMetric_name(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_CustomMetric_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCustomMetric_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_CustomMetric",
+		Object:     "SnapshotCustomMetric",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2424,8 +2425,8 @@ func (ec *executionContext) fieldContext_Snapshot_CustomMetric_name(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_CustomMetric_description(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCustomMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_CustomMetric_description(ctx, field)
+func (ec *executionContext) _SnapshotCustomMetric_description(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCustomMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCustomMetric_description(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2449,24 +2450,24 @@ func (ec *executionContext) _Snapshot_CustomMetric_description(ctx context.Conte
 	}
 	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalONullableString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_CustomMetric_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCustomMetric_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_CustomMetric",
+		Object:     "SnapshotCustomMetric",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type NullableString does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_CustomMetric_time(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCustomMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_CustomMetric_time(ctx, field)
+func (ec *executionContext) _SnapshotCustomMetric_time(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCustomMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCustomMetric_time(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2496,9 +2497,9 @@ func (ec *executionContext) _Snapshot_CustomMetric_time(ctx context.Context, fie
 	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_CustomMetric_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCustomMetric_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_CustomMetric",
+		Object:     "SnapshotCustomMetric",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2509,8 +2510,8 @@ func (ec *executionContext) fieldContext_Snapshot_CustomMetric_time(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_CustomMetric_style(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCustomMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_CustomMetric_style(ctx, field)
+func (ec *executionContext) _SnapshotCustomMetric_style(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCustomMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCustomMetric_style(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2537,30 +2538,30 @@ func (ec *executionContext) _Snapshot_CustomMetric_style(ctx context.Context, fi
 	}
 	res := resTmp.(model.SnapshotMetricStyle)
 	fc.Result = res
-	return ec.marshalNSnapshot_MetricStyle2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotMetricStyle(ctx, field.Selections, res)
+	return ec.marshalNSnapshotMetricStyle2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotMetricStyle(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_CustomMetric_style(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCustomMetric_style(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_CustomMetric",
+		Object:     "SnapshotCustomMetric",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "color":
-				return ec.fieldContext_Snapshot_MetricStyle_color(ctx, field)
+				return ec.fieldContext_SnapshotMetricStyle_color(ctx, field)
 			case "icon":
-				return ec.fieldContext_Snapshot_MetricStyle_icon(ctx, field)
+				return ec.fieldContext_SnapshotMetricStyle_icon(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Snapshot_MetricStyle", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SnapshotMetricStyle", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_CustomMetric_properties(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCustomMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_CustomMetric_properties(ctx, field)
+func (ec *executionContext) _SnapshotCustomMetric_properties(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCustomMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCustomMetric_properties(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2587,36 +2588,36 @@ func (ec *executionContext) _Snapshot_CustomMetric_properties(ctx context.Contex
 	}
 	res := resTmp.([]model.SnapshotMetricProperty)
 	fc.Result = res
-	return ec.marshalNSnapshot_MetricProperty2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotMetricPropertyᚄ(ctx, field.Selections, res)
+	return ec.marshalNSnapshotMetricProperty2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotMetricPropertyᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_CustomMetric_properties(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotCustomMetric_properties(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_CustomMetric",
+		Object:     "SnapshotCustomMetric",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Snapshot_MetricProperty_id(ctx, field)
+				return ec.fieldContext_SnapshotMetricProperty_id(ctx, field)
 			case "name":
-				return ec.fieldContext_Snapshot_MetricProperty_name(ctx, field)
+				return ec.fieldContext_SnapshotMetricProperty_name(ctx, field)
 			case "type":
-				return ec.fieldContext_Snapshot_MetricProperty_type(ctx, field)
+				return ec.fieldContext_SnapshotMetricProperty_type(ctx, field)
 			case "value":
-				return ec.fieldContext_Snapshot_MetricProperty_value(ctx, field)
+				return ec.fieldContext_SnapshotMetricProperty_value(ctx, field)
 			case "unit":
-				return ec.fieldContext_Snapshot_MetricProperty_unit(ctx, field)
+				return ec.fieldContext_SnapshotMetricProperty_unit(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Snapshot_MetricProperty", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SnapshotMetricProperty", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_MetricProperty_id(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricProperty) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_MetricProperty_id(ctx, field)
+func (ec *executionContext) _SnapshotMetricProperty_id(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricProperty) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetricProperty_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2646,9 +2647,9 @@ func (ec *executionContext) _Snapshot_MetricProperty_id(ctx context.Context, fie
 	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_MetricProperty_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotMetricProperty_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_MetricProperty",
+		Object:     "SnapshotMetricProperty",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2659,8 +2660,8 @@ func (ec *executionContext) fieldContext_Snapshot_MetricProperty_id(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_MetricProperty_name(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricProperty) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_MetricProperty_name(ctx, field)
+func (ec *executionContext) _SnapshotMetricProperty_name(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricProperty) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetricProperty_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2690,9 +2691,9 @@ func (ec *executionContext) _Snapshot_MetricProperty_name(ctx context.Context, f
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_MetricProperty_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotMetricProperty_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_MetricProperty",
+		Object:     "SnapshotMetricProperty",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2703,8 +2704,8 @@ func (ec *executionContext) fieldContext_Snapshot_MetricProperty_name(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_MetricProperty_type(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricProperty) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_MetricProperty_type(ctx, field)
+func (ec *executionContext) _SnapshotMetricProperty_type(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricProperty) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetricProperty_type(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2729,14 +2730,14 @@ func (ec *executionContext) _Snapshot_MetricProperty_type(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.MetricPropertyType)
+	res := resTmp.(repo.MetricPropertyType)
 	fc.Result = res
-	return ec.marshalNMetricPropertyType2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐMetricPropertyType(ctx, field.Selections, res)
+	return ec.marshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_MetricProperty_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotMetricProperty_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_MetricProperty",
+		Object:     "SnapshotMetricProperty",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2747,8 +2748,8 @@ func (ec *executionContext) fieldContext_Snapshot_MetricProperty_type(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_MetricProperty_value(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricProperty) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_MetricProperty_value(ctx, field)
+func (ec *executionContext) _SnapshotMetricProperty_value(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricProperty) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetricProperty_value(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2778,9 +2779,9 @@ func (ec *executionContext) _Snapshot_MetricProperty_value(ctx context.Context, 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_MetricProperty_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotMetricProperty_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_MetricProperty",
+		Object:     "SnapshotMetricProperty",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2791,8 +2792,8 @@ func (ec *executionContext) fieldContext_Snapshot_MetricProperty_value(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_MetricProperty_unit(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricProperty) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_MetricProperty_unit(ctx, field)
+func (ec *executionContext) _SnapshotMetricProperty_unit(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricProperty) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetricProperty_unit(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2816,24 +2817,24 @@ func (ec *executionContext) _Snapshot_MetricProperty_unit(ctx context.Context, f
 	}
 	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalONullableString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_MetricProperty_unit(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotMetricProperty_unit(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_MetricProperty",
+		Object:     "SnapshotMetricProperty",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type NullableString does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_MetricStyle_color(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricStyle) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_MetricStyle_color(ctx, field)
+func (ec *executionContext) _SnapshotMetricStyle_color(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricStyle) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetricStyle_color(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2857,24 +2858,24 @@ func (ec *executionContext) _Snapshot_MetricStyle_color(ctx context.Context, fie
 	}
 	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalONullableString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_MetricStyle_color(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotMetricStyle_color(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_MetricStyle",
+		Object:     "SnapshotMetricStyle",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type NullableString does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Snapshot_MetricStyle_icon(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricStyle) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Snapshot_MetricStyle_icon(ctx, field)
+func (ec *executionContext) _SnapshotMetricStyle_icon(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotMetricStyle) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetricStyle_icon(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2898,17 +2899,17 @@ func (ec *executionContext) _Snapshot_MetricStyle_icon(ctx context.Context, fiel
 	}
 	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalONullableString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Snapshot_MetricStyle_icon(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SnapshotMetricStyle_icon(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Snapshot_MetricStyle",
+		Object:     "SnapshotMetricStyle",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type NullableString does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4828,24 +4829,24 @@ func (ec *executionContext) _CapturedRecord(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var capturedRecord_CustomMetricImplementors = []string{"CapturedRecord_CustomMetric"}
+var capturedRecordCustomMetricImplementors = []string{"CapturedRecordCustomMetric"}
 
-func (ec *executionContext) _CapturedRecord_CustomMetric(ctx context.Context, sel ast.SelectionSet, obj *model.CapturedRecordCustomMetric) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, capturedRecord_CustomMetricImplementors)
+func (ec *executionContext) _CapturedRecordCustomMetric(ctx context.Context, sel ast.SelectionSet, obj *model.CapturedRecordCustomMetric) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, capturedRecordCustomMetricImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("CapturedRecord_CustomMetric")
+			out.Values[i] = graphql.MarshalString("CapturedRecordCustomMetric")
 		case "id":
-			out.Values[i] = ec._CapturedRecord_CustomMetric_id(ctx, field, obj)
+			out.Values[i] = ec._CapturedRecordCustomMetric_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "time":
-			out.Values[i] = ec._CapturedRecord_CustomMetric_time(ctx, field, obj)
+			out.Values[i] = ec._CapturedRecordCustomMetric_time(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4872,24 +4873,24 @@ func (ec *executionContext) _CapturedRecord_CustomMetric(ctx context.Context, se
 	return out
 }
 
-var capturedRecord_MetadataImplementors = []string{"CapturedRecord_Metadata"}
+var capturedRecordMetadataImplementors = []string{"CapturedRecordMetadata"}
 
-func (ec *executionContext) _CapturedRecord_Metadata(ctx context.Context, sel ast.SelectionSet, obj *model.CapturedRecordMetadata) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, capturedRecord_MetadataImplementors)
+func (ec *executionContext) _CapturedRecordMetadata(ctx context.Context, sel ast.SelectionSet, obj *model.CapturedRecordMetadata) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, capturedRecordMetadataImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("CapturedRecord_Metadata")
+			out.Values[i] = graphql.MarshalString("CapturedRecordMetadata")
 		case "characterID":
-			out.Values[i] = ec._CapturedRecord_Metadata_characterID(ctx, field, obj)
+			out.Values[i] = ec._CapturedRecordMetadata_characterID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "profileID":
-			out.Values[i] = ec._CapturedRecord_Metadata_profileID(ctx, field, obj)
+			out.Values[i] = ec._CapturedRecordMetadata_profileID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4916,34 +4917,34 @@ func (ec *executionContext) _CapturedRecord_Metadata(ctx context.Context, sel as
 	return out
 }
 
-var capturedRecord_TimeTrackingImplementors = []string{"CapturedRecord_TimeTracking"}
+var capturedRecordTimeTrackingImplementors = []string{"CapturedRecordTimeTracking"}
 
-func (ec *executionContext) _CapturedRecord_TimeTracking(ctx context.Context, sel ast.SelectionSet, obj *model.CapturedRecordTimeTracking) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, capturedRecord_TimeTrackingImplementors)
+func (ec *executionContext) _CapturedRecordTimeTracking(ctx context.Context, sel ast.SelectionSet, obj *model.CapturedRecordTimeTracking) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, capturedRecordTimeTrackingImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("CapturedRecord_TimeTracking")
+			out.Values[i] = graphql.MarshalString("CapturedRecordTimeTracking")
 		case "customMetricID":
-			out.Values[i] = ec._CapturedRecord_TimeTracking_customMetricID(ctx, field, obj)
+			out.Values[i] = ec._CapturedRecordTimeTracking_customMetricID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "time":
-			out.Values[i] = ec._CapturedRecord_TimeTracking_time(ctx, field, obj)
+			out.Values[i] = ec._CapturedRecordTimeTracking_time(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "startTime":
-			out.Values[i] = ec._CapturedRecord_TimeTracking_startTime(ctx, field, obj)
+			out.Values[i] = ec._CapturedRecordTimeTracking_startTime(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "endTime":
-			out.Values[i] = ec._CapturedRecord_TimeTracking_endTime(ctx, field, obj)
+			out.Values[i] = ec._CapturedRecordTimeTracking_endTime(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -5189,49 +5190,49 @@ func (ec *executionContext) _Snapshot(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var snapshot_CharacterImplementors = []string{"Snapshot_Character"}
+var snapshotCharacterImplementors = []string{"SnapshotCharacter"}
 
-func (ec *executionContext) _Snapshot_Character(ctx context.Context, sel ast.SelectionSet, obj *model.SnapshotCharacter) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, snapshot_CharacterImplementors)
+func (ec *executionContext) _SnapshotCharacter(ctx context.Context, sel ast.SelectionSet, obj *model.SnapshotCharacter) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, snapshotCharacterImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Snapshot_Character")
+			out.Values[i] = graphql.MarshalString("SnapshotCharacter")
 		case "id":
-			out.Values[i] = ec._Snapshot_Character_id(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCharacter_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "profileID":
-			out.Values[i] = ec._Snapshot_Character_profileID(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCharacter_profileID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "name":
-			out.Values[i] = ec._Snapshot_Character_name(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCharacter_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gender":
-			out.Values[i] = ec._Snapshot_Character_gender(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCharacter_gender(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "tags":
-			out.Values[i] = ec._Snapshot_Character_tags(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCharacter_tags(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "totalFocusedTime":
-			out.Values[i] = ec._Snapshot_Character_totalFocusedTime(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCharacter_totalFocusedTime(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "customMetrics":
-			out.Values[i] = ec._Snapshot_Character_customMetrics(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCharacter_customMetrics(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -5258,41 +5259,41 @@ func (ec *executionContext) _Snapshot_Character(ctx context.Context, sel ast.Sel
 	return out
 }
 
-var snapshot_CustomMetricImplementors = []string{"Snapshot_CustomMetric"}
+var snapshotCustomMetricImplementors = []string{"SnapshotCustomMetric"}
 
-func (ec *executionContext) _Snapshot_CustomMetric(ctx context.Context, sel ast.SelectionSet, obj *model.SnapshotCustomMetric) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, snapshot_CustomMetricImplementors)
+func (ec *executionContext) _SnapshotCustomMetric(ctx context.Context, sel ast.SelectionSet, obj *model.SnapshotCustomMetric) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, snapshotCustomMetricImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Snapshot_CustomMetric")
+			out.Values[i] = graphql.MarshalString("SnapshotCustomMetric")
 		case "id":
-			out.Values[i] = ec._Snapshot_CustomMetric_id(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCustomMetric_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "name":
-			out.Values[i] = ec._Snapshot_CustomMetric_name(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCustomMetric_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "description":
-			out.Values[i] = ec._Snapshot_CustomMetric_description(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCustomMetric_description(ctx, field, obj)
 		case "time":
-			out.Values[i] = ec._Snapshot_CustomMetric_time(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCustomMetric_time(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "style":
-			out.Values[i] = ec._Snapshot_CustomMetric_style(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCustomMetric_style(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "properties":
-			out.Values[i] = ec._Snapshot_CustomMetric_properties(ctx, field, obj)
+			out.Values[i] = ec._SnapshotCustomMetric_properties(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -5319,39 +5320,39 @@ func (ec *executionContext) _Snapshot_CustomMetric(ctx context.Context, sel ast.
 	return out
 }
 
-var snapshot_MetricPropertyImplementors = []string{"Snapshot_MetricProperty"}
+var snapshotMetricPropertyImplementors = []string{"SnapshotMetricProperty"}
 
-func (ec *executionContext) _Snapshot_MetricProperty(ctx context.Context, sel ast.SelectionSet, obj *model.SnapshotMetricProperty) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, snapshot_MetricPropertyImplementors)
+func (ec *executionContext) _SnapshotMetricProperty(ctx context.Context, sel ast.SelectionSet, obj *model.SnapshotMetricProperty) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, snapshotMetricPropertyImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Snapshot_MetricProperty")
+			out.Values[i] = graphql.MarshalString("SnapshotMetricProperty")
 		case "id":
-			out.Values[i] = ec._Snapshot_MetricProperty_id(ctx, field, obj)
+			out.Values[i] = ec._SnapshotMetricProperty_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "name":
-			out.Values[i] = ec._Snapshot_MetricProperty_name(ctx, field, obj)
+			out.Values[i] = ec._SnapshotMetricProperty_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "type":
-			out.Values[i] = ec._Snapshot_MetricProperty_type(ctx, field, obj)
+			out.Values[i] = ec._SnapshotMetricProperty_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "value":
-			out.Values[i] = ec._Snapshot_MetricProperty_value(ctx, field, obj)
+			out.Values[i] = ec._SnapshotMetricProperty_value(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "unit":
-			out.Values[i] = ec._Snapshot_MetricProperty_unit(ctx, field, obj)
+			out.Values[i] = ec._SnapshotMetricProperty_unit(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5375,21 +5376,21 @@ func (ec *executionContext) _Snapshot_MetricProperty(ctx context.Context, sel as
 	return out
 }
 
-var snapshot_MetricStyleImplementors = []string{"Snapshot_MetricStyle"}
+var snapshotMetricStyleImplementors = []string{"SnapshotMetricStyle"}
 
-func (ec *executionContext) _Snapshot_MetricStyle(ctx context.Context, sel ast.SelectionSet, obj *model.SnapshotMetricStyle) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, snapshot_MetricStyleImplementors)
+func (ec *executionContext) _SnapshotMetricStyle(ctx context.Context, sel ast.SelectionSet, obj *model.SnapshotMetricStyle) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, snapshotMetricStyleImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Snapshot_MetricStyle")
+			out.Values[i] = graphql.MarshalString("SnapshotMetricStyle")
 		case "color":
-			out.Values[i] = ec._Snapshot_MetricStyle_color(ctx, field, obj)
+			out.Values[i] = ec._SnapshotMetricStyle_color(ctx, field, obj)
 		case "icon":
-			out.Values[i] = ec._Snapshot_MetricStyle_icon(ctx, field, obj)
+			out.Values[i] = ec._SnapshotMetricStyle_icon(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5861,16 +5862,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNCapturedRecord_CustomMetric2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordCustomMetric(ctx context.Context, sel ast.SelectionSet, v model.CapturedRecordCustomMetric) graphql.Marshaler {
-	return ec._CapturedRecord_CustomMetric(ctx, sel, &v)
+func (ec *executionContext) marshalNCapturedRecordCustomMetric2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordCustomMetric(ctx context.Context, sel ast.SelectionSet, v model.CapturedRecordCustomMetric) graphql.Marshaler {
+	return ec._CapturedRecordCustomMetric(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCapturedRecord_Metadata2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordMetadata(ctx context.Context, sel ast.SelectionSet, v model.CapturedRecordMetadata) graphql.Marshaler {
-	return ec._CapturedRecord_Metadata(ctx, sel, &v)
+func (ec *executionContext) marshalNCapturedRecordMetadata2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordMetadata(ctx context.Context, sel ast.SelectionSet, v model.CapturedRecordMetadata) graphql.Marshaler {
+	return ec._CapturedRecordMetadata(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCapturedRecord_TimeTracking2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordTimeTracking(ctx context.Context, sel ast.SelectionSet, v model.CapturedRecordTimeTracking) graphql.Marshaler {
-	return ec._CapturedRecord_TimeTracking(ctx, sel, &v)
+func (ec *executionContext) marshalNCapturedRecordTimeTracking2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordTimeTracking(ctx context.Context, sel ast.SelectionSet, v model.CapturedRecordTimeTracking) graphql.Marshaler {
+	return ec._CapturedRecordTimeTracking(ctx, sel, &v)
 }
 
 func (ec *executionContext) unmarshalNFieldSet2string(ctx context.Context, v interface{}) (string, error) {
@@ -5924,14 +5925,20 @@ func (ec *executionContext) marshalNJSON2map(ctx context.Context, sel ast.Select
 	return res
 }
 
-func (ec *executionContext) unmarshalNMetricPropertyType2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐMetricPropertyType(ctx context.Context, v interface{}) (model.MetricPropertyType, error) {
-	var res model.MetricPropertyType
-	err := res.UnmarshalGQL(v)
+func (ec *executionContext) unmarshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx context.Context, v interface{}) (repo.MetricPropertyType, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := repo.MetricPropertyType(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNMetricPropertyType2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v model.MetricPropertyType) graphql.Marshaler {
-	return v
+func (ec *executionContext) marshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx context.Context, sel ast.SelectionSet, v repo.MetricPropertyType) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, v interface{}) (primitive.ObjectID, error) {
@@ -6007,15 +6014,15 @@ func (ec *executionContext) marshalNSnapshot2ᚖtenkhoursᚋservicesᚋanalytics
 	return ec._Snapshot(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSnapshot_Character2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotCharacter(ctx context.Context, sel ast.SelectionSet, v model.SnapshotCharacter) graphql.Marshaler {
-	return ec._Snapshot_Character(ctx, sel, &v)
+func (ec *executionContext) marshalNSnapshotCharacter2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotCharacter(ctx context.Context, sel ast.SelectionSet, v model.SnapshotCharacter) graphql.Marshaler {
+	return ec._SnapshotCharacter(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSnapshot_CustomMetric2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotCustomMetric(ctx context.Context, sel ast.SelectionSet, v model.SnapshotCustomMetric) graphql.Marshaler {
-	return ec._Snapshot_CustomMetric(ctx, sel, &v)
+func (ec *executionContext) marshalNSnapshotCustomMetric2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotCustomMetric(ctx context.Context, sel ast.SelectionSet, v model.SnapshotCustomMetric) graphql.Marshaler {
+	return ec._SnapshotCustomMetric(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSnapshot_CustomMetric2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotCustomMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []model.SnapshotCustomMetric) graphql.Marshaler {
+func (ec *executionContext) marshalNSnapshotCustomMetric2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotCustomMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []model.SnapshotCustomMetric) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6039,7 +6046,7 @@ func (ec *executionContext) marshalNSnapshot_CustomMetric2ᚕtenkhoursᚋservice
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNSnapshot_CustomMetric2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotCustomMetric(ctx, sel, v[i])
+			ret[i] = ec.marshalNSnapshotCustomMetric2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotCustomMetric(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6059,11 +6066,11 @@ func (ec *executionContext) marshalNSnapshot_CustomMetric2ᚕtenkhoursᚋservice
 	return ret
 }
 
-func (ec *executionContext) marshalNSnapshot_MetricProperty2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotMetricProperty(ctx context.Context, sel ast.SelectionSet, v model.SnapshotMetricProperty) graphql.Marshaler {
-	return ec._Snapshot_MetricProperty(ctx, sel, &v)
+func (ec *executionContext) marshalNSnapshotMetricProperty2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotMetricProperty(ctx context.Context, sel ast.SelectionSet, v model.SnapshotMetricProperty) graphql.Marshaler {
+	return ec._SnapshotMetricProperty(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSnapshot_MetricProperty2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotMetricPropertyᚄ(ctx context.Context, sel ast.SelectionSet, v []model.SnapshotMetricProperty) graphql.Marshaler {
+func (ec *executionContext) marshalNSnapshotMetricProperty2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotMetricPropertyᚄ(ctx context.Context, sel ast.SelectionSet, v []model.SnapshotMetricProperty) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6087,7 +6094,7 @@ func (ec *executionContext) marshalNSnapshot_MetricProperty2ᚕtenkhoursᚋservi
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNSnapshot_MetricProperty2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotMetricProperty(ctx, sel, v[i])
+			ret[i] = ec.marshalNSnapshotMetricProperty2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotMetricProperty(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6107,8 +6114,8 @@ func (ec *executionContext) marshalNSnapshot_MetricProperty2ᚕtenkhoursᚋservi
 	return ret
 }
 
-func (ec *executionContext) marshalNSnapshot_MetricStyle2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotMetricStyle(ctx context.Context, sel ast.SelectionSet, v model.SnapshotMetricStyle) graphql.Marshaler {
-	return ec._Snapshot_MetricStyle(ctx, sel, &v)
+func (ec *executionContext) marshalNSnapshotMetricStyle2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐSnapshotMetricStyle(ctx context.Context, sel ast.SelectionSet, v model.SnapshotMetricStyle) graphql.Marshaler {
+	return ec._SnapshotMetricStyle(ctx, sel, &v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -6614,7 +6621,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalOCapturedRecord_CustomMetric2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordCustomMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []model.CapturedRecordCustomMetric) graphql.Marshaler {
+func (ec *executionContext) marshalOCapturedRecordCustomMetric2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordCustomMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []model.CapturedRecordCustomMetric) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -6641,7 +6648,7 @@ func (ec *executionContext) marshalOCapturedRecord_CustomMetric2ᚕtenkhoursᚋs
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCapturedRecord_CustomMetric2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordCustomMetric(ctx, sel, v[i])
+			ret[i] = ec.marshalNCapturedRecordCustomMetric2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordCustomMetric(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6661,7 +6668,7 @@ func (ec *executionContext) marshalOCapturedRecord_CustomMetric2ᚕtenkhoursᚋs
 	return ret
 }
 
-func (ec *executionContext) marshalOCapturedRecord_TimeTracking2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordTimeTrackingᚄ(ctx context.Context, sel ast.SelectionSet, v []model.CapturedRecordTimeTracking) graphql.Marshaler {
+func (ec *executionContext) marshalOCapturedRecordTimeTracking2ᚕtenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordTimeTrackingᚄ(ctx context.Context, sel ast.SelectionSet, v []model.CapturedRecordTimeTracking) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -6688,7 +6695,7 @@ func (ec *executionContext) marshalOCapturedRecord_TimeTracking2ᚕtenkhoursᚋs
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCapturedRecord_TimeTracking2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordTimeTracking(ctx, sel, v[i])
+			ret[i] = ec.marshalNCapturedRecordTimeTracking2tenkhoursᚋservicesᚋanalyticsᚋgraphᚋmodelᚐCapturedRecordTimeTracking(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6746,22 +6753,6 @@ func (ec *executionContext) marshalOMonth2ᚖtenkhoursᚋservicesᚋanalyticsᚋ
 		return graphql.Null
 	}
 	return v
-}
-
-func (ec *executionContext) unmarshalONullableString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql1.UnmarshalNullableString(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalONullableString2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql1.MarshalNullableString(*v)
-	return res
 }
 
 func (ec *executionContext) unmarshalOObjectID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, v interface{}) (*primitive.ObjectID, error) {

@@ -10,4 +10,5 @@ import "tenkhours/services/core/business"
 type Resolver struct {
 	*business.ProfilesBusiness
 	*business.CharactersBusiness
+	*business.GoalsBusiness
 }

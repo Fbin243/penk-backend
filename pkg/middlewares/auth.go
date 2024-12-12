@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/repo"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -69,18 +69,18 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 			if err == mongo.ErrNoDocuments {
 				// profile not found, mean the new account
 				newProfile := repo.Profile{
-					ID:                 primitive.NewObjectID(),
-					Name:               firebaseProfile.Name,
-					Email:              firebaseProfile.Email,
-					FirebaseUID:        firebaseProfile.UID,
-					ImageURL:           firebaseProfile.Picture,
-					CreatedAt:          utils.Now(),
-					AutoSnapshot:       true,
-					AvailableSnapshots: utils.DefaultSnapshotsNumber,
+					BaseModel:              &db.BaseModel{},
+					Name:                   firebaseProfile.Name,
+					Email:                  firebaseProfile.Email,
+					FirebaseUID:            firebaseProfile.UID,
+					ImageURL:               firebaseProfile.Picture,
+					AutoSnapshot:           true,
+					AvailableSnapshots:     utils.DefaultSnapshotsNumber,
+					LimitedCharacterNumber: utils.LimitedCharacterNumber,
 				}
 
 				// Create new profile for the new user in DB
-				profile, err = m.profilesRepo.CreateNewProfile(&newProfile)
+				profile, err = m.profilesRepo.InsertOne(&newProfile)
 				if err != nil {
 					c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to create new profile"})
 					return
