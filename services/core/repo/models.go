@@ -9,14 +9,15 @@ import (
 )
 
 type Profile struct {
-	*db.BaseModel      `bson:",inline"`
-	Name               string             `json:"name,omitempty" bson:"name"`
-	Email              string             `json:"email,omitempty" bson:"email"`
-	FirebaseUID        string             `json:"firebaseUID,omitempty" bson:"firebase_uid"`
-	ImageURL           string             `json:"imageURL,omitempty" bson:"image_url"`
-	CurrentCharacterID primitive.ObjectID `json:"currentCharacterID,omitempty" bson:"current_character_id"`
-	AvailableSnapshots int32              `json:"availableSnapshots,omitempty" bson:"available_snapshots"`
-	AutoSnapshot       bool               `json:"autoSnapshot,omitempty" bson:"auto_snapshot"`
+	*db.BaseModel          `bson:",inline"`
+	Name                   string             `json:"name,omitempty" bson:"name"`
+	Email                  string             `json:"email,omitempty" bson:"email"`
+	FirebaseUID            string             `json:"firebaseUID,omitempty" bson:"firebase_uid"`
+	ImageURL               string             `json:"imageURL,omitempty" bson:"image_url"`
+	CurrentCharacterID     primitive.ObjectID `json:"currentCharacterID,omitempty" bson:"current_character_id"`
+	AvailableSnapshots     int32              `json:"availableSnapshots,omitempty" bson:"available_snapshots"`
+	AutoSnapshot           bool               `json:"autoSnapshot,omitempty" bson:"auto_snapshot"`
+	LimitedCharacterNumber int32              `json:"limitedCharacterNumber,omitempty" bson:"limited_character_number"`
 }
 
 type Character struct {

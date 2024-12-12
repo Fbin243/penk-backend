@@ -13,6 +13,7 @@ type Profile {
   characters: [Character!]!
   availableSnapshots: Int!
   autoSnapshot: Boolean!
+  limitedCharacterNumber: Int!
 }
 
 """

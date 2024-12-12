@@ -11,6 +11,7 @@ import (
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -18,6 +19,11 @@ type CharactersBusiness struct {
 	CharactersRepo *repo.CharactersRepo
 	ProfilesRepo   *repo.ProfilesRepo
 	GoalsRepo      *repo.GoalsRepo
+}
+
+type GoalsTodo struct {
+	removeMetric bool
+	checkFinish  bool
 }
 
 func NewCharactersBusiness(charactersRepo *repo.CharactersRepo, profilesRepo *repo.ProfilesRepo, goalsRepo *repo.GoalsRepo) *CharactersBusiness {
@@ -68,7 +74,7 @@ func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.
 			return nil, err
 		}
 
-		if charactersCount >= 2 {
+		if charactersCount >= int64(profile.LimitedCharacterNumber) {
 			return nil, errors.ErrorCharacterLimitReached
 		}
 
@@ -130,7 +136,19 @@ func (biz *CharactersBusiness) upsertMetricInCharacter(character *repo.Character
 
 	metrics := make([]repo.CustomMetric, 0)
 
+	// Get all unfinished, unexpired goals of a character
+	goals, err := biz.GoalsRepo.GetGoalsByCharacterID(character.ID, &repo.GoalStatusFilter{FinishStatus: lo.ToPtr(repo.GoalFinishStatusUnfinished), ExpireStatus: lo.ToPtr(repo.GoalExpireStatusUnexpired)})
+	if err != nil {
+		return fmt.Errorf("failed to get goals: %v", err)
+	}
+
+	goalsTodo := GoalsTodo{
+		removeMetric: false,
+		checkFinish:  false,
+	}
+
 	for _, metricInput := range metricInputs {
+		goalsTodo.removeMetric = false
 		if metricInput.ID == nil {
 			// Insert new metric
 			metric := repo.CustomMetric{
@@ -152,7 +170,7 @@ func (biz *CharactersBusiness) upsertMetricInCharacter(character *repo.Character
 			}
 
 			if metricInput.Properties != nil {
-				err := biz.upsertPropertyInMetric(&metric, metricInput.Properties)
+				_, err := biz.upsertPropertyInMetric(&metric, metricInput.Properties)
 				if err != nil {
 					return err
 				}
@@ -165,28 +183,58 @@ func (biz *CharactersBusiness) upsertMetricInCharacter(character *repo.Character
 				return errors.ErrorPermissionDenied
 			}
 
-			metric := metricsMap[*metricInput.ID]
-			metric.Name = metricInput.Name
+			existingMetric := metricsMap[*metricInput.ID]
+			if existingMetric.Name != metricInput.Name {
+				goalsTodo.removeMetric = true
+			}
+			existingMetric.Name = metricInput.Name
 
 			if metricInput.Description != nil {
-				metric.Description = *metricInput.Description
+				goalsTodo.removeMetric = true
+				existingMetric.Description = *metricInput.Description
 			}
 
 			if metricInput.Style != nil {
-				metric.Style = repo.MetricStyle{
+				goalsTodo.removeMetric = true
+				existingMetric.Style = repo.MetricStyle{
 					Color: metricInput.Style.Color,
 					Icon:  metricInput.Style.Icon,
 				}
 			}
 
 			if metricInput.Properties != nil {
-				err := biz.upsertPropertyInMetric(&metric, metricInput.Properties)
+				propertyGoalsTodo, err := biz.upsertPropertyInMetric(&existingMetric, metricInput.Properties)
 				if err != nil {
 					return err
 				}
+
+				goalsTodo.removeMetric = goalsTodo.removeMetric || propertyGoalsTodo.removeMetric
+				goalsTodo.checkFinish = goalsTodo.checkFinish || propertyGoalsTodo.checkFinish
 			}
 
-			metrics = append(metrics, metric)
+			if goalsTodo.removeMetric {
+				// Filter goals that include the metric to be updated
+				updateGoals := lo.Filter(goals, func(goal repo.Goal, _ int) bool {
+					for _, metric := range goal.Target {
+						if metric.ID == existingMetric.ID {
+							return true
+						}
+					}
+
+					return false
+				})
+
+				updateGoalsIDs := lo.Map(updateGoals, func(goal repo.Goal, _ int) primitive.ObjectID {
+					return goal.ID
+				})
+
+				err = biz.GoalsRepo.RemoveOneMetricFromGoals(existingMetric.ID, updateGoalsIDs)
+				if err != nil {
+					return fmt.Errorf("failed to remove metric from goals: %v", err)
+				}
+			}
+
+			metrics = append(metrics, existingMetric)
 		}
 	}
 
@@ -195,7 +243,7 @@ func (biz *CharactersBusiness) upsertMetricInCharacter(character *repo.Character
 	return nil
 }
 
-func (biz *CharactersBusiness) upsertPropertyInMetric(metric *repo.CustomMetric, propertyInputs []model.MetricPropertyInput) error {
+func (biz *CharactersBusiness) upsertPropertyInMetric(metric *repo.CustomMetric, propertyInputs []model.MetricPropertyInput) (*GoalsTodo, error) {
 	// Convert metric properties to map
 	propertiesMap := make(map[primitive.ObjectID]repo.MetricProperty)
 	for _, property := range metric.Properties {
@@ -203,6 +251,10 @@ func (biz *CharactersBusiness) upsertPropertyInMetric(metric *repo.CustomMetric,
 	}
 
 	properties := make([]repo.MetricProperty, 0)
+	goalsTodo := &GoalsTodo{
+		removeMetric: false,
+		checkFinish:  false,
+	}
 
 	for _, propertyInput := range propertyInputs {
 		if propertyInput.ID == nil {
@@ -219,14 +271,25 @@ func (biz *CharactersBusiness) upsertPropertyInMetric(metric *repo.CustomMetric,
 		} else {
 			// Update existing property
 			if _, ok := propertiesMap[*propertyInput.ID]; !ok {
-				return errors.ErrorPermissionDenied
+				return nil, errors.ErrorPermissionDenied
 			}
 
 			property := propertiesMap[*propertyInput.ID]
+			if property.Name != propertyInput.Name ||
+				property.Type != propertyInput.Type ||
+				property.Unit != propertyInput.Unit {
+				goalsTodo.removeMetric = true
+			}
 			property.Name = propertyInput.Name
 			property.Type = propertyInput.Type
-			property.Value = propertyInput.Value
 			property.Unit = propertyInput.Unit
+
+			// Check if the value is changed, to check finish of the goal
+			if property.Value != propertyInput.Value {
+				goalsTodo.checkFinish = true
+			}
+
+			property.Value = propertyInput.Value
 
 			properties = append(properties, property)
 		}
@@ -234,7 +297,11 @@ func (biz *CharactersBusiness) upsertPropertyInMetric(metric *repo.CustomMetric,
 
 	metric.Properties = properties
 
-	return nil
+	return goalsTodo, nil
+}
+
+func (biz *CharactersBusiness) checkGoalsFinished() {
+
 }
 
 func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {

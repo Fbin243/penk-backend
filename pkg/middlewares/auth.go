@@ -69,13 +69,14 @@ func (m *Middleware) CheckAuth(c *gin.Context) {
 			if err == mongo.ErrNoDocuments {
 				// profile not found, mean the new account
 				newProfile := repo.Profile{
-					BaseModel:          &db.BaseModel{},
-					Name:               firebaseProfile.Name,
-					Email:              firebaseProfile.Email,
-					FirebaseUID:        firebaseProfile.UID,
-					ImageURL:           firebaseProfile.Picture,
-					AutoSnapshot:       true,
-					AvailableSnapshots: utils.DefaultSnapshotsNumber,
+					BaseModel:              &db.BaseModel{},
+					Name:                   firebaseProfile.Name,
+					Email:                  firebaseProfile.Email,
+					FirebaseUID:            firebaseProfile.UID,
+					ImageURL:               firebaseProfile.Picture,
+					AutoSnapshot:           true,
+					AvailableSnapshots:     utils.DefaultSnapshotsNumber,
+					LimitedCharacterNumber: utils.LimitedCharacterNumber,
 				}
 
 				// Create new profile for the new user in DB

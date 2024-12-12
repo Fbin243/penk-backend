@@ -128,17 +128,18 @@ type ComplexityRoot struct {
 	}
 
 	Profile struct {
-		AutoSnapshot       func(childComplexity int) int
-		AvailableSnapshots func(childComplexity int) int
-		Characters         func(childComplexity int) int
-		CreatedAt          func(childComplexity int) int
-		CurrentCharacterID func(childComplexity int) int
-		Email              func(childComplexity int) int
-		FirebaseUID        func(childComplexity int) int
-		ID                 func(childComplexity int) int
-		ImageURL           func(childComplexity int) int
-		Name               func(childComplexity int) int
-		UpdatedAt          func(childComplexity int) int
+		AutoSnapshot           func(childComplexity int) int
+		AvailableSnapshots     func(childComplexity int) int
+		Characters             func(childComplexity int) int
+		CreatedAt              func(childComplexity int) int
+		CurrentCharacterID     func(childComplexity int) int
+		Email                  func(childComplexity int) int
+		FirebaseUID            func(childComplexity int) int
+		ID                     func(childComplexity int) int
+		ImageURL               func(childComplexity int) int
+		LimitedCharacterNumber func(childComplexity int) int
+		Name                   func(childComplexity int) int
+		UpdatedAt              func(childComplexity int) int
 	}
 
 	Query struct {
@@ -703,6 +704,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Profile.ImageURL(childComplexity), true
+
+	case "Profile.limitedCharacterNumber":
+		if e.complexity.Profile.LimitedCharacterNumber == nil {
+			break
+		}
+
+		return e.complexity.Profile.LimitedCharacterNumber(childComplexity), true
 
 	case "Profile.name":
 		if e.complexity.Profile.Name == nil {
@@ -3144,6 +3152,8 @@ func (ec *executionContext) fieldContext_Mutation_updateProfile(ctx context.Cont
 				return ec.fieldContext_Profile_availableSnapshots(ctx, field)
 			case "autoSnapshot":
 				return ec.fieldContext_Profile_autoSnapshot(ctx, field)
+			case "limitedCharacterNumber":
+				return ec.fieldContext_Profile_limitedCharacterNumber(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Profile", field.Name)
 		},
@@ -3223,6 +3233,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteProfile(_ context.Contex
 				return ec.fieldContext_Profile_availableSnapshots(ctx, field)
 			case "autoSnapshot":
 				return ec.fieldContext_Profile_autoSnapshot(ctx, field)
+			case "limitedCharacterNumber":
+				return ec.fieldContext_Profile_limitedCharacterNumber(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Profile", field.Name)
 		},
@@ -4680,6 +4692,50 @@ func (ec *executionContext) fieldContext_Profile_autoSnapshot(_ context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Profile_limitedCharacterNumber(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Profile_limitedCharacterNumber(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LimitedCharacterNumber, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Profile_limitedCharacterNumber(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Profile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_characters(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_characters(ctx, field)
 	if err != nil {
@@ -4807,6 +4863,8 @@ func (ec *executionContext) fieldContext_Query_profile(_ context.Context, field 
 				return ec.fieldContext_Profile_availableSnapshots(ctx, field)
 			case "autoSnapshot":
 				return ec.fieldContext_Profile_autoSnapshot(ctx, field)
+			case "limitedCharacterNumber":
+				return ec.fieldContext_Profile_limitedCharacterNumber(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Profile", field.Name)
 		},
@@ -7972,6 +8030,11 @@ func (ec *executionContext) _Profile(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "autoSnapshot":
 			out.Values[i] = ec._Profile_autoSnapshot(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "limitedCharacterNumber":
+			out.Values[i] = ec._Profile_limitedCharacterNumber(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
