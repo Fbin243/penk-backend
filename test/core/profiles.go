@@ -10,63 +10,54 @@ import (
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
 )
 
-type GetProfileStage struct {
+type UpsertProfileStage struct {
 	common.Metadata
-	CreateNewProfile bool
+	common.Case
 }
 
-func (s GetProfileStage) Exec(ctx *context.Context) error {
+func (s UpsertProfileStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
-	assertion := common.AssertionSuccess
+	assertion := jsonpath.Chain().NotPresent("$.errors")
+	query := ProfileQuery
+	variables := map[string]interface{}{}
 
-	if s.CreateNewProfile {
-		assertion = jsonpath.Chain().NotPresent("$.errors").
+	switch s.Case {
+	case common.GetProfile:
+		assertion = assertion.
 			NotEqual("$.data.profile.id", nil).
 			NotEqual("$.data.profile.firebaseUID", nil).
 			Equal("$.data.profile.availableSnapshots", float64(utils.DefaultSnapshotsNumber)).
 			Equal("$.data.profile.autoSnapshot", true).
 			Equal("$.data.profile.characters", []interface{}{}).
-			Equal("$.data.profile.currentCharacterID", nil)
+			Equal("$.data.profile.currentCharacterID", nil).
+			Equal("$.data.profile.limitedCharacterNumber", float64(utils.LimitedCharacterNumber))
+
+	case common.UpdateProfile:
+		profileInput := map[string]interface{}{
+			"name":               "Profile name",
+			"imageURL":           "https://image.com",
+			"currentCharacterID": "675d4ce886be5c6dd755542f",
+			"autoSnapshot":       false,
+		}
+
+		variables["input"] = profileInput
+		query = UpdateProfileQuery
+		assertion = assertion.
+			NotEqual("$.data.updateProfile.id", nil).
+			Equal("$.data.updateProfile.name", profileInput["name"]).
+			Equal("$.data.updateProfile.imageURL", profileInput["imageURL"]).
+			Equal("$.data.updateProfile.currentCharacterID", profileInput["currentCharacterID"]).
+			Equal("$.data.updateProfile.autoSnapshot", profileInput["autoSnapshot"])
 	}
 
 	if s.ExpectError {
-		assertion = common.AssertionError
+		assertion = jsonpath.Chain().Present("$.errors")
 	}
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Query:     ProfileQuery,
-			Assertion: assertion.End(),
-		})
-}
-
-type UpdateProfileStage struct {
-	common.Metadata
-}
-
-func (s UpdateProfileStage) Exec(ctx *context.Context) error {
-	log.Println("--> Stage: ", s.Describe)
-	variables := map[string]interface{}{
-		"name":               "Update name",
-		"imageURL":           "update.png",
-		"currentCharacterID": "669a2bbc53e6629a2931e1be",
-		"autoSnapshot":       false,
-	}
-
-	assertion := jsonpath.Chain().NotPresent("$.errors").
-		Equal("$.data.updateProfile.name", variables["name"]).
-		Equal("$.data.updateProfile.imageURL", variables["imageURL"]).
-		Equal("$.data.updateProfile.currentCharacterID", variables["currentCharacterID"]).
-		Equal("$.data.updateProfile.autoSnapshot", variables["autoSnapshot"])
-
-	if s.ExpectError {
-		assertion = common.AssertionError
-	}
-
-	return common.QueryGraphQL(ctx,
-		&common.QueryParams{
-			Query:     UpdateProfileQuery,
+			Query:     query,
 			Variables: variables,
-			Assertion: assertion.End(),
+			Assertion: []common.Assertion{assertion.End()},
 		})
 }

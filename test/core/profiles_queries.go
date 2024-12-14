@@ -3,6 +3,7 @@ package core
 var ProfileQuery = `query { 
 	profile {
         autoSnapshot
+        limitedCharacterNumber
         availableSnapshots
         createdAt
         currentCharacterID
@@ -42,15 +43,8 @@ var ProfileQuery = `query {
     }
 }`
 
-var UpdateProfileQuery = `mutation UpdateProfile($name: String!, $imageURL: String!, $currentCharacterID: ObjectID, $autoSnapshot: Boolean) {
-	updateProfile(
-		input: {
-			name: $name
-			imageURL: $imageURL
-			currentCharacterID: $currentCharacterID
-			autoSnapshot: $autoSnapshot
-		}
-	) {
+var UpdateProfileQuery = `mutation UpdateProfile($input: ProfileInput!) {
+	updateProfile(input: $input) {
 		autoSnapshot
 		availableSnapshots
 		createdAt

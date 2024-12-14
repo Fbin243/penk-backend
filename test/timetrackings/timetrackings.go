@@ -13,9 +13,8 @@ import (
 
 type CreateTimeTrackingStage struct {
 	common.Metadata
-	CharacterKey    common.ContextKey
-	CustomMetricKey common.ContextKey
-	TrackWithMetric bool
+	common.Case
+	CharacterKey common.ContextKey
 }
 
 func (s CreateTimeTrackingStage) Exec(ctx *context.Context) error {
@@ -30,41 +29,38 @@ func (s CreateTimeTrackingStage) Exec(ctx *context.Context) error {
 		"startTime":   time.Now().Format(time.RFC3339Nano),
 	}
 
-	assertion := jsonpath.Chain().
+	assertion := jsonpath.Chain().NotPresent("$.errors").
 		NotEqual("$.data.createTimeTracking.id", nil).
 		NotEqual("$.data.createTimeTracking.characterID", nil).
 		NotEqual("$.data.createTimeTracking.startTime", nil).
 		Equal("$.data.createTimeTracking.endTime", nil)
 
-	if s.TrackWithMetric {
-		customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
-		if !ok {
-			return common.ErrNotFoundInContext("CustomMetricKey")
-		}
+	switch s.Case {
+	case common.TimeTrackingWithoutMetric:
+		assertion = assertion.Equal("$.data.createTimeTracking.customMetricID", nil)
 
-		variables["customMetricID"] = gjson.Get(customMetric, "id").Value()
-		assertion = assertion.Equal("$.data.createTimeTracking.customMetricID", variables["customMetricID"])
-	} else {
-		assertion = assertion.NotPresent("$.data.createTimeTracking.customMetricID")
+	case common.TimeTrackingWithMetric:
+		// Track with the first metric
+		assertion = assertion.Equal("$.data.createTimeTracking.customMetricID", gjson.Get(character, "customMetrics.0.id").Value())
 	}
 
 	if s.ExpectError {
-		assertion = common.AssertionError
+		assertion = jsonpath.Chain().Present("$.errors")
 	}
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
 			Query:     CreateTimeTrackingQuery,
 			Variables: variables,
-			Assertion: assertion.End(),
+			Assertion: []common.Assertion{assertion.End()},
 		})
 }
 
 type UpdateTimeTracking struct {
 	common.Metadata
+	common.Case
+	CharacterKey    common.ContextKey
 	TimeTrackingKey common.ContextKey
-	CustomMetricKey common.ContextKey
-	TrackWithMetric bool
 }
 
 func (s UpdateTimeTracking) Exec(ctx *context.Context) error {
@@ -74,36 +70,33 @@ func (s UpdateTimeTracking) Exec(ctx *context.Context) error {
 		return common.ErrNotFoundInContext("TimeTrackingKey")
 	}
 
-	variables := map[string]interface{}{
-		"id": gjson.Get(timeTracking, "id").Value(),
+	character, ok := (*ctx).Value(s.CharacterKey).(string)
+	if !ok {
+		return common.ErrNotFoundInContext("CharacterKey")
 	}
 
 	assertion := jsonpath.Chain().
-		NotEqual("$.data.updateTimeTracking.id", nil).
+		NotPresent("$.errors").
+		Equal("$.data.updateTimeTracking.id", gjson.Get(timeTracking, "id").Value()).
 		NotEqual("$.data.updateTimeTracking.characterID", nil).
 		NotEqual("$.data.updateTimeTracking.startTime", nil).
 		NotEqual("$.data.updateTimeTracking.endTime", nil)
 
-	if s.TrackWithMetric {
-		customMetric, ok := (*ctx).Value(s.CustomMetricKey).(string)
-		if !ok {
-			return common.ErrNotFoundInContext("CustomMetricKey")
-		}
-
-		variables["customMetricID"] = gjson.Get(customMetric, "id").Value()
-		assertion = assertion.Equal("$.data.updateTimeTracking.customMetricID", variables["customMetricID"])
-	} else {
-		assertion = assertion.NotPresent("$.data.updateTimeTracking.customMetricID")
+	switch s.Case {
+	case common.TimeTrackingWithoutMetric:
+		assertion = assertion.Equal("$.data.updateTimeTracking.customMetricID", nil)
+	case common.TimeTrackingWithMetric:
+		// Track with the first metric
+		assertion = assertion.Equal("$.data.createTimeTracking.customMetricID", gjson.Get(character, "customMetrics.0.id").Value())
 	}
 
 	if s.ExpectError {
-		assertion = common.AssertionError
+		assertion = jsonpath.Chain().Present("$.errors")
 	}
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
 			Query:     UpdateTimeTrackingQuery,
-			Variables: variables,
-			Assertion: assertion.End(),
+			Assertion: []common.Assertion{assertion.End()},
 		})
 }

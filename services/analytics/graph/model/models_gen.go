@@ -80,12 +80,12 @@ type SnapshotMetricProperty struct {
 	Name  string                  `json:"name"`
 	Type  repo.MetricPropertyType `json:"type"`
 	Value string                  `json:"value"`
-	Unit  *string                 `json:"unit,omitempty"`
+	Unit  string                  `json:"unit"`
 }
 
 type SnapshotMetricStyle struct {
-	Color *string `json:"color,omitempty"`
-	Icon  *string `json:"icon,omitempty"`
+	Color string `json:"color"`
+	Icon  string `json:"icon"`
 }
 
 type AnalyticSection string

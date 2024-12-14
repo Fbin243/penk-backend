@@ -31,8 +31,8 @@ type SnapshotCustomMetric {
 }
 
 type SnapshotMetricStyle {
-  color: String
-  icon: String
+  color: String!
+  icon: String!
 }
 
 type SnapshotMetricProperty {
@@ -40,7 +40,7 @@ type SnapshotMetricProperty {
   name: String!
   type: MetricPropertyType!
   value: String!
-  unit: String
+  unit: String!
 }
 
 enum MetricPropertyType {
