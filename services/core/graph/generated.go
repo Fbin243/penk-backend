@@ -7086,7 +7086,7 @@ func (ec *executionContext) unmarshalInputCustomMetricInput(ctx context.Context,
 			it.Description = data
 		case "style":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("style"))
-			data, err := ec.unmarshalOMetricStyleInput2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricStyleInput(ctx, v)
+			data, err := ec.unmarshalNMetricStyleInput2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricStyleInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8955,6 +8955,11 @@ func (ec *executionContext) marshalNMetricStyle2tenkhoursᚋservicesᚋcoreᚋre
 	return ec._MetricStyle(ctx, sel, &v)
 }
 
+func (ec *executionContext) unmarshalNMetricStyleInput2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricStyleInput(ctx context.Context, v interface{}) (*model.MetricStyleInput, error) {
+	res, err := ec.unmarshalInputMetricStyleInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, v interface{}) (primitive.ObjectID, error) {
 	res, err := graphql1.UnmarshalObjectID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -9659,14 +9664,6 @@ func (ec *executionContext) unmarshalOMetricPropertyInput2ᚕtenkhoursᚋservice
 		}
 	}
 	return res, nil
-}
-
-func (ec *executionContext) unmarshalOMetricStyleInput2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricStyleInput(ctx context.Context, v interface{}) (*model.MetricStyleInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputMetricStyleInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, v interface{}) (primitive.ObjectID, error) {

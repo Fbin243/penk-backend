@@ -39,7 +39,7 @@ type CustomMetricInput struct {
 	// Description of the custom metric.
 	Description *string `json:"description,omitempty" validate:"omitempty,max=255"`
 	// Visual style of the metric displayed on screen.
-	Style *MetricStyleInput `json:"style,omitempty"`
+	Style *MetricStyleInput `json:"style"`
 	// List of properties that describe the metric.
 	Properties []MetricPropertyInput `json:"properties,omitempty" validate:"dive"`
 }
@@ -72,9 +72,9 @@ type MetricPropertyInput struct {
 	// Data type of the property (String or Number).
 	Type repo.MetricPropertyType `json:"type"`
 	// Specific value of the property based on its data type.
-	Value string `json:"value"`
+	Value string `json:"value" validate:"omitempty,max=50"`
 	// Unit of the property value (e.g., seconds, meters, etc.).
-	Unit string `json:"unit" validate:"min=1,max=50"`
+	Unit string `json:"unit" validate:"omitempty,max=50"`
 }
 
 // Input for specifying the visual style of a metric.

@@ -76,7 +76,7 @@ type GoalFinishStatus string
 type GoalExpireStatus string
 
 const (
-	GoalFinishStatusFinished   GoalFinishStatus = "Unfinnished"
+	GoalFinishStatusFinished   GoalFinishStatus = "Unfinished"
 	GoalFinishStatusUnfinished GoalFinishStatus = "Finished"
 	GoalExpireStatusExpired    GoalExpireStatus = "Expired"
 	GoalExpireStatusUnexpired  GoalExpireStatus = "Unexpired"
