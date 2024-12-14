@@ -433,3 +433,26 @@ func (biz *CharactersBusiness) checkGoalsFinished(goals []repo.Goal, newMetrics 
 
 	return nil
 }
+
+func (biz *CharactersBusiness) DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
+	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	if !ok {
+		return nil, errors.ErrorUnauthorized
+	}
+
+	character, err := biz.CharactersRepo.FindByID(id)
+	if err != nil {
+		return nil, fmt.Errorf("character not found: %v", err)
+	}
+
+	if character.ProfileID != profile.ID {
+		return nil, errors.ErrorPermissionDenied
+	}
+
+	deletedCharacter, err := biz.CharactersRepo.DeleteCharacter(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete character: %v", err)
+	}
+
+	return deletedCharacter, nil
+}
