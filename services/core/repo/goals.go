@@ -51,13 +51,35 @@ func (r *GoalsRepo) GetGoalsByCharacterID(characterID primitive.ObjectID, status
 	return goals, err
 }
 
-func (r *GoalsRepo) RemoveOneMetricFromGoals(metricID primitive.ObjectID, goalIDs []primitive.ObjectID) error {
+func (r *GoalsRepo) UpdateOneMetricInGoals(metric CustomMetric, goalIDs []primitive.ObjectID) (*mongo.UpdateResult, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := r.UpdateMany(ctx,
-		bson.M{"_id": bson.M{"$in": goalIDs}},
-		bson.M{"$pull": bson.M{"target": bson.M{"_id": metricID}}})
+	filter := bson.M{"_id": bson.M{"$in": goalIDs}, "target": bson.M{"$elemMatch": bson.M{"_id": metric.ID}}}
+	update := bson.M{"$set": bson.M{
+		"target.$.name":        metric.Name,
+		"target.$.description": metric.Description,
+		"target.$.style":       metric.Style},
+	}
 
-	return err
+	return r.UpdateMany(ctx, filter, update)
+}
+
+func (r *GoalsRepo) RemoveOnePropertyFromGoals(metricID primitive.ObjectID, propertyID primitive.ObjectID, goalIDs []primitive.ObjectID) (*mongo.UpdateResult, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	filter := bson.M{"_id": bson.M{"$in": goalIDs}, "target": bson.M{"$elemMatch": bson.M{"_id": metricID}}}
+	update := bson.M{"$pull": bson.M{"target.$.properties": bson.M{"_id": propertyID}}}
+
+	return r.UpdateMany(ctx, filter, update)
+}
+
+func (r *GoalsRepo) UpdateStatusOfGoals(goalIDs []primitive.ObjectID, status GoalFinishStatus) (*mongo.UpdateResult, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"_id": bson.M{"$in": goalIDs}}
+	update := bson.M{"$set": bson.M{"status": status}}
+
+	return r.UpdateMany(ctx, filter, update)
 }
