@@ -39,89 +39,9 @@ func (r *mutationResolver) UpsertCharacter(ctx context.Context, input model.Char
 	return r.CharactersBusiness.UpsertCharacter(ctx, input)
 }
 
-// CreateCharacter is the resolver for the createCharacter field.
-func (r *mutationResolver) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
-	// Validate the input
-	if err := validations.ValidateCharacterInput(input); err != nil {
-		return nil, err
-	}
-
-	return r.CharactersBusiness.CreateCharacter(ctx, input)
-}
-
-// UpdateCharacter is the resolver for the updateCharacter field.
-func (r *mutationResolver) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error) {
-	// Validate the input
-	if err := validations.ValidateCharacterInput(input); err != nil {
-		return nil, err
-	}
-
-	return r.CharactersBusiness.UpdateCharacter(ctx, id, input)
-}
-
 // DeleteCharacter is the resolver for the deleteCharacter field.
 func (r *mutationResolver) DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
 	return r.CharactersBusiness.DeleteCharacter(ctx, id)
-}
-
-// ResetCharacter is the resolver for the resetCharacter field.
-func (r *mutationResolver) ResetCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
-	return r.CharactersBusiness.ResetCharacter(ctx, id)
-}
-
-// CreateCustomMetric is the resolver for the createCustomMetric field.
-func (r *mutationResolver) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
-	// Validate the input
-	if err := validations.ValidateCustomMetricInput(input); err != nil {
-		return nil, err
-	}
-
-	return r.CharactersBusiness.CreateCustomMetric(ctx, characterID, input)
-}
-
-// UpdateCustomMetric is the resolver for the updateCustomMetric field.
-func (r *mutationResolver) UpdateCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
-	// Validate the input
-	if err := validations.ValidateCustomMetricInput(input); err != nil {
-		return nil, err
-	}
-
-	return r.CharactersBusiness.UpdateCustomMetric(ctx, id, characterID, input)
-}
-
-// ResetCustomMetric is the resolver for the resetCustomMetric field.
-func (r *mutationResolver) ResetCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
-	return r.CharactersBusiness.ResetCustomMetric(ctx, id, characterID)
-}
-
-// DeleteCustomMetric is the resolver for the deleteCustomMetric field.
-func (r *mutationResolver) DeleteCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
-	return r.CharactersBusiness.DeleteCustomMetric(ctx, id, characterID)
-}
-
-// CreateMetricProperty is the resolver for the createMetricProperty field.
-func (r *mutationResolver) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
-	// Validate the input
-	if err := validations.ValidateMetricPropertyInput(input); err != nil {
-		return nil, err
-	}
-
-	return r.CharactersBusiness.CreateMetricProperty(ctx, characterID, metricID, input)
-}
-
-// UpdateMetricProperty is the resolver for the updateMetricProperty field.
-func (r *mutationResolver) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
-	// Validate the input
-	if err := validations.ValidateMetricPropertyInput(input); err != nil {
-		return nil, err
-	}
-
-	return r.CharactersBusiness.UpdateMetricProperty(ctx, id, characterID, metricID, input)
-}
-
-// DeleteMetricProperty is the resolver for the deleteMetricProperty field.
-func (r *mutationResolver) DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*repo.MetricProperty, error) {
-	return r.CharactersBusiness.DeleteMetricProperty(ctx, id, characterID, metricID)
 }
 
 // UpsertGoal is the resolver for the upsertGoal field.
