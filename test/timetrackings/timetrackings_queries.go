@@ -13,13 +13,13 @@ var CreateTimeTrackingQuery = `
 `
 
 var UpdateTimeTrackingQuery = `
-	mutation UpdateTimeTracking ($id: ObjectID!) {
-		updateTimeTracking(id: $id) {
+	mutation UpdateTimeTracking {
+		updateTimeTracking {
+			id
 			characterID
 			customMetricID
-			endTime
-			id
 			startTime
+			endTime
 		}
 	}
 `

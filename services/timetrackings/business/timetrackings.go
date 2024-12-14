@@ -209,7 +209,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	duration := int32(endTime.Sub(timeTracking.StartTime).Seconds())
 	// TODO: TESTING
 	// duration = 599 // Test for the min duration time
-	// duration = 600 // Test for the min duration time
+	duration = 600 // Test for the min duration time
 	// duration = 601 // Test for the min duration time
 	// duration = 14400 // Test for the max duration time
 	// duration = 14401 // Test for the max duration time

@@ -105,13 +105,25 @@ func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.
 			}
 		}
 
-		return biz.CharactersRepo.InsertOne(&character)
+		createdCharacter, err := biz.CharactersRepo.InsertOne(&character)
+		if err != nil {
+			return nil, err
+		}
+
+		// TODO: Character has been created, so set the current character of the user to it
+		profile.CurrentCharacterID = character.ID
+		_, err = biz.ProfilesRepo.UpdateProfile(&profile)
+		if err != nil {
+			return nil, err
+		}
+
+		return createdCharacter, nil
 	}
 
 	// Update existing character
 	character, err := biz.CharactersRepo.FindByID(*input.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find character: %v", err)
+		return nil, err
 	}
 
 	if character.ProfileID != profile.ID {
@@ -146,7 +158,7 @@ func (biz *CharactersBusiness) upsertMetricsInCharacter(character *repo.Characte
 	// Get all unfinished, unexpired goals of a character
 	goals, err := biz.GoalsRepo.GetGoalsByCharacterID(character.ID, &repo.GoalStatusFilter{FinishStatus: lo.ToPtr(repo.GoalFinishStatusUnfinished), ExpireStatus: lo.ToPtr(repo.GoalExpireStatusUnexpired)})
 	if err != nil {
-		return fmt.Errorf("failed to get goals: %v", err)
+		return err
 	}
 
 	goalIDs := lo.Map(goals, func(goal repo.Goal, _ int) primitive.ObjectID {
@@ -471,7 +483,7 @@ func (biz *CharactersBusiness) CreateCharacter(ctx context.Context, input model.
 	profile.CurrentCharacterID = createdCharacter.ID
 	_, err = biz.ProfilesRepo.UpdateProfile(&profile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update user profile: %v", err)
+		return nil, err
 	}
 
 	return createdCharacter, nil
