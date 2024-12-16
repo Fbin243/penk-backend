@@ -62,7 +62,7 @@ func TestUpdateFish(t *testing.T) {
 	fish.Gold = 15
 	fish.Normal = 8
 
-	updatedFish, err := repo.UpdateFish(fish, profileID)
+	updatedFish, err := repo.UpdateFishByProfileID(profileID, fish)
 	assert.Nil(t, err)
 
 	t.Logf("Updated Fish - Gold: %v, Normal: %v", updatedFish.Gold, updatedFish.Normal)

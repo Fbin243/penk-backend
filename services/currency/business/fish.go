@@ -27,7 +27,7 @@ type FishBusiness struct {
 }
 
 type CatchFishResult struct {
-	FishType string `json:"fishType"` // Sửa fishType thành FishType
+	FishType string `json:"fishType"`
 	Number   int32  `json:"number"`
 }
 
@@ -113,13 +113,13 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.Obje
 	count := int32(0)
 
 	// Update fish counts
-	switch selectedFishConfig.Type {
-	case "normal":
+	switch model.FishType(selectedFishConfig.Type) {
+	case model.FishTypeNormal:
 		count = int32(selectedFishConfig.Number)
-	case "gold":
+	case model.FishTypeGold:
 		count = int32(selectedFishConfig.Number)
 	default:
-		return nil, fmt.Errorf("unknown fish type")
+		return nil, fmt.Errorf("unknown fish type: %s", selectedFishConfig.Type)
 	}
 
 	return &CatchFishResult{
@@ -143,7 +143,7 @@ func (biz *FishBusiness) UpdateFishFromFinishSession(fish *repo.Fish, profileID 
 		currentFish.Normal += fish.Normal
 	}
 
-	_, err = biz.FishRepo.UpdateFish(currentFish, profileID)
+	_, err = biz.FishRepo.UpdateFishByProfileID(profileID, currentFish)
 	if err != nil {
 		return false, fmt.Errorf("failed to save updated fish data to DB: %v", err)
 	}
@@ -151,8 +151,7 @@ func (biz *FishBusiness) UpdateFishFromFinishSession(fish *repo.Fish, profileID 
 	return true, nil
 }
 
-//Those functions below are for trading
-
+// Those functions below are for trading
 // Use fish to trade metrics
 func (biz *FishBusiness) UnlockMetrics(ctx context.Context, fishType model.FishType, characterID string) (bool, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
@@ -171,6 +170,9 @@ func (biz *FishBusiness) UnlockMetrics(ctx context.Context, fishType model.FishT
 	}
 
 	exchangeConfigs, err := config.LoadExchangeConfigs(exchangeConfigPath)
+	if err != nil {
+		return false, fmt.Errorf("failed to load exchange config %v", err)
+	}
 
 	cost := 0
 	increase := 0
@@ -220,7 +222,7 @@ func (biz *FishBusiness) UnlockMetrics(ctx context.Context, fishType model.FishT
 		return false, fmt.Errorf("failed to update metrics limited: %v", err)
 	}
 
-	if _, err := biz.FishRepo.UpdateFish(fish, profile.ID); err != nil {
+	if _, err := biz.FishRepo.UpdateFishByProfileID(profile.ID, fish); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
 	}
 
@@ -245,6 +247,9 @@ func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType model.FishTy
 	}
 
 	exchangeConfigs, err := config.LoadExchangeConfigs(exchangeConfigPath)
+	if err != nil {
+		return false, fmt.Errorf("failed to load exchange config %v", err)
+	}
 
 	cost := 0
 	increase := 0
@@ -289,7 +294,7 @@ func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType model.FishTy
 		return false, fmt.Errorf("failed to update available snapshots: %v", err)
 	}
 
-	if _, err := biz.FishRepo.UpdateFish(fish, profile.ID); err != nil {
+	if _, err := biz.FishRepo.UpdateFishByProfileID(profile.ID, fish); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
 	}
 
@@ -314,6 +319,9 @@ func (biz *FishBusiness) UnclockNewCharacters(ctx context.Context, fishType mode
 	}
 
 	exchangeConfigs, err := config.LoadExchangeConfigs(exchangeConfigPath)
+	if err != nil {
+		return false, fmt.Errorf("failed to load exchange config %v", err)
+	}
 
 	cost := 0
 	increase := 0
@@ -359,7 +367,7 @@ func (biz *FishBusiness) UnclockNewCharacters(ctx context.Context, fishType mode
 		return false, fmt.Errorf("failed to update character count: %v", err)
 	}
 
-	if _, err := biz.FishRepo.UpdateFish(fish, profile.ID); err != nil {
+	if _, err := biz.FishRepo.UpdateFishByProfileID(profile.ID, fish); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
 	}
 

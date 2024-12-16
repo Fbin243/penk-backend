@@ -27,14 +27,18 @@ type TimeTrackingsBusiness struct {
 	TimeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo
 	CharactersRepo    *repo.CharactersRepo
 	FishRepo          *fishRepo.FishRepo
+	FishBusiness      *fishBiz.FishBusiness
+	ProfilesRepo      *repo.ProfilesRepo
 	RedisClient       *redis.Client
 }
 
-func NewTimeTrackingsBusiness(timeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo, charactersRepo *repo.CharactersRepo, fishRepo *fishRepo.FishRepo, redisClient *redis.Client) *TimeTrackingsBusiness {
+func NewTimeTrackingsBusiness(timeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo, charactersRepo *repo.CharactersRepo, fishRepo *fishRepo.FishRepo, fishBiz *fishBiz.FishBusiness, profilesRepo *repo.ProfilesRepo, redisClient *redis.Client) *TimeTrackingsBusiness {
 	return &TimeTrackingsBusiness{
 		TimeTrackingsRepo: timeTrackingsRepo,
 		CharactersRepo:    charactersRepo,
 		FishRepo:          fishRepo,
+		FishBusiness:      fishBiz,
+		ProfilesRepo:      profilesRepo,
 		RedisClient:       redisClient,
 	}
 }
@@ -342,18 +346,17 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		return nil, nil, fmt.Errorf("failed to save captured record to redis: %v", err)
 	}
 
-	//calculate the number of catches
+	// Calculate the number of catches
 	fishCatchingInterval := getFishCatchingInterval()
 	numCatches := int(duration) / fishCatchingInterval
 
-	// retrieve fish data from Redis and delete cache
 	updatedFish := &fishRepo.Fish{
 		ProfileID: profile.ID,
 		Gold:      0,
 		Normal:    0,
 	}
 
-	fishBiz := &fishBiz.FishBusiness{FishRepo: biz.FishRepo}
+	fishBiz := fishBiz.NewFishBusiness(biz.FishRepo, biz.CharactersRepo, biz.ProfilesRepo, biz.RedisClient)
 
 	for i := 0; i < numCatches; i++ {
 		catchResult, err := fishBiz.CatchFish(ctx, profile.ID)
