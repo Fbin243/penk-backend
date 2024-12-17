@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"tenkhours/services/timetrackings/graph/model"
 	"tenkhours/services/timetrackings/repo"
 	"time"
 
@@ -18,8 +19,17 @@ func (r *mutationResolver) CreateTimeTracking(ctx context.Context, characterID p
 }
 
 // UpdateTimeTracking is the resolver for the updateTimeTracking field.
-func (r *mutationResolver) UpdateTimeTracking(ctx context.Context) (*repo.TimeTracking, error) {
-	return r.TimeTrackingsBusiness.UpdateTimeTracking(ctx)
+func (r *mutationResolver) UpdateTimeTracking(ctx context.Context) (*model.TimeTrackingWithFish, error) {
+	timeTracking, fishData, err := r.TimeTrackingsBusiness.UpdateTimeTracking(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.TimeTrackingWithFish{
+		TimeTracking: timeTracking,
+		Normal:       int(fishData.Normal),
+		Gold:         int(fishData.Gold),
+	}, nil
 }
 
 // CurrentTimeTracking is the resolver for the currentTimeTracking field.

@@ -11,17 +11,14 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-	graphql1 "tenkhours/pkg/graphql"
-	"tenkhours/services/timetrackings/graph/model"
-	"tenkhours/services/timetrackings/repo"
-	"time"
+	"tenkhours/services/currency/graph/model"
+	"tenkhours/services/currency/repo"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/99designs/gqlgen/plugin/federation/fedruntime"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -44,6 +41,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Fish() FishResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 }
@@ -52,29 +50,28 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	Fish struct {
+		Gold      func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Normal    func(childComplexity int) int
+		ProfileID func(childComplexity int) int
+	}
+
 	Mutation struct {
-		CreateTimeTracking func(childComplexity int, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) int
-		UpdateTimeTracking func(childComplexity int) int
+		BuySnapshots      func(childComplexity int, fishType model.FishType) int
+		OnBoardCharacters func(childComplexity int, fishType model.FishType) int
+		UnlockMetrics     func(childComplexity int, fishType model.FishType, characterID string) int
 	}
 
 	Query struct {
-		CurrentTimeTracking      func(childComplexity int) int
-		TotalCurrentTimeTracking func(childComplexity int, characterID primitive.ObjectID, timestamp time.Time) int
-		__resolve__service       func(childComplexity int) int
+		GetFishByProfileID func(childComplexity int) int
+		__resolve__service func(childComplexity int) int
 	}
 
-	TimeTracking struct {
-		CharacterID    func(childComplexity int) int
-		CustomMetricID func(childComplexity int) int
-		EndTime        func(childComplexity int) int
-		ID             func(childComplexity int) int
-		StartTime      func(childComplexity int) int
-	}
-
-	TimeTrackingWithFish struct {
-		Gold         func(childComplexity int) int
-		Normal       func(childComplexity int) int
-		TimeTracking func(childComplexity int) int
+	Rod struct {
+		ID        func(childComplexity int) int
+		ProfileID func(childComplexity int) int
+		Type      func(childComplexity int) int
 	}
 
 	_Service struct {
@@ -82,13 +79,17 @@ type ComplexityRoot struct {
 	}
 }
 
+type FishResolver interface {
+	ID(ctx context.Context, obj *repo.Fish) (string, error)
+	ProfileID(ctx context.Context, obj *repo.Fish) (string, error)
+}
 type MutationResolver interface {
-	CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, customMetricID *primitive.ObjectID, startTime time.Time) (*repo.TimeTracking, error)
-	UpdateTimeTracking(ctx context.Context) (*model.TimeTrackingWithFish, error)
+	UnlockMetrics(ctx context.Context, fishType model.FishType, characterID string) (bool, error)
+	BuySnapshots(ctx context.Context, fishType model.FishType) (bool, error)
+	OnBoardCharacters(ctx context.Context, fishType model.FishType) (bool, error)
 }
 type QueryResolver interface {
-	CurrentTimeTracking(ctx context.Context) (*repo.TimeTracking, error)
-	TotalCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID, timestamp time.Time) (int, error)
+	GetFishByProfileID(ctx context.Context) (*repo.Fish, error)
 }
 
 type executableSchema struct {
@@ -110,43 +111,76 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Mutation.createTimeTracking":
-		if e.complexity.Mutation.CreateTimeTracking == nil {
+	case "Fish.gold":
+		if e.complexity.Fish.Gold == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createTimeTracking_args(context.TODO(), rawArgs)
+		return e.complexity.Fish.Gold(childComplexity), true
+
+	case "Fish.id":
+		if e.complexity.Fish.ID == nil {
+			break
+		}
+
+		return e.complexity.Fish.ID(childComplexity), true
+
+	case "Fish.normal":
+		if e.complexity.Fish.Normal == nil {
+			break
+		}
+
+		return e.complexity.Fish.Normal(childComplexity), true
+
+	case "Fish.profileID":
+		if e.complexity.Fish.ProfileID == nil {
+			break
+		}
+
+		return e.complexity.Fish.ProfileID(childComplexity), true
+
+	case "Mutation.buySnapshots":
+		if e.complexity.Mutation.BuySnapshots == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_buySnapshots_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateTimeTracking(childComplexity, args["characterID"].(primitive.ObjectID), args["customMetricID"].(*primitive.ObjectID), args["startTime"].(time.Time)), true
+		return e.complexity.Mutation.BuySnapshots(childComplexity, args["fishType"].(model.FishType)), true
 
-	case "Mutation.updateTimeTracking":
-		if e.complexity.Mutation.UpdateTimeTracking == nil {
+	case "Mutation.onBoardCharacters":
+		if e.complexity.Mutation.OnBoardCharacters == nil {
 			break
 		}
 
-		return e.complexity.Mutation.UpdateTimeTracking(childComplexity), true
-
-	case "Query.currentTimeTracking":
-		if e.complexity.Query.CurrentTimeTracking == nil {
-			break
-		}
-
-		return e.complexity.Query.CurrentTimeTracking(childComplexity), true
-
-	case "Query.totalCurrentTimeTracking":
-		if e.complexity.Query.TotalCurrentTimeTracking == nil {
-			break
-		}
-
-		args, err := ec.field_Query_totalCurrentTimeTracking_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_onBoardCharacters_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.TotalCurrentTimeTracking(childComplexity, args["characterID"].(primitive.ObjectID), args["timestamp"].(time.Time)), true
+		return e.complexity.Mutation.OnBoardCharacters(childComplexity, args["fishType"].(model.FishType)), true
+
+	case "Mutation.unlockMetrics":
+		if e.complexity.Mutation.UnlockMetrics == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_unlockMetrics_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UnlockMetrics(childComplexity, args["fishType"].(model.FishType), args["characterID"].(string)), true
+
+	case "Query.getFishByProfileId":
+		if e.complexity.Query.GetFishByProfileID == nil {
+			break
+		}
+
+		return e.complexity.Query.GetFishByProfileID(childComplexity), true
 
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
@@ -155,61 +189,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.__resolve__service(childComplexity), true
 
-	case "TimeTracking.characterID":
-		if e.complexity.TimeTracking.CharacterID == nil {
+	case "Rod.id":
+		if e.complexity.Rod.ID == nil {
 			break
 		}
 
-		return e.complexity.TimeTracking.CharacterID(childComplexity), true
+		return e.complexity.Rod.ID(childComplexity), true
 
-	case "TimeTracking.customMetricID":
-		if e.complexity.TimeTracking.CustomMetricID == nil {
+	case "Rod.profileID":
+		if e.complexity.Rod.ProfileID == nil {
 			break
 		}
 
-		return e.complexity.TimeTracking.CustomMetricID(childComplexity), true
+		return e.complexity.Rod.ProfileID(childComplexity), true
 
-	case "TimeTracking.endTime":
-		if e.complexity.TimeTracking.EndTime == nil {
+	case "Rod.type":
+		if e.complexity.Rod.Type == nil {
 			break
 		}
 
-		return e.complexity.TimeTracking.EndTime(childComplexity), true
-
-	case "TimeTracking.id":
-		if e.complexity.TimeTracking.ID == nil {
-			break
-		}
-
-		return e.complexity.TimeTracking.ID(childComplexity), true
-
-	case "TimeTracking.startTime":
-		if e.complexity.TimeTracking.StartTime == nil {
-			break
-		}
-
-		return e.complexity.TimeTracking.StartTime(childComplexity), true
-
-	case "TimeTrackingWithFish.gold":
-		if e.complexity.TimeTrackingWithFish.Gold == nil {
-			break
-		}
-
-		return e.complexity.TimeTrackingWithFish.Gold(childComplexity), true
-
-	case "TimeTrackingWithFish.normal":
-		if e.complexity.TimeTrackingWithFish.Normal == nil {
-			break
-		}
-
-		return e.complexity.TimeTrackingWithFish.Normal(childComplexity), true
-
-	case "TimeTrackingWithFish.timeTracking":
-		if e.complexity.TimeTrackingWithFish.TimeTracking == nil {
-			break
-		}
-
-		return e.complexity.TimeTrackingWithFish.TimeTracking(childComplexity), true
+		return e.complexity.Rod.Type(childComplexity), true
 
 	case "_Service.sdl":
 		if e.complexity._Service.SDL == nil {
@@ -225,7 +224,9 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputRodInput,
+	)
 	first := true
 
 	switch rc.Operation.Operation {
@@ -321,7 +322,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "timetrackings.graphqls"
+//go:embed "fish.graphqls" "rod.graphqls" "schema.graphqls"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -333,7 +334,9 @@ func sourceData(filename string) string {
 }
 
 var sources = []*ast.Source{
-	{Name: "timetrackings.graphqls", Input: sourceData("timetrackings.graphqls"), BuiltIn: false},
+	{Name: "fish.graphqls", Input: sourceData("fish.graphqls"), BuiltIn: false},
+	{Name: "rod.graphqls", Input: sourceData("rod.graphqls"), BuiltIn: false},
+	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
 	{Name: "../federation/directives.graphql", Input: `
 	directive @authenticated on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM
 	directive @composeDirective(name: String!) repeatable on SCHEMA
@@ -401,36 +404,57 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_createTimeTracking_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_buySnapshots_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 primitive.ObjectID
+	var arg0 model.FishType
+	if tmp, ok := rawArgs["fishType"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fishType"))
+		arg0, err = ec.unmarshalNFishType2tenkhoursᚋservicesᚋcurrencyᚋgraphᚋmodelᚐFishType(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["fishType"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_onBoardCharacters_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.FishType
+	if tmp, ok := rawArgs["fishType"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fishType"))
+		arg0, err = ec.unmarshalNFishType2tenkhoursᚋservicesᚋcurrencyᚋgraphᚋmodelᚐFishType(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["fishType"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_unlockMetrics_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.FishType
+	if tmp, ok := rawArgs["fishType"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fishType"))
+		arg0, err = ec.unmarshalNFishType2tenkhoursᚋservicesᚋcurrencyᚋgraphᚋmodelᚐFishType(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["fishType"] = arg0
+	var arg1 string
 	if tmp, ok := rawArgs["characterID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-		arg0, err = ec.unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
+		arg1, err = ec.unmarshalNObjectID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["characterID"] = arg0
-	var arg1 *primitive.ObjectID
-	if tmp, ok := rawArgs["customMetricID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("customMetricID"))
-		arg1, err = ec.unmarshalOObjectID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["customMetricID"] = arg1
-	var arg2 time.Time
-	if tmp, ok := rawArgs["startTime"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
-		arg2, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["startTime"] = arg2
+	args["characterID"] = arg1
 	return args, nil
 }
 
@@ -446,30 +470,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_totalCurrentTimeTracking_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 primitive.ObjectID
-	if tmp, ok := rawArgs["characterID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-		arg0, err = ec.unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["characterID"] = arg0
-	var arg1 time.Time
-	if tmp, ok := rawArgs["timestamp"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
-		arg1, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["timestamp"] = arg1
 	return args, nil
 }
 
@@ -511,8 +511,8 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Mutation_createTimeTracking(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createTimeTracking(ctx, field)
+func (ec *executionContext) _Fish_id(ctx context.Context, field graphql.CollectedField, obj *repo.Fish) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Fish_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -525,7 +525,7 @@ func (ec *executionContext) _Mutation_createTimeTracking(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateTimeTracking(rctx, fc.Args["characterID"].(primitive.ObjectID), fc.Args["customMetricID"].(*primitive.ObjectID), fc.Args["startTime"].(time.Time))
+		return ec.resolvers.Fish().ID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -537,49 +537,26 @@ func (ec *executionContext) _Mutation_createTimeTracking(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*repo.TimeTracking)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx, field.Selections, res)
+	return ec.marshalNObjectID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createTimeTracking(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Fish_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Mutation",
+		Object:     "Fish",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TimeTracking_id(ctx, field)
-			case "characterID":
-				return ec.fieldContext_TimeTracking_characterID(ctx, field)
-			case "customMetricID":
-				return ec.fieldContext_TimeTracking_customMetricID(ctx, field)
-			case "startTime":
-				return ec.fieldContext_TimeTracking_startTime(ctx, field)
-			case "endTime":
-				return ec.fieldContext_TimeTracking_endTime(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TimeTracking", field.Name)
+			return nil, errors.New("field of type ObjectID does not have child fields")
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createTimeTracking_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateTimeTracking(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateTimeTracking(ctx, field)
+func (ec *executionContext) _Fish_profileID(ctx context.Context, field graphql.CollectedField, obj *repo.Fish) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Fish_profileID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -592,7 +569,7 @@ func (ec *executionContext) _Mutation_updateTimeTracking(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTimeTracking(rctx)
+		return ec.resolvers.Fish().ProfileID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -604,34 +581,26 @@ func (ec *executionContext) _Mutation_updateTimeTracking(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.TimeTrackingWithFish)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNTimeTrackingWithFish2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋgraphᚋmodelᚐTimeTrackingWithFish(ctx, field.Selections, res)
+	return ec.marshalNObjectID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateTimeTracking(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Fish_profileID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Mutation",
+		Object:     "Fish",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "timeTracking":
-				return ec.fieldContext_TimeTrackingWithFish_timeTracking(ctx, field)
-			case "normal":
-				return ec.fieldContext_TimeTrackingWithFish_normal(ctx, field)
-			case "gold":
-				return ec.fieldContext_TimeTrackingWithFish_gold(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TimeTrackingWithFish", field.Name)
+			return nil, errors.New("field of type ObjectID does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_currentTimeTracking(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_currentTimeTracking(ctx, field)
+func (ec *executionContext) _Fish_gold(ctx context.Context, field graphql.CollectedField, obj *repo.Fish) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Fish_gold(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -644,7 +613,7 @@ func (ec *executionContext) _Query_currentTimeTracking(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CurrentTimeTracking(rctx)
+		return obj.Gold, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -653,77 +622,106 @@ func (ec *executionContext) _Query_currentTimeTracking(ctx context.Context, fiel
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*repo.TimeTracking)
+	res := resTmp.(int32)
 	fc.Result = res
-	return ec.marshalOTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx, field.Selections, res)
+	return ec.marshalOInt2int32(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_currentTimeTracking(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Fish_gold(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Query",
+		Object:     "Fish",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TimeTracking_id(ctx, field)
-			case "characterID":
-				return ec.fieldContext_TimeTracking_characterID(ctx, field)
-			case "customMetricID":
-				return ec.fieldContext_TimeTracking_customMetricID(ctx, field)
-			case "startTime":
-				return ec.fieldContext_TimeTracking_startTime(ctx, field)
-			case "endTime":
-				return ec.fieldContext_TimeTracking_endTime(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TimeTracking", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_totalCurrentTimeTracking(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_totalCurrentTimeTracking(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().TotalCurrentTimeTracking(rctx, fc.Args["characterID"].(primitive.ObjectID), fc.Args["timestamp"].(time.Time))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_totalCurrentTimeTracking(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Fish_normal(ctx context.Context, field graphql.CollectedField, obj *repo.Fish) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Fish_normal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Normal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalOInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Fish_normal(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Fish",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_unlockMetrics(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_unlockMetrics(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UnlockMetrics(rctx, fc.Args["fishType"].(model.FishType), fc.Args["characterID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_unlockMetrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
 	defer func() {
 		if r := recover(); r != nil {
 			err = ec.Recover(ctx, r)
@@ -731,9 +729,173 @@ func (ec *executionContext) fieldContext_Query_totalCurrentTimeTracking(ctx cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_totalCurrentTimeTracking_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_unlockMetrics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_buySnapshots(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_buySnapshots(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().BuySnapshots(rctx, fc.Args["fishType"].(model.FishType))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_buySnapshots(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_buySnapshots_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_onBoardCharacters(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_onBoardCharacters(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().OnBoardCharacters(rctx, fc.Args["fishType"].(model.FishType))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_onBoardCharacters(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_onBoardCharacters_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getFishByProfileId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getFishByProfileId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetFishByProfileID(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*repo.Fish)
+	fc.Result = res
+	return ec.marshalNFish2ᚖtenkhoursᚋservicesᚋcurrencyᚋrepoᚐFish(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getFishByProfileId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Fish_id(ctx, field)
+			case "profileID":
+				return ec.fieldContext_Fish_profileID(ctx, field)
+			case "gold":
+				return ec.fieldContext_Fish_gold(ctx, field)
+			case "normal":
+				return ec.fieldContext_Fish_normal(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Fish", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -915,8 +1077,8 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _TimeTracking_id(ctx context.Context, field graphql.CollectedField, obj *repo.TimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TimeTracking_id(ctx, field)
+func (ec *executionContext) _Rod_id(ctx context.Context, field graphql.CollectedField, obj *model.Rod) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rod_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -941,14 +1103,14 @@ func (ec *executionContext) _TimeTracking_id(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(primitive.ObjectID)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
+	return ec.marshalNObjectID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TimeTracking_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Rod_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TimeTracking",
+		Object:     "Rod",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -959,8 +1121,8 @@ func (ec *executionContext) fieldContext_TimeTracking_id(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _TimeTracking_characterID(ctx context.Context, field graphql.CollectedField, obj *repo.TimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TimeTracking_characterID(ctx, field)
+func (ec *executionContext) _Rod_profileID(ctx context.Context, field graphql.CollectedField, obj *model.Rod) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rod_profileID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -973,7 +1135,7 @@ func (ec *executionContext) _TimeTracking_characterID(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CharacterID, nil
+		return obj.ProfileID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -985,14 +1147,14 @@ func (ec *executionContext) _TimeTracking_characterID(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(primitive.ObjectID)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
+	return ec.marshalNObjectID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TimeTracking_characterID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Rod_profileID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TimeTracking",
+		Object:     "Rod",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1003,8 +1165,8 @@ func (ec *executionContext) fieldContext_TimeTracking_characterID(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _TimeTracking_customMetricID(ctx context.Context, field graphql.CollectedField, obj *repo.TimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TimeTracking_customMetricID(ctx, field)
+func (ec *executionContext) _Rod_type(ctx context.Context, field graphql.CollectedField, obj *model.Rod) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rod_type(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1017,7 +1179,7 @@ func (ec *executionContext) _TimeTracking_customMetricID(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CustomMetricID, nil
+		return obj.Type, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1026,248 +1188,19 @@ func (ec *executionContext) _TimeTracking_customMetricID(ctx context.Context, fi
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(primitive.ObjectID)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TimeTracking_customMetricID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Rod_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TimeTracking",
+		Object:     "Rod",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ObjectID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TimeTracking_startTime(ctx context.Context, field graphql.CollectedField, obj *repo.TimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TimeTracking_startTime(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.StartTime, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TimeTracking_startTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TimeTracking",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TimeTracking_endTime(ctx context.Context, field graphql.CollectedField, obj *repo.TimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TimeTracking_endTime(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EndTime, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TimeTracking_endTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TimeTracking",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TimeTrackingWithFish_timeTracking(ctx context.Context, field graphql.CollectedField, obj *model.TimeTrackingWithFish) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TimeTrackingWithFish_timeTracking(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TimeTracking, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*repo.TimeTracking)
-	fc.Result = res
-	return ec.marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TimeTrackingWithFish_timeTracking(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TimeTrackingWithFish",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TimeTracking_id(ctx, field)
-			case "characterID":
-				return ec.fieldContext_TimeTracking_characterID(ctx, field)
-			case "customMetricID":
-				return ec.fieldContext_TimeTracking_customMetricID(ctx, field)
-			case "startTime":
-				return ec.fieldContext_TimeTracking_startTime(ctx, field)
-			case "endTime":
-				return ec.fieldContext_TimeTracking_endTime(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TimeTracking", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TimeTrackingWithFish_normal(ctx context.Context, field graphql.CollectedField, obj *model.TimeTrackingWithFish) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TimeTrackingWithFish_normal(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Normal, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TimeTrackingWithFish_normal(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TimeTrackingWithFish",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TimeTrackingWithFish_gold(ctx context.Context, field graphql.CollectedField, obj *model.TimeTrackingWithFish) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TimeTrackingWithFish_gold(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Gold, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TimeTrackingWithFish_gold(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TimeTrackingWithFish",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3087,6 +3020,33 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputRodInput(ctx context.Context, obj interface{}) (model.RodInput, error) {
+	var it model.RodInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"type"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3094,6 +3054,116 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var fishImplementors = []string{"Fish"}
+
+func (ec *executionContext) _Fish(ctx context.Context, sel ast.SelectionSet, obj *repo.Fish) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, fishImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Fish")
+		case "id":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Fish_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "profileID":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Fish_profileID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "gold":
+			out.Values[i] = ec._Fish_gold(ctx, field, obj)
+		case "normal":
+			out.Values[i] = ec._Fish_normal(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var mutationImplementors = []string{"Mutation"}
 
@@ -3114,16 +3184,23 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "createTimeTracking":
+		case "unlockMetrics":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createTimeTracking(ctx, field)
+				return ec._Mutation_unlockMetrics(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "updateTimeTracking":
+		case "buySnapshots":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateTimeTracking(ctx, field)
+				return ec._Mutation_buySnapshots(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "onBoardCharacters":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_onBoardCharacters(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -3170,26 +3247,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "currentTimeTracking":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_currentTimeTracking(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "totalCurrentTimeTracking":
+		case "getFishByProfileId":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -3198,7 +3256,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_totalCurrentTimeTracking(ctx, field)
+				res = ec._Query_getFishByProfileId(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3264,85 +3322,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var timeTrackingImplementors = []string{"TimeTracking"}
+var rodImplementors = []string{"Rod"}
 
-func (ec *executionContext) _TimeTracking(ctx context.Context, sel ast.SelectionSet, obj *repo.TimeTracking) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, timeTrackingImplementors)
+func (ec *executionContext) _Rod(ctx context.Context, sel ast.SelectionSet, obj *model.Rod) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, rodImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TimeTracking")
+			out.Values[i] = graphql.MarshalString("Rod")
 		case "id":
-			out.Values[i] = ec._TimeTracking_id(ctx, field, obj)
+			out.Values[i] = ec._Rod_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "characterID":
-			out.Values[i] = ec._TimeTracking_characterID(ctx, field, obj)
+		case "profileID":
+			out.Values[i] = ec._Rod_profileID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "customMetricID":
-			out.Values[i] = ec._TimeTracking_customMetricID(ctx, field, obj)
-		case "startTime":
-			out.Values[i] = ec._TimeTracking_startTime(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "endTime":
-			out.Values[i] = ec._TimeTracking_endTime(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var timeTrackingWithFishImplementors = []string{"TimeTrackingWithFish"}
-
-func (ec *executionContext) _TimeTrackingWithFish(ctx context.Context, sel ast.SelectionSet, obj *model.TimeTrackingWithFish) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, timeTrackingWithFishImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TimeTrackingWithFish")
-		case "timeTracking":
-			out.Values[i] = ec._TimeTrackingWithFish_timeTracking(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "normal":
-			out.Values[i] = ec._TimeTrackingWithFish_normal(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "gold":
-			out.Values[i] = ec._TimeTrackingWithFish_gold(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
+		case "type":
+			out.Values[i] = ec._Rod_type(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3758,28 +3760,37 @@ func (ec *executionContext) marshalNFieldSet2string(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
-	return res, graphql.ErrorOnPath(ctx, err)
+func (ec *executionContext) marshalNFish2tenkhoursᚋservicesᚋcurrencyᚋrepoᚐFish(ctx context.Context, sel ast.SelectionSet, v repo.Fish) graphql.Marshaler {
+	return ec._Fish(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	res := graphql.MarshalInt(v)
-	if res == graphql.Null {
+func (ec *executionContext) marshalNFish2ᚖtenkhoursᚋservicesᚋcurrencyᚋrepoᚐFish(ctx context.Context, sel ast.SelectionSet, v *repo.Fish) graphql.Marshaler {
+	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
+		return graphql.Null
 	}
-	return res
+	return ec._Fish(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, v interface{}) (primitive.ObjectID, error) {
-	res, err := graphql1.UnmarshalObjectID(v)
+func (ec *executionContext) unmarshalNFishType2tenkhoursᚋservicesᚋcurrencyᚋgraphᚋmodelᚐFishType(ctx context.Context, v interface{}) (model.FishType, error) {
+	var res model.FishType
+	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, sel ast.SelectionSet, v primitive.ObjectID) graphql.Marshaler {
-	res := graphql1.MarshalObjectID(v)
+func (ec *executionContext) marshalNFishType2tenkhoursᚋservicesᚋcurrencyᚋgraphᚋmodelᚐFishType(ctx context.Context, sel ast.SelectionSet, v model.FishType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNObjectID2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNObjectID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3801,49 +3812,6 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
-	res, err := graphql.UnmarshalTime(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
-	res := graphql.MarshalTime(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) marshalNTimeTracking2tenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v repo.TimeTracking) graphql.Marshaler {
-	return ec._TimeTracking(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v *repo.TimeTracking) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TimeTracking(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNTimeTrackingWithFish2tenkhoursᚋservicesᚋtimetrackingsᚋgraphᚋmodelᚐTimeTrackingWithFish(ctx context.Context, sel ast.SelectionSet, v model.TimeTrackingWithFish) graphql.Marshaler {
-	return ec._TimeTrackingWithFish(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTimeTrackingWithFish2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋgraphᚋmodelᚐTimeTrackingWithFish(ctx context.Context, sel ast.SelectionSet, v *model.TimeTrackingWithFish) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TimeTrackingWithFish(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN_Service2githubᚗcomᚋ99designsᚋgqlgenᚋpluginᚋfederationᚋfedruntimeᚐService(ctx context.Context, sel ast.SelectionSet, v fedruntime.Service) graphql.Marshaler {
@@ -4287,29 +4255,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalOObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, v interface{}) (primitive.ObjectID, error) {
-	res, err := graphql1.UnmarshalObjectID(v)
+func (ec *executionContext) unmarshalOInt2int32(ctx context.Context, v interface{}) (int32, error) {
+	res, err := graphql.UnmarshalInt32(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, sel ast.SelectionSet, v primitive.ObjectID) graphql.Marshaler {
-	res := graphql1.MarshalObjectID(v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOObjectID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, v interface{}) (*primitive.ObjectID, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql1.UnmarshalObjectID(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOObjectID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, sel ast.SelectionSet, v *primitive.ObjectID) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql1.MarshalObjectID(*v)
+func (ec *executionContext) marshalOInt2int32(ctx context.Context, sel ast.SelectionSet, v int32) graphql.Marshaler {
+	res := graphql.MarshalInt32(v)
 	return res
 }
 
@@ -4375,23 +4327,6 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
-}
-
-func (ec *executionContext) unmarshalOTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
-	res, err := graphql.UnmarshalTime(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
-	res := graphql.MarshalTime(v)
-	return res
-}
-
-func (ec *executionContext) marshalOTimeTracking2ᚖtenkhoursᚋservicesᚋtimetrackingsᚋrepoᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v *repo.TimeTracking) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._TimeTracking(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

@@ -30,5 +30,11 @@ type Mutation {
     startTime: Time!
   ): TimeTracking!
 
-  updateTimeTracking: TimeTracking!
+  updateTimeTracking: TimeTrackingWithFish!
+}
+
+type TimeTrackingWithFish {
+  timeTracking: TimeTracking!
+  normal: Int!
+  gold: Int!
 }

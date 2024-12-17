@@ -1,0 +1,9 @@
+type Fish {
+  id: ObjectID!
+  profileID: ObjectID!
+  """
+  Numbers of different fish types.
+  """
+  gold: Int
+  normal: Int
+}

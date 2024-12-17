@@ -11,6 +11,7 @@ import (
 	analyticsRepo "tenkhours/services/analytics/repo"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
+	fishRepo "tenkhours/services/currency/repo"
 
 	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,18 +19,20 @@ import (
 
 type ProfilesBusiness struct {
 	ProfilesRepo        *repo.ProfilesRepo
+	FishRepo            *fishRepo.FishRepo
 	CharactersRepo      *repo.CharactersRepo
 	CapturedRecordsRepo *analyticsRepo.CapturedRecordsRepo
 	SnapshotsRepo       *analyticsRepo.SnapshotsRepo
 	RedisClient         *redis.Client
 }
 
-func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, charactersRepo *repo.CharactersRepo, capturedRecordsRepo *analyticsRepo.CapturedRecordsRepo, snapshotsRepo *analyticsRepo.SnapshotsRepo, redisClient *redis.Client) *ProfilesBusiness {
+func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, fishRepo *fishRepo.FishRepo, charactersRepo *repo.CharactersRepo, capturedRecordsRepo *analyticsRepo.CapturedRecordsRepo, snapshotsRepo *analyticsRepo.SnapshotsRepo, redisClient *redis.Client) *ProfilesBusiness {
 	return &ProfilesBusiness{
 		ProfilesRepo:        profilesRepo,
 		CharactersRepo:      charactersRepo,
 		CapturedRecordsRepo: capturedRecordsRepo,
 		SnapshotsRepo:       snapshotsRepo,
+		FishRepo:            fishRepo,
 		RedisClient:         redisClient,
 	}
 }
@@ -41,6 +44,20 @@ func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, err
 		return nil, errors.ErrorUnauthorized
 	}
 
+	// TODO-NAM: Help Fbin to move this logic to the middleware, after create new profile
+	// // Create new fish for user
+	// newFish := fishRepo.Fish{
+	// 	ID:        primitive.NewObjectID(),
+	// 	ProfileID: newProfile.ID,
+	// 	Gold:      0,
+	// 	Normal:    0,
+	// }
+
+	// createdFish, err := biz.FishRepo.CreateFish(&newFish)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to create fish for new profile: %v", err)
+	// }
+	// fmt.Printf("Created fish: %+v\n", createdFish)
 	return &profile, nil
 }
 

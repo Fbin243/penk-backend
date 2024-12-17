@@ -11,6 +11,7 @@ use (
 	./pkg/utils
 	./services/analytics
 	./services/core
+	./services/currency
 	./services/notifications
 	./services/timetrackings
 	./test

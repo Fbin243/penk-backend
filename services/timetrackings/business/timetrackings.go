@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"tenkhours/pkg/auth"
@@ -13,6 +15,8 @@ import (
 	"tenkhours/pkg/utils"
 	"tenkhours/services/analytics/graph/model"
 	"tenkhours/services/core/repo"
+	fishBiz "tenkhours/services/currency/business"
+	fishRepo "tenkhours/services/currency/repo"
 	timetrackingsRepo "tenkhours/services/timetrackings/repo"
 
 	"github.com/go-redis/redis/v8"
@@ -22,13 +26,19 @@ import (
 type TimeTrackingsBusiness struct {
 	TimeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo
 	CharactersRepo    *repo.CharactersRepo
+	FishRepo          *fishRepo.FishRepo
+	FishBusiness      *fishBiz.FishBusiness
+	ProfilesRepo      *repo.ProfilesRepo
 	RedisClient       *redis.Client
 }
 
-func NewTimeTrackingsBusiness(timeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo, charactersRepo *repo.CharactersRepo, redisClient *redis.Client) *TimeTrackingsBusiness {
+func NewTimeTrackingsBusiness(timeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo, charactersRepo *repo.CharactersRepo, fishRepo *fishRepo.FishRepo, fishBiz *fishBiz.FishBusiness, profilesRepo *repo.ProfilesRepo, redisClient *redis.Client) *TimeTrackingsBusiness {
 	return &TimeTrackingsBusiness{
 		TimeTrackingsRepo: timeTrackingsRepo,
 		CharactersRepo:    charactersRepo,
+		FishRepo:          fishRepo,
+		FishBusiness:      fishBiz,
+		ProfilesRepo:      profilesRepo,
 		RedisClient:       redisClient,
 	}
 }
@@ -101,6 +111,22 @@ func (biz *TimeTrackingsBusiness) GetTotalCurrentTimeTracking(ctx context.Contex
 	return totalTime, nil
 }
 
+// Helper function to get time interval fish catching
+func getFishCatchingInterval() int {
+	fishCatchingIntervalStr := os.Getenv("FISH_CATCHING_INTERVAL_SECONDS")
+	fishCatchingInterval := 5 // Default value (5 seconds) for testing
+
+	if fishCatchingIntervalStr != "" {
+		interval, err := strconv.Atoi(fishCatchingIntervalStr) // convert string to int
+		if err != nil {
+			log.Printf("Invalid FISH_CATCHING_INTERVAL_SECONDS: %v, using default 5 seconds", err)
+		} else {
+			fishCatchingInterval = interval
+		}
+	}
+	return fishCatchingInterval
+}
+
 func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, metricID *primitive.ObjectID, startTime time.Time) (*timetrackingsRepo.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
@@ -112,7 +138,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	duration := serverStartTime.Sub(startTime)
 	seconds := duration.Seconds()
 
-	if seconds > utils.MaxTimeDifference {
+	if seconds > 20 {
 		return nil, fmt.Errorf("server timeout, failed to start a new session")
 	}
 
@@ -177,31 +203,31 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	return &timeTracking, nil
 }
 
-func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*timetrackingsRepo.TimeTracking, error) {
+func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*timetrackingsRepo.TimeTracking, *fishRepo.Fish, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, nil, errors.ErrorUnauthorized
 	}
 
 	// Get the time tracking from Redis
 	profileID := profile.ID.Hex()
 	val, err := biz.RedisClient.Get(ctx, profileID).Result()
 	if err == redis.Nil {
-		return nil, fmt.Errorf("time tracking not found in redis")
+		return nil, nil, fmt.Errorf("time tracking not found in redis")
 	} else if err != nil {
-		return nil, fmt.Errorf("failed to get time tracking from redis: %v", err)
+		return nil, nil, fmt.Errorf("failed to get time tracking from redis: %v", err)
 	}
 
 	var timeTracking timetrackingsRepo.TimeTracking
 	err = json.Unmarshal([]byte(val), &timeTracking)
 	if err != nil {
-		return nil, fmt.Errorf("failed to deserialize time tracking: %v", err)
+		return nil, nil, fmt.Errorf("failed to deserialize time tracking: %v", err)
 	}
 
 	// Delete the current time tracking from Redis
 	err = biz.RedisClient.Del(ctx, profileID).Err()
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete time tracking from redis: %v", err)
+		return nil, nil, fmt.Errorf("failed to delete time tracking from redis: %v", err)
 	}
 
 	// Calculate the duration time
@@ -217,8 +243,8 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	// Check if the duration time is in the valid range
 	if duration < timeTracking.MinDurationTime {
 		duration = 0
-		log.Printf("the period time is less than min duration time, so the time tracking will be deleted")
-		return &timeTracking, nil
+		log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
+		return &timeTracking, nil, nil
 	}
 
 	if duration > timeTracking.MaxDurationTime {
@@ -245,11 +271,11 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 			CustomMetrics: []model.CapturedRecordCustomMetric{},
 		}
 	} else if err != nil {
-		return nil, fmt.Errorf("failed to get captured record from redis: %v", err)
+		return nil, nil, fmt.Errorf("failed to get captured record from redis: %v", err)
 	} else {
 		err = json.Unmarshal([]byte(capturedRecordJSON), &capturedRecord)
 		if err != nil {
-			return nil, fmt.Errorf("failed to deserialize captured record: %v", err)
+			return nil, nil, fmt.Errorf("failed to deserialize captured record: %v", err)
 		}
 	}
 
@@ -267,7 +293,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	// Get the character to update the time
 	character, err := biz.CharactersRepo.FindByID(timeTracking.CharacterID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get character: %v", err)
+		return nil, nil, fmt.Errorf("failed to get character: %v", err)
 	}
 
 	character.TotalFocusedTime += duration
@@ -302,19 +328,50 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	// Update the character in the database
 	_, err = biz.CharactersRepo.UpdateByID(character.ID, character)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update character: %v", err)
+		return nil, nil, fmt.Errorf("failed to update character: %v", err)
 	}
 
 	// Upsert the captured record to Redis
 	capturedRecordBytes, err := json.Marshal(capturedRecord)
 	if err != nil {
-		return nil, fmt.Errorf("failed to serialize captured record: %v", err)
+		return nil, nil, fmt.Errorf("failed to serialize captured record: %v", err)
 	}
 
 	err = biz.RedisClient.HSet(ctx, db.GetCapturedRecordKey(profileID), character.ID.Hex(), capturedRecordBytes).Err()
 	if err != nil {
-		return nil, fmt.Errorf("failed to save captured record to redis: %v", err)
+		return nil, nil, fmt.Errorf("failed to save captured record to redis: %v", err)
 	}
 
-	return &timeTracking, nil
+	// Calculate the number of catches
+	fishCatchingInterval := getFishCatchingInterval()
+	numCatches := int(duration) / fishCatchingInterval
+
+	updatedFish := &fishRepo.Fish{
+		ProfileID: profile.ID,
+		Gold:      0,
+		Normal:    0,
+	}
+
+	fishBiz := fishBiz.NewFishBusiness(biz.FishRepo, biz.CharactersRepo, biz.ProfilesRepo, biz.RedisClient)
+
+	for i := 0; i < numCatches; i++ {
+		catchResult, err := fishBiz.CatchFish(ctx, profile.ID)
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to catch fish%v", err)
+		}
+
+		switch catchResult.FishType {
+		case "normal":
+			updatedFish.Normal += catchResult.Number
+		case "gold":
+			updatedFish.Gold += catchResult.Number
+		}
+	}
+
+	_, err = fishBiz.UpdateFishFromFinishSession(updatedFish, profile.ID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to update fish %v", err)
+	}
+
+	return &timeTracking, updatedFish, nil
 }

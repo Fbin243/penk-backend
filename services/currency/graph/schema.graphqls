@@ -1,0 +1,19 @@
+enum FishType {
+  normal
+  gold
+}
+
+scalar ObjectID
+
+type Query {
+  getFishByProfileId: Fish!
+}
+
+type Mutation {
+  """
+  For trading fish
+  """
+  unlockMetrics(fishType: FishType!, characterID: ObjectID!): Boolean!
+  buySnapshots(fishType: FishType!): Boolean!
+  onBoardCharacters(fishType: FishType!): Boolean!
+}

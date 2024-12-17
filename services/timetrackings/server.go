@@ -8,6 +8,8 @@ import (
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/middlewares"
 	"tenkhours/services/core/repo"
+	fishBiz "tenkhours/services/currency/business"
+	fishRepo "tenkhours/services/currency/repo"
 	"tenkhours/services/timetrackings/business"
 	"tenkhours/services/timetrackings/graph"
 	timetrackingsRepo "tenkhours/services/timetrackings/repo"
@@ -42,7 +44,9 @@ func main() {
 	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
 	charactersRepo := repo.NewCharactersRepo(mongodb)
 	timetrackingsRepo := timetrackingsRepo.NewTimeTrackingsRepo(mongodb)
-	timetrackingsBiz := business.NewTimeTrackingsBusiness(timetrackingsRepo, charactersRepo, redisClient)
+	fishRepo := fishRepo.NewFishRepo(mongodb)
+	fishBusiness := fishBiz.NewFishBusiness(fishRepo, charactersRepo, profilesRepo, redisClient)
+	timetrackingsBiz := business.NewTimeTrackingsBusiness(timetrackingsRepo, charactersRepo, fishRepo, fishBusiness, profilesRepo, redisClient)
 
 	// Check authentication
 	authMiddleware := middlewares.NewMiddleware(redisClient, profilesRepo)

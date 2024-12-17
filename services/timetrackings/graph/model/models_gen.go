@@ -2,8 +2,18 @@
 
 package model
 
+import (
+	"tenkhours/services/timetrackings/repo"
+)
+
 type Mutation struct {
 }
 
 type Query struct {
+}
+
+type TimeTrackingWithFish struct {
+	TimeTracking *repo.TimeTracking `json:"timeTracking"`
+	Normal       int                `json:"normal"`
+	Gold         int                `json:"gold"`
 }

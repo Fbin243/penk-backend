@@ -17,6 +17,8 @@ var (
 
 const CapturedRecordKey = "captured_record_"
 
+const FishKey = "fish_"
+
 func GetRedisClient() *redis.Client {
 	once.Do(func() {
 		initRedis()
@@ -46,4 +48,8 @@ func initRedis() {
 
 func GetCapturedRecordKey(profileID string) string {
 	return CapturedRecordKey + profileID
+}
+
+func GetFishKey(profileID string) string {
+	return FishKey + profileID
 }

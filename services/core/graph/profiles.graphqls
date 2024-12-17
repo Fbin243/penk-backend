@@ -12,8 +12,8 @@ type Profile {
   currentCharacterID: ObjectID
   characters: [Character!]!
   availableSnapshots: Int!
-  autoSnapshot: Boolean!
   limitedCharacterNumber: Int!
+  autoSnapshot: Boolean!
 }
 
 """

@@ -7,11 +7,11 @@ import (
 
 	"tenkhours/pkg/db"
 	"tenkhours/pkg/middlewares"
-	analyticsRepo "tenkhours/services/analytics/repo"
-	"tenkhours/services/core/business"
-	"tenkhours/services/core/graph"
-	"tenkhours/services/core/repo"
-	fishRepo "tenkhours/services/currency/repo"
+	"tenkhours/services/currency/business"
+	"tenkhours/services/currency/graph"
+	"tenkhours/services/currency/repo"
+
+	coreRepo "tenkhours/services/core/repo"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -39,19 +39,11 @@ func main() {
 
 	// Init dependencies and perform DI manually
 	mongodb := db.GetDBManager().DB
+	FishRepo := repo.NewFishRepo(mongodb)
 	redisClient := db.GetRedisClient()
-	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
-	charactersRepo := repo.NewCharactersRepo(mongodb)
-	fishRepo := fishRepo.NewFishRepo(mongodb)
-	goalsRepo := repo.NewGoalsRepo(mongodb)
-
-	// TODO: Temporary inject analyticsRepos into profilesBiz for deleting related data
-	capturedRepordsRepo := analyticsRepo.NewCapturedRecordsRepo(mongodb)
-	snapshotsRepo := analyticsRepo.NewSnapshotsRepo(mongodb)
-
-	profilesBiz := business.NewProfilesBusiness(profilesRepo, fishRepo, charactersRepo, capturedRepordsRepo, snapshotsRepo, redisClient)
-	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo, goalsRepo)
-	goalsBiz := business.NewGoalsBusiness(goalsRepo, charactersRepo)
+	profilesRepo := coreRepo.NewProfilesRepo(mongodb, redisClient)
+	charactersRepo := coreRepo.NewCharactersRepo(mongodb)
+	FishBiz := business.NewFishBusiness(FishRepo, charactersRepo, profilesRepo, redisClient)
 
 	// Check authentication
 	authMiddleware := middlewares.NewMiddleware(redisClient, profilesRepo)
@@ -59,19 +51,18 @@ func main() {
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &graph.Resolver{
-			ProfilesBusiness:   profilesBiz,
-			CharactersBusiness: charactersBiz,
-			GoalsBusiness:      goalsBiz,
+			FishBusiness: FishBiz,
 		},
 	}))
 
 	app.POST("/graphql", func(c *gin.Context) {
+		fmt.Print("Body", c.Request)
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 
-	port, found := os.LookupEnv("CORE_PORT")
+	port, found := os.LookupEnv("CURRENCY_PORT")
 	if !found {
-		port = "8080"
+		port = "8085"
 	}
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	app.Run(":" + port)

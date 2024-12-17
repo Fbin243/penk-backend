@@ -1,0 +1,18 @@
+type Rod {
+  id: ObjectID!
+  profileID: ObjectID!
+  """
+  Type of rod: can be get reward related to this(e.g. Yellow rod can make character hair's color turn to yellow)
+  """
+  type: String
+}
+
+"""
+Input for creating or updating rod
+"""
+input RodInput {
+  """
+  Type of rod
+  """
+  type: String
+}
