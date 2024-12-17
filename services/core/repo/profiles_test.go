@@ -1,11 +1,14 @@
 package repo_test
 
 import (
+	"context"
 	"testing"
 
+	"tenkhours/pkg/db"
 	"tenkhours/services/core/repo"
 
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -23,7 +26,7 @@ var profileInput = &profileInputType{
 
 func newProfileFromInput(input *profileInputType) *repo.Profile {
 	return &repo.Profile{
-		ID:                 primitive.NewObjectID(),
+		BaseModel:          &db.BaseModel{},
 		Email:              primitive.NewObjectID().Hex() + "@gmail.com",
 		FirebaseUID:        primitive.NewObjectID().Hex(),
 		Name:               input.Name,
@@ -41,7 +44,9 @@ func assertWithProfileInput(t *testing.T, profile *repo.Profile, input *profileI
 func TestCreateNewProfile(t *testing.T) {
 	profile := newProfileFromInput(profileInput)
 
-	createdProfile, err := profilesRepo.CreateNewProfile(profile)
+	createdProfile, err := profilesRepo.InsertOne(profile)
+	defer cleanUpProfile(createdProfile)
+
 	assert.Nil(t, err)
 	assertWithProfileInput(t, createdProfile, profileInput)
 }
@@ -49,17 +54,19 @@ func TestCreateNewProfile(t *testing.T) {
 func TestCreateSameProfile(t *testing.T) {
 	profile := newProfileFromInput(profileInput)
 
-	_, err := profilesRepo.CreateNewProfile(profile)
+	_, err := profilesRepo.InsertOne(profile)
+	defer cleanUpProfile(profile)
 	assert.Nil(t, err)
 
-	_, err = profilesRepo.CreateNewProfile(profile)
+	_, err = profilesRepo.InsertOne(profile)
 	assert.NotNil(t, err)
 }
 
 func TestGetProfileByFirebaseUID(t *testing.T) {
 	profile := newProfileFromInput(profileInput)
 
-	_, err := profilesRepo.CreateNewProfile(profile)
+	_, err := profilesRepo.InsertOne(profile)
+	defer cleanUpProfile(profile)
 	assert.Nil(t, err)
 
 	queriedProfile, err := profilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
@@ -70,7 +77,8 @@ func TestGetProfileByFirebaseUID(t *testing.T) {
 func TestUpdateProfile(t *testing.T) {
 	profile := newProfileFromInput(profileInput)
 
-	_, err := profilesRepo.CreateNewProfile(profile)
+	_, err := profilesRepo.InsertOne(profile)
+	defer cleanUpProfile(profile)
 	assert.Nil(t, err)
 
 	updateInput := &profileInputType{
@@ -86,4 +94,18 @@ func TestUpdateProfile(t *testing.T) {
 	updatedProfile, err := profilesRepo.UpdateProfile(profile)
 	assert.Nil(t, err)
 	assertWithProfileInput(t, updatedProfile, updateInput)
+}
+
+func cleanUpProfile(profile *repo.Profile) {
+	// Delete profile from database
+	_, err := profilesRepo.Collection.DeleteOne(context.Background(), bson.M{"_id": profile.ID})
+	if err != nil {
+		panic(err)
+	}
+
+	// Delete profile from Redis
+	_, err = profilesRepo.Del(context.Background(), profile.FirebaseUID).Result()
+	if err != nil {
+		panic(err)
+	}
 }

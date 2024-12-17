@@ -2,46 +2,45 @@ extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@
 
 scalar Time
 scalar ObjectID
-scalar NullableString
 scalar JSON
 
 type Snapshot {
   id: ObjectID!
   timestamp: Time!
-  character: Snapshot_Character!
+  character: SnapshotCharacter!
   description: String!
 }
 
-type Snapshot_Character {
+type SnapshotCharacter {
   id: ObjectID!
   profileID: ObjectID!
   name: String!
   gender: Boolean!
   tags: [String!]!
   totalFocusedTime: Int!
-  customMetrics: [Snapshot_CustomMetric!]!
+  customMetrics: [SnapshotCustomMetric!]!
 }
 
-type Snapshot_CustomMetric {
+type SnapshotCustomMetric {
   id: ObjectID!
   name: String!
-  description: NullableString
+  description: String
   time: Int!
-  style: Snapshot_MetricStyle!
-  properties: [Snapshot_MetricProperty!]!
+  style: SnapshotMetricStyle!
+  properties: [SnapshotMetricProperty!]!
 }
 
-type Snapshot_MetricStyle {
-  color: NullableString
-  icon: NullableString
+type SnapshotMetricStyle {
+  color: String!
+  icon: String!
 }
 
-type Snapshot_MetricProperty {
+type SnapshotMetricProperty {
   id: ObjectID!
   name: String!
   type: MetricPropertyType!
   value: String!
-  unit: NullableString
+  unit: String!
 }
 
 enum MetricPropertyType {
@@ -55,24 +54,24 @@ type CapturedRecord {
   id: ObjectID! @goTag(key: "bson", value: "_id,omitempty")
   timestamp: Time! @goTag(key: "bson", value: "timestamp,omitempty")
   totalFocusedTime: Int! @goTag(key: "bson", value: "total_focused_time,omitempty")
-  customMetrics: [CapturedRecord_CustomMetric!] @goTag(key: "bson", value: "custom_metrics,omitempty")
-  timeTrackings: [CapturedRecord_TimeTracking!] @goTag(key: "bson", value: "time_trackings,omitempty")
-  metadata: CapturedRecord_Metadata! @goTag(key: "bson", value: "metadata,omitempty")
+  customMetrics: [CapturedRecordCustomMetric!] @goTag(key: "bson", value: "custom_metrics,omitempty")
+  timeTrackings: [CapturedRecordTimeTracking!] @goTag(key: "bson", value: "time_trackings,omitempty")
+  metadata: CapturedRecordMetadata! @goTag(key: "bson", value: "metadata,omitempty")
 }
 
-type CapturedRecord_CustomMetric {
+type CapturedRecordCustomMetric {
   id: ObjectID! @goTag(key: "bson", value: "_id,omitempty")
   time: Int! @goTag(key: "bson", value: "time,omitempty")
 }
 
-type CapturedRecord_TimeTracking {
+type CapturedRecordTimeTracking {
   customMetricID: ObjectID! @goTag(key: "bson", value: "custom_metric_id,omitempty")
   time: Int! @goTag(key: "bson", value: "time,omitempty")
   startTime: Time! @goTag(key: "bson", value: "start_time,omitempty")
   endTime: Time! @goTag(key: "bson", value: "end_time,omitempty")
 }
 
-type CapturedRecord_Metadata {
+type CapturedRecordMetadata {
   characterID: ObjectID! @goTag(key: "bson", value: "character_id,omitempty")
   profileID: ObjectID! @goTag(key: "bson", value: "profile_id,omitempty")
 }

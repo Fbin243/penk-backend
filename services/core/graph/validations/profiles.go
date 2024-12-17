@@ -1,12 +1,14 @@
 package validations
 
 import (
-	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
+
+	"github.com/go-playground/validator/v10"
 )
 
 func ValidateProfileInput(profile model.ProfileInput) error {
-	if err := utils.NewValidateBuilder().OmitEmpty().Min(1).Max(50).Validate(profile.Name); err != nil {
+	validate := validator.New()
+	if err := validate.Struct(profile); err != nil {
 		return err
 	}
 

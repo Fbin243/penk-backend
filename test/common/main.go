@@ -40,11 +40,12 @@ func ReadResponseJson(res *http.Response) string {
 	return string(body)
 }
 
+type Assertion func(*http.Response, *http.Request) error
 type QueryParams struct {
 	Url       string
 	Query     string
 	Variables map[string]interface{}
-	Assertion func(*http.Response, *http.Request) error
+	Assertion []Assertion
 }
 
 func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
@@ -57,15 +58,19 @@ func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
 		q.Url = GatewayUrl
 	}
 
-	result := apitest.New().
+	response := apitest.New().
 		EnableNetworking(cli).
 		Post(q.Url).
 		Header("Authorization", "Bearer "+IdToken).
 		GraphQLQuery(q.Query, q.Variables).
 		Expect(testingT).
-		Status(http.StatusOK).
-		Assert(q.Assertion).
-		End()
+		Status(http.StatusOK)
+
+	for _, assertion := range q.Assertion {
+		response = response.Assert(assertion)
+	}
+
+	result := response.End()
 
 	jsonResponse = ReadResponseJson(result.Response)
 	LogResponse()
@@ -85,25 +90,5 @@ func (s SaveToContextStage) Exec(ctx *context.Context) error {
 	}
 
 	*ctx = context.WithValue(*ctx, s.Key, value.Raw)
-	return nil
-}
-
-// The stage to check if end stage is reached or not
-type CheckEndStage struct {
-	CurrentStage EndStage
-}
-
-func (s CheckEndStage) Exec(ctx *context.Context) error {
-	// Get the end stage from the context
-	endStage, ok := (*ctx).Value(EndStageKey).(string)
-	if !ok {
-		return ErrNotFoundInContext("EndStageKey")
-	}
-
-	// Check if the end stage is reached
-	if s.CurrentStage == EndStage(endStage) {
-		return ErrEndStageReached
-	}
-
 	return nil
 }

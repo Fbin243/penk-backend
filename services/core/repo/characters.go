@@ -14,21 +14,11 @@ import (
 )
 
 type CharactersRepo struct {
-	*mongo.Collection
+	*db.BaseRepo[Character]
 }
 
 func NewCharactersRepo(mongodb *mongo.Database) *CharactersRepo {
-	return &CharactersRepo{mongodb.Collection(db.CharacterCollection)}
-}
-
-func (r *CharactersRepo) GetCharacterByID(id primitive.ObjectID) (*Character, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	character := Character{}
-	err := r.FindOne(ctx, bson.M{"_id": id}).Decode(&character)
-
-	return &character, err
+	return &CharactersRepo{db.NewBaseRepo[Character](mongodb.Collection(db.CharacterCollection))}
 }
 
 func (r *CharactersRepo) GetCharactersByProfileID(profileID primitive.ObjectID) ([]Character, error) {
@@ -51,6 +41,13 @@ func (r *CharactersRepo) GetCharactersByProfileID(profileID primitive.ObjectID) 
 	return characters, nil
 }
 
+func (r *CharactersRepo) CountCharactersByProfileID(profileID primitive.ObjectID) (int64, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return r.CountDocuments(ctx, bson.M{"profile_id": profileID})
+}
+
 func (r *CharactersRepo) GetAllCharacters() ([]Character, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -69,24 +66,6 @@ func (r *CharactersRepo) GetAllCharacters() ([]Character, error) {
 	}
 
 	return characters, nil
-}
-
-func (r *CharactersRepo) CreateCharacter(character *Character) (*Character, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err := r.InsertOne(ctx, character)
-
-	return character, err
-}
-
-func (r *CharactersRepo) UpdateCharacter(character *Character) (*Character, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	err := r.FindOneAndUpdate(ctx, bson.M{"_id": character.ID}, bson.M{"$set": character}, db.FindOneAndUpdateOptions).Decode(character)
-
-	return character, err
 }
 
 func (r *CharactersRepo) DeleteCharacter(id primitive.ObjectID) (*Character, error) {

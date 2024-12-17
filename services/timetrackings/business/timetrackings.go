@@ -73,7 +73,7 @@ func (biz *TimeTrackingsBusiness) GetTotalCurrentTimeTracking(ctx context.Contex
 	}
 
 	// Check permissions
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.FindByID(characterID)
 	if err != nil {
 		return 0, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -143,7 +143,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	}
 
 	// Check permissions
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.FindByID(characterID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -291,7 +291,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	})
 
 	// Get the character to update the time
-	character, err := biz.CharactersRepo.GetCharacterByID(timeTracking.CharacterID)
+	character, err := biz.CharactersRepo.FindByID(timeTracking.CharacterID)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get character: %v", err)
 	}
@@ -325,12 +325,8 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		}
 	}
 
-	_, err = biz.TimeTrackingsRepo.CreateTimeTracking(&timeTracking)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create time tracking in DB: %v", err)
-	}
-
-	_, err = biz.CharactersRepo.UpdateCharacter(character)
+	// Update the character in the database
+	_, err = biz.CharactersRepo.UpdateByID(character.ID, character)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to update character: %v", err)
 	}

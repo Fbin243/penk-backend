@@ -3,7 +3,6 @@ package e2e
 import (
 	"fmt"
 	"log"
-
 	"tenkhours/test/common"
 
 	"github.com/urfave/cli/v2"
@@ -21,11 +20,11 @@ var TestUserFlowCommand = cli.Command{
 			Value:       "lstMYDOFoXWQ2s4TGyR4GTrGpKO2",
 			DefaultText: "UID",
 		},
-		&cli.StringFlag{
-			Name:    "end-stage",
-			Aliases: []string{"et"},
-			Usage:   "end stage of the test",
-			Value:   string(common.ProfileStage),
+		&cli.StringSliceFlag{
+			Name:    "flows",
+			Aliases: []string{"f"},
+			Usage:   "The flow to test",
+			Value:   cli.NewStringSlice(string(common.ProfilesFlowKey)),
 		},
 	},
 	Action: func(cCtx *cli.Context) error {
@@ -34,10 +33,12 @@ var TestUserFlowCommand = cli.Command{
 			return fmt.Errorf("user's UID is required")
 		}
 
-		endStage := cCtx.String("end-stage")
-		fmt.Println("End stage: ", endStage)
+		flows := cCtx.StringSlice("flows")
+		if len(flows) == 0 {
+			return fmt.Errorf("flows are required")
+		}
 
-		err := TestUserFlow(uid, endStage)
+		err := TestUserFlow(uid, flows)
 		if err != nil {
 			log.Println(err)
 			return cli.Exit(err, 1)

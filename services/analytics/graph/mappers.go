@@ -41,8 +41,8 @@ func MapToCustomMetricDto(customMetrics *repo.CustomMetric) *model.SnapshotCusto
 		Description: &customMetrics.Description,
 		Time:        customMetrics.Time,
 		Style: model.SnapshotMetricStyle{
-			Color: &customMetrics.Style.Color,
-			Icon:  &customMetrics.Style.Icon,
+			Color: customMetrics.Style.Color,
+			Icon:  customMetrics.Style.Icon,
 		},
 		Properties: props,
 	}
@@ -52,8 +52,8 @@ func MapToMetricPropertyDto(properties *repo.MetricProperty) *model.SnapshotMetr
 	return &model.SnapshotMetricProperty{
 		ID:    properties.ID,
 		Name:  properties.Name,
-		Type:  model.MetricPropertyType(properties.Type.String()),
+		Type:  properties.Type,
 		Value: properties.Value,
-		Unit:  &properties.Unit,
+		Unit:  properties.Unit,
 	}
 }

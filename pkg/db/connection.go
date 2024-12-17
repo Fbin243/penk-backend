@@ -15,6 +15,7 @@ import (
 var (
 	ProfileCollection         = "profiles"
 	CharacterCollection       = "characters"
+	GoalsCollection           = "goals"
 	TimeTrackingsCollection   = "time_trackings"
 	SnapshotsCollection       = "snapshots"
 	CapturedRecordsCollection = "captured_records"
@@ -44,14 +45,18 @@ func InitDBManagerFromURL(connectionURI string, dbName string) *DatabaseManager 
 	}
 }
 
-func InitDBManagerFromEnv() *DatabaseManager {
+func InitDBManagerFromEnv(dbName string) *DatabaseManager {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
 	mongoAddress := os.Getenv("MONGO_ADDRESS")
-	mongoDatabase := os.Getenv("MONGO_DATABASE_NAME")
 	mongoUser := os.Getenv("MONGO_USER")
 	mongoPassword := os.Getenv("MONGO_PASSWORD")
+	mongoDatabase := os.Getenv("MONGO_DATABASE_NAME")
+	if dbName != "" {
+		mongoDatabase = dbName
+	}
+
 	connectionURI := fmt.Sprintf(
 		"mongodb+srv://%s:%s@%s/%s",
 		mongoUser,
@@ -101,7 +106,7 @@ var dbManager *DatabaseManager
 
 func GetDBManager() *DatabaseManager {
 	if dbManager == nil {
-		dbManager = InitDBManagerFromEnv()
+		dbManager = InitDBManagerFromEnv("")
 	}
 
 	return dbManager

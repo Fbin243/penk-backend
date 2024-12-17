@@ -1,8 +1,9 @@
 package utils
 
 const (
-	LimitedMetricNumber    = 3
-	LimitedPropertyNumber  = 3
+	LimitedCharacterNumber = 5
+	LimitedMetricNumber    = 10
+	LimitedPropertyNumber  = 10
 	DefaultSnapshotsNumber = 7
 	MinDurationTime        = 3 * 60      // 3 minutes
 	MaxDurationTime        = 4 * 60 * 60 // 4 hours

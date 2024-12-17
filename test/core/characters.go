@@ -11,113 +11,146 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-type CreateCharacterStage struct {
+type UpsertCharacterStage struct {
 	common.Metadata
-	common.CreateCharacterCase
+	common.Case
+	CharacterKey    common.ContextKey
+	NumberOfMetrics int
 }
 
-func (s CreateCharacterStage) Exec(ctx *context.Context) error {
+func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 	log.Println("--> Stage: ", s.Describe)
 	profile, ok := (*ctx).Value(common.Profile).(string)
 	if !ok {
 		return common.ErrNotFoundInContext("Profile")
 	}
 
-	variables := map[string]interface{}{
+	characterInput := map[string]interface{}{
 		"name":   "Character name",
 		"gender": false,
 		"tags":   []interface{}{"#Tag1", "#Tag2"},
 	}
 
-	assertion := jsonpath.Chain().NotPresent("$.errors").
-		NotEqual("$.data.createCharacter.id", nil).
-		Equal("$.data.createCharacter.name", variables["name"]).
-		Equal("$.data.createCharacter.gender", variables["gender"]).
-		Equal("$.data.createCharacter.tags", variables["tags"]).
-		Equal("$.data.createCharacter.limitedMetricNumber", float64(utils.LimitedMetricNumber)).
-		Equal("$.data.createCharacter.totalFocusedTime", float64(0)).
-		Equal("$.data.createCharacter.profileID", gjson.Get(profile, "id").Value())
+	metricInput := map[string]interface{}{
+		"name":        "Metric name",
+		"description": "This is the metric description",
+		"style": map[string]interface{}{
+			"color": "#000000",
+			"icon":  "icon.png",
+		},
+	}
 
-	switch s.CreateCharacterCase {
-	case common.CreateCharacterWithCustomMetrics:
-		variables["customMetrics"] = []interface{}{
-			map[string]interface{}{
-				"name":        "Metric name",
-				"description": "This is the custom metric description",
-				"style": map[string]interface{}{
-					"color": "#000000",
-					"icon":  "icon.png",
-				},
-			},
-			map[string]interface{}{
-				"name":        "Metric name",
-				"description": "This is the custom metric description",
-				"style": map[string]interface{}{
-					"color": "#000000",
-					"icon":  "icon.png",
-				},
-			},
-			map[string]interface{}{
-				"name":        "Metric name",
-				"description": "This is the custom metric description",
-				"style": map[string]interface{}{
-					"color": "#000000",
-					"icon":  "icon.png",
-				},
-			},
+	assertion := jsonpath.Chain().NotPresent("$.errors")
+	assertions := []common.Assertion{}
+	switch s.Case {
+	case common.CreateCharacter:
+		assertion.
+			NotEqual("$.data.upsertCharacter.id", nil).
+			Equal("$.data.upsertCharacter.name", characterInput["name"]).
+			Equal("$.data.upsertCharacter.gender", characterInput["gender"]).
+			Equal("$.data.upsertCharacter.tags", characterInput["tags"]).
+			Equal("$.data.upsertCharacter.limitedMetricNumber", float64(utils.LimitedMetricNumber)).
+			Equal("$.data.upsertCharacter.totalFocusedTime", float64(0)).
+			Equal("$.data.upsertCharacter.profileID", gjson.Get(profile, "id").Value()).
+			Equal("$.data.upsertCharacter.customMetrics", []interface{}{})
+
+	case common.UpdateCharacter:
+		character, ok := (*ctx).Value(s.CharacterKey).(string)
+		if !ok {
+			return common.ErrNotFoundInContext("CharacterKey")
 		}
 
-		assertion = assertion.Equal("$.data.createCharacter.customMetrics", variables["customMetrics"])
+		characterInput["id"] = gjson.Get(character, "id").Value()
+		characterInput["name"] = "Update name"
+		characterInput["tags"] = []interface{}{"#update_tag_1", "#update_tag_2"}
 
-	default:
-		assertion = assertion.Equal("$.data.createCharacter.customMetrics", []interface{}{})
+		assertion = assertion.
+			Equal("$.data.upsertCharacter.id", characterInput["id"]).
+			Equal("$.data.upsertCharacter.name", characterInput["name"]).
+			Equal("$.data.upsertCharacter.tags", characterInput["tags"])
+
+	case common.CreateMetrics:
+		character, ok := (*ctx).Value(s.CharacterKey).(string)
+		if !ok {
+			return common.ErrNotFoundInContext("CharacterKey")
+		}
+
+		metricInputs := []interface{}{}
+		for i := 0; i < s.NumberOfMetrics; i++ {
+			metricInputs = append(metricInputs, metricInput)
+		}
+		characterInput["id"] = gjson.Get(character, "id").Value()
+		characterInput["customMetrics"] = metricInputs
+
+		assertion = assertion.
+			Equal("$.data.upsertCharacter.id", characterInput["id"]).
+			Equal("$.data.upsertCharacter.customMetrics[0].name", metricInput["name"]).
+			Equal("$.data.upsertCharacter.customMetrics[0].description", metricInput["description"]).
+			Equal("$.data.upsertCharacter.customMetrics[0].style", metricInput["style"].(map[string]interface{})).
+			Equal("$.data.upsertCharacter.customMetrics[0].time", float64(0)).
+			Equal("$.data.upsertCharacter.customMetrics[0].limitedPropertyNumber", float64(utils.LimitedPropertyNumber))
+		assertions = append(assertions, jsonpath.Len("$.data.upsertCharacter.customMetrics", s.NumberOfMetrics))
+
+	case common.UpdateMetrics:
+		character, ok := (*ctx).Value(s.CharacterKey).(string)
+		if !ok {
+			return common.ErrNotFoundInContext("CharacterKey")
+		}
+
+		// Update the first metric
+		characterInput["id"] = gjson.Get(character, "id").Value()
+		metricInput["id"] = gjson.Get(character, "customMetrics.0.id").Value()
+		metricInput["name"] = "Update metric name"
+		metricInput["description"] = "Update metric description"
+		metricInput["style"] = map[string]interface{}{
+			"color": "#FFFFFF",
+			"icon":  "update_icon.png",
+		}
+
+		metricInputs := []interface{}{metricInput}
+		for i := 0; i < s.NumberOfMetrics-1; i++ {
+			metricInputs = append(metricInputs, metricInput)
+		}
+
+		characterInput["customMetrics"] = metricInputs
+
+		assertion = assertion.
+			Equal("$.data.upsertCharacter.id", gjson.Get(character, "id").Value()).
+			Equal("$.data.upsertCharacter.customMetrics[0].name", metricInput["name"]).
+			Equal("$.data.upsertCharacter.customMetrics[0].description", metricInput["description"]).
+			Equal("$.data.upsertCharacter.customMetrics[0].style", metricInput["style"].(map[string]interface{}))
+		assertions = append(assertions, jsonpath.Len("$.data.upsertCharacter.customMetrics", s.NumberOfMetrics))
+
+	case common.DeleteMetrics:
+		character, ok := (*ctx).Value(s.CharacterKey).(string)
+		if !ok {
+			return common.ErrNotFoundInContext("CharacterKey")
+		}
+
+		// Remove the first metric
+		metricInputs := []interface{}{}
+		for i := 0; i < s.NumberOfMetrics-1; i++ {
+			metricInputs = append(metricInputs, metricInput)
+		}
+
+		characterInput["id"] = gjson.Get(character, "id").Value()
+		characterInput["customMetrics"] = metricInputs
+
+		assertion = assertion.
+			Equal("$.data.upsertCharacter.id", characterInput["id"])
+
+		assertions = append(assertions, jsonpath.Len("$.data.upsertCharacter.customMetrics", s.NumberOfMetrics-1))
 	}
 
 	if s.ExpectError {
-		assertion = common.AssertionError
+		assertion = jsonpath.Chain().Present("$.errors")
 	}
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
-			Query:     CreateCharacterQuery,
-			Variables: variables,
-			Assertion: assertion.End(),
-		})
-}
-
-type UpdateCharacterStage struct {
-	common.Metadata
-	CharacterKey common.ContextKey
-}
-
-func (s UpdateCharacterStage) Exec(ctx *context.Context) error {
-	log.Println("--> Stage: ", s.Describe)
-	character, ok := (*ctx).Value(s.CharacterKey).(string)
-	if !ok {
-		return common.ErrNotFoundInContext("CharacterKey")
-	}
-
-	variables := map[string]interface{}{
-		"id":     gjson.Get(character, "id").Value(),
-		"name":   "Update name",
-		"gender": true,
-		"tags":   []interface{}{"#update_tag_1", "#update_tag_2"},
-	}
-
-	assertion := jsonpath.Chain().NotPresent("$.errors").
-		Equal("$.data.updateCharacter.id", variables["id"]).
-		Equal("$.data.updateCharacter.name", variables["name"]).
-		Equal("$.data.updateCharacter.tags", variables["tags"])
-
-	if s.ExpectError {
-		assertion = common.AssertionError
-	}
-
-	return common.QueryGraphQL(ctx,
-		&common.QueryParams{
-			Query:     UpdateCharacterQuery,
-			Variables: variables,
-			Assertion: assertion.End(),
+			Query:     UpsertCharacterQuery,
+			Variables: map[string]interface{}{"input": characterInput},
+			Assertion: append(assertions, assertion.End()),
 		})
 }
 
@@ -137,15 +170,15 @@ func (s DeleteCharacterStage) Exec(ctx *context.Context) error {
 		"id": gjson.Get(character, "id").Value(),
 	}
 
-	assertion := common.AssertionSuccess
+	assertion := jsonpath.Chain().NotPresent("$.errors")
 	if s.ExpectError {
-		assertion = common.AssertionError
+		assertion = jsonpath.Chain().Present("$.errors")
 	}
 
 	return common.QueryGraphQL(ctx,
 		&common.QueryParams{
 			Query:     DeleteCharacterQuery,
 			Variables: variables,
-			Assertion: assertion.End(),
+			Assertion: []common.Assertion{assertion.End()},
 		})
 }

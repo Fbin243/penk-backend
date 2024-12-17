@@ -2,28 +2,15 @@ type Query {
   characters: [Character!]!
   profile: Profile!
   appSettings: AppSettings!
+  goals(characterID: ObjectID!, status: GoalStatusFilter): [Goal!]!
 }
 
 type Mutation {
   updateProfile(input: ProfileInput!): Profile!
   deleteProfile: Profile!
 
-  createCharacter(input: CharacterInput!): Character!
-  updateCharacter(id: ObjectID!, input: CharacterInput!): Character!
+  upsertCharacter(input: CharacterInput!): Character!
   deleteCharacter(id: ObjectID!): Character!
-  resetCharacter(id: ObjectID!): Character!
 
-  createCustomMetric(characterID: ObjectID!, input: CustomMetricInput!): CustomMetric!
-  updateCustomMetric(id: ObjectID!, characterID: ObjectID!, input: CustomMetricInput!): CustomMetric!
-  resetCustomMetric(id: ObjectID!, characterID: ObjectID!): CustomMetric!
-  deleteCustomMetric(id: ObjectID!, characterID: ObjectID!): CustomMetric!
-
-  createMetricProperty(characterID: ObjectID!, metricID: ObjectID!, input: MetricPropertyInput!): MetricProperty!
-  updateMetricProperty(
-    id: ObjectID!
-    characterID: ObjectID!
-    metricID: ObjectID!
-    input: MetricPropertyInput!
-  ): MetricProperty!
-  deleteMetricProperty(id: ObjectID!, characterID: ObjectID!, metricID: ObjectID!): MetricProperty!
+  upsertGoal(characterID: ObjectID!, input: GoalInput!): Goal!
 }

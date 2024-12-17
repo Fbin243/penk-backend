@@ -69,17 +69,12 @@ func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.Prof
 	}
 
 	// Update the profile with the new input
-	if input.Name != nil {
-		profile.Name = *input.Name
-	}
-	if input.ImageURL != nil {
-		profile.ImageURL = *input.ImageURL
-	}
+	profile.Name = input.Name
+	profile.ImageURL = input.ImageURL
 	if input.CurrentCharacterID != nil {
 		profile.CurrentCharacterID = *input.CurrentCharacterID
 	}
 	if input.AutoSnapshot != nil {
-		fmt.Println("input.AutoSnapshot", *input.AutoSnapshot)
 		profile.AutoSnapshot = *input.AutoSnapshot
 	}
 

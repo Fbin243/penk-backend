@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/graph/validations"
@@ -30,24 +29,14 @@ func (r *mutationResolver) DeleteProfile(ctx context.Context) (*repo.Profile, er
 	return r.ProfilesBusiness.DeleteProfile(ctx)
 }
 
-// CreateCharacter is the resolver for the createCharacter field.
-func (r *mutationResolver) CreateCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
+// UpsertCharacter is the resolver for the upsertCharacter field.
+func (r *mutationResolver) UpsertCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
 	// Validate the input
-	if err := validations.ValidateCreateCharacterInput(input); err != nil {
+	if err := validations.ValidateCharacterInput(input); err != nil {
 		return nil, err
 	}
 
-	return r.CharactersBusiness.CreateCharacter(ctx, input)
-}
-
-// UpdateCharacter is the resolver for the updateCharacter field.
-func (r *mutationResolver) UpdateCharacter(ctx context.Context, id primitive.ObjectID, input model.CharacterInput) (*repo.Character, error) {
-	// Validate the input
-	if err := validations.ValidateUpdateCharacterInput(input); err != nil {
-		return nil, err
-	}
-
-	return r.CharactersBusiness.UpdateCharacter(ctx, id, input)
+	return r.CharactersBusiness.UpsertCharacter(ctx, input)
 }
 
 // DeleteCharacter is the resolver for the deleteCharacter field.
@@ -55,64 +44,14 @@ func (r *mutationResolver) DeleteCharacter(ctx context.Context, id primitive.Obj
 	return r.CharactersBusiness.DeleteCharacter(ctx, id)
 }
 
-// ResetCharacter is the resolver for the resetCharacter field.
-func (r *mutationResolver) ResetCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
-	return r.CharactersBusiness.ResetCharacter(ctx, id)
-}
-
-// CreateCustomMetric is the resolver for the createCustomMetric field.
-func (r *mutationResolver) CreateCustomMetric(ctx context.Context, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
+// UpsertGoal is the resolver for the upsertGoal field.
+func (r *mutationResolver) UpsertGoal(ctx context.Context, characterID primitive.ObjectID, input model.GoalInput) (*repo.Goal, error) {
 	// Validate the input
-	if err := validations.ValidateCreateCustomMetricInput(input); err != nil {
+	if err := validations.ValidateGoalInput(input); err != nil {
 		return nil, err
 	}
 
-	return r.CharactersBusiness.CreateCustomMetric(ctx, characterID, input)
-}
-
-// UpdateCustomMetric is the resolver for the updateCustomMetric field.
-func (r *mutationResolver) UpdateCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, input model.CustomMetricInput) (*repo.CustomMetric, error) {
-	// Validate the input
-	if err := validations.ValidateUpdateCustomMetricInput(input); err != nil {
-		return nil, err
-	}
-
-	return r.CharactersBusiness.UpdateCustomMetric(ctx, id, characterID, input)
-}
-
-// ResetCustomMetric is the resolver for the resetCustomMetric field.
-func (r *mutationResolver) ResetCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
-	return r.CharactersBusiness.ResetCustomMetric(ctx, id, characterID)
-}
-
-// DeleteCustomMetric is the resolver for the deleteCustomMetric field.
-func (r *mutationResolver) DeleteCustomMetric(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID) (*repo.CustomMetric, error) {
-	return r.CharactersBusiness.DeleteCustomMetric(ctx, id, characterID)
-}
-
-// CreateMetricProperty is the resolver for the createMetricProperty field.
-func (r *mutationResolver) CreateMetricProperty(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
-	// Validate the input
-	if err := validations.ValidateCreateMetricPropertyInput(input); err != nil {
-		return nil, err
-	}
-
-	return r.CharactersBusiness.CreateMetricProperty(ctx, characterID, metricID, input)
-}
-
-// UpdateMetricProperty is the resolver for the updateMetricProperty field.
-func (r *mutationResolver) UpdateMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID, input model.MetricPropertyInput) (*repo.MetricProperty, error) {
-	// Validate the input
-	if err := validations.ValidateUpdateMetricPropertyInput(input); err != nil {
-		return nil, err
-	}
-
-	return r.CharactersBusiness.UpdateMetricProperty(ctx, id, characterID, metricID, input)
-}
-
-// DeleteMetricProperty is the resolver for the deleteMetricProperty field.
-func (r *mutationResolver) DeleteMetricProperty(ctx context.Context, id primitive.ObjectID, characterID primitive.ObjectID, metricID primitive.ObjectID) (*repo.MetricProperty, error) {
-	return r.CharactersBusiness.DeleteMetricProperty(ctx, id, characterID, metricID)
+	return r.GoalsBusiness.UpsertGoal(ctx, characterID, input)
 }
 
 // Characters is the resolver for the characters field.
@@ -133,6 +72,11 @@ func (r *queryResolver) AppSettings(ctx context.Context) (*model.AppSettings, er
 		LimitedMetricNumber:   utils.LimitedMetricNumber,
 		LimitedPropertyNumber: utils.LimitedPropertyNumber,
 	}, nil
+}
+
+// Goals is the resolver for the goals field.
+func (r *queryResolver) Goals(ctx context.Context, characterID primitive.ObjectID, status *repo.GoalStatusFilter) ([]repo.Goal, error) {
+	return r.GoalsBusiness.GetGoals(ctx, characterID, status)
 }
 
 // Mutation returns MutationResolver implementation.

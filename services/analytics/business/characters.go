@@ -48,7 +48,7 @@ func (biz *CharactersBusiness) GetSnapshots(ctx context.Context, characterID *pr
 	matchStage := bson.D{}
 
 	if characterID != nil {
-		character, err := biz.CharactersRepo.GetCharacterByID(*characterID)
+		character, err := biz.CharactersRepo.FindByID(*characterID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get character by ID")
 		}
@@ -100,7 +100,7 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 		return nil, errors.ErrorUnauthorized
 	}
 
-	character, err := biz.CharactersRepo.GetCharacterByID(characterID)
+	character, err := biz.CharactersRepo.FindByID(characterID)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, character
 	}
 
 	if characterID != nil {
-		character, err := biz.CharactersRepo.GetCharacterByID(*characterID)
+		character, err := biz.CharactersRepo.FindByID(*characterID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get character by ID")
 		}
