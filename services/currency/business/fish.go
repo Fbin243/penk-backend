@@ -210,7 +210,7 @@ func (biz *FishBusiness) UnlockMetrics(ctx context.Context, fishType model.FishT
 	if err != nil {
 		return false, err
 	}
-	character, err := biz.CharactersRepo.GetCharacterByID(characterOID)
+	character, err := biz.CharactersRepo.FindByID(characterOID)
 	if err != nil {
 		return false, fmt.Errorf("failed to find character: %v", err)
 	}
@@ -218,7 +218,7 @@ func (biz *FishBusiness) UnlockMetrics(ctx context.Context, fishType model.FishT
 	//Increment based on config
 	character.LimitedMetricNumber += int32(increase)
 
-	if _, err := biz.CharactersRepo.UpdateCharacter(character); err != nil {
+	if _, err := biz.CharactersRepo.UpdateByID(characterOID, character); err != nil {
 		return false, fmt.Errorf("failed to update metrics limited: %v", err)
 	}
 

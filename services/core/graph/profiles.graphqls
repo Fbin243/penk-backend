@@ -14,7 +14,6 @@ type Profile {
   availableSnapshots: Int!
   limitedCharacterNumber: Int!
   autoSnapshot: Boolean!
-  limitedCharacterNumber: Int!
 }
 
 """

@@ -2,8 +2,6 @@ module tenkhours/services/currency
 
 go 1.22.3
 
-toolchain go1.22.8
-
 require (
 	github.com/99designs/gqlgen v0.17.49
 	github.com/gin-contrib/cors v1.7.2
