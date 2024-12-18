@@ -1,5 +1,5 @@
 require("dotenv").config({
-    path: "../../.env.development",
+    path: "../.env.development",
 });
 
 // In this file you can configure migrate-mongo
