@@ -14,7 +14,7 @@ type Character {
 type CustomMetric {
   id: ObjectID!
   name: String!
-  description: String
+  description: String!
   time: Int!
   style: MetricStyle!
   properties: [MetricProperty!]!
@@ -22,8 +22,8 @@ type CustomMetric {
 }
 
 type MetricStyle {
-  color: String
-  icon: String
+  color: String!
+  icon: String!
 }
 
 type MetricProperty {
@@ -31,7 +31,7 @@ type MetricProperty {
   name: String!
   type: MetricPropertyType!
   value: String!
-  unit: String
+  unit: String!
 }
 
 """

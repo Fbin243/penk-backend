@@ -38,7 +38,7 @@ func MapToCustomMetricDto(customMetrics *repo.CustomMetric) *model.SnapshotCusto
 	return &model.SnapshotCustomMetric{
 		ID:          customMetrics.ID,
 		Name:        customMetrics.Name,
-		Description: &customMetrics.Description,
+		Description: customMetrics.Description,
 		Time:        customMetrics.Time,
 		Style: model.SnapshotMetricStyle{
 			Color: customMetrics.Style.Color,

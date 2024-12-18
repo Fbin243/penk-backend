@@ -24,7 +24,7 @@ type SnapshotCharacter {
 type SnapshotCustomMetric {
   id: ObjectID!
   name: String!
-  description: String
+  description: String!
   time: Int!
   style: SnapshotMetricStyle!
   properties: [SnapshotMetricProperty!]!

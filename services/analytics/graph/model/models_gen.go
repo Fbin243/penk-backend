@@ -69,7 +69,7 @@ type SnapshotCharacter struct {
 type SnapshotCustomMetric struct {
 	ID          primitive.ObjectID       `json:"id"`
 	Name        string                   `json:"name"`
-	Description *string                  `json:"description,omitempty"`
+	Description string                   `json:"description"`
 	Time        int32                    `json:"time"`
 	Style       SnapshotMetricStyle      `json:"style"`
 	Properties  []SnapshotMetricProperty `json:"properties"`

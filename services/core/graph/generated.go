@@ -1718,11 +1718,14 @@ func (ec *executionContext) _CustomMetric_description(ctx context.Context, field
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CustomMetric_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2582,11 +2585,14 @@ func (ec *executionContext) _MetricProperty_unit(ctx context.Context, field grap
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MetricProperty_unit(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2623,11 +2629,14 @@ func (ec *executionContext) _MetricStyle_color(ctx context.Context, field graphq
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MetricStyle_color(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2664,11 +2673,14 @@ func (ec *executionContext) _MetricStyle_icon(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MetricStyle_icon(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6451,6 +6463,9 @@ func (ec *executionContext) _CustomMetric(ctx context.Context, sel ast.Selection
 			}
 		case "description":
 			out.Values[i] = ec._CustomMetric_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "time":
 			out.Values[i] = ec._CustomMetric_time(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -6608,6 +6623,9 @@ func (ec *executionContext) _MetricProperty(ctx context.Context, sel ast.Selecti
 			}
 		case "unit":
 			out.Values[i] = ec._MetricProperty_unit(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6644,8 +6662,14 @@ func (ec *executionContext) _MetricStyle(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = graphql.MarshalString("MetricStyle")
 		case "color":
 			out.Values[i] = ec._MetricStyle_color(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "icon":
 			out.Values[i] = ec._MetricStyle_icon(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
