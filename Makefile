@@ -1,8 +1,10 @@
 SHELL := /bin/bash  # Use bash shell on Unix
 TENK_ENV ?= development
 GQLGEN_CMD = github.com/99designs/gqlgen
+GATEWAY_DEPENDENCIES = core analytics timetrackings notifications
 
 core:
+	@echo "Starting core service..."
 ifeq ($(OS),Windows_NT)
 	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/core.air.toml
 else
@@ -10,6 +12,7 @@ else
 endif
 
 analytics:
+	@echo "Starting analytics service..."
 ifeq ($(OS),Windows_NT)
 	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/analytics.air.toml
 else
@@ -17,6 +20,7 @@ else
 endif
 
 timetrackings:
+	@echo "Starting timetrackings service..."
 ifeq ($(OS),Windows_NT)
 	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/timetrackings.air.toml
 else
@@ -24,27 +28,20 @@ else
 endif
 
 notifications:
+	@echo "Starting notifications service..."
 ifeq ($(OS),Windows_NT)
 	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/notifications.air.toml
 else
 	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/notifications.air.toml
 endif
 
-# Flow
-# 1. `make run-all`
-# 2. `make gateway`
-# 3. `make kill-all`
-run-all:
-	$(MAKE) core & \
-	$(MAKE) analytics & \
-	$(MAKE) timetrackings & \
-	$(MAKE) notifications & \
-
-kill-all:
-	npx kill-port 8080 8082 8083 8084 8070
-
-gateway:
+gateway: $(addprefix tmp/, $(GATEWAY_DEPENDENCIES))
+	sleep 3
+	@echo "Starting gateway service..."
 	cd services/gateway && npm run start
+
+dev:
+	$(MAKE) -j $(SERVICE)
 
 # Tidy go modules in workspace
 tidy:
@@ -61,4 +58,4 @@ gqlgen:
 		go run -C ./services/$$service $(GQLGEN_CMD); \
 	done
 
-.PHONY: core analytics timetrackings notifications run-all kill-all gateway tidy gqlgen
+.PHONY: core analytics timetrackings notifications gateway dev tidy gqlgen
