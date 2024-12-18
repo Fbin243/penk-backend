@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Mutation struct {
@@ -15,8 +17,8 @@ type Query struct {
 }
 
 type Rod struct {
-	ID        string `json:"id"`
-	ProfileID string `json:"profileID"`
+	ID        primitive.ObjectID `json:"id"`
+	ProfileID primitive.ObjectID `json:"profileID"`
 	// Type of rod: can be get reward related to this(e.g. Yellow rod can make character hair's color turn to yellow)
 	Type *string `json:"type,omitempty"`
 }

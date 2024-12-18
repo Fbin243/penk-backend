@@ -4,8 +4,8 @@ tmp_dir = "tmp"
 
 [build]
 args_bin = []
-bin = "./tmp/analytics"
-cmd = "go build -o ./tmp/analytics ./services/analytics"
+bin = "./tmp/currency"
+cmd = "go build -o ./tmp/currency ./services/currency"
 delay = 0
 exclude_dir = ["assets", "tmp", "vendor", "testdata", "services/gateway", "cmd", "test"]
 exclude_file = []
@@ -35,7 +35,6 @@ watcher = "cyan"
 [log]
 main_only = false
 time = false
-level = "debug"
 
 [misc]
 clean_on_exit = false

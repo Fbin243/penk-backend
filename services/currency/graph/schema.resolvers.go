@@ -8,26 +8,27 @@ import (
 	"context"
 	"tenkhours/services/currency/graph/model"
 	"tenkhours/services/currency/repo"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// UnlockMetrics is the resolver for the unlockMetrics field.
-func (r *mutationResolver) UnlockMetrics(ctx context.Context, fishType model.FishType, characterID string) (bool, error) {
-	return r.FishBusiness.UnlockMetrics(ctx, fishType, characterID)
+// BuyMetrics is the resolver for the buyMetrics field.
+func (r *mutationResolver) BuyMetrics(ctx context.Context, fishType model.FishType, characterID primitive.ObjectID) (bool, error) {
+	return r.FishBusiness.BuyMetrics(ctx, fishType, characterID)
 }
 
 // BuySnapshots is the resolver for the buySnapshots field.
 func (r *mutationResolver) BuySnapshots(ctx context.Context, fishType model.FishType) (bool, error) {
-	// No need for profileID as argument; get it from context
 	return r.FishBusiness.BuySnapshots(ctx, fishType)
 }
 
-// OnBoardCharacters is the resolver for the onBoardCharacters field.
-func (r *mutationResolver) OnBoardCharacters(ctx context.Context, fishType model.FishType) (bool, error) {
-	return r.FishBusiness.UnclockNewCharacters(ctx, fishType)
+// BuyCharacters is the resolver for the buyCharacters field.
+func (r *mutationResolver) BuyCharacters(ctx context.Context, fishType model.FishType) (bool, error) {
+	return r.FishBusiness.BuyCharacters(ctx, fishType)
 }
 
-// GetFishByProfileID is the resolver for the getFishByProfileId field.
-func (r *queryResolver) GetFishByProfileID(ctx context.Context) (*repo.Fish, error) {
+// Fish is the resolver for the fish field.
+func (r *queryResolver) Fish(ctx context.Context) (*repo.Fish, error) {
 	return r.FishBusiness.GetFishByProfileID(ctx)
 }
 

@@ -8,7 +8,7 @@ const gateway = new ApolloGateway({
       { name: "timetrackings", url: "http://localhost:8082/graphql" },
       { name: "analytics", url: "http://localhost:8083/graphql" },
       { name: "notification", url: "http://localhost:8084/graphql" },
-      // { name: "currency", url: "http://localhost:8085/graphql" },
+      { name: "currency", url: "http://localhost:8085/graphql" },
     ],
   }),
   buildService({ name, url }) {

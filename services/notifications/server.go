@@ -42,6 +42,12 @@ func main() {
 		},
 	}))
 
+	app.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "OK",
+		})
+	})
+
 	app.POST("/graphql", func(c *gin.Context) {
 		log.Println("Received request on /graphql")
 		srv.ServeHTTP(c.Writer, c.Request)
@@ -51,8 +57,6 @@ func main() {
 	if port == "" {
 		port = "8084"
 	}
-
-	log.Printf("GraphQL server running on :%s/graphql", port)
 
 	if err := app.Run(":" + port); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)

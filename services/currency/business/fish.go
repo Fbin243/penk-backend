@@ -153,7 +153,7 @@ func (biz *FishBusiness) UpdateFishFromFinishSession(fish *repo.Fish, profileID 
 
 // Those functions below are for trading
 // Use fish to trade metrics
-func (biz *FishBusiness) UnlockMetrics(ctx context.Context, fishType model.FishType, characterID string) (bool, error) {
+func (biz *FishBusiness) BuyMetrics(ctx context.Context, fishType model.FishType, characterID primitive.ObjectID) (bool, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return false, errors.ErrorUnauthorized
@@ -206,11 +206,7 @@ func (biz *FishBusiness) UnlockMetrics(ctx context.Context, fishType model.FishT
 		return false, fmt.Errorf("invalid fish type: %s", fishType)
 	}
 
-	characterOID, err := primitive.ObjectIDFromHex(characterID)
-	if err != nil {
-		return false, err
-	}
-	character, err := biz.CharactersRepo.FindByID(characterOID)
+	character, err := biz.CharactersRepo.FindByID(characterID)
 	if err != nil {
 		return false, fmt.Errorf("failed to find character: %v", err)
 	}
@@ -218,7 +214,7 @@ func (biz *FishBusiness) UnlockMetrics(ctx context.Context, fishType model.FishT
 	//Increment based on config
 	character.LimitedMetricNumber += int32(increase)
 
-	if _, err := biz.CharactersRepo.UpdateByID(characterOID, character); err != nil {
+	if _, err := biz.CharactersRepo.UpdateByID(characterID, character); err != nil {
 		return false, fmt.Errorf("failed to update metrics limited: %v", err)
 	}
 
@@ -302,7 +298,7 @@ func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType model.FishTy
 }
 
 // Use fish to unclock new character
-func (biz *FishBusiness) UnclockNewCharacters(ctx context.Context, fishType model.FishType) (bool, error) {
+func (biz *FishBusiness) BuyCharacters(ctx context.Context, fishType model.FishType) (bool, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
 		return false, errors.ErrorUnauthorized

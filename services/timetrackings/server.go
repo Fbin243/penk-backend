@@ -56,6 +56,12 @@ func main() {
 		Resolvers: &graph.Resolver{TimeTrackingsBusiness: timetrackingsBiz},
 	}))
 
+	app.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "OK",
+		})
+	})
+
 	app.POST("/graphql", func(c *gin.Context) {
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
@@ -64,6 +70,6 @@ func main() {
 	if !found {
 		port = "8082"
 	}
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+
 	app.Run(":" + port)
 }

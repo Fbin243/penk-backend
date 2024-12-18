@@ -95,3 +95,5 @@ models:
       - github.com/99designs/gqlgen/graphql.Int32
   Fish:
     model: tenkhours/services/currency/repo.Fish
+  ObjectID:
+    model: tenkhours/pkg/graphql.ObjectID
