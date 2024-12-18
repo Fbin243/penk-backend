@@ -1,0 +1,440 @@
+[{
+  "_id": {
+    "$oid": "674f4bf716dd9a0eb52805d2"
+  },
+  "name": "Trọng Hiếu Nguyễn",
+  "email": "dev.ngtronghieu@gmail.com",
+  "firebase_uid": "8knQ49JAJoSkaBfDz9vM54lJLwg1",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocKkg9R0TY1G-b3ih-ESLPEFXe4CupCJQ1ymxe2BWeN5SnEfSldD=s96-c",
+  "current_character_id": {
+    "$oid": "674f4c1316dd9a0eb52805d3"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-03T18:20:39.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "674ff0b616dd9a0eb52805e6"
+  },
+  "name": "Vinh Tran",
+  "email": "thevinh.abcde@gmail.com",
+  "firebase_uid": "OCmUixfQwAaiBfBc8PmfQno0LIC2",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocIP2r2YdLTIOgPiQBl0Z4xNM0YRy8Jjvuqydgx14fP0jNJYT4U=s96-c",
+  "current_character_id": {
+    "$oid": "674ff12d16dd9a0eb52805e7"
+  },
+  "available_snapshots": 5,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-04T06:03:34.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "675006af16dd9a0eb52805f4"
+  },
+  "name": "Quân Bùi",
+  "email": "bddquan@gmail.com",
+  "firebase_uid": "Uf2UxhvVWEO8pc7l87gvCWy9lZ63",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocI9XJOAYAnGEy1FB1jAsCFidBp7Zl87E2fZZ52Tu17MFk8SixHL=s96-c",
+  "current_character_id": {
+    "$oid": "675006d516dd9a0eb52805f5"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-04T07:37:19.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "675057b716dd9a0eb5280602"
+  },
+  "name": "Phuoc-Loc Truong",
+  "email": "trphloc1@gmail.com",
+  "firebase_uid": "XbZEpYSfjVR3vbUZFfBH3UAFcfy1",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocJpmrq2YojR4xDcYmp-Fb6oxbMR7Fxvt54QqKUoEV5EfLM7zA=s96-c",
+  "current_character_id": {
+    "$oid": "675057d416dd9a0eb5280603"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-04T13:23:03.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "6751576016dd9a0eb5280610"
+  },
+  "name": "",
+  "email": "nguyen.khoan2507@icloud.com",
+  "firebase_uid": "ZxUMKOfHr6PdDEyBfb3tvQy1EWB2",
+  "image_url": "",
+  "current_character_id": {
+    "$oid": "6756e76a16dd9a0eb52806a8"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-05T07:33:52.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "6751624716dd9a0eb5280613"
+  },
+  "name": "Việt Anh",
+  "email": "nguyenvietanhpm@gmail.com",
+  "firebase_uid": "h0vNPoCZDcMgLciAZxlDYK09ehH2",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocImt4OEn_8Pb02HGDzQJ66gejJAqtuoY5LliM9ZMlljgpuPVMU=s96-c",
+  "current_character_id": {
+    "$oid": "6751628416dd9a0eb5280614"
+  },
+  "available_snapshots": 5,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-05T08:20:23.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "67518be916dd9a0eb5280622"
+  },
+  "name": "Dolores Harrington",
+  "email": "doloresharrington.33548@gmail.com",
+  "firebase_uid": "QDZ2q2MGoIYvfW1FOSVUP74G6q92",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocIefDpiMbj2SLN1oxNkmsvLejnGhDel5rYdqWKf6FKRN1B-3Q=s96-c",
+  "current_character_id": {
+    "$oid": "67518c3016dd9a0eb5280623"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-05T11:18:01.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "6751b00216dd9a0eb5280630"
+  },
+  "name": "Dreckiez",
+  "email": "xmaihung13@gmail.com",
+  "firebase_uid": "RzWeHRjkFoTBmIfCGrj4ATS9Eat2",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocKDTBgl9QjkvagVeDRSHLELUZvR8wIQaDJDYyFdhGDar58aKByu=s96-c",
+  "current_character_id": {
+    "$oid": "6751b0c316dd9a0eb5280631"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-05T13:52:02.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "6751c73d16dd9a0eb5280640"
+  },
+  "name": "",
+  "email": "2s9xdk44j4@privaterelay.appleid.com",
+  "firebase_uid": "rJNU7NIVzaUFXZApZ4QdM3YOFBe2",
+  "image_url": "",
+  "current_character_id": {
+    "$oid": "6751c78116dd9a0eb5280641"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-05T15:31:09.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "6752c53416dd9a0eb528064e"
+  },
+  "name": "",
+  "email": "leth2092003@gmail.com",
+  "firebase_uid": "lFzGIngL4cRI532ZR9xUipoBKmu2",
+  "image_url": "",
+  "current_character_id": {
+    "$oid": "6752c59916dd9a0eb528064f"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-06T09:34:44.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "67532e9416dd9a0eb528065c"
+  },
+  "name": "Nguyễn Thanh Bình (21127232)",
+  "email": "ntbinh21@clc.fitus.edu.vn",
+  "firebase_uid": "RBQwzoKMAqgjpHPfSxC4LH9NhTt2",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocJhfe00adrIMc8gY_7ruPozJSjPZqiwuB2Efax_j_eFnvX7TBE=s96-c",
+  "current_character_id": {
+    "$oid": "67532eaf16dd9a0eb528065d"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-06T17:04:20.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "675360cd16dd9a0eb528066a"
+  },
+  "name": "",
+  "email": "9ky5qdcgtq@privaterelay.appleid.com",
+  "firebase_uid": "AjfKzksJMHMAW6VCGyRhGjHxbC42",
+  "image_url": "",
+  "current_character_id": {
+    "$oid": "000000000000000000000000"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-06T20:38:37.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "6753f73416dd9a0eb528066b"
+  },
+  "name": "",
+  "email": "rr8cmsmx4v@privaterelay.appleid.com",
+  "firebase_uid": "NEqgUPTSgRgATJdiYaJf5wterCv2",
+  "image_url": "",
+  "current_character_id": {
+    "$oid": "6753f7ab16dd9a0eb528066c"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-07T07:20:20.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "6754349116dd9a0eb5280679"
+  },
+  "name": "Khoa Ngô Nguyễn Thế",
+  "email": "nntkhoa23@clc.fitus.edu.vn",
+  "firebase_uid": "YgSyVwbidzckUOyzg7AkweQ09Rr2",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocIOXDNSBzhpQyT6jFKp6egFs4VQ4lNomAFAoWLbKFDoxHddfw=s96-c",
+  "current_character_id": {
+    "$oid": "6754349d16dd9a0eb528067a"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-07T11:42:09.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "67545c0416dd9a0eb5280687"
+  },
+  "name": "Vu Thanh Duyen (K17 HCM)",
+  "email": "duyenvtss170312@fpt.edu.vn",
+  "firebase_uid": "Jz6xKTr3evb5MXbvgg9bxQJkoyo2",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocIFiGs7sU9eTuTJCJHID7oif5cOFp8S6CGl0ljfidq3Ot2JuS_7=s96-c",
+  "current_character_id": {
+    "$oid": "67545c1a16dd9a0eb5280688"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-07T14:30:28.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "6755056c16dd9a0eb5280695"
+  },
+  "name": "",
+  "email": "dhwqjzg4q5@privaterelay.appleid.com",
+  "firebase_uid": "ui68okjnYrTLe2XOfnngZuRxFnJ2",
+  "image_url": "",
+  "current_character_id": {
+    "$oid": "000000000000000000000000"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-08T02:33:16.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "6756ca7f16dd9a0eb5280696"
+  },
+  "name": "An Nguyễn Quốc",
+  "email": "annguyen.rec@gmail.com",
+  "firebase_uid": "yZjId5JCMJZIdQqktcRl8popaHz1",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocLrKH-VRBA6Na44M--L897R8_IIff2X4-IphI776nAkMEZTNjg=s96-c",
+  "current_character_id": {
+    "$oid": "6756cab316dd9a0eb5280697"
+  },
+  "available_snapshots": 6,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-09T10:46:23.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "6756d16316dd9a0eb52806a4"
+  },
+  "name": "Tan Le",
+  "email": "tanlethanh8266@gmail.com",
+  "firebase_uid": "0hs8IgC7nzLd6r7zs2XvUICRNPd2",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocKUcmX4quiseyzSfOZsvUbCWI-X0CElrs6BCGvUhIV4aF7rjERF=s96-c",
+  "current_character_id": {
+    "$oid": "6756d1b316dd9a0eb52806a5"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-09T11:15:47.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "675b17b816dd9a0eb52806b5"
+  },
+  "name": "Thắng Đoàn Quốc",
+  "email": "doanquocthangz@gmail.com",
+  "firebase_uid": "ZoVSodNhEaZvxLRxUQajlhVTAJ82",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocKYa4QxP0ka2bBk1Brg6DQ772aYrOnLFfCRxwFajjNTbbNTBg=s96-c",
+  "current_character_id": {
+    "$oid": "675b186916dd9a0eb52806b6"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-12T17:04:56.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+},
+{
+  "_id": {
+    "$oid": "675c38f716dd9a0eb52806c3"
+  },
+  "name": "Nguyễn Hải Trọng",
+  "email": "nguyenhaitrong15@gmail.com",
+  "firebase_uid": "WsgwcindAbaCADFVzdsSyyh38J03",
+  "image_url": "https://lh3.googleusercontent.com/a/ACg8ocKN9kE-orKtmkIrre7Qu7UkLInjk05jgjbSkBPyXvbFHdou6YY=s96-c",
+  "current_character_id": {
+    "$oid": "000000000000000000000000"
+  },
+  "available_snapshots": 7,
+  "auto_snapshot": true,
+  "created_at": {
+    "$date": "2024-12-13T13:39:03.000Z"
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "-62135596800000"
+    }
+  }
+}]
