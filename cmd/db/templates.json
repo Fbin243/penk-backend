@@ -1,0 +1,1339 @@
+{
+  "Career/Job": [
+    {
+      "name": "Frontend Developer",
+      "emoji": "🎨",
+      "description": "Master the art of building stunning and interactive user interfaces using top frameworks like React and Tailwind CSS while refining design skills.",
+      "color": "#FF5733",
+      "metrics": [
+        {
+          "name": "Framework Proficiency",
+          "style": {
+            "icon": "🎨",
+            "color": "#FF5733"
+          },
+          "properties": [
+            {
+              "name": "Mastered Frameworks",
+              "value": "",
+              "unit": "Frameworks",
+              "type": "String"
+            },
+            {
+              "name": "Projects Using Frameworks",
+              "value": "0",
+              "unit": "Projects",
+              "type": "Number"
+            },
+            {
+              "name": "Top Framework",
+              "value": "",
+              "unit": "Framework",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Design and CSS Mastery",
+          "style": {
+            "icon": "🎨",
+            "color": "#FF5733"
+          },
+          "properties": [
+            {
+              "name": "CSS Frameworks Mastered",
+              "value": "",
+              "unit": "CSS Frameworks",
+              "type": "String"
+            },
+            {
+              "name": "Custom Animations Created",
+              "value": "0",
+              "unit": "Animations",
+              "type": "Number"
+            },
+            {
+              "name": "Favorite CSS Trick",
+              "value": "",
+              "unit": "CSS Trick",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Testing and Debugging",
+          "style": {
+            "icon": "🎨",
+            "color": "#FF5733"
+          },
+          "properties": [
+            {
+              "name": "Unit Tests Written",
+              "value": "0",
+              "unit": "Tests",
+              "type": "Number"
+            },
+            {
+              "name": "UI Bugs Resolved",
+              "value": "0",
+              "unit": "Bugs",
+              "type": "Number"
+            },
+            {
+              "name": "Top Debugging Tool",
+              "value": "",
+              "unit": "Tool",
+              "type": "String"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Backend Developer",
+      "emoji": "🛠️",
+      "description": "Craft powerful APIs, secure endpoints, and optimize databases, becoming a pro at managing servers and scaling backend systems.",
+      "color": "#33A1FF",
+      "metrics": [
+        {
+          "name": "API Development",
+          "style": {
+            "icon": "🛠️",
+            "color": "#33A1FF"
+          },
+          "properties": [
+            {
+              "name": "APIs Built",
+              "value": "0",
+              "unit": "APIs",
+              "type": "Number"
+            },
+            {
+              "name": "Endpoints Secured",
+              "value": "0",
+              "unit": "Endpoints",
+              "type": "Number"
+            },
+            {
+              "name": "Top API Framework",
+              "value": "",
+              "unit": "Framework",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Database Management",
+          "style": {
+            "icon": "🛠️",
+            "color": "#33A1FF"
+          },
+          "properties": [
+            {
+              "name": "Databases Mastered",
+              "value": "",
+              "unit": "Databases",
+              "type": "String"
+            },
+            {
+              "name": "Queries Optimized",
+              "value": "0",
+              "unit": "Queries",
+              "type": "Number"
+            },
+            {
+              "name": "Favorite Database",
+              "value": "",
+              "unit": "Database",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Server Management",
+          "style": {
+            "icon": "🛠️",
+            "color": "#33A1FF"
+          },
+          "properties": [
+            {
+              "name": "Servers Deployed",
+              "value": "0",
+              "unit": "Servers",
+              "type": "Number"
+            },
+            {
+              "name": "Top Hosting Service",
+              "value": "",
+              "unit": "Service",
+              "type": "String"
+            },
+            {
+              "name": "Load Balancers Configured",
+              "value": "0",
+              "unit": "Load Balancers",
+              "type": "Number"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UI/UX Designer",
+      "emoji": "🎨",
+      "description": "Create seamless user experiences with beautiful designs, conduct user research, and continuously improve through testing and feedback",
+      "color": "#FF0000",
+      "metrics": [
+        {
+          "name": "Design Tools Proficiency",
+          "style": {
+            "icon": "🎨",
+            "color": "#6A33FF"
+          },
+          "properties": [
+            {
+              "name": "Tools Mastered",
+              "value": "",
+              "unit": "Tools",
+              "type": "String"
+            },
+            {
+              "name": "Prototypes Built",
+              "value": "0",
+              "unit": "Prototypes",
+              "type": "Number"
+            },
+            {
+              "name": "Favorite Design Tool",
+              "value": "",
+              "unit": "Tool",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "User Research",
+          "style": {
+            "icon": "🎨",
+            "color": "#6A33FF"
+          },
+          "properties": [
+            {
+              "name": "User Interviews Conducted",
+              "value": "0",
+              "unit": "Interviews",
+              "type": "Number"
+            },
+            {
+              "name": "Usability Tests Completed",
+              "value": "0",
+              "unit": "Tests",
+              "type": "Number"
+            },
+            {
+              "name": "Top Research Insight",
+              "value": "",
+              "unit": "Insight",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Testing and Iteration",
+          "style": {
+            "icon": "🎨",
+            "color": "#6A33FF"
+          },
+          "properties": [
+            {
+              "name": "A/B Tests Run",
+              "value": "0",
+              "unit": "Tests",
+              "type": "Number"
+            },
+            {
+              "name": "Feedback Incorporated",
+              "value": "0",
+              "unit": "Feedback",
+              "type": "Number"
+            },
+            {
+              "name": "Top UI Feedback",
+              "value": "",
+              "unit": "Feedback",
+              "type": "String"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Crypto Trader Extraordinaire",
+      "emoji": "📈",
+      "description": "Navigate the volatile crypto market with precision, track portfolio performance, and refine trading strategies for maximum gains.",
+      "color": "#FFC300",
+      "metrics": [
+        {
+          "name": "Portfolio Performance",
+          "style": {
+            "icon": "📈",
+            "color": "#FFC300"
+          },
+          "properties": [
+            {
+              "name": "Total Coins Held",
+              "value": "0",
+              "unit": "Coins",
+              "type": "Number"
+            },
+            {
+              "name": "Portfolio Value",
+              "value": "0",
+              "unit": "USD",
+              "type": "Number"
+            },
+            {
+              "name": "Top Holding",
+              "value": "",
+              "unit": "Coin",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Trading Activity",
+          "style": {
+            "icon": "📈",
+            "color": "#FFC300"
+          },
+          "properties": [
+            {
+              "name": "Trades Executed",
+              "value": "0",
+              "unit": "Trades",
+              "type": "Number"
+            },
+            {
+              "name": "Profitable Trades",
+              "value": "0",
+              "unit": "Trades",
+              "type": "Number"
+            },
+            {
+              "name": "Top Exchange",
+              "value": "",
+              "unit": "Exchange",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Risk Management",
+          "style": {
+            "icon": "📈",
+            "color": "#FFC300"
+          },
+          "properties": [
+            {
+              "name": "Stop Losses Set",
+              "value": "0",
+              "unit": "Stop Losses",
+              "type": "Number"
+            },
+            {
+              "name": "Risk-Reward Ratio",
+              "value": "0",
+              "unit": "Ratio",
+              "type": "Number"
+            },
+            {
+              "name": "Diversification Level",
+              "value": "0",
+              "unit": "Percent",
+              "type": "Number"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Lifestyle & Interests": [
+    {
+      "name": "Bookworm",
+      "emoji": "📚",
+      "description": "Dive into new literary worlds, track reading progress, explore diverse genres, and meet reading goals with ease.",
+      "color": "#6A33FF",
+      "metrics": [
+        {
+          "name": "Books Read",
+          "style": {
+            "icon": "📚",
+            "color": "#6A33FF"
+          },
+          "properties": [
+            {
+              "name": "Books Completed",
+              "value": "0",
+              "unit": "Books",
+              "type": "Number"
+            },
+            {
+              "name": "Pages Read",
+              "value": "0",
+              "unit": "Pages",
+              "type": "Number"
+            },
+            {
+              "name": "Favorite Book",
+              "value": "",
+              "unit": "Book",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Genres Explored",
+          "style": {
+            "icon": "📚",
+            "color": "#6A33FF"
+          },
+          "properties": [
+            {
+              "name": "Genres Mastered",
+              "value": "",
+              "unit": "Genres",
+              "type": "String"
+            },
+            {
+              "name": "New Genres Tried",
+              "value": "0",
+              "unit": "Genres",
+              "type": "Number"
+            },
+            {
+              "name": "Top Genre",
+              "value": "",
+              "unit": "Genre",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Book Reviews",
+          "style": {
+            "icon": "📚",
+            "color": "#6A33FF"
+          },
+          "properties": [
+            {
+              "name": "Books Reviewed",
+              "value": "0",
+              "unit": "Reviews",
+              "type": "Number"
+            },
+            {
+              "name": "Top Review",
+              "value": "",
+              "unit": "Review",
+              "type": "String"
+            },
+            {
+              "name": "Favorite Book Quote",
+              "value": "",
+              "unit": "Quote",
+              "type": "String"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Caffeine Connoisseur",
+      "emoji": "☕",
+      "description": "Discover the world of coffee, from brewing the perfect cup to exploring new coffee shops and crafting delicious latte art at home.",
+      "color": "#FF33B5",
+      "metrics": [
+        {
+          "name": "Cups of Energy",
+          "style": {
+            "icon": "☕",
+            "color": "#FF33B5"
+          },
+          "properties": [
+            {
+              "name": "Daily Coffee Intake",
+              "value": "0",
+              "unit": "Cups",
+              "type": "Number"
+            },
+            {
+              "name": "Strongest Coffee Brewed",
+              "value": "0",
+              "unit": "mg of Caffeine",
+              "type": "Number"
+            },
+            {
+              "name": "Favorite Brew Method",
+              "value": "",
+              "unit": "Method",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Bean Expertise",
+          "style": {
+            "icon": "☕",
+            "color": "#FF33B5"
+          },
+          "properties": [
+            {
+              "name": "Favorite Coffee Beans",
+              "value": "",
+              "unit": "Beans",
+              "type": "String"
+            },
+            {
+              "name": "Grind Settings Experimented",
+              "value": "0",
+              "unit": "Settings",
+              "type": "Number"
+            },
+            {
+              "name": "Top Roast Preference",
+              "value": "",
+              "unit": "Roast",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Coffee Shop Hopper",
+          "style": {
+            "icon": "☕",
+            "color": "#FF33B5"
+          },
+          "properties": [
+            {
+              "name": "New Coffee Shops Visited",
+              "value": "0",
+              "unit": "Shops",
+              "type": "Number"
+            },
+            {
+              "name": "Top Coffee Shop",
+              "value": "",
+              "unit": "Shop",
+              "type": "String"
+            },
+            {
+              "name": "Favorite Coffee Shop Treat",
+              "value": "",
+              "unit": "Treat",
+              "type": "String"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Gym Rat Supreme",
+      "emoji": "🏋️‍♂️",
+      "description": "Crush your lifting goals, track protein intake, and stay consistent in the gym, all while maintaining that perfect flex.",
+      "color": "#33FF57",
+      "metrics": [
+        {
+          "name": "Lift and Chill",
+          "style": {
+            "icon": "🏋️‍♂️",
+            "color": "#33FF57"
+          },
+          "properties": [
+            {
+              "name": "Bench Press Max",
+              "value": "0",
+              "unit": "kg",
+              "type": "Number"
+            },
+            {
+              "name": "Squats Done",
+              "value": "0",
+              "unit": "Squats",
+              "type": "Number"
+            },
+            {
+              "name": "Deadlift PR",
+              "value": "0",
+              "unit": "kg",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Protein Power",
+          "style": {
+            "icon": "🏋️‍♂️",
+            "color": "#33FF57"
+          },
+          "properties": [
+            {
+              "name": "Protein Shakes Consumed",
+              "value": "0",
+              "unit": "Shakes",
+              "type": "Number"
+            },
+            {
+              "name": "Chicken Breasts Devoured",
+              "value": "0",
+              "unit": "Breasts",
+              "type": "Number"
+            },
+            {
+              "name": "Favorite Protein Sources",
+              "value": "",
+              "unit": "Sources",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Flex Time",
+          "style": {
+            "icon": "🏋️‍♂️",
+            "color": "#33FF57"
+          },
+          "properties": [
+            {
+              "name": "Mirror Selfies Taken",
+              "value": "0",
+              "unit": "Selfies",
+              "type": "Number"
+            },
+            {
+              "name": "Top Flex Pose",
+              "value": "",
+              "unit": "Pose",
+              "type": "String"
+            },
+            {
+              "name": "Gym Self-Confidence",
+              "value": "0",
+              "unit": "Percent",
+              "type": "Number"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Diet Dynamo",
+      "emoji": "🥗",
+      "description": "Master the art of healthy eating, track your calorie intake, and stay hydrated while achieving your fitness goals.",
+      "color": "#FF9633",
+      "metrics": [
+        {
+          "name": "Calorie Intake",
+          "style": {
+            "icon": "🥗",
+            "color": "#FF9633"
+          },
+          "properties": [
+            {
+              "name": "Daily Calorie Limit",
+              "value": "0",
+              "unit": "Calories",
+              "type": "Number"
+            },
+            {
+              "name": "Calories Consumed",
+              "value": "0",
+              "unit": "Calories",
+              "type": "Number"
+            },
+            {
+              "name": "Cheat Meals Count",
+              "value": "0",
+              "unit": "Meals",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Meal Tracking",
+          "style": {
+            "icon": "🥗",
+            "color": "#FF9633"
+          },
+          "properties": [
+            {
+              "name": "Healthy Meals Eaten",
+              "value": "0",
+              "unit": "Meals",
+              "type": "Number"
+            },
+            {
+              "name": "Favorite Diet Recipes",
+              "value": "",
+              "unit": "Recipes",
+              "type": "String"
+            },
+            {
+              "name": "Top Vegetable Choices",
+              "value": "",
+              "unit": "Vegetables",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Hydration Habits",
+          "style": {
+            "icon": "🥗",
+            "color": "#FF9633"
+          },
+          "properties": [
+            {
+              "name": "Daily Water Intake",
+              "value": "0",
+              "unit": "Liters",
+              "type": "Number"
+            },
+            {
+              "name": "Favorite Hydration Sources",
+              "value": "",
+              "unit": "Sources",
+              "type": "String"
+            },
+            {
+              "name": "Water Bottles Carried",
+              "value": "0",
+              "unit": "Bottles",
+              "type": "Number"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Astronomy Enthusiast",
+      "emoji": "🔭",
+      "description": "Explore the night sky, identify constellations, capture stunning celestial photos, and attend star parties to deepen your love for the universe.",
+      "color": "#3380FF",
+      "metrics": [
+        {
+          "name": "Stargazing Sessions",
+          "style": {
+            "icon": "🔭",
+            "color": "#3380FF"
+          },
+          "properties": [
+            {
+              "name": "Nights Spent Stargazing",
+              "value": "0",
+              "unit": "Nights",
+              "type": "Number"
+            },
+            {
+              "name": "Observed Celestial Bodies",
+              "value": "",
+              "unit": "Celestial Bodies",
+              "type": "String"
+            },
+            {
+              "name": "Favorite Stargazing Spot",
+              "value": "",
+              "unit": "Spot",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Astronomy Knowledge",
+          "style": {
+            "icon": "🔭",
+            "color": "#3380FF"
+          },
+          "properties": [
+            {
+              "name": "Constellations Identified",
+              "value": "0",
+              "unit": "Constellations",
+              "type": "Number"
+            },
+            {
+              "name": "Favorite Constellation",
+              "value": "",
+              "unit": "Constellation",
+              "type": "String"
+            },
+            {
+              "name": "Astronomy Books Read",
+              "value": "0",
+              "unit": "Books",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Equipment and Tools",
+          "style": {
+            "icon": "🔭",
+            "color": "#3380FF"
+          },
+          "properties": [
+            {
+              "name": "Telescopes Owned",
+              "value": "0",
+              "unit": "Telescopes",
+              "type": "Number"
+            },
+            {
+              "name": "Eyepieces and Filters Used",
+              "value": "",
+              "unit": "Eyepieces/Filters",
+              "type": "String"
+            },
+            {
+              "name": "Favorite Telescope Brand",
+              "value": "",
+              "unit": "Brand",
+              "type": "String"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Academic": [
+    {
+      "name": "IELTS Warrior",
+      "emoji": "📘",
+      "description": "Improve your English proficiency with focused practice in listening, reading, writing, and speaking to achieve your dream IELTS score.",
+      "color": "#8D33FF",
+      "metrics": [
+        {
+          "name": "Listening Mastery",
+          "style": {
+            "icon": "📘",
+            "color": "#8D33FF"
+          },
+          "properties": [
+            {
+              "name": "Practice Tests Completed",
+              "value": "0",
+              "unit": "Tests",
+              "type": "Number"
+            },
+            {
+              "name": "Listening Score Average",
+              "value": "0",
+              "unit": "Band",
+              "type": "Number"
+            },
+            {
+              "name": "Favorite Listening Sources",
+              "value": "",
+              "unit": "Sources",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Reading Comprehension",
+          "style": {
+            "icon": "📘",
+            "color": "#8D33FF"
+          },
+          "properties": [
+            {
+              "name": "Passages Completed",
+              "value": "0",
+              "unit": "Passages",
+              "type": "Number"
+            },
+            {
+              "name": "Top Scoring Passage",
+              "value": "",
+              "unit": "Passage",
+              "type": "String"
+            },
+            {
+              "name": "Favorite Reading Materials",
+              "value": "",
+              "unit": "Materials",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Speaking Fluency",
+          "style": {
+            "icon": "📘",
+            "color": "#8D33FF"
+          },
+          "properties": [
+            {
+              "name": "Practice Speaking Sessions",
+              "value": "0",
+              "unit": "Sessions",
+              "type": "Number"
+            },
+            {
+              "name": "Topics Mastered",
+              "value": "",
+              "unit": "Topics",
+              "type": "String"
+            },
+            {
+              "name": "Best Speaking Feedback",
+              "value": "",
+              "unit": "Feedback",
+              "type": "String"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Top Universities Dreamer",
+      "emoji": "🎓",
+      "description": "Prepare for entrance exams, polish application essays, and track your progress toward getting into your dream university.",
+      "color": "#33FFBD",
+      "metrics": [
+        {
+          "name": "Exam Preparation",
+          "style": {
+            "icon": "🎓",
+            "color": "#33FFBD"
+          },
+          "properties": [
+            {
+              "name": "Practice Tests Completed",
+              "value": "0",
+              "unit": "Tests",
+              "type": "Number"
+            },
+            {
+              "name": "Highest Mock Exam Score",
+              "value": "0",
+              "unit": "Percent",
+              "type": "Number"
+            },
+            {
+              "name": "Subjects Mastered",
+              "value": "",
+              "unit": "Subjects",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "University Applications",
+          "style": {
+            "icon": "🎓",
+            "color": "#33FFBD"
+          },
+          "properties": [
+            {
+              "name": "Universities Applied To",
+              "value": "0",
+              "unit": "Universities",
+              "type": "Number"
+            },
+            {
+              "name": "Application Essays Written",
+              "value": "0",
+              "unit": "Essays",
+              "type": "Number"
+            },
+            {
+              "name": "Top Choice University",
+              "value": "",
+              "unit": "University",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Extracurricular Activities",
+          "style": {
+            "icon": "🎓",
+            "color": "#33FFBD"
+          },
+          "properties": [
+            {
+              "name": "Clubs or Teams Joined",
+              "value": "",
+              "unit": "Clubs/Teams",
+              "type": "String"
+            },
+            {
+              "name": "Leadership Positions Held",
+              "value": "0",
+              "unit": "Positions",
+              "type": "Number"
+            },
+            {
+              "name": "Key Achievements",
+              "value": "",
+              "unit": "Achievements",
+              "type": "String"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Quirky Characters": [
+    {
+      "name": "Tom - The Cutest Cat",
+      "emoji": "😻",
+      "description": "Keep Tom healthy and happy with regular meals, playtime, and grooming sessions, while capturing his cutest moments.",
+      "color": "#FF3366",
+      "metrics": [
+        {
+          "name": "Health and Well-being",
+          "style": {
+            "icon": "😻",
+            "color": "#FF3366"
+          },
+          "properties": [
+            {
+              "name": "Weight",
+              "value": "0",
+              "unit": "kg",
+              "type": "Number"
+            },
+            {
+              "name": "Meals Per Day",
+              "value": "0",
+              "unit": "Meals",
+              "type": "Number"
+            },
+            {
+              "name": "Vet Visits",
+              "value": "0",
+              "unit": "Visits",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Activity and Playtime",
+          "style": {
+            "icon": "😻",
+            "color": "#FF3366"
+          },
+          "properties": [
+            {
+              "name": "Favorite Toys",
+              "value": "",
+              "unit": "Toys",
+              "type": "String"
+            },
+            {
+              "name": "Naps Taken",
+              "value": "0",
+              "unit": "Naps",
+              "type": "Number"
+            },
+            {
+              "name": "Playtime Satisfaction",
+              "value": "0",
+              "unit": "Percent",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Bonding Moments",
+          "style": {
+            "icon": "😻",
+            "color": "#FF3366"
+          },
+          "properties": [
+            {
+              "name": "Cuddles Received",
+              "value": "0",
+              "unit": "Cuddles",
+              "type": "Number"
+            },
+            {
+              "name": "Photos Taken",
+              "value": "0",
+              "unit": "Photos",
+              "type": "Number"
+            },
+            {
+              "name": "Favorite Bonding Activity",
+              "value": "",
+              "unit": "Activity",
+              "type": "String"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Professional Napper",
+      "emoji": "😴",
+      "description": "Perfect the art of napping by tracking daily naps, exploring the best spots, and rating your nap experiences.",
+      "color": "#33FFF5",
+      "metrics": [
+        {
+          "name": "Napping Mastery",
+          "style": {
+            "icon": "😴",
+            "color": "#33FFF5"
+          },
+          "properties": [
+            {
+              "name": "Total Naps Taken",
+              "value": "0",
+              "unit": "Naps",
+              "type": "Number"
+            },
+            {
+              "name": "Best Nap Ever",
+              "value": "0",
+              "unit": "Rating out of 10",
+              "type": "Number"
+            },
+            {
+              "name": "Nap Success Rate",
+              "value": "0",
+              "unit": "Percent",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Nap Locations",
+          "style": {
+            "icon": "😴",
+            "color": "#33FFF5"
+          },
+          "properties": [
+            {
+              "name": "Favorite Nap Spots",
+              "value": "",
+              "unit": "Spots",
+              "type": "String"
+            },
+            {
+              "name": "Most Unusual Nap Spot",
+              "value": "",
+              "unit": "Spot",
+              "type": "String"
+            },
+            {
+              "name": "Coziest Nap Spot",
+              "value": "",
+              "unit": "Spot",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Dream Tracking",
+          "style": {
+            "icon": "😴",
+            "color": "#33FFF5"
+          },
+          "properties": [
+            {
+              "name": "Dreams Remembered",
+              "value": "0",
+              "unit": "Dreams",
+              "type": "Number"
+            },
+            {
+              "name": "Weirdest Dream",
+              "value": "",
+              "unit": "Dream",
+              "type": "String"
+            },
+            {
+              "name": "Recurring Dream Themes",
+              "value": "",
+              "unit": "Themes",
+              "type": "String"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Shower Thoughts Philosopher",
+      "emoji": "💭",
+      "description": "Reflect on life’s deepest mysteries and quirky ideas during your shower time, while keeping track of those fleeting thoughts.",
+      "color": "#D433FF",
+      "metrics": [
+        {
+          "name": "Mind-Blowing Thoughts",
+          "style": {
+            "icon": "💭",
+            "color": "#D433FF"
+          },
+          "properties": [
+            {
+              "name": "Shower Epiphanies",
+              "value": "0",
+              "unit": "Epiphanies",
+              "type": "Number"
+            },
+            {
+              "name": "Deepest Thought",
+              "value": "",
+              "unit": "Thought",
+              "type": "String"
+            },
+            {
+              "name": "Weirdest Realization",
+              "value": "",
+              "unit": "Realization",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Creative Ideas",
+          "style": {
+            "icon": "💭",
+            "color": "#D433FF"
+          },
+          "properties": [
+            {
+              "name": "Inventions Thought Of",
+              "value": "0",
+              "unit": "Inventions",
+              "type": "Number"
+            },
+            {
+              "name": "Ideas for World Peace",
+              "value": "",
+              "unit": "Ideas",
+              "type": "String"
+            },
+            {
+              "name": "Random Business Ideas",
+              "value": "",
+              "unit": "Idea",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Forgotten Thoughts",
+          "style": {
+            "icon": "💭",
+            "color": "#D433FF"
+          },
+          "properties": [
+            {
+              "name": "Brilliant Ideas Forgotten",
+              "value": "0",
+              "unit": "Ideas",
+              "type": "Number"
+            },
+            {
+              "name": "Dreams Lost Down the Drain",
+              "value": "0",
+              "unit": "Dreams",
+              "type": "Number"
+            },
+            {
+              "name": "Regrettable Shower Thoughts",
+              "value": "",
+              "unit": "Thought",
+              "type": "String"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Master of Memes",
+      "emoji": "😂",
+      "description": "Create, share, and research the internet’s best memes while keeping track of your viral moments and LOL-worthy creations.",
+      "color": "#33D4FF",
+      "metrics": [
+        {
+          "name": "Meme Creation",
+          "style": {
+            "icon": "😂",
+            "color": "#33D4FF"
+          },
+          "properties": [
+            {
+              "name": "Memes Created",
+              "value": "0",
+              "unit": "Memes",
+              "type": "Number"
+            },
+            {
+              "name": "Most Liked Meme",
+              "value": "",
+              "unit": "Meme",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Meme Spread",
+          "style": {
+            "icon": "😂",
+            "color": "#33D4FF"
+          },
+          "properties": [
+            {
+              "name": "Memes Shared",
+              "value": "0",
+              "unit": "Shares",
+              "type": "Number"
+            },
+            {
+              "name": "Memes Gone Viral",
+              "value": "0",
+              "unit": "Memes",
+              "type": "Number"
+            },
+            {
+              "name": "Top Platform for Shares",
+              "value": "",
+              "unit": "Platform",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Meme Reactions",
+          "style": {
+            "icon": "😂",
+            "color": "#33D4FF"
+          },
+          "properties": [
+            {
+              "name": "LOL Count",
+              "value": "0",
+              "unit": "Reactions",
+              "type": "Number"
+            },
+            {
+              "name": "Facepalm Count",
+              "value": "0",
+              "unit": "Reactions",
+              "type": "Number"
+            },
+            {
+              "name": "Cry-laughing Emojis Sent",
+              "value": "0",
+              "unit": "Emojis",
+              "type": "Number"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

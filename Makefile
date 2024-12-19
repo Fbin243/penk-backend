@@ -75,4 +75,9 @@ token:
 	@echo "Getting new JWT token..."
 	@go run cmd/main.go jwt -u $(UID)
 
-.PHONY: core analytics timetrackings notifications gateway dev tidy gqlgen
+# Import templates from json file to db
+templates:
+	@echo "Importing templates from file..."
+	@go run cmd/main.go import-templates
+
+.PHONY: core analytics timetrackings notifications gateway dev tidy gqlgen token templates

@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"tenkhours/cmd/auth"
+	"tenkhours/cmd/db"
 	"tenkhours/cmd/e2e"
 	"tenkhours/cmd/gql"
 	"tenkhours/cmd/time"
@@ -27,6 +28,7 @@ func main() {
 			&auth.GetJWTTokenCommand,
 			&e2e.TestUserFlowCommand,
 			&time.GetTheCurrentTime,
+			&db.ImportTemplatesDataFromJSON,
 		},
 		Before: func(ctx *cli.Context) error {
 			env := os.Getenv("TENK_ENV")

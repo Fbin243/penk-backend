@@ -35,6 +35,7 @@ func (m *BaseModel) SetUpdatedAtByNow() {
 
 type IBaseRepo[M IBaseModel] interface {
 	InsertOne(m *M) (*M, error)
+	InsertMany(ms []M) ([]M, error)
 	FindAll() ([]M, error)
 	FindByID(id primitive.ObjectID) (*M, error)
 	UpdateByID(id primitive.ObjectID, m *M) (*M, error)
@@ -47,6 +48,25 @@ type BaseRepo[M IBaseModel] struct {
 
 func NewBaseRepo[M IBaseModel](collection *mongo.Collection) *BaseRepo[M] {
 	return &BaseRepo[M]{collection}
+}
+
+func (r *BaseRepo[M]) InsertMany(ms []M) ([]M, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	for i := range ms {
+		ms[i].SetID(primitive.NewObjectID())
+		ms[i].SetCreatedAtByNow()
+		ms[i].SetUpdatedAtByNow()
+	}
+
+	docs := make([]interface{}, len(ms))
+	for i, m := range ms {
+		docs[i] = m
+	}
+
+	_, err := r.Collection.InsertMany(ctx, docs)
+	return ms, err
 }
 
 func (r *BaseRepo[M]) InsertOne(m *M) (*M, error) {
