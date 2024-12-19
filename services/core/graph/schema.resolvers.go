@@ -79,6 +79,11 @@ func (r *queryResolver) Goals(ctx context.Context, characterID primitive.ObjectI
 	return r.GoalsBusiness.GetGoals(ctx, characterID, status)
 }
 
+// Templates is the resolver for the templates field.
+func (r *queryResolver) Templates(ctx context.Context) ([]repo.Template, error) {
+	return r.TemplatesBusiness.GetTemplates(ctx)
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 

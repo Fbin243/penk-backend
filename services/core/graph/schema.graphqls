@@ -3,6 +3,7 @@ type Query {
   profile: Profile!
   appSettings: AppSettings!
   goals(characterID: ObjectID!, status: GoalStatusFilter): [Goal!]!
+  templates: [Template!]!
 }
 
 type Mutation {

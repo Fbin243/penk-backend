@@ -44,6 +44,8 @@ func main() {
 	charactersRepo := repo.NewCharactersRepo(mongodb)
 	fishRepo := fishRepo.NewFishRepo(mongodb)
 	goalsRepo := repo.NewGoalsRepo(mongodb)
+	templatesRepo := repo.NewTemplatesRepo(mongodb)
+	templateCategoriesRepo := repo.NewTemplateCategoriesRepo(mongodb)
 
 	// TODO: Temporary inject analyticsRepos into profilesBiz for deleting related data
 	capturedRepordsRepo := analyticsRepo.NewCapturedRecordsRepo(mongodb)
@@ -52,6 +54,7 @@ func main() {
 	profilesBiz := business.NewProfilesBusiness(profilesRepo, fishRepo, charactersRepo, capturedRepordsRepo, snapshotsRepo, redisClient)
 	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo, goalsRepo)
 	goalsBiz := business.NewGoalsBusiness(goalsRepo, charactersRepo)
+	templatesBiz := business.NewTemplatesBusiness(templatesRepo, templateCategoriesRepo)
 
 	// Check authentication
 	authMiddleware := middlewares.NewMiddleware(redisClient, profilesRepo)
@@ -62,6 +65,7 @@ func main() {
 			ProfilesBusiness:   profilesBiz,
 			CharactersBusiness: charactersBiz,
 			GoalsBusiness:      goalsBiz,
+			TemplatesBusiness:  templatesBiz,
 		},
 	}))
 

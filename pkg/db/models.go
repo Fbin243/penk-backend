@@ -35,6 +35,7 @@ func (m *BaseModel) SetUpdatedAtByNow() {
 
 type IBaseRepo[M IBaseModel] interface {
 	InsertOne(m *M) (*M, error)
+	FindAll() ([]M, error)
 	FindByID(id primitive.ObjectID) (*M, error)
 	UpdateByID(id primitive.ObjectID, m *M) (*M, error)
 	DeleteByID(id primitive.ObjectID) (*M, error)
@@ -58,6 +59,22 @@ func (r *BaseRepo[M]) InsertOne(m *M) (*M, error) {
 	_m.SetUpdatedAtByNow()
 	_, err := r.Collection.InsertOne(ctx, m)
 	return m, err
+}
+
+func (r *BaseRepo[M]) FindAll() ([]M, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	cursor, err := r.Collection.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+
+	defer cursor.Close(ctx)
+
+	var ms []M
+	err = cursor.All(ctx, &ms)
+	return ms, err
 }
 
 func (r *BaseRepo[M]) FindByID(id primitive.ObjectID) (*M, error) {

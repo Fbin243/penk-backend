@@ -32,7 +32,7 @@ type Character struct {
 }
 
 type CustomMetric struct {
-	ID                    primitive.ObjectID `json:"id,omitempty" bson:"_id"`
+	ID                    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name                  string             `json:"name,omitempty" bson:"name"`
 	Description           string             `json:"description,omitempty" bson:"description"`
 	Time                  int32              `json:"time,omitempty" bson:"time,omitempty"`
@@ -85,4 +85,38 @@ const (
 type GoalStatusFilter struct {
 	FinishStatus *GoalFinishStatus
 	ExpireStatus *GoalExpireStatus
+}
+
+type Template struct {
+	*db.BaseModel `bson:",inline"`
+	Name          string             `json:"name,omitempty" bson:"name,omitempty"`
+	Description   string             `json:"description,omitempty" bson:"description,omitempty"`
+	CategoryID    primitive.ObjectID `json:"categoryID,omitempty" bson:"category_id,omitempty"`
+	Style         TemplateStyle      `json:"style,omitempty" bson:"style,omitempty"`
+	Metrics       []TemplateMetric   `json:"metrics,omitempty" bson:"metrics,omitempty"`
+}
+
+type TemplateMetric struct {
+	Name        string             `json:"name,omitempty" bson:"name"`
+	Description string             `json:"description,omitempty" bson:"description"`
+	Style       MetricStyle        `json:"style,omitempty" bson:"style"`
+	Properties  []TemplateProperty `json:"properties,omitempty" bson:"properties"`
+}
+
+type TemplateProperty struct {
+	Name  string             `json:"name,omitempty" bson:"name"`
+	Type  MetricPropertyType `json:"type,omitempty" bson:"type"`
+	Value string             `json:"value,omitempty" bson:"value"`
+	Unit  string             `json:"unit,omitempty" bson:"unit"`
+}
+
+type TemplateStyle struct {
+	Color string `json:"color,omitempty" bson:"color,omitempty"`
+	Icon  string `json:"icon,omitempty" bson:"icon,omitempty"`
+}
+
+type TemplateCategory struct {
+	*db.BaseModel `bson:",inline"`
+	Name          string `json:"name,omitempty" bson:"name,omitempty"`
+	Description   string `json:"description,omitempty" bson:"description,omitempty"`
 }

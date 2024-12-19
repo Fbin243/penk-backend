@@ -1,34 +1,51 @@
 package business
 
 import (
-    "context"
-    "tenkhours/services/core/repo"
+	"context"
+	"tenkhours/pkg/auth"
+	"tenkhours/pkg/errors"
+	"tenkhours/services/core/repo"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type TemplatesBusiness struct {
-    templateRepo *repo.TemplateRepo
+	TemplatesRepo           *repo.TemplatesRepo
+	TemplatesCategoriesRepo *repo.TemplateCategoriesRepo
 }
 
-func NewTemplatesBusiness(templateRepo *repo.TemplateRepo) *TemplatesBusiness {
-    return &TemplatesBusiness{
-        templateRepo: templateRepo,
-    }
+func NewTemplatesBusiness(templatesRepo *repo.TemplatesRepo, templateCategoriesRepo *repo.TemplateCategoriesRepo) *TemplatesBusiness {
+	return &TemplatesBusiness{
+		TemplatesRepo:           templatesRepo,
+		TemplatesCategoriesRepo: templateCategoriesRepo,
+	}
 }
 
+// GetTemplates returns all templates
 func (biz *TemplatesBusiness) GetTemplates(ctx context.Context) ([]repo.Template, error) {
-    return biz.templateRepo.GetTemplates()
+	_, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	if !ok {
+		return nil, errors.ErrorUnauthorized
+	}
+
+	return biz.TemplatesRepo.FindAll()
 }
 
-func (biz *TemplatesBusiness) GetTemplateByID(ctx context.Context, id string) (*repo.Template, error) {
-    templates, err := biz.templateRepo.GetTemplates()
-    if err != nil {
-        return nil, err
-    }
+// Get template category by ID
+func (biz *TemplatesBusiness) GetTemplateCategory(ctx context.Context, id primitive.ObjectID) (*repo.TemplateCategory, error) {
+	_, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	if !ok {
+		return nil, errors.ErrorUnauthorized
+	}
 
-    for _, template := range templates {
-        if template.ID == id {
-            return &template, nil
-        }
-    }
-    return nil, nil
+	category, err := biz.TemplatesCategoriesRepo.FindByID(id)
+	if err == mongo.ErrNoDocuments {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return category, nil
 }

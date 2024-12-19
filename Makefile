@@ -70,4 +70,9 @@ gqlgen:
 		go run -C ./services/$$service $(GQLGEN_CMD); \
 	done
 
+# Get new JWT token
+token:
+	@echo "Getting new JWT token..."
+	@go run cmd/main.go jwt -u $(UID)
+
 .PHONY: core analytics timetrackings notifications gateway dev tidy gqlgen

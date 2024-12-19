@@ -4,7 +4,6 @@ type ContextKey int
 
 const (
 	ProfileKey ContextKey = iota
-	PostDataKey
 )
 
 type FirebaseProfile struct {

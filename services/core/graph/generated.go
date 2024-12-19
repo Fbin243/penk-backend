@@ -47,6 +47,7 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	Profile() ProfileResolver
 	Query() QueryResolver
+	Template() TemplateResolver
 }
 
 type DirectiveRoot struct {
@@ -137,7 +138,38 @@ type ComplexityRoot struct {
 		Characters         func(childComplexity int) int
 		Goals              func(childComplexity int, characterID primitive.ObjectID, status *repo.GoalStatusFilter) int
 		Profile            func(childComplexity int) int
+		Templates          func(childComplexity int) int
 		__resolve__service func(childComplexity int) int
+	}
+
+	Template struct {
+		Category    func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Metrics     func(childComplexity int) int
+		Name        func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+	}
+
+	TemplateCategory struct {
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
+	}
+
+	TemplateMetric struct {
+		Description func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Properties  func(childComplexity int) int
+		Style       func(childComplexity int) int
+	}
+
+	TemplateProperty struct {
+		Name  func(childComplexity int) int
+		Type  func(childComplexity int) int
+		Unit  func(childComplexity int) int
+		Value func(childComplexity int) int
 	}
 
 	_Service struct {
@@ -160,6 +192,10 @@ type QueryResolver interface {
 	Profile(ctx context.Context) (*repo.Profile, error)
 	AppSettings(ctx context.Context) (*model.AppSettings, error)
 	Goals(ctx context.Context, characterID primitive.ObjectID, status *repo.GoalStatusFilter) ([]repo.Goal, error)
+	Templates(ctx context.Context) ([]repo.Template, error)
+}
+type TemplateResolver interface {
+	Category(ctx context.Context, obj *repo.Template) (*repo.TemplateCategory, error)
 }
 
 type executableSchema struct {
@@ -619,12 +655,145 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Profile(childComplexity), true
 
+	case "Query.templates":
+		if e.complexity.Query.Templates == nil {
+			break
+		}
+
+		return e.complexity.Query.Templates(childComplexity), true
+
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
 			break
 		}
 
 		return e.complexity.Query.__resolve__service(childComplexity), true
+
+	case "Template.category":
+		if e.complexity.Template.Category == nil {
+			break
+		}
+
+		return e.complexity.Template.Category(childComplexity), true
+
+	case "Template.createdAt":
+		if e.complexity.Template.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Template.CreatedAt(childComplexity), true
+
+	case "Template.description":
+		if e.complexity.Template.Description == nil {
+			break
+		}
+
+		return e.complexity.Template.Description(childComplexity), true
+
+	case "Template.id":
+		if e.complexity.Template.ID == nil {
+			break
+		}
+
+		return e.complexity.Template.ID(childComplexity), true
+
+	case "Template.metrics":
+		if e.complexity.Template.Metrics == nil {
+			break
+		}
+
+		return e.complexity.Template.Metrics(childComplexity), true
+
+	case "Template.name":
+		if e.complexity.Template.Name == nil {
+			break
+		}
+
+		return e.complexity.Template.Name(childComplexity), true
+
+	case "Template.updatedAt":
+		if e.complexity.Template.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Template.UpdatedAt(childComplexity), true
+
+	case "TemplateCategory.description":
+		if e.complexity.TemplateCategory.Description == nil {
+			break
+		}
+
+		return e.complexity.TemplateCategory.Description(childComplexity), true
+
+	case "TemplateCategory.id":
+		if e.complexity.TemplateCategory.ID == nil {
+			break
+		}
+
+		return e.complexity.TemplateCategory.ID(childComplexity), true
+
+	case "TemplateCategory.name":
+		if e.complexity.TemplateCategory.Name == nil {
+			break
+		}
+
+		return e.complexity.TemplateCategory.Name(childComplexity), true
+
+	case "TemplateMetric.description":
+		if e.complexity.TemplateMetric.Description == nil {
+			break
+		}
+
+		return e.complexity.TemplateMetric.Description(childComplexity), true
+
+	case "TemplateMetric.name":
+		if e.complexity.TemplateMetric.Name == nil {
+			break
+		}
+
+		return e.complexity.TemplateMetric.Name(childComplexity), true
+
+	case "TemplateMetric.properties":
+		if e.complexity.TemplateMetric.Properties == nil {
+			break
+		}
+
+		return e.complexity.TemplateMetric.Properties(childComplexity), true
+
+	case "TemplateMetric.style":
+		if e.complexity.TemplateMetric.Style == nil {
+			break
+		}
+
+		return e.complexity.TemplateMetric.Style(childComplexity), true
+
+	case "TemplateProperty.name":
+		if e.complexity.TemplateProperty.Name == nil {
+			break
+		}
+
+		return e.complexity.TemplateProperty.Name(childComplexity), true
+
+	case "TemplateProperty.type":
+		if e.complexity.TemplateProperty.Type == nil {
+			break
+		}
+
+		return e.complexity.TemplateProperty.Type(childComplexity), true
+
+	case "TemplateProperty.unit":
+		if e.complexity.TemplateProperty.Unit == nil {
+			break
+		}
+
+		return e.complexity.TemplateProperty.Unit(childComplexity), true
+
+	case "TemplateProperty.value":
+		if e.complexity.TemplateProperty.Value == nil {
+			break
+		}
+
+		return e.complexity.TemplateProperty.Value(childComplexity), true
 
 	case "_Service.sdl":
 		if e.complexity._Service.SDL == nil {
@@ -3892,6 +4061,66 @@ func (ec *executionContext) fieldContext_Query_goals(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_templates(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_templates(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Templates(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]repo.Template)
+	fc.Result = res
+	return ec.marshalNTemplate2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐTemplateᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_templates(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Template_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Template_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Template_updatedAt(ctx, field)
+			case "name":
+				return ec.fieldContext_Template_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Template_description(ctx, field)
+			case "category":
+				return ec.fieldContext_Template_category(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Template_metrics(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Template", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query__service(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query__service(ctx, field)
 	if err != nil {
@@ -4064,6 +4293,829 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Template_id(ctx context.Context, field graphql.CollectedField, obj *repo.Template) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Template_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(primitive.ObjectID)
+	fc.Result = res
+	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Template_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Template",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ObjectID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Template_createdAt(ctx context.Context, field graphql.CollectedField, obj *repo.Template) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Template_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Template_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Template",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Template_updatedAt(ctx context.Context, field graphql.CollectedField, obj *repo.Template) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Template_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Template_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Template",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Template_name(ctx context.Context, field graphql.CollectedField, obj *repo.Template) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Template_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Template_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Template",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Template_description(ctx context.Context, field graphql.CollectedField, obj *repo.Template) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Template_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Template_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Template",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Template_category(ctx context.Context, field graphql.CollectedField, obj *repo.Template) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Template_category(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Template().Category(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*repo.TemplateCategory)
+	fc.Result = res
+	return ec.marshalOTemplateCategory2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐTemplateCategory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Template_category(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Template",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TemplateCategory_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TemplateCategory_name(ctx, field)
+			case "description":
+				return ec.fieldContext_TemplateCategory_description(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TemplateCategory", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Template_metrics(ctx context.Context, field graphql.CollectedField, obj *repo.Template) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Template_metrics(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Metrics, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]repo.TemplateMetric)
+	fc.Result = res
+	return ec.marshalNTemplateMetric2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐTemplateMetricᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Template_metrics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Template",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_TemplateMetric_name(ctx, field)
+			case "description":
+				return ec.fieldContext_TemplateMetric_description(ctx, field)
+			case "style":
+				return ec.fieldContext_TemplateMetric_style(ctx, field)
+			case "properties":
+				return ec.fieldContext_TemplateMetric_properties(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TemplateMetric", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TemplateCategory_id(ctx context.Context, field graphql.CollectedField, obj *repo.TemplateCategory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TemplateCategory_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(primitive.ObjectID)
+	fc.Result = res
+	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TemplateCategory_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TemplateCategory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ObjectID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TemplateCategory_name(ctx context.Context, field graphql.CollectedField, obj *repo.TemplateCategory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TemplateCategory_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TemplateCategory_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TemplateCategory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TemplateCategory_description(ctx context.Context, field graphql.CollectedField, obj *repo.TemplateCategory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TemplateCategory_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TemplateCategory_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TemplateCategory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TemplateMetric_name(ctx context.Context, field graphql.CollectedField, obj *repo.TemplateMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TemplateMetric_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TemplateMetric_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TemplateMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TemplateMetric_description(ctx context.Context, field graphql.CollectedField, obj *repo.TemplateMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TemplateMetric_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TemplateMetric_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TemplateMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TemplateMetric_style(ctx context.Context, field graphql.CollectedField, obj *repo.TemplateMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TemplateMetric_style(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Style, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(repo.MetricStyle)
+	fc.Result = res
+	return ec.marshalNMetricStyle2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricStyle(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TemplateMetric_style(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TemplateMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "color":
+				return ec.fieldContext_MetricStyle_color(ctx, field)
+			case "icon":
+				return ec.fieldContext_MetricStyle_icon(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MetricStyle", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TemplateMetric_properties(ctx context.Context, field graphql.CollectedField, obj *repo.TemplateMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TemplateMetric_properties(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Properties, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]repo.TemplateProperty)
+	fc.Result = res
+	return ec.marshalNTemplateProperty2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐTemplatePropertyᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TemplateMetric_properties(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TemplateMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_TemplateProperty_name(ctx, field)
+			case "type":
+				return ec.fieldContext_TemplateProperty_type(ctx, field)
+			case "value":
+				return ec.fieldContext_TemplateProperty_value(ctx, field)
+			case "unit":
+				return ec.fieldContext_TemplateProperty_unit(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TemplateProperty", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TemplateProperty_name(ctx context.Context, field graphql.CollectedField, obj *repo.TemplateProperty) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TemplateProperty_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TemplateProperty_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TemplateProperty",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TemplateProperty_type(ctx context.Context, field graphql.CollectedField, obj *repo.TemplateProperty) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TemplateProperty_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(repo.MetricPropertyType)
+	fc.Result = res
+	return ec.marshalNMetricPropertyType2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TemplateProperty_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TemplateProperty",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type MetricPropertyType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TemplateProperty_value(ctx context.Context, field graphql.CollectedField, obj *repo.TemplateProperty) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TemplateProperty_value(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Value, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TemplateProperty_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TemplateProperty",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TemplateProperty_unit(ctx context.Context, field graphql.CollectedField, obj *repo.TemplateProperty) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TemplateProperty_unit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Unit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TemplateProperty_unit(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TemplateProperty",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6999,6 +8051,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "templates":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_templates(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "_service":
 			field := field
 
@@ -7029,6 +8103,260 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var templateImplementors = []string{"Template"}
+
+func (ec *executionContext) _Template(ctx context.Context, sel ast.SelectionSet, obj *repo.Template) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, templateImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Template")
+		case "id":
+			out.Values[i] = ec._Template_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._Template_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Template_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "name":
+			out.Values[i] = ec._Template_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "description":
+			out.Values[i] = ec._Template_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "category":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Template_category(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "metrics":
+			out.Values[i] = ec._Template_metrics(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var templateCategoryImplementors = []string{"TemplateCategory"}
+
+func (ec *executionContext) _TemplateCategory(ctx context.Context, sel ast.SelectionSet, obj *repo.TemplateCategory) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, templateCategoryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TemplateCategory")
+		case "id":
+			out.Values[i] = ec._TemplateCategory_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._TemplateCategory_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "description":
+			out.Values[i] = ec._TemplateCategory_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var templateMetricImplementors = []string{"TemplateMetric"}
+
+func (ec *executionContext) _TemplateMetric(ctx context.Context, sel ast.SelectionSet, obj *repo.TemplateMetric) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, templateMetricImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TemplateMetric")
+		case "name":
+			out.Values[i] = ec._TemplateMetric_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "description":
+			out.Values[i] = ec._TemplateMetric_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "style":
+			out.Values[i] = ec._TemplateMetric_style(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "properties":
+			out.Values[i] = ec._TemplateMetric_properties(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var templatePropertyImplementors = []string{"TemplateProperty"}
+
+func (ec *executionContext) _TemplateProperty(ctx context.Context, sel ast.SelectionSet, obj *repo.TemplateProperty) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, templatePropertyImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TemplateProperty")
+		case "name":
+			out.Values[i] = ec._TemplateProperty_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._TemplateProperty_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "value":
+			out.Values[i] = ec._TemplateProperty_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "unit":
+			out.Values[i] = ec._TemplateProperty_unit(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7852,6 +9180,150 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	return ret
 }
 
+func (ec *executionContext) marshalNTemplate2tenkhoursᚋservicesᚋcoreᚋrepoᚐTemplate(ctx context.Context, sel ast.SelectionSet, v repo.Template) graphql.Marshaler {
+	return ec._Template(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTemplate2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐTemplateᚄ(ctx context.Context, sel ast.SelectionSet, v []repo.Template) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTemplate2tenkhoursᚋservicesᚋcoreᚋrepoᚐTemplate(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTemplateMetric2tenkhoursᚋservicesᚋcoreᚋrepoᚐTemplateMetric(ctx context.Context, sel ast.SelectionSet, v repo.TemplateMetric) graphql.Marshaler {
+	return ec._TemplateMetric(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTemplateMetric2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐTemplateMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []repo.TemplateMetric) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTemplateMetric2tenkhoursᚋservicesᚋcoreᚋrepoᚐTemplateMetric(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTemplateProperty2tenkhoursᚋservicesᚋcoreᚋrepoᚐTemplateProperty(ctx context.Context, sel ast.SelectionSet, v repo.TemplateProperty) graphql.Marshaler {
+	return ec._TemplateProperty(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTemplateProperty2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐTemplatePropertyᚄ(ctx context.Context, sel ast.SelectionSet, v []repo.TemplateProperty) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTemplateProperty2tenkhoursᚋservicesᚋcoreᚋrepoᚐTemplateProperty(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
 	res, err := graphql.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -8565,6 +10037,13 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOTemplateCategory2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐTemplateCategory(ctx context.Context, sel ast.SelectionSet, v *repo.TemplateCategory) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TemplateCategory(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

@@ -8,7 +8,8 @@ import "tenkhours/services/core/business"
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	*business.ProfilesBusiness
-	*business.CharactersBusiness
-	*business.GoalsBusiness
+	ProfilesBusiness   *business.ProfilesBusiness
+	CharactersBusiness *business.CharactersBusiness
+	GoalsBusiness      *business.GoalsBusiness
+	TemplatesBusiness  *business.TemplatesBusiness
 }

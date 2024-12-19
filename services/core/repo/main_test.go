@@ -12,10 +12,12 @@ import (
 )
 
 var (
-	testdb         *mongo.Database
-	profilesRepo   *repo.ProfilesRepo
-	charactersRepo *repo.CharactersRepo
-	goalsRepo      *repo.GoalsRepo
+	testdb                 *mongo.Database
+	profilesRepo           *repo.ProfilesRepo
+	charactersRepo         *repo.CharactersRepo
+	goalsRepo              *repo.GoalsRepo
+	templatesRepo          *repo.TemplatesRepo
+	templateCategoriesRepo *repo.TemplateCategoriesRepo
 )
 
 func TestMain(m *testing.M) {
@@ -24,11 +26,13 @@ func TestMain(m *testing.M) {
 
 	// Remote version
 	utils.ReadEnvFile()
-	testdb = db.InitDBManagerFromEnv("test").DB
+	testdb = db.InitDBManagerFromEnv("TenK-Hours-Dev").DB
 
 	profilesRepo = repo.NewProfilesRepo(testdb, db.GetRedisClient())
 	charactersRepo = repo.NewCharactersRepo(testdb)
 	goalsRepo = repo.NewGoalsRepo(testdb)
+	templatesRepo = repo.NewTemplatesRepo(testdb)
+	templateCategoriesRepo = repo.NewTemplateCategoriesRepo(testdb)
 
 	code := m.Run()
 

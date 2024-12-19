@@ -1,6 +1,6 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-  - graph/*.graphqls
+- graph/*.graphqls
 
 # Where should the generated server code go?
 exec:
@@ -30,7 +30,7 @@ resolver:
   # Optional: turn on use ` + "`" + `gqlgen:"fieldName"` + "`" + ` tags in your models
   # struct_tag: json
 
-# Optional: turn on to use []Thing instead of []*Thing
+  # Optional: turn on to use []Thing instead of []*Thing
 omit_slice_element_pointers: true
 
 # Optional: turn on to omit Is<Name>() methods to interface and unions
@@ -66,8 +66,7 @@ omit_slice_element_pointers: true
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
-autobind:
-  # - "../graphql/graph/model"
+autobind: # - "../graphql/graph/model"
 
 # This section declares type mapping between the GraphQL and go type systems
 #
@@ -77,15 +76,15 @@ autobind:
 models:
   ID:
     model:
-      - github.com/99designs/gqlgen/graphql.ID
-      - github.com/99designs/gqlgen/graphql.Int
-      - github.com/99designs/gqlgen/graphql.Int64
-      - github.com/99designs/gqlgen/graphql.Int32
+    - github.com/99designs/gqlgen/graphql.ID
+    - github.com/99designs/gqlgen/graphql.Int
+    - github.com/99designs/gqlgen/graphql.Int64
+    - github.com/99designs/gqlgen/graphql.Int32
   Int:
     model:
-      - github.com/99designs/gqlgen/graphql.Int
-      - github.com/99designs/gqlgen/graphql.Int64
-      - github.com/99designs/gqlgen/graphql.Int32
+    - github.com/99designs/gqlgen/graphql.Int
+    - github.com/99designs/gqlgen/graphql.Int64
+    - github.com/99designs/gqlgen/graphql.Int32
   ObjectID:
     model: tenkhours/pkg/graphql.ObjectID
   Profile:
@@ -111,4 +110,14 @@ models:
     model: tenkhours/services/core/repo.GoalExpireStatus
   GoalStatusFilter:
     model: tenkhours/services/core/repo.GoalStatusFilter
-    
+  Template:
+    model: tenkhours/services/core/repo.Template
+    fields:
+      category:
+        resolver: true
+  TemplateMetric:
+    model: tenkhours/services/core/repo.TemplateMetric
+  TemplateProperty:
+    model: tenkhours/services/core/repo.TemplateProperty
+  TemplateCategory:
+    model: tenkhours/services/core/repo.TemplateCategory

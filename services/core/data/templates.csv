@@ -1,2 +1,0 @@
-id,name,description,icon,category,metrics
-1,Frontend Developer,Master the art of building user interfaces,💻,Career,"[{""name"":""Framework Proficiency"",""description"":""Track your framework expertise"",""style"":{""color"":""#4287f5"",""icon"":""📚""},""properties"":[{""name"":""Mastered Frameworks"",""type"":""String"",""value"":""React"",""unit"":""""},{""name"":""Projects Using Frameworks"",""type"":""Number"",""value"":""0"",""unit"":""Project""}]}]"
