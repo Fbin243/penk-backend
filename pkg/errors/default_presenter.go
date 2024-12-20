@@ -10,6 +10,10 @@ import (
 func DefaultPresenter(ctx context.Context, e error) *gqlerror.Error {
 	err := graphql.DefaultErrorPresenter(ctx, e)
 
+	if err.Message == "" {
+		err.Message = "internal server error"
+	}
+
 	if err.Extensions["code"] == nil {
 		err.Extensions = map[string]interface{}{
 			"code": ErrCodeInternalServer,

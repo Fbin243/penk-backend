@@ -173,7 +173,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	}
 
 	if currentTimeTracking != nil {
-		return nil, fmt.Errorf("there is an active time tracking")
+		return nil, errors.NewError(errors.ErrCodeTimeTrackingAlreadyExists, "time tracking already exists")
 	}
 
 	// Create a new time tracking
@@ -243,7 +243,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	// Check if the duration time is in the valid range
 	if duration < timeTracking.MinDurationTime {
 		duration = 0
-		return &timeTracking, nil, errors.NewError(errors.ErrCodeUnderMinDuration, "the period time is less than min duration time")
+		return nil, nil, errors.NewError(errors.ErrCodeUnderMinDuration, "the period time is less than min duration time")
 	}
 
 	if duration > timeTracking.MaxDurationTime {
@@ -355,7 +355,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	for i := 0; i < numCatches; i++ {
 		catchResult, err := fishBiz.CatchFish(ctx, profile.ID)
 		if err != nil {
-			return nil, nil, fmt.Errorf("failed to catch fish%v", err)
+			return nil, nil, err
 		}
 
 		switch catchResult.FishType {
