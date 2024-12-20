@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"tenkhours/pkg/db"
+	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
 	"tenkhours/services/core/repo"
 	fishBiz "tenkhours/services/currency/business"
@@ -55,6 +56,7 @@ func main() {
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &graph.Resolver{TimeTrackingsBusiness: timetrackingsBiz},
 	}))
+	srv.SetErrorPresenter(errors.DefaultPresenter)
 
 	app.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"tenkhours/pkg/errors"
 	"tenkhours/services/notifications/business"
 	"tenkhours/services/notifications/graph"
 
@@ -41,6 +42,7 @@ func main() {
 			NotificationBusiness: notificationBiz,
 		},
 	}))
+	srv.SetErrorPresenter(errors.DefaultPresenter)
 
 	app.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{

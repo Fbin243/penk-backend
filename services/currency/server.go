@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"tenkhours/pkg/db"
+	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
 	"tenkhours/services/currency/business"
 	"tenkhours/services/currency/graph"
@@ -54,6 +55,7 @@ func main() {
 			FishBusiness: FishBiz,
 		},
 	}))
+	srv.SetErrorPresenter(errors.DefaultPresenter)
 
 	app.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{

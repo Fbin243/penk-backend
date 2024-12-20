@@ -46,7 +46,7 @@ func NewTimeTrackingsBusiness(timeTrackingsRepo *timetrackingsRepo.TimeTrackings
 func (biz *TimeTrackingsBusiness) GetCurrentTimeTracking(ctx context.Context) (*timetrackingsRepo.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	// Get the current time tracking from Redis
@@ -69,7 +69,7 @@ func (biz *TimeTrackingsBusiness) GetCurrentTimeTracking(ctx context.Context) (*
 func (biz *TimeTrackingsBusiness) GetTotalCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID, timestamp time.Time) (int, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return 0, errors.ErrorUnauthorized
+		return 0, errors.Unauthorized()
 	}
 
 	// Check permissions
@@ -79,7 +79,7 @@ func (biz *TimeTrackingsBusiness) GetTotalCurrentTimeTracking(ctx context.Contex
 	}
 
 	if character.ProfileID != profile.ID {
-		return 0, errors.ErrorPermissionDenied
+		return 0, errors.PermissionDenied()
 	}
 
 	// Get the timetrackings from the current captured record in Redis
@@ -130,7 +130,7 @@ func getFishCatchingInterval() int {
 func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, metricID *primitive.ObjectID, startTime time.Time) (*timetrackingsRepo.TimeTracking, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	// Calculate the difference between the server time and the client time
@@ -138,8 +138,8 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	duration := serverStartTime.Sub(startTime)
 	seconds := duration.Seconds()
 
-	if seconds > 20 {
-		return nil, fmt.Errorf("server timeout, failed to start a new session")
+	if seconds > utils.MaxTimeDifference {
+		return nil, errors.NewError(errors.ErrCodeOverMaxDifferenceDuration, "the period time is over the max difference duration")
 	}
 
 	// Check permissions
@@ -149,7 +149,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, errors.ErrorPermissionDenied
+		return nil, errors.PermissionDenied()
 	}
 
 	if metricID != nil {
@@ -162,7 +162,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 		}
 
 		if !found {
-			return nil, errors.ErrorPermissionDenied
+			return nil, errors.PermissionDenied()
 		}
 	}
 
@@ -206,7 +206,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*timetrackingsRepo.TimeTracking, *fishRepo.Fish, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, nil, errors.ErrorUnauthorized
+		return nil, nil, errors.Unauthorized()
 	}
 
 	// Get the time tracking from Redis
@@ -243,13 +243,11 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	// Check if the duration time is in the valid range
 	if duration < timeTracking.MinDurationTime {
 		duration = 0
-		log.Printf("the period time is less than 10 min, so the time tracking will be deleted")
-		return &timeTracking, nil, nil
+		return &timeTracking, nil, errors.NewError(errors.ErrCodeUnderMinDuration, "the period time is less than min duration time")
 	}
 
 	if duration > timeTracking.MaxDurationTime {
 		duration = int32(timeTracking.MaxDurationTime)
-		log.Printf("the period time is more than max duration time, so the time tracking will be limited to max duration time")
 	}
 
 	timeTracking.EndTime = timeTracking.StartTime.Add(time.Duration(duration) * time.Second)

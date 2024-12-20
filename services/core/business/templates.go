@@ -26,7 +26,7 @@ func NewTemplatesBusiness(templatesRepo *repo.TemplatesRepo, templateCategoriesR
 func (biz *TemplatesBusiness) GetTemplates(ctx context.Context) ([]repo.Template, error) {
 	_, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	return biz.TemplatesRepo.FindAll()
@@ -36,7 +36,7 @@ func (biz *TemplatesBusiness) GetTemplates(ctx context.Context) ([]repo.Template
 func (biz *TemplatesBusiness) GetTemplateCategory(ctx context.Context, id primitive.ObjectID) (*repo.TemplateCategory, error) {
 	_, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	category, err := biz.TemplatesCategoriesRepo.FindByID(id)

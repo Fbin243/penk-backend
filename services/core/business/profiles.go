@@ -41,7 +41,7 @@ func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, fishRepo *fishRepo.Fis
 func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	return &profile, nil
@@ -51,7 +51,7 @@ func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, err
 func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	// Update the profile with the new input
@@ -68,7 +68,7 @@ func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.Prof
 
 	updatedProfile, err := biz.ProfilesRepo.UpdateProfile(&profile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update user profile: %v", err)
+		return nil, err
 	}
 
 	return updatedProfile, nil
@@ -78,7 +78,7 @@ func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.Prof
 func (biz *ProfilesBusiness) DeleteProfile(ctx context.Context) (*repo.Profile, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	// Make a callback for deleting profile and related data

@@ -2,8 +2,8 @@ package business
 
 import (
 	"context"
-	"fmt"
 	"strconv"
+	"time"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db"
@@ -26,7 +26,7 @@ func NewGoalsBusiness(goalsRepo *repo.GoalsRepo, charactersRepo *repo.Characters
 func (biz *GoalsBusiness) GetGoals(ctx context.Context, characterID primitive.ObjectID, status *repo.GoalStatusFilter) ([]repo.Goal, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	// Check if the character belongs to the user
@@ -36,7 +36,7 @@ func (biz *GoalsBusiness) GetGoals(ctx context.Context, characterID primitive.Ob
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, errors.ErrorPermissionDenied
+		return nil, errors.PermissionDenied()
 	}
 
 	return biz.GoalsRepo.GetGoalsByCharacterID(characterID, status)
@@ -45,7 +45,7 @@ func (biz *GoalsBusiness) GetGoals(ctx context.Context, characterID primitive.Ob
 func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.ObjectID, input model.GoalInput) (*repo.Goal, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	// Check if the character belongs to the user
@@ -55,7 +55,7 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	var goal *repo.Goal
@@ -69,12 +69,16 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 
 		// Check permision
 		if goal.CharacterID != characterID {
-			return nil, errors.ErrorPermissionDenied
+			return nil, errors.PermissionDenied()
 		}
 
-		// Just update if the goal is still unfinished
+		// Just update if the goal is still unfinished and unexpired
 		if goal.Status == repo.GoalFinishStatusFinished {
-			return nil, fmt.Errorf("goal is already finished")
+			return nil, errors.NewError(errors.ErrCodeGoalAlreadyFinished, nil)
+		}
+
+		if goal.EndDate.Before(time.Now()) {
+			return nil, errors.NewError(errors.ErrCodeGoalAlreadyExpired, nil)
 		}
 	} else {
 		// Create new goal
@@ -105,7 +109,7 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 		for _, metric := range input.Target {
 			// Validate metric in target
 			if _, ok := customMetricsMap[metric.ID]; !ok {
-				return nil, errors.ErrorPermissionDenied
+				return nil, errors.PermissionDenied()
 			}
 
 			currentMetric := customMetricsMap[metric.ID]
@@ -128,7 +132,7 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 			// Validate properties in a metric of the target
 			for _, property := range metric.Properties {
 				if _, ok := propertiesMap[property.ID]; !ok {
-					return nil, errors.ErrorPermissionDenied
+					return nil, errors.PermissionDenied()
 				}
 
 				currentProperty := propertiesMap[property.ID]

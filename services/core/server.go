@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"tenkhours/pkg/db"
+	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
 	analyticsRepo "tenkhours/services/analytics/repo"
 	"tenkhours/services/core/business"
@@ -68,6 +69,7 @@ func main() {
 			TemplatesBusiness:  templatesBiz,
 		},
 	}))
+	srv.SetErrorPresenter(errors.DefaultPresenter)
 
 	app.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{

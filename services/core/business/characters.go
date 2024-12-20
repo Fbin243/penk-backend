@@ -2,7 +2,6 @@ package business
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"tenkhours/pkg/auth"
@@ -47,7 +46,7 @@ func (biz *CharactersBusiness) GetCharacterByID(ctx context.Context, id string) 
 
 	character, err := biz.CharactersRepo.FindByID(characterOID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find character: %v", err)
+		return nil, err
 	}
 
 	return character, nil
@@ -56,12 +55,12 @@ func (biz *CharactersBusiness) GetCharacterByID(ctx context.Context, id string) 
 func (biz *CharactersBusiness) GetCharactersByProfileID(ctx context.Context) ([]repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	characters, err := biz.CharactersRepo.GetCharactersByProfileID(profile.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find characters: %v", err)
+		return nil, err
 	}
 
 	return characters, nil
@@ -70,7 +69,7 @@ func (biz *CharactersBusiness) GetCharactersByProfileID(ctx context.Context) ([]
 func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	if input.ID == nil {
@@ -81,7 +80,7 @@ func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.
 		}
 
 		if charactersCount >= int64(profile.LimitedCharacterNumber) {
-			return nil, errors.ErrorCharacterLimitReached
+			return nil, errors.NewError(errors.ErrCodeLimitCharacter, nil)
 		}
 
 		character := repo.Character{
@@ -127,7 +126,7 @@ func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, errors.ErrorPermissionDenied
+		return nil, errors.PermissionDenied()
 	}
 
 	character.Name = input.Name
@@ -154,6 +153,11 @@ func (biz *CharactersBusiness) upsertMetricsInCharacter(character *repo.Characte
 	}
 
 	metrics := make([]repo.CustomMetric, 0)
+
+	// Check the limit metrics
+	if len(metricInputs) > int(character.LimitedMetricNumber) {
+		return errors.NewError(errors.ErrCodeLimitMetric, nil)
+	}
 
 	// Get all unfinished, unexpired goals of a character
 	goals, err := biz.GoalsRepo.GetGoalsByCharacterID(character.ID, &repo.GoalStatusFilter{FinishStatus: lo.ToPtr(repo.GoalFinishStatusUnfinished), ExpireStatus: lo.ToPtr(repo.GoalExpireStatusUnexpired)})
@@ -204,7 +208,7 @@ func (biz *CharactersBusiness) upsertMetricsInCharacter(character *repo.Characte
 			// Update existing metric
 			updateMetricInGoal := false
 			if _, ok := metricsMap[*metricInput.ID]; !ok {
-				return errors.ErrorPermissionDenied
+				return errors.PermissionDenied()
 			}
 
 			existingMetric := metricsMap[*metricInput.ID]
@@ -264,6 +268,11 @@ func (biz *CharactersBusiness) upsertPropertiesInMetric(metric *repo.CustomMetri
 		propertiesMap[property.ID] = property
 	}
 
+	// Check the limit properties
+	if len(propertyInputs) > int(metric.LimitedPropertyNumber) {
+		return errors.NewError(errors.ErrCodeLimitProperty, nil)
+	}
+
 	properties := make([]repo.MetricProperty, 0)
 
 	for _, propertyInput := range propertyInputs {
@@ -282,7 +291,7 @@ func (biz *CharactersBusiness) upsertPropertiesInMetric(metric *repo.CustomMetri
 			removeProperty := false
 			// Update existing property
 			if _, ok := propertiesMap[*propertyInput.ID]; !ok {
-				return errors.ErrorPermissionDenied
+				return errors.PermissionDenied()
 			}
 
 			property := propertiesMap[*propertyInput.ID]
@@ -370,24 +379,24 @@ func (biz *CharactersBusiness) checkGoalsFinished(goals []repo.Goal, newMetrics 
 		for _, metric := range goal.Target {
 			newMetric, ok := newMetricsMap[metric.ID]
 			if !ok {
-				return errors.ErrorMetricNotFound
+				return errors.PermissionDenied()
 			}
 
 			oldMetric, ok := oldMetricsMap[metric.ID]
 			if !ok {
-				return errors.ErrorMetricNotFound
+				return errors.PermissionDenied()
 			}
 
 			// Compare properties
 			for _, property := range metric.Properties {
 				newProperty, ok := newMetric[property.ID]
 				if !ok {
-					return errors.ErrorPropertyNotFound
+					return errors.PermissionDenied()
 				}
 
 				oldProperty, ok := oldMetric[property.ID]
 				if !ok {
-					return errors.ErrorPropertyNotFound
+					return errors.PermissionDenied()
 				}
 
 				// Compare the property value based on the type
@@ -437,21 +446,21 @@ func (biz *CharactersBusiness) checkGoalsFinished(goals []repo.Goal, newMetrics 
 func (biz *CharactersBusiness) DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	character, err := biz.CharactersRepo.FindByID(id)
 	if err != nil {
-		return nil, fmt.Errorf("character not found: %v", err)
+		return nil, err
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, errors.ErrorPermissionDenied
+		return nil, errors.PermissionDenied()
 	}
 
 	deletedCharacter, err := biz.CharactersRepo.DeleteCharacter(id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete character: %v", err)
+		return nil, err
 	}
 
 	return deletedCharacter, nil

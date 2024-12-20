@@ -43,7 +43,7 @@ func NewFishBusiness(FishRepo *repo.FishRepo, CharactersRepo *coreRepo.Character
 func (biz *FishBusiness) GetFishByProfileID(ctx context.Context) (*repo.Fish, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
@@ -156,7 +156,7 @@ func (biz *FishBusiness) UpdateFishFromFinishSession(fish *repo.Fish, profileID 
 func (biz *FishBusiness) BuyMetrics(ctx context.Context, fishType model.FishType, characterID primitive.ObjectID) (bool, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
-		return false, errors.ErrorUnauthorized
+		return false, errors.Unauthorized()
 	}
 
 	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
@@ -229,7 +229,7 @@ func (biz *FishBusiness) BuyMetrics(ctx context.Context, fishType model.FishType
 func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType model.FishType) (bool, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
-		return false, errors.ErrorUnauthorized
+		return false, errors.Unauthorized()
 	}
 
 	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
@@ -301,7 +301,7 @@ func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType model.FishTy
 func (biz *FishBusiness) BuyCharacters(ctx context.Context, fishType model.FishType) (bool, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
-		return false, errors.ErrorUnauthorized
+		return false, errors.Unauthorized()
 	}
 
 	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)

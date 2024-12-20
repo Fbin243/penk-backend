@@ -6,6 +6,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/tidwall/gjson v1.18.0
 	github.com/urfave/cli/v2 v2.27.4
+	go.mongodb.org/mongo-driver v1.17.1
 )
 
 require (

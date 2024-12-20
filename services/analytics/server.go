@@ -9,6 +9,7 @@ import (
 
 	"tenkhours/pkg/cron"
 	"tenkhours/pkg/db"
+	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
 
 	"tenkhours/services/analytics/business"
@@ -107,6 +108,7 @@ func main() {
 			CharactersBusiness: charactersBiz,
 		},
 	}))
+	srv.SetErrorPresenter(errors.DefaultPresenter)
 
 	app.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{

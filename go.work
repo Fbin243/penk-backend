@@ -6,6 +6,7 @@ use (
 	./pkg/auth
 	./pkg/cron
 	./pkg/db
+	./pkg/errors
 	./pkg/graphql
 	./pkg/middlewares
 	./pkg/utils

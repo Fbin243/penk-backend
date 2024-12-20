@@ -2,7 +2,6 @@ package business
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 	"time"
 
@@ -41,7 +40,7 @@ func NewCharactersBusiness(snapshotsRepo *analyticsRepo.SnapshotsRepo, character
 func (biz *CharactersBusiness) GetSnapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]analyticsRepo.Snapshot, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	pineline := mongo.Pipeline{}
@@ -50,11 +49,11 @@ func (biz *CharactersBusiness) GetSnapshots(ctx context.Context, characterID *pr
 	if characterID != nil {
 		character, err := biz.CharactersRepo.FindByID(*characterID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get character by ID")
+			return nil, err
 		}
 
 		if character.ProfileID != profile.ID {
-			return nil, errors.ErrorPermissionDenied
+			return nil, errors.PermissionDenied()
 		}
 
 		matchStage = append(matchStage, bson.E{Key: "metadata.character_id", Value: *characterID})
@@ -97,7 +96,7 @@ func (biz *CharactersBusiness) GetSnapshots(ctx context.Context, characterID *pr
 func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*analyticsRepo.Snapshot, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	character, err := biz.CharactersRepo.FindByID(characterID)
@@ -106,11 +105,11 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 	}
 
 	if character.ProfileID != profile.ID {
-		return nil, errors.ErrorPermissionDenied
+		return nil, errors.PermissionDenied()
 	}
 
 	if profile.AvailableSnapshots <= 0 {
-		return nil, fmt.Errorf("no available snapshots")
+		return nil, errors.NewError(errors.ErrCodeLimitSnapshot, "no available snapshots")
 	}
 
 	// Set CharacterID and ProfileID to Nil to omit them
@@ -122,7 +121,7 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 	if err != nil && err != mongo.ErrNoDocuments {
 		return nil, err
 	} else if reflect.DeepEqual(latestSnapshot.Character, *character) {
-		return nil, fmt.Errorf("no changes detected")
+		return nil, errors.NewError(errors.ErrCodeDuplicateSnapshot, "duplicate snapshot")
 	}
 
 	snapshot := &analyticsRepo.Snapshot{
@@ -149,14 +148,14 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 	callback := func(ctx mongo.SessionContext) (interface{}, error) {
 		_, err = biz.SnapshotsRepo.CreateSnapshot(snapshot)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create snapshot: %v", err)
+			return nil, err
 		}
 
 		// Decrement available snapshots
 		profile.AvailableSnapshots--
 		_, err = biz.ProfilesRepo.UpdateProfile(&profile)
 		if err != nil {
-			return nil, fmt.Errorf("failed to update user profile: %v", err)
+			return nil, err
 		}
 
 		// Restore CharacterID and ProfileID
@@ -173,7 +172,7 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 
 	newSnapshot, ok := result.(analyticsRepo.Snapshot)
 	if !ok {
-		return nil, fmt.Errorf("failed to create snapshot")
+		return nil, errors.NewError(errors.ErrCodeInternalServer, "failed to create snapshot")
 	}
 
 	return &newSnapshot, nil
@@ -183,7 +182,7 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, analyticSections []model.AnalyticSection) (map[string]interface{}, error) {
 	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
 	if !ok {
-		return nil, errors.ErrorUnauthorized
+		return nil, errors.Unauthorized()
 	}
 
 	capturedRecordsFilter := CapturedRecordsFilter{
@@ -198,11 +197,11 @@ func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, character
 	if characterID != nil {
 		character, err := biz.CharactersRepo.FindByID(*characterID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get character by ID")
+			return nil, err
 		}
 
 		if character.ProfileID != profile.ID {
-			return nil, errors.ErrorPermissionDenied
+			return nil, errors.PermissionDenied()
 		}
 
 		capturedRecordsFilter.FilterType = FilterTypeCharacter
