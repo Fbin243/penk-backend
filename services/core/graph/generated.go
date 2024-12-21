@@ -927,6 +927,26 @@ func sourceData(filename string) string {
 }
 
 var sources = []*ast.Source{
+	{Name: "../../../pkg/graphql/enums/error_code.graphqls", Input: `enum ErrorCode {
+    # General errors
+    INTERNAL_SERVER_ERROR
+    BAD_REQUEST
+    PERMISSION_DENIED
+    UNAUTHORIZED
+    # Core errors
+    LIMIT_CHARACTER
+    LIMIT_METRIC
+    LIMIT_PROPERTY
+    GOAL_ALREADY_FINISHED
+    GOAL_ALREADY_EXPIRED
+    # Time tracking errors
+    UNDER_MIN_DURATION
+    OVER_MAX_DIFFERENCE_DURATION
+    TIME_TRACKING_ALREADY_EXISTS
+    # Analytics errors
+    LIMIT_SNAPSHOT
+    DUPLICATE_SNAPSHOT
+}`, BuiltIn: false},
 	{Name: "characters.graphqls", Input: sourceData("characters.graphqls"), BuiltIn: false},
 	{Name: "goals.graphqls", Input: sourceData("goals.graphqls"), BuiltIn: false},
 	{Name: "profiles.graphqls", Input: sourceData("profiles.graphqls"), BuiltIn: false},

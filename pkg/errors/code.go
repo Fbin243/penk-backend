@@ -10,7 +10,6 @@ const (
 	ErrCodeUnauthorized     ErrorCode = "UNAUTHORIZED"
 
 	// Core errors
-	ErrCodeGoalNotFound        ErrorCode = "GOAL_NOT_FOUND"
 	ErrCodeLimitCharacter      ErrorCode = "LIMIT_CHARACTER"
 	ErrCodeLimitMetric         ErrorCode = "LIMIT_METRIC"
 	ErrCodeLimitProperty       ErrorCode = "LIMIT_PROPERTY"

@@ -1,5 +1,6 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
+- ../../pkg/graphql/enums/error_code.graphqls
 - graph/*.graphqls
 
 # Where should the generated server code go?
@@ -87,6 +88,8 @@ models:
     - github.com/99designs/gqlgen/graphql.Int32
   ObjectID:
     model: tenkhours/pkg/graphql.ObjectID
+  ErrorCode:
+    model: tenkhours/pkg/errors.ErrorCode
   Profile:
     model: tenkhours/services/core/repo.Profile
     fields:
