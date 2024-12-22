@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-
 	"tenkhours/pkg/errors"
-	"tenkhours/services/notifications/business"
+	"tenkhours/services/notifications/composer"
 	"tenkhours/services/notifications/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -26,8 +24,6 @@ func main() {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
 
-	fmt.Println("Running in environment:", env)
-
 	app := gin.Default()
 
 	app.Use(cors.New(cors.Config{
@@ -35,21 +31,17 @@ func main() {
 		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
 
-	notificationBiz := business.NewNotificationBusiness()
-
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: &graph.Resolver{
-			NotificationBusiness: notificationBiz,
-		},
-	}))
-	srv.SetErrorPresenter(errors.DefaultPresenter)
-
 	app.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "OK",
 		})
 	})
 
+	// Init GraphQL server
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
+		Resolvers: composer.ComposeGraphQLResolver(),
+	}))
+	srv.SetErrorPresenter(errors.DefaultPresenter)
 	app.POST("/graphql", func(c *gin.Context) {
 		log.Println("Received request on /graphql")
 		srv.ServeHTTP(c.Writer, c.Request)

@@ -6,12 +6,20 @@ package graph
 
 import (
 	"context"
+	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 )
 
 // Characters is the resolver for the characters field.
 func (r *profileResolver) Characters(ctx context.Context, obj *repo.Profile) ([]repo.Character, error) {
 	return r.CharactersBusiness.CharactersRepo.GetCharactersByProfileID(obj.ID)
+}
+
+// Fish is the resolver for the fish field.
+func (r *profileResolver) Fish(ctx context.Context, obj *repo.Profile) (*model.Fish, error) {
+	return &model.Fish{
+		ProfileID: obj.ID,
+	}, nil
 }
 
 // Profile returns ProfileResolver implementation.

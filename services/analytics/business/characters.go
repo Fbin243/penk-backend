@@ -38,7 +38,7 @@ func NewCharactersBusiness(snapshotsRepo *analyticsRepo.SnapshotsRepo, character
 }
 
 func (biz *CharactersBusiness) GetSnapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]analyticsRepo.Snapshot, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
@@ -52,13 +52,13 @@ func (biz *CharactersBusiness) GetSnapshots(ctx context.Context, characterID *pr
 			return nil, err
 		}
 
-		if character.ProfileID != profile.ID {
+		if character.ProfileID != authSession.ProfileID {
 			return nil, errors.PermissionDenied()
 		}
 
 		matchStage = append(matchStage, bson.E{Key: "metadata.character_id", Value: *characterID})
 	} else {
-		matchStage = append(matchStage, bson.E{Key: "metadata.profile_id", Value: profile.ID})
+		matchStage = append(matchStage, bson.E{Key: "metadata.profile_id", Value: authSession.ProfileID})
 	}
 
 	if filter != nil {
@@ -94,7 +94,7 @@ func (biz *CharactersBusiness) GetSnapshots(ctx context.Context, characterID *pr
 }
 
 func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*analyticsRepo.Snapshot, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
@@ -104,10 +104,12 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 		return nil, err
 	}
 
-	if character.ProfileID != profile.ID {
+	if character.ProfileID != authSession.ProfileID {
 		return nil, errors.PermissionDenied()
 	}
 
+	// TODO: Use gRPC to get the profile
+	var profile coreRepo.Profile
 	if profile.AvailableSnapshots <= 0 {
 		return nil, errors.NewError(errors.ErrCodeLimitSnapshot, "no available snapshots")
 	}
@@ -128,7 +130,7 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 		ID:        primitive.NewObjectID(),
 		Timestamp: utils.Now(),
 		Metadata: analyticsRepo.Metadata{
-			ProfileID:   profile.ID,
+			ProfileID:   authSession.ProfileID,
 			CharacterID: characterID,
 		},
 		Character: *character,
@@ -151,8 +153,8 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 			return nil, err
 		}
 
-		// Decrement available snapshots
-		profile.AvailableSnapshots--
+		// TODO: Decrement available snapshots
+		// profile.AvailableSnapshots--
 		_, err = biz.ProfilesRepo.UpdateProfile(&profile)
 		if err != nil {
 			return nil, err
@@ -180,7 +182,7 @@ func (biz *CharactersBusiness) CreateNewSnapshot(ctx context.Context, characterI
 
 // Get analytic results from the captured records from the database
 func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, analyticSections []model.AnalyticSection) (map[string]interface{}, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
@@ -188,7 +190,7 @@ func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, character
 	capturedRecordsFilter := CapturedRecordsFilter{
 		FilterMethod:        FilterMethodServerSide,
 		FilterType:          FilterTypeUser,
-		ProfileID:           profile.ID,
+		ProfileID:           authSession.ProfileID,
 		EndTime:             time.Now(),
 		CapturedRecordsRepo: biz.CapturedRecordsRepo,
 		RedisClient:         biz.RedisClient,
@@ -200,7 +202,7 @@ func (biz *CharactersBusiness) GetAnalyticResults(ctx context.Context, character
 			return nil, err
 		}
 
-		if character.ProfileID != profile.ID {
+		if character.ProfileID != authSession.ProfileID {
 			return nil, errors.PermissionDenied()
 		}
 

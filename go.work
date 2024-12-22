@@ -9,6 +9,7 @@ use (
 	./pkg/errors
 	./pkg/graphql
 	./pkg/middlewares
+	./pkg/proto/pb
 	./pkg/utils
 	./services/analytics
 	./services/core

@@ -18,6 +18,7 @@ import (
 	fishBiz "tenkhours/services/currency/business"
 	fishRepo "tenkhours/services/currency/repo"
 	timetrackingsRepo "tenkhours/services/timetrackings/repo"
+	"tenkhours/services/timetrackings/repo/rpc"
 
 	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -25,32 +26,30 @@ import (
 
 type TimeTrackingsBusiness struct {
 	TimeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo
-	CharactersRepo    *repo.CharactersRepo
+	RPCClient         *rpc.RPCClient
 	FishRepo          *fishRepo.FishRepo
-	FishBusiness      *fishBiz.FishBusiness
 	ProfilesRepo      *repo.ProfilesRepo
 	RedisClient       *redis.Client
 }
 
-func NewTimeTrackingsBusiness(timeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo, charactersRepo *repo.CharactersRepo, fishRepo *fishRepo.FishRepo, fishBiz *fishBiz.FishBusiness, profilesRepo *repo.ProfilesRepo, redisClient *redis.Client) *TimeTrackingsBusiness {
+func NewTimeTrackingsBusiness(timeTrackingsRepo *timetrackingsRepo.TimeTrackingsRepo, coreClient *rpc.RPCClient, fishRepo *fishRepo.FishRepo, profilesRepo *repo.ProfilesRepo, redisClient *redis.Client) *TimeTrackingsBusiness {
 	return &TimeTrackingsBusiness{
 		TimeTrackingsRepo: timeTrackingsRepo,
-		CharactersRepo:    charactersRepo,
+		RPCClient:         coreClient,
 		FishRepo:          fishRepo,
-		FishBusiness:      fishBiz,
 		ProfilesRepo:      profilesRepo,
 		RedisClient:       redisClient,
 	}
 }
 
 func (biz *TimeTrackingsBusiness) GetCurrentTimeTracking(ctx context.Context) (*timetrackingsRepo.TimeTracking, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
 
 	// Get the current time tracking from Redis
-	currentTimetrackingJSON, err := biz.RedisClient.Get(ctx, profile.ID.Hex()).Result()
+	currentTimetrackingJSON, err := biz.RedisClient.Get(ctx, db.GetTimeTrackingKey(authSession.ProfileID.Hex())).Result()
 	if err == redis.Nil {
 		return nil, nil
 	} else if err != nil {
@@ -67,23 +66,19 @@ func (biz *TimeTrackingsBusiness) GetCurrentTimeTracking(ctx context.Context) (*
 }
 
 func (biz *TimeTrackingsBusiness) GetTotalCurrentTimeTracking(ctx context.Context, characterID primitive.ObjectID, timestamp time.Time) (int, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return 0, errors.Unauthorized()
 	}
 
 	// Check permissions
-	character, err := biz.CharactersRepo.FindByID(characterID)
-	if err != nil {
-		return 0, fmt.Errorf("failed to get character: %v", err)
-	}
-
-	if character.ProfileID != profile.ID {
+	authorized, err := biz.RPCClient.CheckPermission(ctx, authSession.ProfileID.Hex(), characterID.Hex(), primitive.NilObjectID.Hex())
+	if !authorized || err != nil {
 		return 0, errors.PermissionDenied()
 	}
 
 	// Get the timetrackings from the current captured record in Redis
-	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, db.GetCapturedRecordKey(profile.ID.Hex()), characterID.Hex()).Result()
+	capturedRecordJSON, err := biz.RedisClient.HGet(ctx, db.GetCapturedRecordKey(authSession.ProfileID.Hex()), characterID.Hex()).Result()
 	if err == redis.Nil {
 		return 0, nil
 	} else if err != nil {
@@ -128,7 +123,7 @@ func getFishCatchingInterval() int {
 }
 
 func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, characterID primitive.ObjectID, metricID *primitive.ObjectID, startTime time.Time) (*timetrackingsRepo.TimeTracking, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
@@ -142,28 +137,14 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 		return nil, errors.NewError(errors.ErrCodeOverMaxDifferenceDuration, "the period time is over the max difference duration")
 	}
 
-	// Check permissions
-	character, err := biz.CharactersRepo.FindByID(characterID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get character: %v", err)
-	}
-
-	if character.ProfileID != profile.ID {
-		return nil, errors.PermissionDenied()
-	}
-
+	var metricOID primitive.ObjectID
 	if metricID != nil {
-		found := false
-		for _, customMetric := range character.CustomMetrics {
-			if customMetric.ID == *metricID {
-				found = true
-				break
-			}
-		}
+		metricOID = *metricID
+	}
 
-		if !found {
-			return nil, errors.PermissionDenied()
-		}
+	authorized, err := biz.RPCClient.CheckPermission(ctx, authSession.ProfileID.Hex(), characterID.Hex(), metricOID.Hex())
+	if !authorized || err != nil {
+		return nil, errors.PermissionDenied()
 	}
 
 	// Check if there is an active time tracking
@@ -183,10 +164,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 		StartTime:       startTime,
 		MinDurationTime: utils.MinDurationTime,
 		MaxDurationTime: utils.MaxDurationTime,
-	}
-
-	if metricID != nil {
-		timeTracking.CustomMetricID = *metricID
+		CustomMetricID:  metricOID,
 	}
 
 	// Save the time tracking to Redis
@@ -195,7 +173,7 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 		return nil, fmt.Errorf("failed to serialize time tracking: %v", err)
 	}
 
-	err = biz.RedisClient.Set(ctx, profile.ID.Hex(), timeTrackingJSON, 24*time.Hour).Err()
+	err = biz.RedisClient.Set(ctx, db.GetTimeTrackingKey(authSession.ProfileID.Hex()), timeTrackingJSON, 24*time.Hour).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to save time tracking to redis: %v", err)
 	}
@@ -204,14 +182,14 @@ func (biz *TimeTrackingsBusiness) CreateTimeTracking(ctx context.Context, charac
 }
 
 func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*timetrackingsRepo.TimeTracking, *fishRepo.Fish, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, nil, errors.Unauthorized()
 	}
 
 	// Get the time tracking from Redis
-	profileID := profile.ID.Hex()
-	val, err := biz.RedisClient.Get(ctx, profileID).Result()
+	profileID := authSession.ProfileID.Hex()
+	val, err := biz.RedisClient.Get(ctx, db.GetTimeTrackingKey(profileID)).Result()
 	if err == redis.Nil {
 		return nil, nil, fmt.Errorf("time tracking not found in redis")
 	} else if err != nil {
@@ -263,7 +241,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 			TotalFocusedTime: 0,
 			Metadata: model.CapturedRecordMetadata{
 				CharacterID: timeTracking.CharacterID,
-				ProfileID:   profile.ID,
+				ProfileID:   authSession.ProfileID,
 			},
 			TimeTrackings: []model.CapturedRecordTimeTracking{},
 			CustomMetrics: []model.CapturedRecordCustomMetric{},
@@ -288,45 +266,30 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		EndTime:        timeTracking.EndTime,
 	})
 
-	// Get the character to update the time
-	character, err := biz.CharactersRepo.FindByID(timeTracking.CharacterID)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get character: %v", err)
-	}
-
-	character.TotalFocusedTime += duration
 	if !timeTracking.CustomMetricID.IsZero() {
-		// Add the time to the custom metric
-		for i, customMetric := range character.CustomMetrics {
-			if customMetric.ID == timeTracking.CustomMetricID {
-				character.CustomMetrics[i].Time += int32(duration)
-
-				// Check if this custom metric already exists in the captured record
-				found := false
-				for j, capturedCustomMetric := range capturedRecord.CustomMetrics {
-					// If it exists, add the time to it
-					if capturedCustomMetric.ID == timeTracking.CustomMetricID {
-						capturedRecord.CustomMetrics[j].Time += int32(duration)
-						found = true
-					}
-				}
-
-				// If it doesn't exist, create a new one
-				if !found {
-					capturedRecord.CustomMetrics = append(capturedRecord.CustomMetrics, model.CapturedRecordCustomMetric{
-						ID:   timeTracking.CustomMetricID,
-						Time: int32(duration),
-					})
-				}
-				break
+		// Check if this custom metric already exists in the captured record
+		found := false
+		for j, capturedCustomMetric := range capturedRecord.CustomMetrics {
+			// If it exists, add the time to it
+			if capturedCustomMetric.ID == timeTracking.CustomMetricID {
+				capturedRecord.CustomMetrics[j].Time += int32(duration)
+				found = true
 			}
+		}
+
+		// If it doesn't exist, create a new one
+		if !found {
+			capturedRecord.CustomMetrics = append(capturedRecord.CustomMetrics, model.CapturedRecordCustomMetric{
+				ID:   timeTracking.CustomMetricID,
+				Time: int32(duration),
+			})
 		}
 	}
 
-	// Update the character in the database
-	_, err = biz.CharactersRepo.UpdateByID(character.ID, character)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to update character: %v", err)
+	// Update the time in the character by gRPC
+	success, err := biz.RPCClient.UpdateTimeInCharacter(ctx, timeTracking.CharacterID.Hex(), timeTracking.CustomMetricID.Hex(), duration)
+	if !success || err != nil {
+		return nil, nil, err
 	}
 
 	// Upsert the captured record to Redis
@@ -335,7 +298,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		return nil, nil, fmt.Errorf("failed to serialize captured record: %v", err)
 	}
 
-	err = biz.RedisClient.HSet(ctx, db.GetCapturedRecordKey(profileID), character.ID.Hex(), capturedRecordBytes).Err()
+	err = biz.RedisClient.HSet(ctx, db.GetCapturedRecordKey(profileID), timeTracking.CharacterID.Hex(), capturedRecordBytes).Err()
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to save captured record to redis: %v", err)
 	}
@@ -345,15 +308,15 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	numCatches := int(duration) / fishCatchingInterval
 
 	updatedFish := &fishRepo.Fish{
-		ProfileID: profile.ID,
+		ProfileID: authSession.ProfileID,
 		Gold:      0,
 		Normal:    0,
 	}
 
-	fishBiz := fishBiz.NewFishBusiness(biz.FishRepo, biz.CharactersRepo, biz.ProfilesRepo, biz.RedisClient)
+	fishBiz := fishBiz.NewFishBusiness(biz.FishRepo, nil, biz.ProfilesRepo, biz.RedisClient)
 
 	for i := 0; i < numCatches; i++ {
-		catchResult, err := fishBiz.CatchFish(ctx, profile.ID)
+		catchResult, err := fishBiz.CatchFish(ctx, authSession.ProfileID)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -366,7 +329,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 		}
 	}
 
-	_, err = fishBiz.UpdateFishFromFinishSession(updatedFish, profile.ID)
+	_, err = fishBiz.UpdateFishFromFinishSession(updatedFish, authSession.ProfileID)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to update fish %v", err)
 	}

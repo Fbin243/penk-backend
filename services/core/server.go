@@ -1,23 +1,21 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"net"
 	"os"
 
-	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
-	analyticsRepo "tenkhours/services/analytics/repo"
-	"tenkhours/services/core/business"
+	"tenkhours/pkg/pb"
+	"tenkhours/services/core/composer"
 	"tenkhours/services/core/graph"
-	"tenkhours/services/core/repo"
-	fishRepo "tenkhours/services/currency/repo"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -30,46 +28,11 @@ func main() {
 		log.Fatal("Error loading .env." + env + " file")
 	}
 
-	fmt.Println("------------------Running in environment:", env)
-
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
-
-	// Init dependencies and perform DI manually
-	mongodb := db.GetDBManager().DB
-	redisClient := db.GetRedisClient()
-	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
-	charactersRepo := repo.NewCharactersRepo(mongodb)
-	fishRepo := fishRepo.NewFishRepo(mongodb)
-	goalsRepo := repo.NewGoalsRepo(mongodb)
-	templatesRepo := repo.NewTemplatesRepo(mongodb)
-	templateCategoriesRepo := repo.NewTemplateCategoriesRepo(mongodb)
-
-	// TODO: Temporary inject analyticsRepos into profilesBiz for deleting related data
-	capturedRepordsRepo := analyticsRepo.NewCapturedRecordsRepo(mongodb)
-	snapshotsRepo := analyticsRepo.NewSnapshotsRepo(mongodb)
-
-	profilesBiz := business.NewProfilesBusiness(profilesRepo, fishRepo, charactersRepo, capturedRepordsRepo, snapshotsRepo, redisClient)
-	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo, goalsRepo)
-	goalsBiz := business.NewGoalsBusiness(goalsRepo, charactersRepo)
-	templatesBiz := business.NewTemplatesBusiness(templatesRepo, templateCategoriesRepo)
-
-	// Check authentication
-	authMiddleware := middlewares.NewMiddleware(redisClient, profilesRepo)
-	app.Use(authMiddleware.CheckAuth)
-
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: &graph.Resolver{
-			ProfilesBusiness:   profilesBiz,
-			CharactersBusiness: charactersBiz,
-			GoalsBusiness:      goalsBiz,
-			TemplatesBusiness:  templatesBiz,
-		},
-	}))
-	srv.SetErrorPresenter(errors.DefaultPresenter)
 
 	app.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -77,9 +40,23 @@ func main() {
 		})
 	})
 
+	// Check authentication
+	authClient, conn := middlewares.ComposeRPCClient()
+	defer conn.Close()
+	app.Use(middlewares.RequireAuth(authClient))
+
+	// Init GraphQL server
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
+		Resolvers: composer.ComposeGraphQLResolver(),
+	}))
+	srv.SetErrorPresenter(errors.DefaultPresenter)
+
 	app.POST("/graphql", func(c *gin.Context) {
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
+
+	// Start RPC server
+	go startRPCServer()
 
 	port, found := os.LookupEnv("CORE_PORT")
 	if !found {
@@ -87,4 +64,24 @@ func main() {
 	}
 
 	app.Run(":" + port)
+}
+
+func startRPCServer() {
+	// Create the server for gRPC API
+	s := grpc.NewServer()
+	pb.RegisterCoreServer(s, composer.ComposeRPCHandler())
+
+	port, found := os.LookupEnv("CORE_RPC_PORT")
+	if !found {
+		port = "50051"
+	}
+
+	lis, err := net.Listen("tcp", ":"+port)
+	if err != nil {
+		log.Fatalf("Failed to listen: %v", err)
+	}
+
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
 }

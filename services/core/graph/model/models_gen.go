@@ -44,6 +44,12 @@ type CustomMetricInput struct {
 	Properties []MetricPropertyInput `json:"properties,omitempty" validate:"dive"`
 }
 
+type Fish struct {
+	ProfileID primitive.ObjectID `json:"profileID"`
+}
+
+func (Fish) IsEntity() {}
+
 type GoalCustomMetricInput struct {
 	ID         primitive.ObjectID        `json:"id"`
 	Properties []GoalMetricPropertyInput `json:"properties,omitempty"`

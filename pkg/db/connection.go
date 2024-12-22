@@ -48,7 +48,7 @@ func InitDBManagerFromURL(connectionURI string, dbName string) *DatabaseManager 
 }
 
 func InitDBManagerFromEnv(dbName string) *DatabaseManager {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*20)
 	defer cancel()
 
 	mongoAddress := os.Getenv("MONGO_ADDRESS")

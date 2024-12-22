@@ -1,19 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
-	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
-	"tenkhours/services/core/repo"
-	fishBiz "tenkhours/services/currency/business"
-	fishRepo "tenkhours/services/currency/repo"
-	"tenkhours/services/timetrackings/business"
+	"tenkhours/services/timetrackings/composer"
 	"tenkhours/services/timetrackings/graph"
-	timetrackingsRepo "tenkhours/services/timetrackings/repo"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -31,32 +25,11 @@ func main() {
 		log.Fatal("Error loading .env." + env + " file")
 	}
 
-	fmt.Println("------------------Running in environment:", env)
-
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
-
-	// Init dependencies and perform DI manually
-	mongodb := db.GetDBManager().DB
-	redisClient := db.GetRedisClient()
-	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
-	charactersRepo := repo.NewCharactersRepo(mongodb)
-	timetrackingsRepo := timetrackingsRepo.NewTimeTrackingsRepo(mongodb)
-	fishRepo := fishRepo.NewFishRepo(mongodb)
-	fishBusiness := fishBiz.NewFishBusiness(fishRepo, charactersRepo, profilesRepo, redisClient)
-	timetrackingsBiz := business.NewTimeTrackingsBusiness(timetrackingsRepo, charactersRepo, fishRepo, fishBusiness, profilesRepo, redisClient)
-
-	// Check authentication
-	authMiddleware := middlewares.NewMiddleware(redisClient, profilesRepo)
-	app.Use(authMiddleware.CheckAuth)
-
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: &graph.Resolver{TimeTrackingsBusiness: timetrackingsBiz},
-	}))
-	srv.SetErrorPresenter(errors.DefaultPresenter)
 
 	app.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -64,6 +37,19 @@ func main() {
 		})
 	})
 
+	// Check authentication
+	authClient, conn := middlewares.ComposeRPCClient()
+	defer conn.Close()
+	app.Use(middlewares.RequireAuth(authClient))
+
+	// Init GraphQL server
+	resolvers, conn := composer.ComposeGraphQLResolver()
+	defer conn.Close()
+
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
+		Resolvers: resolvers,
+	}))
+	srv.SetErrorPresenter(errors.DefaultPresenter)
 	app.POST("/graphql", func(c *gin.Context) {
 		srv.ServeHTTP(c.Writer, c.Request)
 	})

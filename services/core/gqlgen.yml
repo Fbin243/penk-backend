@@ -92,9 +92,6 @@ models:
     model: tenkhours/pkg/errors.ErrorCode
   Profile:
     model: tenkhours/services/core/repo.Profile
-    fields:
-      characters:
-        resolver: true
   Character:
     model: tenkhours/services/core/repo.Character
   CustomMetric:

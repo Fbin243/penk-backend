@@ -14,6 +14,11 @@ type Profile {
   availableSnapshots: Int!
   limitedCharacterNumber: Int!
   autoSnapshot: Boolean!
+  fish: Fish!
+}
+
+type Fish @key(fields: "profileID", resolvable: false) {
+  profileID: ObjectID!
 }
 
 """

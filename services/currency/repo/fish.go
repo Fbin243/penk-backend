@@ -24,8 +24,11 @@ func (r *FishRepo) GetFishByProfileID(profileID primitive.ObjectID) (*Fish, erro
 
 	var fish Fish
 	err := r.FindOne(ctx, bson.M{"profile_id": profileID}).Decode(&fish)
+	if err != nil {
+		return nil, err
+	}
 
-	return &fish, err
+	return &fish, nil
 }
 
 func (r *FishRepo) UpdateFishByProfileID(profileID primitive.ObjectID, fish *Fish) (*Fish, error) {

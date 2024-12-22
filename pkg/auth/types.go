@@ -3,7 +3,7 @@ package auth
 type ContextKey int
 
 const (
-	ProfileKey ContextKey = iota
+	AuthSessionKey ContextKey = iota
 )
 
 type FirebaseProfile struct {

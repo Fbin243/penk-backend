@@ -24,7 +24,7 @@ func NewTemplatesBusiness(templatesRepo *repo.TemplatesRepo, templateCategoriesR
 
 // GetTemplates returns all templates
 func (biz *TemplatesBusiness) GetTemplates(ctx context.Context) ([]repo.Template, error) {
-	_, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	_, ok := ctx.Value(auth.AuthSessionKey).(repo.Profile)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
@@ -34,7 +34,7 @@ func (biz *TemplatesBusiness) GetTemplates(ctx context.Context) ([]repo.Template
 
 // Get template category by ID
 func (biz *TemplatesBusiness) GetTemplateCategory(ctx context.Context, id primitive.ObjectID) (*repo.TemplateCategory, error) {
-	_, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	_, ok := ctx.Value(auth.AuthSessionKey).(repo.Profile)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
@@ -42,8 +42,7 @@ func (biz *TemplatesBusiness) GetTemplateCategory(ctx context.Context, id primit
 	category, err := biz.TemplatesCategoriesRepo.FindByID(id)
 	if err == mongo.ErrNoDocuments {
 		return nil, nil
-	}
-	if err != nil {
+	} else if err != nil {
 		return nil, err
 	}
 

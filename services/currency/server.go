@@ -1,18 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
-	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
-	"tenkhours/services/currency/business"
+	"tenkhours/services/currency/composer"
 	"tenkhours/services/currency/graph"
-	"tenkhours/services/currency/repo"
-
-	coreRepo "tenkhours/services/core/repo"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -30,32 +25,11 @@ func main() {
 		log.Fatal("Error loading .env." + env + " file")
 	}
 
-	fmt.Println("------------------Running in environment:", env)
-
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowHeaders:    []string{"Content-Type", "Authorization"},
 	}))
-
-	// Init dependencies and perform DI manually
-	mongodb := db.GetDBManager().DB
-	FishRepo := repo.NewFishRepo(mongodb)
-	redisClient := db.GetRedisClient()
-	profilesRepo := coreRepo.NewProfilesRepo(mongodb, redisClient)
-	charactersRepo := coreRepo.NewCharactersRepo(mongodb)
-	FishBiz := business.NewFishBusiness(FishRepo, charactersRepo, profilesRepo, redisClient)
-
-	// Check authentication
-	authMiddleware := middlewares.NewMiddleware(redisClient, profilesRepo)
-	app.Use(authMiddleware.CheckAuth)
-
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: &graph.Resolver{
-			FishBusiness: FishBiz,
-		},
-	}))
-	srv.SetErrorPresenter(errors.DefaultPresenter)
 
 	app.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -63,8 +37,17 @@ func main() {
 		})
 	})
 
+	// Check authentication
+	authClient, conn := middlewares.ComposeRPCClient()
+	defer conn.Close()
+	app.Use(middlewares.RequireAuth(authClient))
+
+	// Init GraphQL server
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
+		Resolvers: composer.ComposeGraphQLResolver(),
+	}))
+	srv.SetErrorPresenter(errors.DefaultPresenter)
 	app.POST("/graphql", func(c *gin.Context) {
-		fmt.Print("Body", c.Request)
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 

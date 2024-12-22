@@ -24,7 +24,7 @@ func NewGoalsBusiness(goalsRepo *repo.GoalsRepo, charactersRepo *repo.Characters
 }
 
 func (biz *GoalsBusiness) GetGoals(ctx context.Context, characterID primitive.ObjectID, status *repo.GoalStatusFilter) ([]repo.Goal, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
@@ -35,7 +35,7 @@ func (biz *GoalsBusiness) GetGoals(ctx context.Context, characterID primitive.Ob
 		return nil, err
 	}
 
-	if character.ProfileID != profile.ID {
+	if character.ProfileID != authSession.ProfileID {
 		return nil, errors.PermissionDenied()
 	}
 
@@ -43,7 +43,7 @@ func (biz *GoalsBusiness) GetGoals(ctx context.Context, characterID primitive.Ob
 }
 
 func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.ObjectID, input model.GoalInput) (*repo.Goal, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
@@ -54,7 +54,7 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 		return nil, err
 	}
 
-	if character.ProfileID != profile.ID {
+	if character.ProfileID != authSession.ProfileID {
 		return nil, errors.Unauthorized()
 	}
 

@@ -17,7 +17,6 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type FishBusiness struct {
@@ -42,35 +41,12 @@ func NewFishBusiness(FishRepo *repo.FishRepo, CharactersRepo *coreRepo.Character
 }
 
 func (biz *FishBusiness) GetFishByProfileID(ctx context.Context) (*repo.Fish, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
 
-	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
-
-	// Check if there is no fish data or failed to get fish
-	if err != nil && err != mongo.ErrNoDocuments {
-		return nil, fmt.Errorf("failed to get fish data: %v", err)
-	}
-
-	// Check if fish document doesn't exist
-	if err == mongo.ErrNoDocuments {
-		newFish := &repo.Fish{
-			BaseModel: &db.BaseModel{},
-			ProfileID: profile.ID,
-			Gold:      0,
-			Normal:    0,
-		}
-
-		// Create new fish document
-		fish, err = biz.FishRepo.InsertOne(newFish)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create fish data: %v", err)
-		}
-	}
-
-	return fish, nil
+	return biz.FishRepo.GetFishByProfileID(authSession.ProfileID)
 }
 
 // CatchFish used to catch the fish for a user
@@ -156,12 +132,12 @@ func (biz *FishBusiness) UpdateFishFromFinishSession(fish *repo.Fish, profileID 
 // Those functions below are for trading
 // Use fish to trade metrics
 func (biz *FishBusiness) BuyMetrics(ctx context.Context, fishType model.FishType, characterID primitive.ObjectID) (bool, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return false, errors.Unauthorized()
 	}
 
-	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
+	fish, err := biz.FishRepo.GetFishByProfileID(authSession.ProfileID)
 	if err != nil {
 		return false, fmt.Errorf("failed to find fish: %v", err)
 	}
@@ -220,7 +196,7 @@ func (biz *FishBusiness) BuyMetrics(ctx context.Context, fishType model.FishType
 		return false, fmt.Errorf("failed to update metrics limited: %v", err)
 	}
 
-	if _, err := biz.FishRepo.UpdateFishByProfileID(profile.ID, fish); err != nil {
+	if _, err := biz.FishRepo.UpdateFishByProfileID(authSession.ProfileID, fish); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
 	}
 
@@ -229,12 +205,12 @@ func (biz *FishBusiness) BuyMetrics(ctx context.Context, fishType model.FishType
 
 // Use fish to trade snapshot
 func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType model.FishType) (bool, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return false, errors.Unauthorized()
 	}
 
-	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
+	fish, err := biz.FishRepo.GetFishByProfileID(authSession.ProfileID)
 	if err != nil {
 		return false, fmt.Errorf("failed to find fish: %v", err)
 	}
@@ -281,7 +257,7 @@ func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType model.FishTy
 		return false, fmt.Errorf("invalid fish type: %s", fishType)
 	}
 
-	profileData, err := biz.ProfilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
+	profileData, err := biz.ProfilesRepo.FindByID(authSession.ProfileID)
 	if err != nil {
 		return false, fmt.Errorf("failed to get profile: %v", err)
 	}
@@ -292,7 +268,7 @@ func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType model.FishTy
 		return false, fmt.Errorf("failed to update available snapshots: %v", err)
 	}
 
-	if _, err := biz.FishRepo.UpdateFishByProfileID(profile.ID, fish); err != nil {
+	if _, err := biz.FishRepo.UpdateFishByProfileID(authSession.ProfileID, fish); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
 	}
 
@@ -301,12 +277,12 @@ func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType model.FishTy
 
 // Use fish to unclock new character
 func (biz *FishBusiness) BuyCharacters(ctx context.Context, fishType model.FishType) (bool, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(coreRepo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return false, errors.Unauthorized()
 	}
 
-	fish, err := biz.FishRepo.GetFishByProfileID(profile.ID)
+	fish, err := biz.FishRepo.GetFishByProfileID(authSession.ProfileID)
 	if err != nil {
 		return false, fmt.Errorf("failed to find fish: %v", err)
 	}
@@ -353,7 +329,7 @@ func (biz *FishBusiness) BuyCharacters(ctx context.Context, fishType model.FishT
 		return false, fmt.Errorf("invalid fish type: %s", fishType)
 	}
 
-	profileData, err := biz.ProfilesRepo.GetProfileByFirebaseUID(profile.FirebaseUID)
+	profileData, err := biz.ProfilesRepo.FindByID(authSession.ProfileID)
 	if err != nil {
 		return false, fmt.Errorf("failed to get profile: %v", err)
 	}
@@ -365,7 +341,7 @@ func (biz *FishBusiness) BuyCharacters(ctx context.Context, fishType model.FishT
 		return false, fmt.Errorf("failed to update character count: %v", err)
 	}
 
-	if _, err := biz.FishRepo.UpdateFishByProfileID(profile.ID, fish); err != nil {
+	if _, err := biz.FishRepo.UpdateFishByProfileID(authSession.ProfileID, fish); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
 	}
 

@@ -53,12 +53,12 @@ func (biz *CharactersBusiness) GetCharacterByID(ctx context.Context, id string) 
 }
 
 func (biz *CharactersBusiness) GetCharactersByProfileID(ctx context.Context) ([]repo.Character, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
 
-	characters, err := biz.CharactersRepo.GetCharactersByProfileID(profile.ID)
+	characters, err := biz.CharactersRepo.GetCharactersByProfileID(authSession.ProfileID)
 	if err != nil {
 		return nil, err
 	}
@@ -67,14 +67,19 @@ func (biz *CharactersBusiness) GetCharactersByProfileID(ctx context.Context) ([]
 }
 
 func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
 
+	profile, err := biz.ProfilesRepo.FindByID(authSession.ProfileID)
+	if err != nil {
+		return nil, err
+	}
+
 	if input.ID == nil {
 		// Insert new character
-		charactersCount, err := biz.CharactersRepo.CountCharactersByProfileID(profile.ID)
+		charactersCount, err := biz.CharactersRepo.CountCharactersByProfileID(authSession.ProfileID)
 		if err != nil {
 			return nil, err
 		}
@@ -111,7 +116,7 @@ func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.
 
 		// TODO: Character has been created, so set the current character of the user to it
 		profile.CurrentCharacterID = character.ID
-		_, err = biz.ProfilesRepo.UpdateProfile(&profile)
+		_, err = biz.ProfilesRepo.UpdateProfile(profile)
 		if err != nil {
 			return nil, err
 		}
@@ -444,7 +449,7 @@ func (biz *CharactersBusiness) checkGoalsFinished(goals []repo.Goal, newMetrics 
 }
 
 func (biz *CharactersBusiness) DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
@@ -454,7 +459,7 @@ func (biz *CharactersBusiness) DeleteCharacter(ctx context.Context, id primitive
 		return nil, err
 	}
 
-	if character.ProfileID != profile.ID {
+	if character.ProfileID != authSession.ProfileID {
 		return nil, errors.PermissionDenied()
 	}
 
@@ -464,4 +469,34 @@ func (biz *CharactersBusiness) DeleteCharacter(ctx context.Context, id primitive
 	}
 
 	return deletedCharacter, nil
+}
+
+func (biz *CharactersBusiness) UpdateTimeInCharacter(ctx context.Context, characterID primitive.ObjectID, metricID primitive.ObjectID, time int32) error {
+	character, err := biz.CharactersRepo.FindByID(characterID)
+	if err != nil {
+		return err
+	}
+
+	character.TotalFocusedTime += time
+	if !metricID.IsZero() {
+		found := false
+		for i, metric := range character.CustomMetrics {
+			if metric.ID == metricID {
+				character.CustomMetrics[i].Time += time
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			return errors.PermissionDenied()
+		}
+	}
+
+	_, err = biz.CharactersRepo.UpdateByID(characterID, character)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

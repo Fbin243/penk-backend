@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/go-redis/redis/v8"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var (
@@ -15,9 +16,16 @@ var (
 	once        sync.Once
 )
 
-const CapturedRecordKey = "captured_record_"
+const (
+	AuthSessionKey    = "auth_session_"
+	CapturedRecordKey = "captured_record_"
+	FishKey           = "fish_"
+	TimeTrackingKey   = "time_tracking_"
+)
 
-const FishKey = "fish_"
+type AuthSession struct {
+	ProfileID primitive.ObjectID
+}
 
 func GetRedisClient() *redis.Client {
 	once.Do(func() {
@@ -52,4 +60,12 @@ func GetCapturedRecordKey(profileID string) string {
 
 func GetFishKey(profileID string) string {
 	return FishKey + profileID
+}
+
+func GetAuthSessionKey(firebaseUID string) string {
+	return AuthSessionKey + firebaseUID
+}
+
+func GetTimeTrackingKey(profileID string) string {
+	return TimeTrackingKey + profileID
 }

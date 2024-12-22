@@ -14,6 +14,7 @@ import (
 	fishRepo "tenkhours/services/currency/repo"
 
 	"github.com/go-redis/redis/v8"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -39,19 +40,24 @@ func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, fishRepo *fishRepo.Fis
 
 // Get the user's profile if it exists, otherwise create a new profile
 func (biz *ProfilesBusiness) GetProfile(ctx context.Context) (*repo.Profile, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
 
-	return &profile, nil
+	return biz.ProfilesRepo.FindByID(authSession.ProfileID)
 }
 
 // Update the user's profile
 func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.ProfileInput) (*repo.Profile, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
+	}
+
+	profile, err := biz.ProfilesRepo.FindByID(authSession.ProfileID)
+	if err != nil {
+		return nil, err
 	}
 
 	// Update the profile with the new input
@@ -66,7 +72,7 @@ func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.Prof
 
 	profile.UpdatedAt = utils.Now()
 
-	updatedProfile, err := biz.ProfilesRepo.UpdateProfile(&profile)
+	updatedProfile, err := biz.ProfilesRepo.UpdateProfile(profile)
 	if err != nil {
 		return nil, err
 	}
@@ -76,38 +82,39 @@ func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.Prof
 
 // Delete the user's profile and all related data
 func (biz *ProfilesBusiness) DeleteProfile(ctx context.Context) (*repo.Profile, error) {
-	profile, ok := ctx.Value(auth.ProfileKey).(repo.Profile)
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
 
+	var profile *repo.Profile
 	// Make a callback for deleting profile and related data
 	callback := func(ctx mongo.SessionContext) (interface{}, error) {
 		// Delete all captured records in database
-		err := biz.CapturedRecordsRepo.DeleteCapturedRecordsByProfileID(profile.ID)
+		err := biz.CapturedRecordsRepo.DeleteCapturedRecordsByProfileID(authSession.ProfileID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to delete captured records: %v", err)
 		}
 
 		// Delete all snapshots in database
-		err = biz.SnapshotsRepo.DeleteSnapshotsByProfileID(profile.ID)
+		err = biz.SnapshotsRepo.DeleteSnapshotsByProfileID(authSession.ProfileID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to delete snapshots: %v", err)
 		}
 
 		// Delete all characters in database
-		err = biz.CharactersRepo.DeleteCharactersByProfileID(profile.ID)
+		err = biz.CharactersRepo.DeleteCharactersByProfileID(authSession.ProfileID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to delete characters: %v", err)
 		}
 
 		// Delete the profile in database
-		err = biz.ProfilesRepo.DeleteProfileByFirebaseUID(profile.FirebaseUID)
+		profile, err = biz.ProfilesRepo.DeleteByID(authSession.ProfileID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to delete user profile: %v", err)
 		}
 
-		return nil, nil
+		return profile, nil
 	}
 
 	// Execute the callback in a transaction
@@ -147,5 +154,75 @@ func (biz *ProfilesBusiness) DeleteProfile(ctx context.Context) (*repo.Profile, 
 		return nil, fmt.Errorf("failed to delete user profile in Firebase: %v", err)
 	}
 
-	return &profile, nil
+	return profile, nil
+}
+
+func (biz *ProfilesBusiness) IntrospectProfile(ctx context.Context, firebaseProfile auth.FirebaseProfile) (*repo.Profile, error) {
+	profile, err := biz.ProfilesRepo.GetProfileByFirebaseUID(firebaseProfile.UID)
+	if err == mongo.ErrNoDocuments {
+		// profile not found, mean the new account
+		newProfile := repo.Profile{
+			BaseModel:              &db.BaseModel{},
+			Name:                   firebaseProfile.Name,
+			Email:                  firebaseProfile.Email,
+			FirebaseUID:            firebaseProfile.UID,
+			ImageURL:               firebaseProfile.Picture,
+			AutoSnapshot:           true,
+			AvailableSnapshots:     utils.DefaultSnapshotsNumber,
+			LimitedCharacterNumber: utils.LimitedCharacterNumber,
+		}
+
+		// Create new profile for the new user in DB
+		profile, err = biz.ProfilesRepo.InsertOne(&newProfile)
+		if err != nil {
+			return nil, err
+		}
+
+		// TODO: Create new fish by making temp fish repo in the profile repo @Fbin243
+		_fishRepo := fishRepo.NewFishRepo(db.GetDBManager().DB)
+		newFish := &fishRepo.Fish{
+			BaseModel: &db.BaseModel{},
+			ProfileID: profile.ID,
+			Gold:      0,
+			Normal:    0,
+		}
+
+		_, err := _fishRepo.InsertOne(newFish)
+		if err != nil {
+			return nil, err
+		}
+	} else if err != nil {
+		return nil, err
+	}
+
+	return profile, nil
+}
+
+func (biz *ProfilesBusiness) CheckPermission(ctx context.Context, profileID, characterID, metricID primitive.ObjectID) error {
+	// Check if the character belongs to the profile
+	character, err := biz.CharactersRepo.FindByID(characterID)
+	if err != nil {
+		return err
+	}
+
+	if character.ProfileID != profileID {
+		return errors.PermissionDenied()
+	}
+
+	// Check if the metric belongs to the character
+	if !metricID.IsZero() {
+		found := false
+		for _, metric := range character.CustomMetrics {
+			if metric.ID == metricID {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			return errors.PermissionDenied()
+		}
+	}
+
+	return nil
 }

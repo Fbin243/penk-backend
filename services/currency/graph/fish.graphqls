@@ -1,6 +1,6 @@
 scalar ObjectID
 
-type Fish {
+type Fish @key(fields: "profileID") {
   id: ObjectID!
   profileID: ObjectID!
   gold: Int

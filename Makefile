@@ -80,4 +80,13 @@ templates:
 	@echo "Importing templates from file..."
 	@go run cmd/main.go import-templates
 
+# Protocol Buffers Compiler
+protoc:
+	@echo "Generating protobuf code..."
+	find ./pkg/proto -name "*.proto" -exec \
+	protoc --proto_path=./pkg/proto \
+	--go_out=./pkg/proto/pb --go_opt=paths=source_relative \
+	--go-grpc_out=./pkg/proto/pb --go-grpc_opt=paths=source_relative \
+	{} \;
+
 .PHONY: core analytics timetrackings notifications gateway dev tidy gqlgen token templates

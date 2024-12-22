@@ -12,3 +12,5 @@ type Fish struct {
 	Gold          int32              `json:"gold" bson:"gold"`
 	Normal        int32              `json:"normal" bson:"normal"`
 }
+
+func (Fish) IsEntity() {}
