@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
 	coreRepo "tenkhours/services/core/repo"
 	"tenkhours/services/currency/graph/model"
@@ -56,14 +57,14 @@ func (biz *FishBusiness) GetFishByProfileID(ctx context.Context) (*repo.Fish, er
 	// Check if fish document doesn't exist
 	if err == mongo.ErrNoDocuments {
 		newFish := &repo.Fish{
-			ID:        primitive.NewObjectID(),
+			BaseModel: &db.BaseModel{},
 			ProfileID: profile.ID,
 			Gold:      0,
 			Normal:    0,
 		}
 
 		// Create new fish document
-		fish, err = biz.FishRepo.CreateFish(newFish)
+		fish, err = biz.FishRepo.InsertOne(newFish)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create fish data: %v", err)
 		}
@@ -93,13 +94,14 @@ func (biz *FishBusiness) CatchFish(ctx context.Context, profileID primitive.Obje
 
 	// this will check for all the case in config file
 	var selectedFishConfig *config.FishConfig
+	cumulativeRate := 0.0
 
 	for _, cfg := range fishConfigs {
-		if randomNumber <= cfg.Rate {
+		cumulativeRate += cfg.Rate
+		if randomNumber <= cumulativeRate {
 			selectedFishConfig = &cfg
 			break
 		}
-		randomNumber -= cfg.Rate
 	}
 
 	//Check for no fish caught

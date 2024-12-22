@@ -1,72 +1,84 @@
 package repo_test
 
 import (
-	"context"
 	"testing"
 
+	"tenkhours/pkg/db"
 	"tenkhours/services/currency/repo"
 
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func setupTestRepo(t *testing.T) *repo.FishRepo {
-	// Assuming `fishRepo` is globally accessible and properly initialized
-	_, err := fishRepo.Collection.DeleteMany(context.Background(), bson.M{})
-	assert.Nil(t, err)
-	return fishRepo
+type fishInputType struct {
+	ProfileID primitive.ObjectID
+	Gold      int32
+	Normal    int32
 }
 
-func newFish(profileID primitive.ObjectID, gold, normal int32) *repo.Fish {
+var fishInput = &fishInputType{
+	ProfileID: primitive.NewObjectID(),
+	Gold:      10,
+	Normal:    5,
+}
+
+func newFishFromInput(input *fishInputType) *repo.Fish {
 	return &repo.Fish{
-		ID:        primitive.NewObjectID(),
-		ProfileID: profileID,
-		Gold:      gold,
-		Normal:    normal,
+		BaseModel: &db.BaseModel{},
+		ProfileID: input.ProfileID,
+		Gold:      input.Gold,
+		Normal:    input.Normal,
 	}
 }
 
-func TestCreateFish(t *testing.T) {
-	repo := setupTestRepo(t)
-	fish := newFish(primitive.NewObjectID(), 10, 5)
+func cleanUp(profileID primitive.ObjectID) {
+	_, err := fishRepo.DeleteFishByProfileID(profileID)
+	if err != nil {
+		panic(err)
+	}
+}
 
-	createdFish, err := repo.CreateFish(fish)
+func assertWithFishInput(t *testing.T, fish *repo.Fish, input *fishInputType) {
+	assert.Equal(t, fish.ProfileID, input.ProfileID)
+	assert.Equal(t, fish.Gold, input.Gold)
+	assert.Equal(t, fish.Normal, input.Normal)
+}
+
+func TestCreateFish(t *testing.T) {
+	fish := newFishFromInput(fishInput)
+	createdFish, err := fishRepo.InsertOne(fish)
+	defer cleanUp(createdFish.ProfileID)
+
 	assert.Nil(t, err)
-	assert.Equal(t, fish.Gold, createdFish.Gold)
-	assert.Equal(t, fish.Normal, createdFish.Normal)
+	assertWithFishInput(t, createdFish, fishInput)
 }
 
 func TestGetFishByProfileID(t *testing.T) {
-	repo := setupTestRepo(t)
-	profileID := primitive.NewObjectID()
-	fish := newFish(profileID, 10, 5)
+	fish := newFishFromInput(fishInput)
+	createdFish, err := fishRepo.InsertOne(fish)
+	defer cleanUp(createdFish.ProfileID)
 
-	_, err := repo.CreateFish(fish)
+	retrievedFish, err := fishRepo.GetFishByProfileID(fish.ProfileID)
 	assert.Nil(t, err)
-
-	retrievedFish, err := repo.GetFishByProfileID(profileID)
-	assert.Nil(t, err)
-	assert.Equal(t, fish.Gold, retrievedFish.Gold)
-	assert.Equal(t, fish.Normal, retrievedFish.Normal)
+	assertWithFishInput(t, retrievedFish, fishInput)
 }
 
 func TestUpdateFish(t *testing.T) {
-	repo := setupTestRepo(t)
-	profileID := primitive.NewObjectID()
-	fish := newFish(profileID, 10, 5)
+	fish := newFishFromInput(fishInput)
+	createdFish, err := fishRepo.InsertOne(fish)
+	defer cleanUp(createdFish.ProfileID)
 
-	_, err := repo.CreateFish(fish)
+	updateInput := &fishInputType{
+		ProfileID: fish.ProfileID,
+		Gold:      20,
+		Normal:    15,
+	}
+
+	fish.Gold = updateInput.Gold
+	fish.Normal = updateInput.Normal
+
+	updatedFish, err := fishRepo.UpdateFishByProfileID(fish.ProfileID, fish)
 	assert.Nil(t, err)
 
-	fish.Gold = 15
-	fish.Normal = 8
-
-	updatedFish, err := repo.UpdateFishByProfileID(profileID, fish)
-	assert.Nil(t, err)
-
-	t.Logf("Updated Fish - Gold: %v, Normal: %v", updatedFish.Gold, updatedFish.Normal)
-
-	assert.Equal(t, fish.Gold, updatedFish.Gold)
-	assert.Equal(t, fish.Normal, updatedFish.Normal)
+	assertWithFishInput(t, updatedFish, updateInput)
 }

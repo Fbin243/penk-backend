@@ -2,7 +2,6 @@ package repo
 
 import (
 	"context"
-	"fmt"
 	"tenkhours/pkg/db"
 	"time"
 
@@ -12,70 +11,44 @@ import (
 )
 
 type FishRepo struct {
-	*mongo.Collection
+	*db.BaseRepo[Fish]
 }
 
 func NewFishRepo(mongodb *mongo.Database) *FishRepo {
-	return &FishRepo{mongodb.Collection(db.FishCollection)}
+	return &FishRepo{db.NewBaseRepo[Fish](mongodb.Collection(db.FishCollection))}
 }
 
 func (r *FishRepo) GetFishByProfileID(profileID primitive.ObjectID) (*Fish, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	fish := Fish{}
+	var fish Fish
 	err := r.FindOne(ctx, bson.M{"profile_id": profileID}).Decode(&fish)
 
 	return &fish, err
-}
-
-func (r *FishRepo) CreateFish(fish *Fish) (*Fish, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err := r.InsertOne(ctx, fish)
-
-	return fish, err
 }
 
 func (r *FishRepo) UpdateFishByProfileID(profileID primitive.ObjectID, fish *Fish) (*Fish, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	fish.SetUpdatedAtByNow()
+
 	update := bson.M{
 		"$set": fish,
 	}
 
-	_, err := r.Collection.UpdateOne(ctx, bson.M{"profile_id": profileID}, update)
-	if err != nil {
-		return nil, fmt.Errorf("failed to update fish: %v", err)
-	}
+	_, err := r.UpdateOne(ctx, bson.M{"profile_id": profileID}, update)
 
-	return fish, nil
+	return fish, err
 }
 
-func (r *FishRepo) DeleteFish(profileID primitive.ObjectID, fishType string) (*Fish, error) {
+func (r *FishRepo) DeleteFishByProfileID(profileID primitive.ObjectID) (*Fish, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// Use FindOneAndDelete to delete the fish document
-	filter := bson.M{"profile_id": profileID, "type": fishType}
-	result := r.FindOneAndDelete(ctx, filter)
-
-	// Check for errors
-	err := result.Err()
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, fmt.Errorf("fish not found for deletion")
-		}
-		return nil, fmt.Errorf("failed to delete fish: %v", err)
-	}
-
 	var fish Fish
-	err = result.Decode(&fish)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode deleted fish: %v", err)
-	}
+	err := r.FindOneAndDelete(ctx, bson.M{"profile_id": profileID}).Decode(&fish)
 
-	return &fish, nil
+	return &fish, err
 }
