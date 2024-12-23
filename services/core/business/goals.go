@@ -55,7 +55,7 @@ func (biz *GoalsBusiness) UpsertGoal(ctx context.Context, characterID primitive.
 	}
 
 	if character.ProfileID != authSession.ProfileID {
-		return nil, errors.Unauthorized()
+		return nil, errors.PermissionDenied()
 	}
 
 	var goal *repo.Goal
