@@ -1,9 +1,4 @@
-type Mutation {
-  createSnapshot(characterID: ObjectID!, description: String): Snapshot!
-}
-
 type Query {
-  snapshots(characterID: ObjectID, filter: DateTimeFilter): [Snapshot!]!
   analyticResults(
     characterID: ObjectID
     """
@@ -19,9 +14,4 @@ type Query {
     """
     analyticSections: [AnalyticSection!]!
   ): JSON!
-}
-
-input DateTimeFilter {
-  month: Month
-  year: Int
 }

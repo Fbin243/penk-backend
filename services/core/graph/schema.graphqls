@@ -4,14 +4,14 @@ type Query {
   appSettings: AppSettings!
   goals(characterID: ObjectID!, status: GoalStatusFilter): [Goal!]!
   templates: [Template!]!
+  snapshots(characterID: ObjectID, filter: DateTimeFilter): [Snapshot!]!
 }
 
 type Mutation {
   updateProfile(input: ProfileInput!): Profile!
   deleteProfile: Profile!
-
   upsertCharacter(input: CharacterInput!): Character!
   deleteCharacter(id: ObjectID!): Character!
-
   upsertGoal(characterID: ObjectID!, input: GoalInput!): Goal!
+  createSnapshot(characterID: ObjectID!, description: String): Snapshot!
 }

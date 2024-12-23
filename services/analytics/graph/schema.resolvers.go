@@ -13,45 +13,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// CreateSnapshot is the resolver for the createSnapshot field.
-func (r *mutationResolver) CreateSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*model.Snapshot, error) {
-	snapshot, err := r.CharactersBusiness.CreateNewSnapshot(ctx, characterID, description)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create snapshot: %v", err)
-	}
-
-	return MapToSnapshotDto(snapshot), nil
-}
-
-// Snapshots is the resolver for the snapshots field.
-func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]model.Snapshot, error) {
-	snapshots, err := r.CharactersBusiness.GetSnapshots(ctx, characterID, filter)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get snapshots: %v", err)
-	}
-
-	var res []model.Snapshot
-	for _, snapshot := range snapshots {
-		res = append(res, *MapToSnapshotDto(&snapshot))
-	}
-
-	return res, nil
-}
-
 // AnalyticResults is the resolver for the analyticResults field.
 func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *primitive.ObjectID, startTime *time.Time, endTime *time.Time, analyticSections []model.AnalyticSection) (map[string]interface{}, error) {
 	if startTime != nil && endTime != nil && startTime.After(*endTime) {
 		return nil, fmt.Errorf("start time must be before end time")
 	}
 
-	return r.CharactersBusiness.GetAnalyticResults(ctx, characterID, startTime, endTime, analyticSections)
+	return r.AnalyticsBusiness.GetAnalyticResults(ctx, characterID, startTime, endTime, analyticSections)
 }
-
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

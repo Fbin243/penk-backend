@@ -14,4 +14,5 @@ type Resolver struct {
 	CharactersBusiness *business.CharactersBusiness
 	GoalsBusiness      *business.GoalsBusiness
 	TemplatesBusiness  *business.TemplatesBusiness
+	SnapshotsBusiness  *business.SnapshotsBusiness
 }

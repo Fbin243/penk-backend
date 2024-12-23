@@ -33,5 +33,5 @@ const (
 	ProfilesFlowKey      FlowKey = "profiles"
 	CharactersFlowKey    FlowKey = "characters"
 	TimeTrackingsFlowKey FlowKey = "timetrackings"
-	AnalyticsFlowKey     FlowKey = "analytics"
+	SnapshotsFlowKey     FlowKey = "snapshots"
 )

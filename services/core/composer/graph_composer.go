@@ -22,17 +22,19 @@ func ComposeGraphQLResolver() *graph.Resolver {
 
 	// TODO: Temporary inject analyticsRepos into profilesBiz for deleting related data
 	capturedRepordsRepo := analyticsRepo.NewCapturedRecordsRepo(mongodb)
-	snapshotsRepo := analyticsRepo.NewSnapshotsRepo(mongodb)
+	snapshotsRepo := repo.NewSnapshotsRepo(mongodb)
 
 	profilesBiz := business.NewProfilesBusiness(profilesRepo, fishRepo, charactersRepo, capturedRepordsRepo, snapshotsRepo, redisClient)
 	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo, goalsRepo)
 	goalsBiz := business.NewGoalsBusiness(goalsRepo, charactersRepo)
 	templatesBiz := business.NewTemplatesBusiness(templatesRepo, templateCategoriesRepo)
+	snapshotsBiz := business.NewSnapshotsBusiness(profilesRepo, charactersRepo, snapshotsRepo)
 
 	return &graph.Resolver{
 		ProfilesBusiness:   profilesBiz,
 		CharactersBusiness: charactersBiz,
 		GoalsBusiness:      goalsBiz,
 		TemplatesBusiness:  templatesBiz,
+		SnapshotsBusiness:  snapshotsBiz,
 	}
 }

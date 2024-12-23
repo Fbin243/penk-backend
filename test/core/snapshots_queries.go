@@ -1,4 +1,4 @@
-package analytics
+package core
 
 var SnapshotsQuery = `
 query Snapshots ($characterID: ObjectID) {

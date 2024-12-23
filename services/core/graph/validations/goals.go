@@ -4,15 +4,10 @@ import (
 	"fmt"
 	"tenkhours/services/core/graph/model"
 	"time"
-
-	"github.com/go-playground/validator/v10"
 )
 
-var validate *validator.Validate
-
 func ValidateGoalInput(input model.GoalInput) error {
-	// Validate the goal struct
-	validate = validator.New()
+	validate := GetValidator()
 	if err := validate.Struct(input); err != nil {
 		return err
 	}

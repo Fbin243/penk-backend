@@ -21,7 +21,7 @@ func ValidateTag(fl validator.FieldLevel) bool {
 }
 
 func ValidateCharacterInput(characterInput model.CharacterInput) error {
-	validate := validator.New()
+	validate := GetValidator()
 	validate.RegisterValidation("tags_valid", ValidateTag)
 	if err := validate.Struct(characterInput); err != nil {
 		return err
@@ -31,8 +31,7 @@ func ValidateCharacterInput(characterInput model.CharacterInput) error {
 }
 
 func ValidateCustomMetricInput(customMetricInput model.CustomMetricInput) error {
-	validate := validator.New()
-	if err := validate.Struct(customMetricInput); err != nil {
+	if err := GetValidator().Struct(customMetricInput); err != nil {
 		return err
 	}
 
@@ -40,8 +39,7 @@ func ValidateCustomMetricInput(customMetricInput model.CustomMetricInput) error 
 }
 
 func ValidateMetricPropertyInput(metricPropertyInput model.MetricPropertyInput) error {
-	validate := validator.New()
-	if err := validate.Struct(metricPropertyInput); err != nil {
+	if err := GetValidator().Struct(metricPropertyInput); err != nil {
 		return err
 	}
 

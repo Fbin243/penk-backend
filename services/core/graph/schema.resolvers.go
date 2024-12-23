@@ -54,6 +54,16 @@ func (r *mutationResolver) UpsertGoal(ctx context.Context, characterID primitive
 	return r.GoalsBusiness.UpsertGoal(ctx, characterID, input)
 }
 
+// CreateSnapshot is the resolver for the createSnapshot field.
+func (r *mutationResolver) CreateSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*repo.Snapshot, error) {
+	err := validations.GetValidator().Var(description, "omitempty,max=255")
+	if err != nil {
+		return nil, err
+	}
+
+	return r.SnapshotsBusiness.CreateNewSnapshot(ctx, characterID, description)
+}
+
 // Characters is the resolver for the characters field.
 func (r *queryResolver) Characters(ctx context.Context) ([]repo.Character, error) {
 	return r.CharactersBusiness.GetCharactersByProfileID(ctx)
@@ -82,6 +92,11 @@ func (r *queryResolver) Goals(ctx context.Context, characterID primitive.ObjectI
 // Templates is the resolver for the templates field.
 func (r *queryResolver) Templates(ctx context.Context) ([]repo.Template, error) {
 	return r.TemplatesBusiness.GetTemplates(ctx)
+}
+
+// Snapshots is the resolver for the snapshots field.
+func (r *queryResolver) Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]repo.Snapshot, error) {
+	return r.SnapshotsBusiness.GetSnapshots(ctx, characterID, filter)
 }
 
 // Mutation returns MutationResolver implementation.

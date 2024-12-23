@@ -1,6 +1,7 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
 - ../../pkg/graphql/enums/error_code.graphqls
+- ../../pkg/graphql/enums/time.graphqls
 - graph/*.graphqls
 
 # Where should the generated server code go?
@@ -102,6 +103,8 @@ models:
     model: tenkhours/services/core/repo.MetricStyle
   MetricPropertyType:
     model: tenkhours/services/core/repo.MetricPropertyType
+  Snapshot:
+    model: tenkhours/services/core/repo.Snapshot
   Goal:
     model: tenkhours/services/core/repo.Goal
   GoalFinishStatus:

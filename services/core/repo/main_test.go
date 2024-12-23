@@ -1,6 +1,7 @@
 package repo_test
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -9,6 +10,7 @@ import (
 	"tenkhours/services/core/repo"
 
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -18,6 +20,7 @@ var (
 	goalsRepo              *repo.GoalsRepo
 	templatesRepo          *repo.TemplatesRepo
 	templateCategoriesRepo *repo.TemplateCategoriesRepo
+	snapshotsRepo          *repo.SnapshotsRepo
 )
 
 func TestMain(m *testing.M) {
@@ -33,6 +36,15 @@ func TestMain(m *testing.M) {
 	goalsRepo = repo.NewGoalsRepo(testdb)
 	templatesRepo = repo.NewTemplatesRepo(testdb)
 	templateCategoriesRepo = repo.NewTemplateCategoriesRepo(testdb)
+	testdb.CreateCollection(context.Background(), db.SnapshotsCollection,
+		options.CreateCollection().
+			SetTimeSeriesOptions(
+				options.TimeSeries().
+					SetTimeField("timestamp").
+					SetMetaField("metadata"),
+			),
+	)
+	snapshotsRepo = repo.NewSnapshotsRepo(testdb)
 
 	code := m.Run()
 

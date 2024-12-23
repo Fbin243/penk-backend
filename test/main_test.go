@@ -44,14 +44,14 @@ func TestUserFlow(t *testing.T) {
 	// Get the flows to run the test
 	flowKeyStr := os.Getenv("FLOWS")
 	if flowKeyStr == "" {
-		flowKeyStr = "profile"
+		flowKeyStr = "profiles"
 	}
 
 	flowsMap := map[common.FlowKey][]pineline.Stage{
 		common.ProfilesFlowKey:      flows.ProfilesFlow,
 		common.CharactersFlowKey:    flows.CharactersFlow,
 		common.TimeTrackingsFlowKey: flows.TimeTrackingsFlow,
-		common.AnalyticsFlowKey:     flows.AnalyticsFlow,
+		common.SnapshotsFlowKey:     flows.SnapshotsFlow,
 	}
 
 	flowKeys := strings.Split(flowKeyStr, ",")

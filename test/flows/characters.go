@@ -65,4 +65,16 @@ var CharactersFlow = []pineline.Stage{
 		},
 		CharacterKey:    common.Character,
 	},
+
+	core.UpsertCharacterStage{
+		Metadata: common.Metadata{
+			Describe: "Create the character for the next flows",
+		},
+		Case: common.CreateCharacter,
+	},
+
+	common.SaveToContextStage{
+		Key:      common.Character,
+		JsonPath: "data.upsertCharacter",
+	},
 }

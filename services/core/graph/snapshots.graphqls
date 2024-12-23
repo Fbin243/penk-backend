@@ -1,0 +1,11 @@
+type Snapshot {
+  id: ObjectID!
+  timestamp: Time!
+  character: Character!
+  description: String!
+}
+
+input DateTimeFilter {
+  month: Month
+  year: Int
+}

@@ -21,13 +21,12 @@ func ComposeGraphQLResolver() *graph.Resolver {
 	redisClient := db.GetRedisClient()
 	charactersRepo := repo.NewCharactersRepo(mongodb)
 	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
-	snapshotsRepo := analyticsRepo.NewSnapshotsRepo(mongodb)
 	capturedRecordsRepo := analyticsRepo.NewCapturedRecordsRepo(mongodb)
-	charactersBiz := business.NewCharactersBusiness(snapshotsRepo, charactersRepo, profilesRepo, capturedRecordsRepo, redisClient)
+	charactersBiz := business.NewAnalyticsBusiness(charactersRepo, profilesRepo, capturedRecordsRepo, redisClient)
 	ComposeCronJobs(redisClient, capturedRecordsRepo)
 
 	return &graph.Resolver{
-		CharactersBusiness: charactersBiz,
+		AnalyticsBusiness: charactersBiz,
 	}
 }
 

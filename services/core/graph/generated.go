@@ -115,6 +115,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		CreateSnapshot  func(childComplexity int, characterID primitive.ObjectID, description *string) int
 		DeleteCharacter func(childComplexity int, id primitive.ObjectID) int
 		DeleteProfile   func(childComplexity int) int
 		UpdateProfile   func(childComplexity int, input model.ProfileInput) int
@@ -143,9 +144,17 @@ type ComplexityRoot struct {
 		Characters         func(childComplexity int) int
 		Goals              func(childComplexity int, characterID primitive.ObjectID, status *repo.GoalStatusFilter) int
 		Profile            func(childComplexity int) int
+		Snapshots          func(childComplexity int, characterID *primitive.ObjectID, filter *model.DateTimeFilter) int
 		Templates          func(childComplexity int) int
 		__resolve__service func(childComplexity int) int
 		__resolve_entities func(childComplexity int, representations []map[string]interface{}) int
+	}
+
+	Snapshot struct {
+		Character   func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Timestamp   func(childComplexity int) int
 	}
 
 	Template struct {
@@ -189,6 +198,7 @@ type MutationResolver interface {
 	UpsertCharacter(ctx context.Context, input model.CharacterInput) (*repo.Character, error)
 	DeleteCharacter(ctx context.Context, id primitive.ObjectID) (*repo.Character, error)
 	UpsertGoal(ctx context.Context, characterID primitive.ObjectID, input model.GoalInput) (*repo.Goal, error)
+	CreateSnapshot(ctx context.Context, characterID primitive.ObjectID, description *string) (*repo.Snapshot, error)
 }
 type ProfileResolver interface {
 	Characters(ctx context.Context, obj *repo.Profile) ([]repo.Character, error)
@@ -201,6 +211,7 @@ type QueryResolver interface {
 	AppSettings(ctx context.Context) (*model.AppSettings, error)
 	Goals(ctx context.Context, characterID primitive.ObjectID, status *repo.GoalStatusFilter) ([]repo.Goal, error)
 	Templates(ctx context.Context) ([]repo.Template, error)
+	Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]repo.Snapshot, error)
 }
 type TemplateResolver interface {
 	Category(ctx context.Context, obj *repo.Template) (*repo.TemplateCategory, error)
@@ -498,6 +509,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MetricStyle.Icon(childComplexity), true
 
+	case "Mutation.createSnapshot":
+		if e.complexity.Mutation.CreateSnapshot == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createSnapshot_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateSnapshot(childComplexity, args["characterID"].(primitive.ObjectID), args["description"].(*string)), true
+
 	case "Mutation.deleteCharacter":
 		if e.complexity.Mutation.DeleteCharacter == nil {
 			break
@@ -677,6 +700,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Profile(childComplexity), true
 
+	case "Query.snapshots":
+		if e.complexity.Query.Snapshots == nil {
+			break
+		}
+
+		args, err := ec.field_Query_snapshots_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Snapshots(childComplexity, args["characterID"].(*primitive.ObjectID), args["filter"].(*model.DateTimeFilter)), true
+
 	case "Query.templates":
 		if e.complexity.Query.Templates == nil {
 			break
@@ -702,6 +737,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.__resolve_entities(childComplexity, args["representations"].([]map[string]interface{})), true
+
+	case "Snapshot.character":
+		if e.complexity.Snapshot.Character == nil {
+			break
+		}
+
+		return e.complexity.Snapshot.Character(childComplexity), true
+
+	case "Snapshot.description":
+		if e.complexity.Snapshot.Description == nil {
+			break
+		}
+
+		return e.complexity.Snapshot.Description(childComplexity), true
+
+	case "Snapshot.id":
+		if e.complexity.Snapshot.ID == nil {
+			break
+		}
+
+		return e.complexity.Snapshot.ID(childComplexity), true
+
+	case "Snapshot.timestamp":
+		if e.complexity.Snapshot.Timestamp == nil {
+			break
+		}
+
+		return e.complexity.Snapshot.Timestamp(childComplexity), true
 
 	case "Template.category":
 		if e.complexity.Template.Category == nil {
@@ -846,6 +909,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCharacterInput,
 		ec.unmarshalInputCustomMetricInput,
+		ec.unmarshalInputDateTimeFilter,
 		ec.unmarshalInputGoalCustomMetricInput,
 		ec.unmarshalInputGoalInput,
 		ec.unmarshalInputGoalMetricPropertyInput,
@@ -949,7 +1013,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "characters.graphqls" "goals.graphqls" "profiles.graphqls" "schema.graphqls" "settings.graphqls" "templates.graphqls"
+//go:embed "characters.graphqls" "goals.graphqls" "profiles.graphqls" "schema.graphqls" "settings.graphqls" "snapshots.graphqls" "templates.graphqls"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -973,7 +1037,6 @@ var sources = []*ast.Source{
     LIMIT_PROPERTY
     GOAL_ALREADY_FINISHED
     GOAL_ALREADY_EXPIRED
-    DELETE_PROFILE_ON_FIREBASE
     # Time tracking errors
     UNDER_MIN_DURATION
     OVER_MAX_DIFFERENCE_DURATION
@@ -982,11 +1045,37 @@ var sources = []*ast.Source{
     LIMIT_SNAPSHOT
     DUPLICATE_SNAPSHOT
 }`, BuiltIn: false},
+	{Name: "../../../pkg/graphql/enums/time.graphqls", Input: `enum Month {
+  January
+  February
+  March
+  April
+  May
+  June
+  July
+  August
+  September
+  October
+  November
+  December
+}
+
+enum Weekday {
+  Sunday
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+}
+`, BuiltIn: false},
 	{Name: "characters.graphqls", Input: sourceData("characters.graphqls"), BuiltIn: false},
 	{Name: "goals.graphqls", Input: sourceData("goals.graphqls"), BuiltIn: false},
 	{Name: "profiles.graphqls", Input: sourceData("profiles.graphqls"), BuiltIn: false},
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
 	{Name: "settings.graphqls", Input: sourceData("settings.graphqls"), BuiltIn: false},
+	{Name: "snapshots.graphqls", Input: sourceData("snapshots.graphqls"), BuiltIn: false},
 	{Name: "templates.graphqls", Input: sourceData("templates.graphqls"), BuiltIn: false},
 	{Name: "../federation/directives.graphql", Input: `
 	directive @authenticated on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM
@@ -1058,6 +1147,30 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_createSnapshot_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 primitive.ObjectID
+	if tmp, ok := rawArgs["characterID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
+		arg0, err = ec.unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["characterID"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["description"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["description"] = arg1
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_deleteCharacter_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1179,6 +1292,30 @@ func (ec *executionContext) field_Query_goals_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["status"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_snapshots_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *primitive.ObjectID
+	if tmp, ok := rawArgs["characterID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
+		arg0, err = ec.unmarshalOObjectID2ᚖgoᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["characterID"] = arg0
+	var arg1 *model.DateTimeFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg1, err = ec.unmarshalODateTimeFilter2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐDateTimeFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg1
 	return args, nil
 }
 
@@ -3369,6 +3506,71 @@ func (ec *executionContext) fieldContext_Mutation_upsertGoal(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createSnapshot(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createSnapshot(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateSnapshot(rctx, fc.Args["characterID"].(primitive.ObjectID), fc.Args["description"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*repo.Snapshot)
+	fc.Result = res
+	return ec.marshalNSnapshot2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐSnapshot(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createSnapshot(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Snapshot_id(ctx, field)
+			case "timestamp":
+				return ec.fieldContext_Snapshot_timestamp(ctx, field)
+			case "character":
+				return ec.fieldContext_Snapshot_character(ctx, field)
+			case "description":
+				return ec.fieldContext_Snapshot_description(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Snapshot", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createSnapshot_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Profile_id(ctx context.Context, field graphql.CollectedField, obj *repo.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_id(ctx, field)
 	if err != nil {
@@ -4293,6 +4495,71 @@ func (ec *executionContext) fieldContext_Query_templates(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_snapshots(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_snapshots(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Snapshots(rctx, fc.Args["characterID"].(*primitive.ObjectID), fc.Args["filter"].(*model.DateTimeFilter))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]repo.Snapshot)
+	fc.Result = res
+	return ec.marshalNSnapshot2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐSnapshotᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_snapshots(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Snapshot_id(ctx, field)
+			case "timestamp":
+				return ec.fieldContext_Snapshot_timestamp(ctx, field)
+			case "character":
+				return ec.fieldContext_Snapshot_character(ctx, field)
+			case "description":
+				return ec.fieldContext_Snapshot_description(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Snapshot", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_snapshots_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query__entities(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query__entities(ctx, field)
 	if err != nil {
@@ -4520,6 +4787,204 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Snapshot_id(ctx context.Context, field graphql.CollectedField, obj *repo.Snapshot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Snapshot_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(primitive.ObjectID)
+	fc.Result = res
+	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Snapshot_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Snapshot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ObjectID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Snapshot_timestamp(ctx context.Context, field graphql.CollectedField, obj *repo.Snapshot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Snapshot_timestamp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Timestamp, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Snapshot_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Snapshot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Snapshot_character(ctx context.Context, field graphql.CollectedField, obj *repo.Snapshot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Snapshot_character(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Character, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(repo.Character)
+	fc.Result = res
+	return ec.marshalNCharacter2tenkhoursᚋservicesᚋcoreᚋrepoᚐCharacter(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Snapshot_character(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Snapshot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Character_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Character_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Character_updatedAt(ctx, field)
+			case "profileID":
+				return ec.fieldContext_Character_profileID(ctx, field)
+			case "name":
+				return ec.fieldContext_Character_name(ctx, field)
+			case "gender":
+				return ec.fieldContext_Character_gender(ctx, field)
+			case "tags":
+				return ec.fieldContext_Character_tags(ctx, field)
+			case "totalFocusedTime":
+				return ec.fieldContext_Character_totalFocusedTime(ctx, field)
+			case "customMetrics":
+				return ec.fieldContext_Character_customMetrics(ctx, field)
+			case "limitedMetricNumber":
+				return ec.fieldContext_Character_limitedMetricNumber(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Snapshot_description(ctx context.Context, field graphql.CollectedField, obj *repo.Snapshot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Snapshot_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Snapshot_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Snapshot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7272,6 +7737,40 @@ func (ec *executionContext) unmarshalInputCustomMetricInput(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDateTimeFilter(ctx context.Context, obj interface{}) (model.DateTimeFilter, error) {
+	var it model.DateTimeFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"month", "year"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "month":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("month"))
+			data, err := ec.unmarshalOMonth2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMonth(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Month = data
+		case "year":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Year = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGoalCustomMetricInput(ctx context.Context, obj interface{}) (model.GoalCustomMetricInput, error) {
 	var it model.GoalCustomMetricInput
 	asMap := map[string]interface{}{}
@@ -8081,6 +8580,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createSnapshot":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createSnapshot(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8391,6 +8897,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "snapshots":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_snapshots(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "_entities":
 			field := field
 
@@ -8443,6 +8971,60 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var snapshotImplementors = []string{"Snapshot"}
+
+func (ec *executionContext) _Snapshot(ctx context.Context, sel ast.SelectionSet, obj *repo.Snapshot) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, snapshotImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Snapshot")
+		case "id":
+			out.Values[i] = ec._Snapshot_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "timestamp":
+			out.Values[i] = ec._Snapshot_timestamp(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "character":
+			out.Values[i] = ec._Snapshot_character(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "description":
+			out.Values[i] = ec._Snapshot_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9487,6 +10069,64 @@ func (ec *executionContext) unmarshalNProfileInput2tenkhoursᚋservicesᚋcore�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNSnapshot2tenkhoursᚋservicesᚋcoreᚋrepoᚐSnapshot(ctx context.Context, sel ast.SelectionSet, v repo.Snapshot) graphql.Marshaler {
+	return ec._Snapshot(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSnapshot2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐSnapshotᚄ(ctx context.Context, sel ast.SelectionSet, v []repo.Snapshot) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSnapshot2tenkhoursᚋservicesᚋcoreᚋrepoᚐSnapshot(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNSnapshot2ᚖtenkhoursᚋservicesᚋcoreᚋrepoᚐSnapshot(ctx context.Context, sel ast.SelectionSet, v *repo.Snapshot) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Snapshot(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -10292,6 +10932,14 @@ func (ec *executionContext) unmarshalOCustomMetricInput2ᚕtenkhoursᚋservices�
 	return res, nil
 }
 
+func (ec *executionContext) unmarshalODateTimeFilter2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐDateTimeFilter(ctx context.Context, v interface{}) (*model.DateTimeFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputDateTimeFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOGoalCustomMetricInput2ᚕtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐGoalCustomMetricInputᚄ(ctx context.Context, v interface{}) ([]model.GoalCustomMetricInput, error) {
 	if v == nil {
 		return nil, nil
@@ -10374,6 +11022,22 @@ func (ec *executionContext) unmarshalOGoalStatusFilter2ᚖtenkhoursᚋservices�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
+}
+
 func (ec *executionContext) unmarshalOMetricPropertyInput2ᚕtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMetricPropertyInputᚄ(ctx context.Context, v interface{}) ([]model.MetricPropertyInput, error) {
 	if v == nil {
 		return nil, nil
@@ -10392,6 +11056,22 @@ func (ec *executionContext) unmarshalOMetricPropertyInput2ᚕtenkhoursᚋservice
 		}
 	}
 	return res, nil
+}
+
+func (ec *executionContext) unmarshalOMonth2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMonth(ctx context.Context, v interface{}) (*model.Month, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.Month)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOMonth2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐMonth(ctx context.Context, sel ast.SelectionSet, v *model.Month) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx context.Context, v interface{}) (primitive.ObjectID, error) {

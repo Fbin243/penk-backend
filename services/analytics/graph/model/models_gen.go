@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"tenkhours/services/core/repo"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -38,54 +37,7 @@ type CapturedRecordTimeTracking struct {
 	EndTime        time.Time          `json:"endTime" bson:"end_time,omitempty"`
 }
 
-type DateTimeFilter struct {
-	Month *Month `json:"month,omitempty"`
-	Year  *int32 `json:"year,omitempty"`
-}
-
-type Mutation struct {
-}
-
 type Query struct {
-}
-
-type Snapshot struct {
-	ID          primitive.ObjectID `json:"id"`
-	Timestamp   time.Time          `json:"timestamp"`
-	Character   SnapshotCharacter  `json:"character"`
-	Description string             `json:"description"`
-}
-
-type SnapshotCharacter struct {
-	ID               primitive.ObjectID     `json:"id"`
-	ProfileID        primitive.ObjectID     `json:"profileID"`
-	Name             string                 `json:"name"`
-	Gender           bool                   `json:"gender"`
-	Tags             []string               `json:"tags"`
-	TotalFocusedTime int32                  `json:"totalFocusedTime"`
-	CustomMetrics    []SnapshotCustomMetric `json:"customMetrics"`
-}
-
-type SnapshotCustomMetric struct {
-	ID          primitive.ObjectID       `json:"id"`
-	Name        string                   `json:"name"`
-	Description string                   `json:"description"`
-	Time        int32                    `json:"time"`
-	Style       SnapshotMetricStyle      `json:"style"`
-	Properties  []SnapshotMetricProperty `json:"properties"`
-}
-
-type SnapshotMetricProperty struct {
-	ID    primitive.ObjectID      `json:"id"`
-	Name  string                  `json:"name"`
-	Type  repo.MetricPropertyType `json:"type"`
-	Value string                  `json:"value"`
-	Unit  string                  `json:"unit"`
-}
-
-type SnapshotMetricStyle struct {
-	Color string `json:"color"`
-	Icon  string `json:"icon"`
 }
 
 type AnalyticSection string

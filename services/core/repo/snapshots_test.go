@@ -4,17 +4,17 @@ import (
 	"testing"
 
 	"tenkhours/pkg/utils"
-	analyticsRepo "tenkhours/services/analytics/repo"
+	"tenkhours/services/core/repo"
 	coreRepo "tenkhours/services/core/repo"
 
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var snapshot = &analyticsRepo.Snapshot{
+var snapshot = &repo.Snapshot{
 	ID:        primitive.NewObjectID(),
 	Timestamp: utils.Now(),
-	Metadata: analyticsRepo.Metadata{
+	Metadata: repo.Metadata{
 		ProfileID:   primitive.NewObjectID(),
 		CharacterID: primitive.NewObjectID(),
 	},
@@ -35,7 +35,7 @@ func TestGetSnapshotsByProfileID(t *testing.T) {
 	_, err := snapshotsRepo.CreateSnapshot(snapshot)
 	assert.Nil(t, err)
 
-	// queriedSnapshots, err := snapshotsRepo.GetSnapshotsByProfileID(profileID)
+	// queriedSnapshots, err := repo.GetSnapshotsByProfileID(profileID)
 	// assert.Nil(t, err)
 	// assert.Len(t, queriedSnapshots, 1)
 	// assert.Equal(t, *snapshot, queriedSnapshots[0])

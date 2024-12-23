@@ -22,12 +22,12 @@ type ProfilesBusiness struct {
 	ProfilesRepo        *repo.ProfilesRepo
 	FishRepo            *fishRepo.FishRepo
 	CharactersRepo      *repo.CharactersRepo
+	SnapshotsRepo       *repo.SnapshotsRepo
 	CapturedRecordsRepo *analyticsRepo.CapturedRecordsRepo
-	SnapshotsRepo       *analyticsRepo.SnapshotsRepo
 	RedisClient         *redis.Client
 }
 
-func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, fishRepo *fishRepo.FishRepo, charactersRepo *repo.CharactersRepo, capturedRecordsRepo *analyticsRepo.CapturedRecordsRepo, snapshotsRepo *analyticsRepo.SnapshotsRepo, redisClient *redis.Client) *ProfilesBusiness {
+func NewProfilesBusiness(profilesRepo *repo.ProfilesRepo, fishRepo *fishRepo.FishRepo, charactersRepo *repo.CharactersRepo, capturedRecordsRepo *analyticsRepo.CapturedRecordsRepo, snapshotsRepo *repo.SnapshotsRepo, redisClient *redis.Client) *ProfilesBusiness {
 	return &ProfilesBusiness{
 		ProfilesRepo:        profilesRepo,
 		CharactersRepo:      charactersRepo,

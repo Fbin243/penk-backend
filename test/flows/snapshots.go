@@ -2,12 +2,12 @@ package flows
 
 import (
 	"tenkhours/pkg/pineline"
-	"tenkhours/test/analytics"
 	"tenkhours/test/common"
+	"tenkhours/test/core"
 )
 
-var AnalyticsFlow = []pineline.Stage{
-	analytics.CreateSnapshotStage{
+var SnapshotsFlow = []pineline.Stage{
+	core.CreateSnapshotStage{
 		Metadata: common.Metadata{
 			Describe: "Create a snapshot for the character",
 		},
@@ -19,7 +19,7 @@ var AnalyticsFlow = []pineline.Stage{
 		JsonPath: "data.createSnapshot",
 	},
 
-	analytics.GetSnapshotsStage{
+	core.GetSnapshotsStage{
 		Metadata: common.Metadata{
 			Describe: "Get all snapshots of the character after add a new snapshot for it",
 		},
