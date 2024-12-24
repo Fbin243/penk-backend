@@ -137,13 +137,13 @@ func (biz *ProfilesBusiness) DeleteProfile(ctx context.Context) (*repo.Profile, 
 	}
 
 	// Delete current timetracking in redis
-	err = biz.RedisClient.Del(ctx, profile.ID.Hex()).Err()
+	err = biz.RedisClient.Del(ctx, db.GetTimeTrackingKey(profile.ID.Hex())).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete current timetracking in redis: %v", err)
 	}
 
 	// Delete profile in redis
-	err = biz.RedisClient.Del(ctx, profile.FirebaseUID).Err()
+	err = biz.RedisClient.Del(ctx, db.GetAuthSessionKey(profile.FirebaseUID)).Err()
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete profile in redis: %v", err)
 	}

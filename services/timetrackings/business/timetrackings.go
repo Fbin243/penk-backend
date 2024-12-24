@@ -203,7 +203,7 @@ func (biz *TimeTrackingsBusiness) UpdateTimeTracking(ctx context.Context) (*time
 	}
 
 	// Delete the current time tracking from Redis
-	err = biz.RedisClient.Del(ctx, profileID).Err()
+	err = biz.RedisClient.Del(ctx, db.GetTimeTrackingKey(profileID)).Err()
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to delete time tracking from redis: %v", err)
 	}
