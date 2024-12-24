@@ -22,7 +22,7 @@ type Profile struct {
 
 type Character struct {
 	*db.BaseModel       `bson:",inline"`
-	ProfileID           primitive.ObjectID `json:"profileID,omitempty" bson:"profile_id"`
+	ProfileID           primitive.ObjectID `json:"profileID,omitempty" bson:"profile_id,omitempty"`
 	Name                string             `json:"name,omitempty" bson:"name"`
 	Gender              bool               `json:"gender,omitempty" bson:"gender"`
 	Tags                []string           `json:"tags,omitempty" bson:"tags"`
@@ -130,6 +130,23 @@ type Snapshot struct {
 	ID          primitive.ObjectID `json:"id" bson:"_id"`
 	Timestamp   time.Time          `json:"timestamp" bson:"timestamp"`
 	Metadata    Metadata           `json:"metadata" bson:"metadata"`
-	Character   Character          `json:"character" bson:"character"`
+	Character   SnapshotCharacter  `json:"character" bson:"character"`
 	Description string             `json:"description,omitempty" bson:"description" validate:"omitempty,max=255"`
+}
+
+type SnapshotCharacter struct {
+	Name             string             `json:"name,omitempty" bson:"name"`
+	Gender           bool               `json:"gender,omitempty" bson:"gender"`
+	Tags             []string           `json:"tags,omitempty" bson:"tags"`
+	TotalFocusedTime int32              `json:"totalFocusedTime,omitempty" bson:"total_focused_time"`
+	CustomMetrics    []SnapshotMetric   `json:"customMetrics,omitempty" bson:"custom_metrics"`
+}
+
+type SnapshotMetric struct {
+	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name        string             `json:"name,omitempty" bson:"name"`
+	Description string             `json:"description,omitempty" bson:"description"`
+	Time        int32              `json:"time,omitempty" bson:"time,omitempty"`
+	Style       MetricStyle        `json:"style,omitempty" bson:"style"`
+	Properties  []MetricProperty   `json:"properties,omitempty" bson:"properties"`
 }

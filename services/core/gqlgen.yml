@@ -105,6 +105,8 @@ models:
     model: tenkhours/services/core/repo.MetricPropertyType
   Snapshot:
     model: tenkhours/services/core/repo.Snapshot
+  SnapshotMetric:
+    model: tenkhours/services/core/repo.SnapshotMetric
   Goal:
     model: tenkhours/services/core/repo.Goal
   GoalFinishStatus:

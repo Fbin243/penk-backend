@@ -10,6 +10,7 @@ import (
 	"tenkhours/services/core/graph/model"
 	"tenkhours/services/core/repo"
 
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -105,15 +106,28 @@ func (biz *SnapshotsBusiness) CreateNewSnapshot(ctx context.Context, characterID
 		return nil, errors.NewError(errors.ErrCodeLimitSnapshot, "no available snapshots")
 	}
 
-	// Set CharacterID and ProfileID to Nil to omit them
-	character.ProfileID = primitive.NilObjectID
-	character.ID = primitive.NilObjectID
+	// Create the snapshot character without unnecessary fields
+	snapshotCharacter := repo.SnapshotCharacter{
+		Name:             character.Name,
+		Gender:           character.Gender,
+		Tags:             character.Tags,
+		TotalFocusedTime: character.TotalFocusedTime,
+		CustomMetrics: lo.Map(character.CustomMetrics, func(metric repo.CustomMetric, _ int) repo.SnapshotMetric {
+			return repo.SnapshotMetric{
+				ID:          metric.ID,
+				Name:        metric.Name,
+				Description: metric.Description,
+				Time:        metric.Time,
+				Style:       metric.Style,
+			}
+		}),
+	}
 
 	// Compare with the latest snapshot
 	latestSnapshot, err := biz.SnapshotsRepo.GetLatestSnapshotByCharacterID(characterID)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return nil, err
-	} else if reflect.DeepEqual(latestSnapshot.Character, *character) {
+	} else if reflect.DeepEqual(latestSnapshot.Character, snapshotCharacter) {
 		return nil, errors.NewError(errors.ErrCodeDuplicateSnapshot, "duplicate snapshot")
 	}
 
@@ -124,7 +138,7 @@ func (biz *SnapshotsBusiness) CreateNewSnapshot(ctx context.Context, characterID
 			ProfileID:   authSession.ProfileID,
 			CharacterID: characterID,
 		},
-		Character: *character,
+		Character: snapshotCharacter,
 	}
 
 	if description != nil {
@@ -149,10 +163,6 @@ func (biz *SnapshotsBusiness) CreateNewSnapshot(ctx context.Context, characterID
 		if err != nil {
 			return nil, err
 		}
-
-		// Restore CharacterID and ProfileID
-		snapshot.Character.ProfileID = profile.ID
-		snapshot.Character.ID = characterID
 
 		return *snapshot, nil
 	}

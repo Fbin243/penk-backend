@@ -5,7 +5,6 @@ import (
 
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/repo"
-	coreRepo "tenkhours/services/core/repo"
 
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -18,7 +17,7 @@ var snapshot = &repo.Snapshot{
 		ProfileID:   primitive.NewObjectID(),
 		CharacterID: primitive.NewObjectID(),
 	},
-	Character: coreRepo.Character{},
+	Character: repo.SnapshotCharacter{},
 	// Asset: :,
 }
 

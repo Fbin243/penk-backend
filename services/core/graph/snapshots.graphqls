@@ -1,8 +1,27 @@
 type Snapshot {
   id: ObjectID!
   timestamp: Time!
-  character: Character!
+  character: SnapshotCharacter!
   description: String!
+}
+
+type SnapshotCharacter {
+  id: ObjectID!
+  profileID: ObjectID!
+  name: String!
+  gender: Boolean!
+  tags: [String!]!
+  totalFocusedTime: Int!
+  customMetrics: [SnapshotMetric!]!
+}
+
+type SnapshotMetric {
+  id: ObjectID!
+  name: String!
+  description: String!
+  time: Int!
+  style: MetricStyle!
+  properties: [MetricProperty!]!
 }
 
 input DateTimeFilter {

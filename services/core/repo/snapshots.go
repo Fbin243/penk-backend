@@ -38,8 +38,6 @@ func (r *SnapshotsRepo) GetSnapshots(pineline mongo.Pipeline) ([]Snapshot, error
 			return nil, err
 		}
 
-		snapshot.Character.ID = snapshot.Metadata.CharacterID
-		snapshot.Character.ProfileID = snapshot.Metadata.ProfileID
 		snapshots = append(snapshots, snapshot)
 	}
 

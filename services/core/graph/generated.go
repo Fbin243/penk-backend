@@ -47,6 +47,7 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	Profile() ProfileResolver
 	Query() QueryResolver
+	Snapshot() SnapshotResolver
 	Template() TemplateResolver
 }
 
@@ -157,6 +158,25 @@ type ComplexityRoot struct {
 		Timestamp   func(childComplexity int) int
 	}
 
+	SnapshotCharacter struct {
+		CustomMetrics    func(childComplexity int) int
+		Gender           func(childComplexity int) int
+		ID               func(childComplexity int) int
+		Name             func(childComplexity int) int
+		ProfileID        func(childComplexity int) int
+		Tags             func(childComplexity int) int
+		TotalFocusedTime func(childComplexity int) int
+	}
+
+	SnapshotMetric struct {
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Properties  func(childComplexity int) int
+		Style       func(childComplexity int) int
+		Time        func(childComplexity int) int
+	}
+
 	Template struct {
 		Category    func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
@@ -212,6 +232,9 @@ type QueryResolver interface {
 	Goals(ctx context.Context, characterID primitive.ObjectID, status *repo.GoalStatusFilter) ([]repo.Goal, error)
 	Templates(ctx context.Context) ([]repo.Template, error)
 	Snapshots(ctx context.Context, characterID *primitive.ObjectID, filter *model.DateTimeFilter) ([]repo.Snapshot, error)
+}
+type SnapshotResolver interface {
+	Character(ctx context.Context, obj *repo.Snapshot) (*model.SnapshotCharacter, error)
 }
 type TemplateResolver interface {
 	Category(ctx context.Context, obj *repo.Template) (*repo.TemplateCategory, error)
@@ -765,6 +788,97 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Snapshot.Timestamp(childComplexity), true
+
+	case "SnapshotCharacter.customMetrics":
+		if e.complexity.SnapshotCharacter.CustomMetrics == nil {
+			break
+		}
+
+		return e.complexity.SnapshotCharacter.CustomMetrics(childComplexity), true
+
+	case "SnapshotCharacter.gender":
+		if e.complexity.SnapshotCharacter.Gender == nil {
+			break
+		}
+
+		return e.complexity.SnapshotCharacter.Gender(childComplexity), true
+
+	case "SnapshotCharacter.id":
+		if e.complexity.SnapshotCharacter.ID == nil {
+			break
+		}
+
+		return e.complexity.SnapshotCharacter.ID(childComplexity), true
+
+	case "SnapshotCharacter.name":
+		if e.complexity.SnapshotCharacter.Name == nil {
+			break
+		}
+
+		return e.complexity.SnapshotCharacter.Name(childComplexity), true
+
+	case "SnapshotCharacter.profileID":
+		if e.complexity.SnapshotCharacter.ProfileID == nil {
+			break
+		}
+
+		return e.complexity.SnapshotCharacter.ProfileID(childComplexity), true
+
+	case "SnapshotCharacter.tags":
+		if e.complexity.SnapshotCharacter.Tags == nil {
+			break
+		}
+
+		return e.complexity.SnapshotCharacter.Tags(childComplexity), true
+
+	case "SnapshotCharacter.totalFocusedTime":
+		if e.complexity.SnapshotCharacter.TotalFocusedTime == nil {
+			break
+		}
+
+		return e.complexity.SnapshotCharacter.TotalFocusedTime(childComplexity), true
+
+	case "SnapshotMetric.description":
+		if e.complexity.SnapshotMetric.Description == nil {
+			break
+		}
+
+		return e.complexity.SnapshotMetric.Description(childComplexity), true
+
+	case "SnapshotMetric.id":
+		if e.complexity.SnapshotMetric.ID == nil {
+			break
+		}
+
+		return e.complexity.SnapshotMetric.ID(childComplexity), true
+
+	case "SnapshotMetric.name":
+		if e.complexity.SnapshotMetric.Name == nil {
+			break
+		}
+
+		return e.complexity.SnapshotMetric.Name(childComplexity), true
+
+	case "SnapshotMetric.properties":
+		if e.complexity.SnapshotMetric.Properties == nil {
+			break
+		}
+
+		return e.complexity.SnapshotMetric.Properties(childComplexity), true
+
+	case "SnapshotMetric.style":
+		if e.complexity.SnapshotMetric.Style == nil {
+			break
+		}
+
+		return e.complexity.SnapshotMetric.Style(childComplexity), true
+
+	case "SnapshotMetric.time":
+		if e.complexity.SnapshotMetric.Time == nil {
+			break
+		}
+
+		return e.complexity.SnapshotMetric.Time(childComplexity), true
 
 	case "Template.category":
 		if e.complexity.Template.Category == nil {
@@ -4894,7 +5008,7 @@ func (ec *executionContext) _Snapshot_character(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Character, nil
+		return ec.resolvers.Snapshot().Character(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4906,41 +5020,35 @@ func (ec *executionContext) _Snapshot_character(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(repo.Character)
+	res := resTmp.(*model.SnapshotCharacter)
 	fc.Result = res
-	return ec.marshalNCharacter2tenkhoursᚋservicesᚋcoreᚋrepoᚐCharacter(ctx, field.Selections, res)
+	return ec.marshalNSnapshotCharacter2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐSnapshotCharacter(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Snapshot_character(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Snapshot",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Character_id(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Character_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Character_updatedAt(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_id(ctx, field)
 			case "profileID":
-				return ec.fieldContext_Character_profileID(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_profileID(ctx, field)
 			case "name":
-				return ec.fieldContext_Character_name(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_name(ctx, field)
 			case "gender":
-				return ec.fieldContext_Character_gender(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_gender(ctx, field)
 			case "tags":
-				return ec.fieldContext_Character_tags(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_tags(ctx, field)
 			case "totalFocusedTime":
-				return ec.fieldContext_Character_totalFocusedTime(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_totalFocusedTime(ctx, field)
 			case "customMetrics":
-				return ec.fieldContext_Character_customMetrics(ctx, field)
-			case "limitedMetricNumber":
-				return ec.fieldContext_Character_limitedMetricNumber(ctx, field)
+				return ec.fieldContext_SnapshotCharacter_customMetrics(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SnapshotCharacter", field.Name)
 		},
 	}
 	return fc, nil
@@ -4985,6 +5093,610 @@ func (ec *executionContext) fieldContext_Snapshot_description(_ context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotCharacter_id(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(primitive.ObjectID)
+	fc.Result = res
+	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotCharacter_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotCharacter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ObjectID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotCharacter_profileID(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_profileID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProfileID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(primitive.ObjectID)
+	fc.Result = res
+	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotCharacter_profileID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotCharacter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ObjectID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotCharacter_name(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotCharacter_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotCharacter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotCharacter_gender(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_gender(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Gender, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotCharacter_gender(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotCharacter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotCharacter_tags(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_tags(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Tags, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotCharacter_tags(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotCharacter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotCharacter_totalFocusedTime(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_totalFocusedTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalFocusedTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotCharacter_totalFocusedTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotCharacter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotCharacter_customMetrics(ctx context.Context, field graphql.CollectedField, obj *model.SnapshotCharacter) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotCharacter_customMetrics(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CustomMetrics, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]repo.SnapshotMetric)
+	fc.Result = res
+	return ec.marshalNSnapshotMetric2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐSnapshotMetricᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotCharacter_customMetrics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotCharacter",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_SnapshotMetric_id(ctx, field)
+			case "name":
+				return ec.fieldContext_SnapshotMetric_name(ctx, field)
+			case "description":
+				return ec.fieldContext_SnapshotMetric_description(ctx, field)
+			case "time":
+				return ec.fieldContext_SnapshotMetric_time(ctx, field)
+			case "style":
+				return ec.fieldContext_SnapshotMetric_style(ctx, field)
+			case "properties":
+				return ec.fieldContext_SnapshotMetric_properties(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SnapshotMetric", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotMetric_id(ctx context.Context, field graphql.CollectedField, obj *repo.SnapshotMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetric_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(primitive.ObjectID)
+	fc.Result = res
+	return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋbsonᚋprimitiveᚐObjectID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotMetric_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ObjectID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotMetric_name(ctx context.Context, field graphql.CollectedField, obj *repo.SnapshotMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetric_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotMetric_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotMetric_description(ctx context.Context, field graphql.CollectedField, obj *repo.SnapshotMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetric_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotMetric_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotMetric_time(ctx context.Context, field graphql.CollectedField, obj *repo.SnapshotMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetric_time(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Time, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotMetric_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotMetric_style(ctx context.Context, field graphql.CollectedField, obj *repo.SnapshotMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetric_style(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Style, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(repo.MetricStyle)
+	fc.Result = res
+	return ec.marshalNMetricStyle2tenkhoursᚋservicesᚋcoreᚋrepoᚐMetricStyle(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotMetric_style(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "color":
+				return ec.fieldContext_MetricStyle_color(ctx, field)
+			case "icon":
+				return ec.fieldContext_MetricStyle_icon(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MetricStyle", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SnapshotMetric_properties(ctx context.Context, field graphql.CollectedField, obj *repo.SnapshotMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SnapshotMetric_properties(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Properties, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]repo.MetricProperty)
+	fc.Result = res
+	return ec.marshalNMetricProperty2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐMetricPropertyᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SnapshotMetric_properties(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SnapshotMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_MetricProperty_id(ctx, field)
+			case "name":
+				return ec.fieldContext_MetricProperty_name(ctx, field)
+			case "type":
+				return ec.fieldContext_MetricProperty_type(ctx, field)
+			case "value":
+				return ec.fieldContext_MetricProperty_value(ctx, field)
+			case "unit":
+				return ec.fieldContext_MetricProperty_unit(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MetricProperty", field.Name)
 		},
 	}
 	return fc, nil
@@ -9008,20 +9720,184 @@ func (ec *executionContext) _Snapshot(ctx context.Context, sel ast.SelectionSet,
 		case "id":
 			out.Values[i] = ec._Snapshot_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "timestamp":
 			out.Values[i] = ec._Snapshot_timestamp(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "character":
-			out.Values[i] = ec._Snapshot_character(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Snapshot_character(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "description":
+			out.Values[i] = ec._Snapshot_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var snapshotCharacterImplementors = []string{"SnapshotCharacter"}
+
+func (ec *executionContext) _SnapshotCharacter(ctx context.Context, sel ast.SelectionSet, obj *model.SnapshotCharacter) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, snapshotCharacterImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SnapshotCharacter")
+		case "id":
+			out.Values[i] = ec._SnapshotCharacter_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "profileID":
+			out.Values[i] = ec._SnapshotCharacter_profileID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._SnapshotCharacter_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "gender":
+			out.Values[i] = ec._SnapshotCharacter_gender(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tags":
+			out.Values[i] = ec._SnapshotCharacter_tags(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalFocusedTime":
+			out.Values[i] = ec._SnapshotCharacter_totalFocusedTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "customMetrics":
+			out.Values[i] = ec._SnapshotCharacter_customMetrics(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var snapshotMetricImplementors = []string{"SnapshotMetric"}
+
+func (ec *executionContext) _SnapshotMetric(ctx context.Context, sel ast.SelectionSet, obj *repo.SnapshotMetric) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, snapshotMetricImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SnapshotMetric")
+		case "id":
+			out.Values[i] = ec._SnapshotMetric_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._SnapshotMetric_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "description":
-			out.Values[i] = ec._Snapshot_description(ctx, field, obj)
+			out.Values[i] = ec._SnapshotMetric_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "time":
+			out.Values[i] = ec._SnapshotMetric_time(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "style":
+			out.Values[i] = ec._SnapshotMetric_style(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "properties":
+			out.Values[i] = ec._SnapshotMetric_properties(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -10125,6 +11001,68 @@ func (ec *executionContext) marshalNSnapshot2ᚖtenkhoursᚋservicesᚋcoreᚋre
 		return graphql.Null
 	}
 	return ec._Snapshot(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSnapshotCharacter2tenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐSnapshotCharacter(ctx context.Context, sel ast.SelectionSet, v model.SnapshotCharacter) graphql.Marshaler {
+	return ec._SnapshotCharacter(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSnapshotCharacter2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐSnapshotCharacter(ctx context.Context, sel ast.SelectionSet, v *model.SnapshotCharacter) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SnapshotCharacter(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSnapshotMetric2tenkhoursᚋservicesᚋcoreᚋrepoᚐSnapshotMetric(ctx context.Context, sel ast.SelectionSet, v repo.SnapshotMetric) graphql.Marshaler {
+	return ec._SnapshotMetric(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSnapshotMetric2ᚕtenkhoursᚋservicesᚋcoreᚋrepoᚐSnapshotMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []repo.SnapshotMetric) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSnapshotMetric2tenkhoursᚋservicesᚋcoreᚋrepoᚐSnapshotMetric(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

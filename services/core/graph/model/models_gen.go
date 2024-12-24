@@ -117,6 +117,16 @@ type ProfileInput struct {
 type Query struct {
 }
 
+type SnapshotCharacter struct {
+	ID               primitive.ObjectID    `json:"id"`
+	ProfileID        primitive.ObjectID    `json:"profileID"`
+	Name             string                `json:"name"`
+	Gender           bool                  `json:"gender"`
+	Tags             []string              `json:"tags"`
+	TotalFocusedTime int                   `json:"totalFocusedTime"`
+	CustomMetrics    []repo.SnapshotMetric `json:"customMetrics"`
+}
+
 type Month string
 
 const (
