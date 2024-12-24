@@ -13,7 +13,7 @@ func ComposeRPCHandler() *rpc.RPCHandler {
 	// Init dependencies and perform DI manually
 	mongodb := db.GetDBManager().DB
 	redisClient := db.GetRedisClient()
-	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
+	profilesRepo := repo.NewProfilesRepo(mongodb)
 	charactersRepo := repo.NewCharactersRepo(mongodb)
 	fishRepo := fishRepo.NewFishRepo(mongodb)
 	goalsRepo := repo.NewGoalsRepo(mongodb)

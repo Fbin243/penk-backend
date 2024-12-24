@@ -8,7 +8,6 @@ import (
 	"tenkhours/services/core/repo"
 
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -91,20 +90,20 @@ func TestUpdateProfile(t *testing.T) {
 	profile.ImageURL = updateInput.ImageURL
 	profile.CurrentCharacterID = updateInput.CurrentCharacterID
 
-	updatedProfile, err := profilesRepo.UpdateProfile(profile)
+	updatedProfile, err := profilesRepo.UpdateByID(profile.ID, profile)
 	assert.Nil(t, err)
 	assertWithProfileInput(t, updatedProfile, updateInput)
 }
 
 func cleanUpProfile(profile *repo.Profile) {
 	// Delete profile from database
-	_, err := profilesRepo.Collection.DeleteOne(context.Background(), bson.M{"_id": profile.ID})
+	_, err := profilesRepo.DeleteByID(profile.ID)
 	if err != nil {
 		panic(err)
 	}
 
 	// Delete profile from Redis
-	_, err = profilesRepo.Del(context.Background(), profile.FirebaseUID).Result()
+	_, err = db.GetRedisClient().Del(context.Background(), db.GetAuthSessionKey(profile.FirebaseUID)).Result()
 	if err != nil {
 		panic(err)
 	}

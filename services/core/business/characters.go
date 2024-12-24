@@ -126,7 +126,7 @@ func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.
 
 		// TODO: Character has been created, so set the current character of the user to it
 		profile.CurrentCharacterID = character.ID
-		_, err = biz.ProfilesRepo.UpdateProfile(profile)
+		_, err = biz.ProfilesRepo.UpdateByID(profile.ID, profile)
 		if err != nil {
 			return nil, err
 		}

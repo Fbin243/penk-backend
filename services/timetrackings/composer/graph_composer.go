@@ -15,7 +15,7 @@ import (
 func ComposeGraphQLResolver() (*graph.Resolver, *grpc.ClientConn) {
 	mongodb := db.GetDBManager().DB
 	redisClient := db.GetRedisClient()
-	profilesRepo := repo.NewProfilesRepo(mongodb, redisClient)
+	profilesRepo := repo.NewProfilesRepo(mongodb)
 	timetrackingsRepo := timetrackingsRepo.NewTimeTrackingsRepo(mongodb)
 	fishRepo := fishRepo.NewFishRepo(mongodb)
 	coreClient, conn := ComposeRPCClient()

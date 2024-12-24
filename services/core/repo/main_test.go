@@ -31,7 +31,7 @@ func TestMain(m *testing.M) {
 	utils.ReadEnvFile()
 	testdb = db.InitDBManagerFromEnv("TenK-Hours-Dev").DB
 
-	profilesRepo = repo.NewProfilesRepo(testdb, db.GetRedisClient())
+	profilesRepo = repo.NewProfilesRepo(testdb)
 	charactersRepo = repo.NewCharactersRepo(testdb)
 	goalsRepo = repo.NewGoalsRepo(testdb)
 	templatesRepo = repo.NewTemplatesRepo(testdb)

@@ -159,7 +159,7 @@ func (biz *SnapshotsBusiness) CreateNewSnapshot(ctx context.Context, characterID
 		}
 
 		profile.AvailableSnapshots--
-		_, err = biz.ProfilesRepo.UpdateProfile(profile)
+		_, err = biz.ProfilesRepo.UpdateByID(profile.ID, profile)
 		if err != nil {
 			return nil, err
 		}

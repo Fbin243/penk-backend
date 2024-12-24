@@ -72,7 +72,7 @@ func (biz *ProfilesBusiness) UpdateProfile(ctx context.Context, input model.Prof
 
 	profile.UpdatedAt = utils.Now()
 
-	updatedProfile, err := biz.ProfilesRepo.UpdateProfile(profile)
+	updatedProfile, err := biz.ProfilesRepo.UpdateByID(profile.ID, profile)
 	if err != nil {
 		return nil, err
 	}

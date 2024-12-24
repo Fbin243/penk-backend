@@ -13,7 +13,7 @@ func ComposeGraphQLResolver() *graph.Resolver {
 	mongodb := db.GetDBManager().DB
 	fishRepo := repo.NewFishRepo(mongodb)
 	redisClient := db.GetRedisClient()
-	profilesRepo := coreRepo.NewProfilesRepo(mongodb, redisClient)
+	profilesRepo := coreRepo.NewProfilesRepo(mongodb)
 	charactersRepo := coreRepo.NewCharactersRepo(mongodb)
 	fishBiz := business.NewFishBusiness(fishRepo, charactersRepo, profilesRepo, redisClient)
 
