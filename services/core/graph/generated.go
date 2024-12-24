@@ -73,6 +73,7 @@ type ComplexityRoot struct {
 		Tags                func(childComplexity int) int
 		TotalFocusedTime    func(childComplexity int) int
 		UpdatedAt           func(childComplexity int) int
+		Vision              func(childComplexity int) int
 	}
 
 	CustomMetric struct {
@@ -205,6 +206,11 @@ type ComplexityRoot struct {
 		Type  func(childComplexity int) int
 		Unit  func(childComplexity int) int
 		Value func(childComplexity int) int
+	}
+
+	Vision struct {
+		Description func(childComplexity int) int
+		Name        func(childComplexity int) int
 	}
 
 	_Service struct {
@@ -356,6 +362,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Character.UpdatedAt(childComplexity), true
+
+	case "Character.vision":
+		if e.complexity.Character.Vision == nil {
+			break
+		}
+
+		return e.complexity.Character.Vision(childComplexity), true
 
 	case "CustomMetric.description":
 		if e.complexity.CustomMetric.Description == nil {
@@ -1006,6 +1019,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TemplateProperty.Value(childComplexity), true
 
+	case "Vision.description":
+		if e.complexity.Vision.Description == nil {
+			break
+		}
+
+		return e.complexity.Vision.Description(childComplexity), true
+
+	case "Vision.name":
+		if e.complexity.Vision.Name == nil {
+			break
+		}
+
+		return e.complexity.Vision.Name(childComplexity), true
+
 	case "_Service.sdl":
 		if e.complexity._Service.SDL == nil {
 			break
@@ -1031,6 +1058,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputMetricPropertyInput,
 		ec.unmarshalInputMetricStyleInput,
 		ec.unmarshalInputProfileInput,
+		ec.unmarshalInputVisionInput,
 	)
 	first := true
 
@@ -2098,6 +2126,53 @@ func (ec *executionContext) fieldContext_Character_limitedMetricNumber(_ context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Character_vision(ctx context.Context, field graphql.CollectedField, obj *repo.Character) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Character_vision(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Vision, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(repo.Vision)
+	fc.Result = res
+	return ec.marshalOVision2tenkhoursᚋservicesᚋcoreᚋrepoᚐVision(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Character_vision(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Character",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_Vision_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Vision_description(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Vision", field.Name)
 		},
 	}
 	return fc, nil
@@ -3448,6 +3523,8 @@ func (ec *executionContext) fieldContext_Mutation_upsertCharacter(ctx context.Co
 				return ec.fieldContext_Character_customMetrics(ctx, field)
 			case "limitedMetricNumber":
 				return ec.fieldContext_Character_limitedMetricNumber(ctx, field)
+			case "vision":
+				return ec.fieldContext_Character_vision(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
 		},
@@ -3525,6 +3602,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteCharacter(ctx context.Co
 				return ec.fieldContext_Character_customMetrics(ctx, field)
 			case "limitedMetricNumber":
 				return ec.fieldContext_Character_limitedMetricNumber(ctx, field)
+			case "vision":
+				return ec.fieldContext_Character_vision(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
 		},
@@ -4093,6 +4172,8 @@ func (ec *executionContext) fieldContext_Profile_characters(_ context.Context, f
 				return ec.fieldContext_Character_customMetrics(ctx, field)
 			case "limitedMetricNumber":
 				return ec.fieldContext_Character_limitedMetricNumber(ctx, field)
+			case "vision":
+				return ec.fieldContext_Character_vision(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
 		},
@@ -4339,6 +4420,8 @@ func (ec *executionContext) fieldContext_Query_characters(_ context.Context, fie
 				return ec.fieldContext_Character_customMetrics(ctx, field)
 			case "limitedMetricNumber":
 				return ec.fieldContext_Character_limitedMetricNumber(ctx, field)
+			case "vision":
+				return ec.fieldContext_Character_vision(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
 		},
@@ -6525,6 +6608,91 @@ func (ec *executionContext) fieldContext_TemplateProperty_unit(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Vision_name(ctx context.Context, field graphql.CollectedField, obj *repo.Vision) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Vision_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Vision_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Vision",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Vision_description(ctx context.Context, field graphql.CollectedField, obj *repo.Vision) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Vision_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Vision_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Vision",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) __Service_sdl(ctx context.Context, field graphql.CollectedField, obj *fedruntime.Service) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext__Service_sdl(ctx, field)
 	if err != nil {
@@ -8346,7 +8514,7 @@ func (ec *executionContext) unmarshalInputCharacterInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "gender", "tags", "customMetrics"}
+	fieldsInOrder := [...]string{"id", "name", "gender", "tags", "customMetrics", "vision"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8388,6 +8556,13 @@ func (ec *executionContext) unmarshalInputCharacterInput(ctx context.Context, ob
 				return it, err
 			}
 			it.CustomMetrics = data
+		case "vision":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vision"))
+			data, err := ec.unmarshalOVisionInput2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐVisionInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Vision = data
 		}
 	}
 
@@ -8784,6 +8959,40 @@ func (ec *executionContext) unmarshalInputProfileInput(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputVisionInput(ctx context.Context, obj interface{}) (model.VisionInput, error) {
+	var it model.VisionInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "description"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -8923,6 +9132,8 @@ func (ec *executionContext) _Character(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "vision":
+			out.Values[i] = ec._Character_vision(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10155,6 +10366,47 @@ func (ec *executionContext) _TemplateProperty(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var visionImplementors = []string{"Vision"}
+
+func (ec *executionContext) _Vision(ctx context.Context, sel ast.SelectionSet, obj *repo.Vision) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, visionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Vision")
+		case "name":
+			out.Values[i] = ec._Vision_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "description":
+			out.Values[i] = ec._Vision_description(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12107,6 +12359,18 @@ func (ec *executionContext) marshalOTemplateCategory2ᚖtenkhoursᚋservicesᚋc
 		return graphql.Null
 	}
 	return ec._TemplateCategory(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOVision2tenkhoursᚋservicesᚋcoreᚋrepoᚐVision(ctx context.Context, sel ast.SelectionSet, v repo.Vision) graphql.Marshaler {
+	return ec._Vision(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalOVisionInput2ᚖtenkhoursᚋservicesᚋcoreᚋgraphᚋmodelᚐVisionInput(ctx context.Context, v interface{}) (*model.VisionInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputVisionInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalO_Entity2githubᚗcomᚋ99designsᚋgqlgenᚋpluginᚋfederationᚋfedruntimeᚐEntity(ctx context.Context, sel ast.SelectionSet, v fedruntime.Entity) graphql.Marshaler {

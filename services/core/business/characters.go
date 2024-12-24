@@ -102,6 +102,16 @@ func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.
 			character.Tags = input.Tags
 		}
 
+		if input.Vision != nil {
+			character.Vision = repo.Vision{
+				Name: input.Vision.Name,
+			}
+
+			if input.Vision.Description != nil {
+				character.Vision.Description = *input.Vision.Description
+			}
+		}
+
 		if input.CustomMetrics != nil {
 			err := biz.upsertMetricsInCharacter(&character, input.CustomMetrics)
 			if err != nil {
@@ -138,6 +148,16 @@ func (biz *CharactersBusiness) UpsertCharacter(ctx context.Context, input model.
 
 	if input.Tags != nil {
 		character.Tags = input.Tags
+	}
+
+	if input.Vision != nil {
+		character.Vision = repo.Vision{
+			Name: input.Vision.Name,
+		}
+
+		if input.Vision.Description != nil {
+			character.Vision.Description = *input.Vision.Description
+		}
 	}
 
 	if input.CustomMetrics != nil {

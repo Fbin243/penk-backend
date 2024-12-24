@@ -9,6 +9,12 @@ type Character {
   totalFocusedTime: Int!
   customMetrics: [CustomMetric!]!
   limitedMetricNumber: Int!
+  vision: Vision
+}
+
+type Vision {
+  name: String!
+  description: String
 }
 
 type CustomMetric {
@@ -62,6 +68,11 @@ input CharacterInput {
   List of custom metrics for the character.
   """
   customMetrics: [CustomMetricInput!] @goTag(key: "validate", value: "dive")
+  
+  """
+  Vision of the character.
+  """
+  vision: VisionInput
 }
 
 """
@@ -142,4 +153,9 @@ input MetricPropertyInput {
 enum MetricPropertyType {
   String
   Number
+}
+
+input VisionInput {
+  name: String! @goTag(key: "validate", value: "min=1,max=50")
+  description: String @goTag(key: "validate", value: "omitempty,max=255")
 }

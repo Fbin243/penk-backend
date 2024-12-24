@@ -3,6 +3,7 @@ package business
 import (
 	"context"
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db"
 	"tenkhours/pkg/errors"
 	"tenkhours/services/core/repo"
 
@@ -24,7 +25,7 @@ func NewTemplatesBusiness(templatesRepo *repo.TemplatesRepo, templateCategoriesR
 
 // GetTemplates returns all templates
 func (biz *TemplatesBusiness) GetTemplates(ctx context.Context) ([]repo.Template, error) {
-	_, ok := ctx.Value(auth.AuthSessionKey).(repo.Profile)
+	_, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}
@@ -34,7 +35,7 @@ func (biz *TemplatesBusiness) GetTemplates(ctx context.Context) ([]repo.Template
 
 // Get template category by ID
 func (biz *TemplatesBusiness) GetTemplateCategory(ctx context.Context, id primitive.ObjectID) (*repo.TemplateCategory, error) {
-	_, ok := ctx.Value(auth.AuthSessionKey).(repo.Profile)
+	_, ok := ctx.Value(auth.AuthSessionKey).(db.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
 	}

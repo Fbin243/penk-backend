@@ -103,6 +103,8 @@ models:
     model: tenkhours/services/core/repo.MetricStyle
   MetricPropertyType:
     model: tenkhours/services/core/repo.MetricPropertyType
+  Vision:
+    model: tenkhours/services/core/repo.Vision
   Snapshot:
     model: tenkhours/services/core/repo.Snapshot
   SnapshotMetric:

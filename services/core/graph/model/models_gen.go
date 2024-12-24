@@ -31,6 +31,8 @@ type CharacterInput struct {
 	Tags []string `json:"tags,omitempty" validate:"tags_valid,dive"`
 	// List of custom metrics for the character.
 	CustomMetrics []CustomMetricInput `json:"customMetrics,omitempty" validate:"dive"`
+	// Vision of the character.
+	Vision *VisionInput `json:"vision,omitempty"`
 }
 
 // Input for defining a custom metric.
@@ -125,6 +127,11 @@ type SnapshotCharacter struct {
 	Tags             []string              `json:"tags"`
 	TotalFocusedTime int                   `json:"totalFocusedTime"`
 	CustomMetrics    []repo.SnapshotMetric `json:"customMetrics"`
+}
+
+type VisionInput struct {
+	Name        string  `json:"name" validate:"min=1,max=50"`
+	Description *string `json:"description,omitempty" validate:"omitempty,max=255"`
 }
 
 type Month string

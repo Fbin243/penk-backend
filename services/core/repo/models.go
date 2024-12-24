@@ -29,6 +29,12 @@ type Character struct {
 	TotalFocusedTime    int32              `json:"totalFocusedTime,omitempty" bson:"total_focused_time"`
 	CustomMetrics       []CustomMetric     `json:"customMetrics,omitempty" bson:"custom_metrics"`
 	LimitedMetricNumber int32              `json:"limitedMetricNumber,omitempty" bson:"limited_metric_number,omitempty"`
+	Vision              Vision             `json:"vision,omitempty" bson:"vision,omitempty"`
+}
+
+type Vision struct {
+	Name        string `json:"name,omitempty" bson:"name,omitempty"`
+	Description string `json:"description,omitempty" bson:"description,omitempty"`
 }
 
 type CustomMetric struct {
@@ -135,11 +141,12 @@ type Snapshot struct {
 }
 
 type SnapshotCharacter struct {
-	Name             string             `json:"name,omitempty" bson:"name"`
-	Gender           bool               `json:"gender,omitempty" bson:"gender"`
-	Tags             []string           `json:"tags,omitempty" bson:"tags"`
-	TotalFocusedTime int32              `json:"totalFocusedTime,omitempty" bson:"total_focused_time"`
-	CustomMetrics    []SnapshotMetric   `json:"customMetrics,omitempty" bson:"custom_metrics"`
+	Name             string           `json:"name,omitempty" bson:"name"`
+	Gender           bool             `json:"gender,omitempty" bson:"gender"`
+	Tags             []string         `json:"tags,omitempty" bson:"tags"`
+	TotalFocusedTime int32            `json:"totalFocusedTime,omitempty" bson:"total_focused_time"`
+	CustomMetrics    []SnapshotMetric `json:"customMetrics,omitempty" bson:"custom_metrics"`
+	Vision           Vision           `json:"vision,omitempty" bson:"vision"`
 }
 
 type SnapshotMetric struct {
