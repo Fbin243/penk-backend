@@ -264,7 +264,7 @@ func (biz *FishBusiness) BuySnapshots(ctx context.Context, fishType model.FishTy
 
 	profileData.AvailableSnapshots += int32(increase)
 
-	if _, err := biz.ProfilesRepo.UpdateProfile(profileData); err != nil {
+	if _, err := biz.ProfilesRepo.UpdateByID(profileData.ID, profileData); err != nil {
 		return false, fmt.Errorf("failed to update available snapshots: %v", err)
 	}
 
@@ -337,7 +337,7 @@ func (biz *FishBusiness) BuyCharacters(ctx context.Context, fishType model.FishT
 	// increase the limited char number
 	profileData.LimitedCharacterNumber += int32(increase)
 
-	if _, err := biz.ProfilesRepo.UpdateProfile(profileData); err != nil {
+	if _, err := biz.ProfilesRepo.UpdateByID(profileData.ID, profileData); err != nil {
 		return false, fmt.Errorf("failed to update character count: %v", err)
 	}
 
