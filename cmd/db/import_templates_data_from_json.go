@@ -23,9 +23,10 @@ type Property struct {
 }
 
 type Metric struct {
-	Name       string     `json:"name"`
-	Style      Style      `json:"style"`
-	Properties []Property `json:"properties"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Style       Style      `json:"style"`
+	Properties  []Property `json:"properties"`
 }
 
 type Template struct {
@@ -108,7 +109,8 @@ func mapToRepoTemplate(t Template) repo.Template {
 		}
 
 		template.Metrics = append(template.Metrics, repo.TemplateMetric{
-			Name: metric.Name,
+			Name:        metric.Name,
+			Description: metric.Description,
 			Style: repo.MetricStyle{
 				Color: metric.Style.Color,
 				Icon:  metric.Style.Icon,

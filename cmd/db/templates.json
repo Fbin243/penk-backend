@@ -1,88 +1,193 @@
 {
-  "Career/Job": [
+  "HCMUS": [
     {
-      "name": "Frontend Developer",
-      "emoji": "🎨",
-      "description": "Master the art of building stunning and interactive user interfaces using top frameworks like React and Tailwind CSS while refining design skills.",
-      "color": "#FF5733",
+      "name": "Ú ơ",
+      "emoji": "🎓",
+      "description": "Sinh viên 'Ú ơ' không chỉ chăm học mà còn vô cùng hăng hái tham gia các hoạt động ngoại khóa.",
+      "color": "#5DA7E3",
       "metrics": [
         {
-          "name": "Framework Proficiency",
+          "name": "Học tập",
           "style": {
-            "icon": "🎨",
-            "color": "#FF5733"
+            "icon": "📚",
+            "color": "#4CAF50"
           },
           "properties": [
             {
-              "name": "Mastered Frameworks",
-              "value": "",
-              "unit": "Frameworks",
-              "type": "String"
-            },
-            {
-              "name": "Projects Using Frameworks",
+              "name": "Kiến thức mới",
               "value": "0",
-              "unit": "Projects",
+              "unit": "Kiến thức",
               "type": "Number"
             },
             {
-              "name": "Top Framework",
+              "name": "Số tín chỉ hoàn thành",
+              "value": "0",
+              "unit": "Tín chỉ",
+              "type": "Number"
+            },
+            {
+              "name": "Tín chỉ tốt nghiệp",
+              "value": "0",
+              "unit": "Tín chỉ",
+              "type": "Number"
+            },
+            {
+              "name": "GPA hiện tại",
+              "value": "0",
+              "unit": "GPA",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Hoạt động ngoại khóa",
+          "style": {
+            "icon": "🎉",
+            "color": "#FF9800"
+          },
+          "properties": [
+            {
+              "name": "CLB đang tham gia",
               "value": "",
-              "unit": "Framework",
+              "unit": "CLB",
+              "type": "String"
+            },
+            {
+              "name": "Sự kiện học thuật",
+              "value": "",
+              "unit": "Sự kiện",
+              "type": "String"
+            },
+            {
+              "name": "Job fair",
+              "value": "",
+              "unit": "Sự kiện",
+              "type": "String"
+            },
+            {
+              "name": "Hoạt động tình nguyện",
+              "value": "",
+              "unit": "Sự kiện",
               "type": "String"
             }
           ]
         },
         {
-          "name": "Design and CSS Mastery",
+          "name": "Chạy deadline",
           "style": {
-            "icon": "🎨",
-            "color": "#FF5733"
+            "icon": "⏰",
+            "color": "#2196F3"
           },
           "properties": [
             {
-              "name": "CSS Frameworks Mastered",
-              "value": "",
-              "unit": "CSS Frameworks",
-              "type": "String"
-            },
-            {
-              "name": "Custom Animations Created",
+              "name": "Đêm không ngủ",
               "value": "0",
-              "unit": "Animations",
+              "unit": "Đêm",
               "type": "Number"
             },
             {
-              "name": "Favorite CSS Trick",
+              "name": "Số cốc cà phê đã uống",
+              "value": "0",
+              "unit": "Cốc",
+              "type": "Number"
+            },
+            {
+              "name": "Số bài tập đã hoàn thành",
+              "value": "0",
+              "unit": "Bài tập",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Thể thao",
+          "style": {
+            "icon": "⚽",
+            "color": "#FF5722"
+          },
+          "properties": [
+            {
+              "name": "Môn thể thao yêu thích",
               "value": "",
-              "unit": "CSS Trick",
+              "unit": "Môn thể thao",
+              "type": "String"
+            },
+            {
+              "name": "Số trận đấu đã tham gia",
+              "value": "0",
+              "unit": "Trận",
+              "type": "Number"
+            },
+            {
+              "name": "Thành tích cao nhất",
+              "value": "",
+              "unit": "Thành tích",
               "type": "String"
             }
           ]
         },
         {
-          "name": "Testing and Debugging",
+          "name": "Kỹ năng mềm",
           "style": {
-            "icon": "🎨",
-            "color": "#FF5733"
+            "icon": "🤝",
+            "color": "#009688"
           },
           "properties": [
             {
-              "name": "Unit Tests Written",
+              "name": "Số buổi thuyết trình",
               "value": "0",
-              "unit": "Tests",
+              "unit": "Buổi",
               "type": "Number"
             },
             {
-              "name": "UI Bugs Resolved",
+              "name": "Số lần họp nhóm",
               "value": "0",
-              "unit": "Bugs",
+              "unit": "Lần",
               "type": "Number"
             },
             {
-              "name": "Top Debugging Tool",
+              "name": "Kỹ năng mềm tốt nhất",
               "value": "",
-              "unit": "Tool",
+              "unit": "Kỹ năng",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Giải trí và thư giãn",
+          "style": {
+            "icon": "🎮",
+            "color": "#E91E63"
+          },
+          "properties": [
+            {
+              "name": "Game time",
+              "value": "0",
+              "unit": "Giờ",
+              "type": "Number"
+            },
+            {
+              "name": "Số trận đã chơi",
+              "value": "0",
+              "unit": "Trận",
+              "type": "Number"
+            },
+            {
+              "name": "Số trận thắng",
+              "value": "0",
+              "unit": "Trận",
+              "type": "Number"
+            },
+            {
+              "name": "Số tập phim đã xem",
+              "value": "0",
+              "unit": "Tập",
+              "type": "Number"
+            },
+            {
+              "name": "Bộ phim yêu thích",
+              "value": "",
+              "unit": "Hoạt động",
               "type": "String"
             }
           ]
@@ -90,89 +195,471 @@
       ]
     },
     {
-      "name": "Backend Developer",
-      "emoji": "🛠️",
-      "description": "Craft powerful APIs, secure endpoints, and optimize databases, becoming a pro at managing servers and scaling backend systems.",
-      "color": "#33A1FF",
+      "name": "HCMUS Coder",
+      "emoji": "👨‍💻",
+      "description": "Sinh viên ngành Công nghệ thông tin của trường Đại học Khoa học Tự nhiên, ĐHQG-HCM",
+      "color": "#FF5733",
       "metrics": [
         {
-          "name": "API Development",
+          "name": "Học tập",
           "style": {
-            "icon": "🛠️",
-            "color": "#33A1FF"
+            "icon": "👨‍💻",
+            "color": "#FF5733"
           },
           "properties": [
             {
-              "name": "APIs Built",
+              "name": "Số học phần đã học",
               "value": "0",
-              "unit": "APIs",
+              "unit": "học phần",
               "type": "Number"
             },
             {
-              "name": "Endpoints Secured",
+              "name": "GPA hiện tại",
               "value": "0",
-              "unit": "Endpoints",
+              "unit": "",
               "type": "Number"
             },
             {
-              "name": "Top API Framework",
+              "name": "Học phần yêu thích",
               "value": "",
-              "unit": "Framework",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Tín chỉ đã tích lũy",
+              "value": "0",
+              "unit": "tín chỉ",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Lập trình căn bản",
+          "description": "Kiến thức lập trình cơ bản đã nắm vững trong các môn mở đầu như Nhập môn lập trình, Kỹ thuật lập trình, ...",
+          "style": {
+            "icon": "👨‍💻",
+            "color": "#FF5733"
+          },
+          "properties": [
+            {
+              "name": "Các khái niệm cơ bản trong lập trình đã nắm vững",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Số bài tập đã làm",
+              "value": "0",
+              "unit": "bài tập",
+              "type": "Number"
+            },
+            {
+              "name": "Ngôn ngữ lập trình yêu thích",
+              "value": "",
+              "unit": "",
               "type": "String"
             }
           ]
         },
         {
-          "name": "Database Management",
+          "name": "Cấu trúc dữ liệu",
+          "description": "Nắm vững các cấu trúc dữ liệu cơ bản như mảng, danh sách liên kết, cây, đồ thị, ...",
           "style": {
-            "icon": "🛠️",
-            "color": "#33A1FF"
+            "icon": "👨‍💻",
+            "color": "#FF5733"
           },
           "properties": [
             {
-              "name": "Databases Mastered",
+              "name": "Các cấu trúc dữ liệu đã học",
               "value": "",
-              "unit": "Databases",
+              "unit": "",
               "type": "String"
             },
             {
-              "name": "Queries Optimized",
+              "name": "Cấu trúc dữ liệu tâm đắc",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Số bài tập đã làm",
               "value": "0",
-              "unit": "Queries",
+              "unit": "bài tập",
               "type": "Number"
             },
             {
-              "name": "Favorite Database",
+              "name": "Số lần ôn tập",
+              "value": "0",
+              "unit": "lần",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Giải thuật",
+          "description": "Nắm vững các giải thuật cơ bản như tìm kiếm, sắp xếp, đệ quy, quy hoạch động, ...",
+          "style": {
+            "icon": "👨‍💻",
+            "color": "#FF5733"
+          },
+          "properties": [
+            {
+              "name": "Các giải thuật đã học",
               "value": "",
-              "unit": "Database",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Giải thuật yêu thích",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Số bài tập đã làm",
+              "value": "0",
+              "unit": "bài tập",
+              "type": "Number"
+            },
+            {
+              "name": "Số lần ôn tập",
+              "value": "0",
+              "unit": "lần",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Hệ điều hành",
+          "description": "Nắm vững kiến thức về hệ điều hành, quản lý bộ nhớ, quản lý tài nguyên, ...",
+          "style": {
+            "icon": "👨‍💻",
+            "color": "#FF5733"
+          },
+          "properties": [
+            {
+              "name": "Các khái niệm trong hệ điều hành đã nắm vững",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Số bài tập đã làm",
+              "value": "0",
+              "unit": "bài tập",
+              "type": "Number"
+            },
+            {
+              "name": "Hệ điều hành yêu thích",
+              "value": "",
+              "unit": "",
               "type": "String"
             }
           ]
         },
         {
-          "name": "Server Management",
+          "name": "Leetcode",
+          "description": "Luyện tập trên Leetcode để nâng cao kỹ năng giải bài toán và chuẩn bị cho phỏng vấn công việc. Bạn có thể lựa chọn nền tảng khác như Codeforces, AtCoder, ...",
           "style": {
-            "icon": "🛠️",
-            "color": "#33A1FF"
+            "icon": "👨‍💻",
+            "color": "#FF5733"
           },
           "properties": [
             {
-              "name": "Servers Deployed",
+              "name": "Tổng số bài đã làm",
               "value": "0",
-              "unit": "Servers",
+              "unit": "bài",
               "type": "Number"
             },
             {
-              "name": "Top Hosting Service",
+              "name": "Số bài easy",
+              "value": "0",
+              "unit": "bài",
+              "type": "Number"
+            },
+            {
+              "name": "Số bài medium",
+              "value": "0",
+              "unit": "bài",
+              "type": "Number"
+            },
+            {
+              "name": "Số bài hard",
+              "value": "0",
+              "unit": "bài",
+              "type": "Number"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "Career/Job": [
+    {
+      "name": "Backend Developer",
+      "emoji": "👨‍💻",
+      "description": "Người phát triển hệ thống phía server, xây dựng API, xử lý dữ liệu, ...",
+      "color": "#FF5733",
+      "metrics": [
+        {
+          "name": "Internet",
+          "description": "Học các kiến thức liên quan đến Internet như HTTP, HTTPS, Domain name, DNS, Hosting, ...",
+          "style": {
+            "icon": "👨‍💻",
+            "color": "#FF5733"
+          },
+          "properties": [
+            {
+              "name": "Các khái niệm đã nắm vững",
               "value": "",
-              "unit": "Service",
+              "unit": "",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Backend Language",
+          "description": "Nắm vững một ngôn ngữ lập trình phía server như Golang, Javascript (NodeJS), Java, ...",
+          "style": {
+            "icon": "👨‍💻",
+            "color": "#FF5733"
+          },
+          "properties": [
+            {
+              "name": "Ngôn ngữ lập trình thành thạo",
+              "value": "",
+              "unit": "",
               "type": "String"
             },
             {
-              "name": "Load Balancers Configured",
+              "name": "Các framework đã sử dụng",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Version Control System (VCS)",
+          "description": "Sử dụng VCS như Git và các nền tảng của Git như GitHub, GitLab, ... để quản lý mã nguồn, hợp tác với đồng nghiệp.",
+          "style": {
+            "icon": "👨‍💻",
+            "color": "#FF5733"
+          },
+          "properties": [
+            {
+              "name": "Số lệnh Git cơ bản đã nắm",
               "value": "0",
-              "unit": "Load Balancers",
+              "unit": "",
               "type": "Number"
+            },
+            {
+              "name": "Số repository đã tạo",
+              "value": "0",
+              "unit": "repository",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Database",
+          "description": "Nắm vững kiến thức về cơ sở dữ liệu, các loại cơ sở dữ liệu, cách thiết kế cơ sở dữ liệu, ...",
+          "style": {
+            "icon": "👨‍💻",
+            "color": "#FF5733"
+          },
+          "properties": [
+            {
+              "name": "Số loại cơ sở dữ liệu đã sử dụng",
+              "value": "0",
+              "unit": "",
+              "type": "Number"
+            },
+            {
+              "name": "Các câu lệnh SQL đã nắm",
+              "value": "0",
+              "unit": "",
+              "type": "Number"
+            },
+            {
+              "name": "Cơ sở dữ liệu yêu thích",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "API",
+          "description": "Xây dựng API, sử dụng API, hiểu về RESTful API, GraphQL, ...",
+          "style": {
+            "icon": "👨‍💻",
+            "color": "#FF5733"
+          },
+          "properties": [
+            {
+              "name": "Các loại API đã xây dựng",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Số API đã xây dựng",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frontend Developer",
+      "emoji": "👩‍💻",
+      "description": "Người phát triển giao diện người dùng, xây dựng ứng dụng web và tối ưu trải nghiệm người dùng.",
+      "color": "#4CAF50",
+      "metrics": [
+        {
+          "name": "HTML/CSS",
+          "description": "Hiểu biết vững về HTML5, CSS3, và các kỹ thuật tạo giao diện web động và tương tác.",
+          "style": {
+            "icon": "🌐",
+            "color": "#4CAF50"
+          },
+          "properties": [
+            {
+              "name": "Các thẻ HTML đã nắm vững",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Các kỹ thuật CSS đã sử dụng",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Tổng số dự án đã sử dụng HTML/CSS",
+              "value": "0",
+              "unit": "dự án",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "JavaScript",
+          "description": "Nắm vững ngôn ngữ lập trình JavaScript, sử dụng ES6+, các khái niệm lập trình bất đồng bộ và làm việc với DOM.",
+          "style": {
+            "icon": "📜",
+            "color": "#4CAF50"
+          },
+          "properties": [
+            {
+              "name": "Số dự án JavaScript đã tham gia",
+              "value": "0",
+              "unit": "dự án",
+              "type": "Number"
+            },
+            {
+              "name": "Các thư viện JavaScript đã sử dụng",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Kỹ năng lập trình bất đồng bộ (Promises, Async/Await)",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            }
+          ]
+        },
+        {
+          "name": "Frontend Frameworks",
+          "description": "Sử dụng các frameworks và thư viện frontend như React, Angular, Vue.js để xây dựng ứng dụng web hiện đại.",
+          "style": {
+            "icon": "⚛️",
+            "color": "#4CAF50"
+          },
+          "properties": [
+            {
+              "name": "Frameworks đã sử dụng",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Số dự án sử dụng frameworks",
+              "value": "0",
+              "unit": "dự án",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Responsive Design",
+          "description": "Thiết kế web đáp ứng, đảm bảo ứng dụng có thể chạy mượt mà trên các thiết bị di động và desktop.",
+          "style": {
+            "icon": "📱",
+            "color": "#4CAF50"
+          },
+          "properties": [
+            {
+              "name": "Các phương pháp Responsive Design đã áp dụng",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Số dự án đã thiết kế responsive",
+              "value": "0",
+              "unit": "dự án",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Version Control System (VCS)",
+          "description": "Sử dụng Git và các nền tảng như GitHub, GitLab để quản lý mã nguồn, hợp tác với đồng đội.",
+          "style": {
+            "icon": "💻",
+            "color": "#4CAF50"
+          },
+          "properties": [
+            {
+              "name": "Số lệnh Git cơ bản đã nắm",
+              "value": "0",
+              "unit": "",
+              "type": "Number"
+            },
+            {
+              "name": "Số repository đã tạo",
+              "value": "0",
+              "unit": "repository",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "UI/UX Design",
+          "description": "Hiểu biết về thiết kế giao diện người dùng (UI) và trải nghiệm người dùng (UX), cải thiện khả năng tương tác với người dùng.",
+          "style": {
+            "icon": "🎨",
+            "color": "#4CAF50"
+          },
+          "properties": [
+            {
+              "name": "Các công cụ thiết kế đã sử dụng (Figma, Sketch, ...)",
+              "value": "",
+              "unit": "",
+              "type": "String"
+            },
+            {
+              "name": "Kinh nghiệm với UI/UX Principles",
+              "value": "",
+              "unit": "",
+              "type": "String"
             }
           ]
         }
@@ -181,622 +668,140 @@
     {
       "name": "UI/UX Designer",
       "emoji": "🎨",
-      "description": "Create seamless user experiences with beautiful designs, conduct user research, and continuously improve through testing and feedback",
-      "color": "#FF0000",
+      "description": "Xây dựng trải nghiệm và giao diện người dùng xuất sắc bằng cách nắm vững các nguyên tắc thiết kế và công cụ, tập trung vào phương pháp lấy người dùng làm trung tâm.",
+      "color": "#673AB7",
       "metrics": [
         {
-          "name": "Design Tools Proficiency",
+          "name": "Understanding User Behavior",
           "style": {
-            "icon": "🎨",
-            "color": "#6A33FF"
+            "icon": "🧠",
+            "color": "#FF5733"
           },
           "properties": [
             {
-              "name": "Tools Mastered",
-              "value": "",
-              "unit": "Tools",
-              "type": "String"
-            },
-            {
-              "name": "Prototypes Built",
+              "name": "Behavioral Models Learned",
               "value": "0",
-              "unit": "Prototypes",
+              "unit": "Mô hình",
               "type": "Number"
             },
             {
-              "name": "Favorite Design Tool",
+              "name": "Behavior Change Techniques",
+              "value": "0",
+              "unit": "Kỹ thuật",
+              "type": "Number"
+            },
+            {
+              "name": "Favorite Behavior Framework",
               "value": "",
-              "unit": "Tool",
+              "unit": "",
               "type": "String"
             }
           ]
         },
         {
-          "name": "User Research",
+          "name": "Design and Prototype",
           "style": {
-            "icon": "🎨",
-            "color": "#6A33FF"
+            "icon": "✍️",
+            "color": "#9B59B6"
           },
           "properties": [
             {
-              "name": "User Interviews Conducted",
+              "name": "Wireframe đã tạo",
               "value": "0",
-              "unit": "Interviews",
+              "unit": "Wireframe",
               "type": "Number"
             },
             {
-              "name": "Usability Tests Completed",
+              "name": "Prototype đã phát triển",
               "value": "0",
-              "unit": "Tests",
+              "unit": "Prototype",
               "type": "Number"
             },
             {
-              "name": "Top Research Insight",
+              "name": "Công cụ thiết kế yêu thích",
               "value": "",
-              "unit": "Insight",
+              "unit": "",
               "type": "String"
             }
           ]
         },
         {
-          "name": "Testing and Iteration",
+          "name": "Testing and Iterating",
           "style": {
-            "icon": "🎨",
-            "color": "#6A33FF"
+            "icon": "🔄",
+            "color": "#E67E22"
           },
           "properties": [
             {
-              "name": "A/B Tests Run",
+              "name": "A/B test đã thực hiện",
               "value": "0",
-              "unit": "Tests",
+              "unit": "Bài kiểm thử",
               "type": "Number"
             },
             {
-              "name": "Feedback Incorporated",
+              "name": "Multivariate Tests đã chạy",
               "value": "0",
-              "unit": "Feedback",
+              "unit": "Thử nghiệm",
               "type": "Number"
             },
             {
-              "name": "Top UI Feedback",
+              "name": "Kỹ thuật thu thập Feedback",
               "value": "",
-              "unit": "Feedback",
-              "type": "String"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Crypto Trader Extraordinaire",
-      "emoji": "📈",
-      "description": "Navigate the volatile crypto market with precision, track portfolio performance, and refine trading strategies for maximum gains.",
-      "color": "#FFC300",
-      "metrics": [
-        {
-          "name": "Portfolio Performance",
-          "style": {
-            "icon": "📈",
-            "color": "#FFC300"
-          },
-          "properties": [
-            {
-              "name": "Total Coins Held",
-              "value": "0",
-              "unit": "Coins",
-              "type": "Number"
-            },
-            {
-              "name": "Portfolio Value",
-              "value": "0",
-              "unit": "USD",
-              "type": "Number"
-            },
-            {
-              "name": "Top Holding",
-              "value": "",
-              "unit": "Coin",
+              "unit": "",
               "type": "String"
             }
           ]
         },
         {
-          "name": "Trading Activity",
+          "name": "UI Patterns and Layouts",
           "style": {
-            "icon": "📈",
-            "color": "#FFC300"
+            "icon": "📐",
+            "color": "#3498DB"
           },
           "properties": [
             {
-              "name": "Trades Executed",
+              "name": "UI Pattern đã học",
               "value": "0",
-              "unit": "Trades",
+              "unit": "Mẫu",
               "type": "Number"
             },
             {
-              "name": "Profitable Trades",
-              "value": "0",
-              "unit": "Trades",
-              "type": "Number"
-            },
-            {
-              "name": "Top Exchange",
+              "name": "Layout Principle yêu thích",
               "value": "",
-              "unit": "Exchange",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Risk Management",
-          "style": {
-            "icon": "📈",
-            "color": "#FFC300"
-          },
-          "properties": [
-            {
-              "name": "Stop Losses Set",
-              "value": "0",
-              "unit": "Stop Losses",
-              "type": "Number"
-            },
-            {
-              "name": "Risk-Reward Ratio",
-              "value": "0",
-              "unit": "Ratio",
-              "type": "Number"
-            },
-            {
-              "name": "Diversification Level",
-              "value": "0",
-              "unit": "Percent",
-              "type": "Number"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "Lifestyle & Interests": [
-    {
-      "name": "Bookworm",
-      "emoji": "📚",
-      "description": "Dive into new literary worlds, track reading progress, explore diverse genres, and meet reading goals with ease.",
-      "color": "#6A33FF",
-      "metrics": [
-        {
-          "name": "Books Read",
-          "style": {
-            "icon": "📚",
-            "color": "#6A33FF"
-          },
-          "properties": [
-            {
-              "name": "Books Completed",
-              "value": "0",
-              "unit": "Books",
-              "type": "Number"
-            },
-            {
-              "name": "Pages Read",
-              "value": "0",
-              "unit": "Pages",
-              "type": "Number"
-            },
-            {
-              "name": "Favorite Book",
-              "value": "",
-              "unit": "Book",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Genres Explored",
-          "style": {
-            "icon": "📚",
-            "color": "#6A33FF"
-          },
-          "properties": [
-            {
-              "name": "Genres Mastered",
-              "value": "",
-              "unit": "Genres",
+              "unit": "",
               "type": "String"
             },
             {
-              "name": "New Genres Tried",
+              "name": "UI Designs đã làm",
               "value": "0",
-              "unit": "Genres",
-              "type": "Number"
-            },
-            {
-              "name": "Top Genre",
-              "value": "",
-              "unit": "Genre",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Book Reviews",
-          "style": {
-            "icon": "📚",
-            "color": "#6A33FF"
-          },
-          "properties": [
-            {
-              "name": "Books Reviewed",
-              "value": "0",
-              "unit": "Reviews",
-              "type": "Number"
-            },
-            {
-              "name": "Top Review",
-              "value": "",
-              "unit": "Review",
-              "type": "String"
-            },
-            {
-              "name": "Favorite Book Quote",
-              "value": "",
-              "unit": "Quote",
-              "type": "String"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Caffeine Connoisseur",
-      "emoji": "☕",
-      "description": "Discover the world of coffee, from brewing the perfect cup to exploring new coffee shops and crafting delicious latte art at home.",
-      "color": "#FF33B5",
-      "metrics": [
-        {
-          "name": "Cups of Energy",
-          "style": {
-            "icon": "☕",
-            "color": "#FF33B5"
-          },
-          "properties": [
-            {
-              "name": "Daily Coffee Intake",
-              "value": "0",
-              "unit": "Cups",
-              "type": "Number"
-            },
-            {
-              "name": "Strongest Coffee Brewed",
-              "value": "0",
-              "unit": "mg of Caffeine",
-              "type": "Number"
-            },
-            {
-              "name": "Favorite Brew Method",
-              "value": "",
-              "unit": "Method",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Bean Expertise",
-          "style": {
-            "icon": "☕",
-            "color": "#FF33B5"
-          },
-          "properties": [
-            {
-              "name": "Favorite Coffee Beans",
-              "value": "",
-              "unit": "Beans",
-              "type": "String"
-            },
-            {
-              "name": "Grind Settings Experimented",
-              "value": "0",
-              "unit": "Settings",
-              "type": "Number"
-            },
-            {
-              "name": "Top Roast Preference",
-              "value": "",
-              "unit": "Roast",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Coffee Shop Hopper",
-          "style": {
-            "icon": "☕",
-            "color": "#FF33B5"
-          },
-          "properties": [
-            {
-              "name": "New Coffee Shops Visited",
-              "value": "0",
-              "unit": "Shops",
-              "type": "Number"
-            },
-            {
-              "name": "Top Coffee Shop",
-              "value": "",
-              "unit": "Shop",
-              "type": "String"
-            },
-            {
-              "name": "Favorite Coffee Shop Treat",
-              "value": "",
-              "unit": "Treat",
-              "type": "String"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Gym Rat Supreme",
-      "emoji": "🏋️‍♂️",
-      "description": "Crush your lifting goals, track protein intake, and stay consistent in the gym, all while maintaining that perfect flex.",
-      "color": "#33FF57",
-      "metrics": [
-        {
-          "name": "Lift and Chill",
-          "style": {
-            "icon": "🏋️‍♂️",
-            "color": "#33FF57"
-          },
-          "properties": [
-            {
-              "name": "Bench Press Max",
-              "value": "0",
-              "unit": "kg",
-              "type": "Number"
-            },
-            {
-              "name": "Squats Done",
-              "value": "0",
-              "unit": "Squats",
-              "type": "Number"
-            },
-            {
-              "name": "Deadlift PR",
-              "value": "0",
-              "unit": "kg",
+              "unit": "Thiết kế",
               "type": "Number"
             }
           ]
         },
         {
-          "name": "Protein Power",
+          "name": "Accessibility and Usability",
           "style": {
-            "icon": "🏋️‍♂️",
-            "color": "#33FF57"
+            "icon": "♿",
+            "color": "#1ABC9C"
           },
           "properties": [
             {
-              "name": "Protein Shakes Consumed",
+              "name": "Accessibility Standards",
               "value": "0",
-              "unit": "Shakes",
+              "unit": "Tiêu chuẩn",
               "type": "Number"
             },
             {
-              "name": "Chicken Breasts Devoured",
+              "name": "Usability Tests",
               "value": "0",
-              "unit": "Breasts",
+              "unit": "Thử nghiệm",
               "type": "Number"
             },
             {
-              "name": "Favorite Protein Sources",
+              "name": "Favorite Accessibility Feature",
               "value": "",
-              "unit": "Sources",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Flex Time",
-          "style": {
-            "icon": "🏋️‍♂️",
-            "color": "#33FF57"
-          },
-          "properties": [
-            {
-              "name": "Mirror Selfies Taken",
-              "value": "0",
-              "unit": "Selfies",
-              "type": "Number"
-            },
-            {
-              "name": "Top Flex Pose",
-              "value": "",
-              "unit": "Pose",
-              "type": "String"
-            },
-            {
-              "name": "Gym Self-Confidence",
-              "value": "0",
-              "unit": "Percent",
-              "type": "Number"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Diet Dynamo",
-      "emoji": "🥗",
-      "description": "Master the art of healthy eating, track your calorie intake, and stay hydrated while achieving your fitness goals.",
-      "color": "#FF9633",
-      "metrics": [
-        {
-          "name": "Calorie Intake",
-          "style": {
-            "icon": "🥗",
-            "color": "#FF9633"
-          },
-          "properties": [
-            {
-              "name": "Daily Calorie Limit",
-              "value": "0",
-              "unit": "Calories",
-              "type": "Number"
-            },
-            {
-              "name": "Calories Consumed",
-              "value": "0",
-              "unit": "Calories",
-              "type": "Number"
-            },
-            {
-              "name": "Cheat Meals Count",
-              "value": "0",
-              "unit": "Meals",
-              "type": "Number"
-            }
-          ]
-        },
-        {
-          "name": "Meal Tracking",
-          "style": {
-            "icon": "🥗",
-            "color": "#FF9633"
-          },
-          "properties": [
-            {
-              "name": "Healthy Meals Eaten",
-              "value": "0",
-              "unit": "Meals",
-              "type": "Number"
-            },
-            {
-              "name": "Favorite Diet Recipes",
-              "value": "",
-              "unit": "Recipes",
-              "type": "String"
-            },
-            {
-              "name": "Top Vegetable Choices",
-              "value": "",
-              "unit": "Vegetables",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Hydration Habits",
-          "style": {
-            "icon": "🥗",
-            "color": "#FF9633"
-          },
-          "properties": [
-            {
-              "name": "Daily Water Intake",
-              "value": "0",
-              "unit": "Liters",
-              "type": "Number"
-            },
-            {
-              "name": "Favorite Hydration Sources",
-              "value": "",
-              "unit": "Sources",
-              "type": "String"
-            },
-            {
-              "name": "Water Bottles Carried",
-              "value": "0",
-              "unit": "Bottles",
-              "type": "Number"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Astronomy Enthusiast",
-      "emoji": "🔭",
-      "description": "Explore the night sky, identify constellations, capture stunning celestial photos, and attend star parties to deepen your love for the universe.",
-      "color": "#3380FF",
-      "metrics": [
-        {
-          "name": "Stargazing Sessions",
-          "style": {
-            "icon": "🔭",
-            "color": "#3380FF"
-          },
-          "properties": [
-            {
-              "name": "Nights Spent Stargazing",
-              "value": "0",
-              "unit": "Nights",
-              "type": "Number"
-            },
-            {
-              "name": "Observed Celestial Bodies",
-              "value": "",
-              "unit": "Celestial Bodies",
-              "type": "String"
-            },
-            {
-              "name": "Favorite Stargazing Spot",
-              "value": "",
-              "unit": "Spot",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Astronomy Knowledge",
-          "style": {
-            "icon": "🔭",
-            "color": "#3380FF"
-          },
-          "properties": [
-            {
-              "name": "Constellations Identified",
-              "value": "0",
-              "unit": "Constellations",
-              "type": "Number"
-            },
-            {
-              "name": "Favorite Constellation",
-              "value": "",
-              "unit": "Constellation",
-              "type": "String"
-            },
-            {
-              "name": "Astronomy Books Read",
-              "value": "0",
-              "unit": "Books",
-              "type": "Number"
-            }
-          ]
-        },
-        {
-          "name": "Equipment and Tools",
-          "style": {
-            "icon": "🔭",
-            "color": "#3380FF"
-          },
-          "properties": [
-            {
-              "name": "Telescopes Owned",
-              "value": "0",
-              "unit": "Telescopes",
-              "type": "Number"
-            },
-            {
-              "name": "Eyepieces and Filters Used",
-              "value": "",
-              "unit": "Eyepieces/Filters",
-              "type": "String"
-            },
-            {
-              "name": "Favorite Telescope Brand",
-              "value": "",
-              "unit": "Brand",
+              "unit": "",
               "type": "String"
             }
           ]
@@ -804,532 +809,326 @@
       ]
     }
   ],
-  "Academic": [
+  "Sport/Fitness": [
     {
-      "name": "IELTS Warrior",
-      "emoji": "📘",
-      "description": "Improve your English proficiency with focused practice in listening, reading, writing, and speaking to achieve your dream IELTS score.",
-      "color": "#8D33FF",
+      "name": "Gymmer",
+      "emoji": "💪",
+      "description": "Achieve your fitness goals with a comprehensive workout plan, track your progress, and stay motivated.",
+      "color": "#FF5733",
       "metrics": [
         {
-          "name": "Listening Mastery",
+          "name": "Body Building",
+          "description": "Track your progress in various body building exercises.",
           "style": {
-            "icon": "📘",
-            "color": "#8D33FF"
+            "icon": "💪",
+            "color": "#FF5733"
           },
           "properties": [
             {
-              "name": "Practice Tests Completed",
+              "name": "Bench Press (Personal Record)",
               "value": "0",
-              "unit": "Tests",
+              "unit": "kg",
               "type": "Number"
             },
             {
-              "name": "Listening Score Average",
+              "name": "Squats (Personal Record)",
               "value": "0",
-              "unit": "Band",
+              "unit": "kg",
               "type": "Number"
             },
             {
-              "name": "Favorite Listening Sources",
-              "value": "",
-              "unit": "Sources",
-              "type": "String"
+              "name": "Lat Pulldown (Personal Record)",
+              "value": "0",
+              "unit": "kg",
+              "type": "Number"
+            },
+            {
+              "name": "Shoulder Press (Personal Record)",
+              "value": "0",
+              "unit": "kg",
+              "type": "Number"
+            },
+            {
+              "name": "Biceps Curl (Personal Record)",
+              "value": "0",
+              "unit": "kg",
+              "type": "Number"
             }
           ]
         },
         {
-          "name": "Reading Comprehension",
+          "name": "Calisthenics",
+          "description": "Track your progress in various calisthenics exercises.",
           "style": {
-            "icon": "📘",
-            "color": "#8D33FF"
+            "icon": "🤸",
+            "color": "#33FF57"
           },
           "properties": [
             {
-              "name": "Passages Completed",
+              "name": "Pushups Record",
               "value": "0",
-              "unit": "Passages",
+              "unit": "Reps",
               "type": "Number"
             },
             {
-              "name": "Top Scoring Passage",
-              "value": "",
-              "unit": "Passage",
-              "type": "String"
+              "name": "Pull ups Record",
+              "value": "0",
+              "unit": "Reps",
+              "type": "Number"
             },
             {
-              "name": "Favorite Reading Materials",
-              "value": "",
-              "unit": "Materials",
-              "type": "String"
+              "name": "Situps Record",
+              "value": "0",
+              "unit": "Reps",
+              "type": "Number"
+            },
+            {
+              "name": "Plank Record",
+              "value": "0",
+              "unit": "Minutes",
+              "type": "Number"
+            },
+            {
+              "name": "Burpees Record",
+              "value": "0",
+              "unit": "Reps",
+              "type": "Number"
             }
           ]
         },
         {
-          "name": "Speaking Fluency",
+          "name": "Strength Training",
+          "description": "Track your progress in various strength training exercises.",
           "style": {
-            "icon": "📘",
-            "color": "#8D33FF"
+            "icon": "🏋️",
+            "color": "#33A1FF"
           },
           "properties": [
             {
-              "name": "Practice Speaking Sessions",
+              "name": "Running Record in 1 hour",
+              "value": "0",
+              "unit": "km",
+              "type": "Number"
+            },
+            {
+              "name": "Jump Rope Record in 10 minute",
+              "value": "0",
+              "unit": "Reps",
+              "type": "Number"
+            },
+            {
+              "name": "Cycling",
+              "value": "0",
+              "unit": "km",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Weight Management",
+          "description": "Track your weight and calorie intake.",
+          "style": {
+            "icon": "⚖️",
+            "color": "#FFC300"
+          },
+          "properties": [
+            {
+              "name": "Current Weight",
+              "value": "0",
+              "unit": "kg",
+              "type": "Number"
+            },
+            {
+              "name": "Current Height",
+              "value": "0",
+              "unit": "cm",
+              "type": "Number"
+            },
+            {
+              "name": "Daily Calorie Intake",
+              "value": "0",
+              "unit": "Calories",
+              "type": "Number"
+            },
+            {
+              "name": "Calories Consumed Today",
+              "value": "0",
+              "unit": "Calories",
+              "type": "Number"
+            }
+          ]
+        },
+        {
+          "name": "Flexibility Training",
+          "description": "Track your progress in various flexibility exercises.",
+          "style": {
+            "icon": "🧘",
+            "color": "#FF69B4"
+          },
+          "properties": [
+            {
+              "name": "Yoga Sessions",
               "value": "0",
               "unit": "Sessions",
               "type": "Number"
             },
             {
-              "name": "Topics Mastered",
-              "value": "",
-              "unit": "Topics",
-              "type": "String"
-            },
-            {
-              "name": "Best Speaking Feedback",
-              "value": "",
-              "unit": "Feedback",
-              "type": "String"
+              "name": "Stretching Exercises",
+              "value": "0",
+              "unit": "Exercises",
+              "type": "Number"
             }
           ]
         }
       ]
     },
     {
-      "name": "Top Universities Dreamer",
-      "emoji": "🎓",
-      "description": "Prepare for entrance exams, polish application essays, and track your progress toward getting into your dream university.",
-      "color": "#33FFBD",
+      "name": "Pickleball",
+      "emoji": "🏓",
+      "description": "Bộ môn pickleball tuy mới mẻ nhưng vô cùng thú vị, phù hợp với nhiều người.",
+      "color": "#FF9800",
       "metrics": [
         {
-          "name": "Exam Preparation",
+          "name": "Hẹn em Pickleball",
           "style": {
-            "icon": "🎓",
-            "color": "#33FFBD"
+            "icon": "🏓",
+            "color": "#FF5722"
           },
           "properties": [
             {
-              "name": "Practice Tests Completed",
+              "name": "Số trận đã chơi",
               "value": "0",
-              "unit": "Tests",
+              "unit": "Trận",
               "type": "Number"
             },
             {
-              "name": "Highest Mock Exam Score",
+              "name": "Số trận thắng",
               "value": "0",
-              "unit": "Percent",
+              "unit": "Trận",
               "type": "Number"
             },
             {
-              "name": "Subjects Mastered",
+              "name": "Số bóng đã sử dụng",
+              "value": "0",
+              "unit": "Quả bóng",
+              "type": "Number"
+            },
+            {
+              "name": "Cú đánh yêu thích",
               "value": "",
-              "unit": "Subjects",
+              "unit": "",
               "type": "String"
             }
           ]
         },
         {
-          "name": "University Applications",
+          "name": "Luyện tập kỹ thuật",
           "style": {
-            "icon": "🎓",
-            "color": "#33FFBD"
+            "icon": "🤾‍♂️",
+            "color": "#3F51B5"
           },
           "properties": [
             {
-              "name": "Universities Applied To",
+              "name": "Dink Shots",
               "value": "0",
-              "unit": "Universities",
+              "unit": "Lượt tập",
               "type": "Number"
             },
             {
-              "name": "Application Essays Written",
+              "name": "Drive Shots",
               "value": "0",
-              "unit": "Essays",
+              "unit": "Lượt tập",
               "type": "Number"
             },
             {
-              "name": "Top Choice University",
-              "value": "",
-              "unit": "University",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Extracurricular Activities",
-          "style": {
-            "icon": "🎓",
-            "color": "#33FFBD"
-          },
-          "properties": [
-            {
-              "name": "Clubs or Teams Joined",
-              "value": "",
-              "unit": "Clubs/Teams",
-              "type": "String"
-            },
-            {
-              "name": "Leadership Positions Held",
+              "name": "Volley Shots",
               "value": "0",
-              "unit": "Positions",
+              "unit": "Lượt tập",
               "type": "Number"
             },
             {
-              "name": "Key Achievements",
-              "value": "",
-              "unit": "Achievements",
-              "type": "String"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "Quirky Characters": [
-    {
-      "name": "Tom - The Cutest Cat",
-      "emoji": "😻",
-      "description": "Keep Tom healthy and happy with regular meals, playtime, and grooming sessions, while capturing his cutest moments.",
-      "color": "#FF3366",
-      "metrics": [
-        {
-          "name": "Health and Well-being",
-          "style": {
-            "icon": "😻",
-            "color": "#FF3366"
-          },
-          "properties": [
-            {
-              "name": "Weight",
+              "name": "Lob Shots",
               "value": "0",
-              "unit": "kg",
+              "unit": "Lượt tập",
               "type": "Number"
             },
             {
-              "name": "Meals Per Day",
+              "name": "Drop Shots",
               "value": "0",
-              "unit": "Meals",
+              "unit": "Lượt tập",
               "type": "Number"
             },
             {
-              "name": "Vet Visits",
+              "name": "Third Shot Drops",
               "value": "0",
-              "unit": "Visits",
+              "unit": "Lượt tập",
+              "type": "Number"
+            },
+            {
+              "name": "Erne Shots",
+              "value": "0",
+              "unit": "Lượt tập",
+              "type": "Number"
+            },
+            {
+              "name": "Spin Shots",
+              "value": "0",
+              "unit": "Lượt tập",
               "type": "Number"
             }
           ]
         },
         {
-          "name": "Activity and Playtime",
+          "name": "Vượt mức Pickleball",
           "style": {
-            "icon": "😻",
-            "color": "#FF3366"
+            "icon": "🏆",
+            "color": "#4CAF50"
           },
           "properties": [
             {
-              "name": "Favorite Toys",
+              "name": "Số giải tham gia",
+              "value": "0",
+              "unit": "Giải",
+              "type": "Number"
+            },
+            {
+              "name": "Số huy chương",
+              "value": "0",
+              "unit": "Huy chương",
+              "type": "Number"
+            },
+            {
+              "name": "Thành tích đáng nhớ nhất",
               "value": "",
-              "unit": "Toys",
-              "type": "String"
-            },
-            {
-              "name": "Naps Taken",
-              "value": "0",
-              "unit": "Naps",
-              "type": "Number"
-            },
-            {
-              "name": "Playtime Satisfaction",
-              "value": "0",
-              "unit": "Percent",
-              "type": "Number"
-            }
-          ]
-        },
-        {
-          "name": "Bonding Moments",
-          "style": {
-            "icon": "😻",
-            "color": "#FF3366"
-          },
-          "properties": [
-            {
-              "name": "Cuddles Received",
-              "value": "0",
-              "unit": "Cuddles",
-              "type": "Number"
-            },
-            {
-              "name": "Photos Taken",
-              "value": "0",
-              "unit": "Photos",
-              "type": "Number"
-            },
-            {
-              "name": "Favorite Bonding Activity",
-              "value": "",
-              "unit": "Activity",
-              "type": "String"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Professional Napper",
-      "emoji": "😴",
-      "description": "Perfect the art of napping by tracking daily naps, exploring the best spots, and rating your nap experiences.",
-      "color": "#33FFF5",
-      "metrics": [
-        {
-          "name": "Napping Mastery",
-          "style": {
-            "icon": "😴",
-            "color": "#33FFF5"
-          },
-          "properties": [
-            {
-              "name": "Total Naps Taken",
-              "value": "0",
-              "unit": "Naps",
-              "type": "Number"
-            },
-            {
-              "name": "Best Nap Ever",
-              "value": "0",
-              "unit": "Rating out of 10",
-              "type": "Number"
-            },
-            {
-              "name": "Nap Success Rate",
-              "value": "0",
-              "unit": "Percent",
-              "type": "Number"
-            }
-          ]
-        },
-        {
-          "name": "Nap Locations",
-          "style": {
-            "icon": "😴",
-            "color": "#33FFF5"
-          },
-          "properties": [
-            {
-              "name": "Favorite Nap Spots",
-              "value": "",
-              "unit": "Spots",
-              "type": "String"
-            },
-            {
-              "name": "Most Unusual Nap Spot",
-              "value": "",
-              "unit": "Spot",
-              "type": "String"
-            },
-            {
-              "name": "Coziest Nap Spot",
-              "value": "",
-              "unit": "Spot",
+              "unit": "Thành tích",
               "type": "String"
             }
           ]
         },
         {
-          "name": "Dream Tracking",
+          "name": "Trang bị và dụng cụ",
           "style": {
-            "icon": "😴",
-            "color": "#33FFF5"
+            "icon": "🎒",
+            "color": "#9C27B0"
           },
           "properties": [
             {
-              "name": "Dreams Remembered",
-              "value": "0",
-              "unit": "Dreams",
-              "type": "Number"
-            },
-            {
-              "name": "Weirdest Dream",
+              "name": "Vợt yêu thích",
               "value": "",
-              "unit": "Dream",
+              "unit": "Vợt",
               "type": "String"
             },
             {
-              "name": "Recurring Dream Themes",
+              "name": "Số bóng đã sử dụng",
+              "value": "0",
+              "unit": "Quả bóng",
+              "type": "Number"
+            },
+            {
+              "name": "Sân tập thường xuyên",
               "value": "",
-              "unit": "Themes",
+              "unit": "Địa điểm",
               "type": "String"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Shower Thoughts Philosopher",
-      "emoji": "💭",
-      "description": "Reflect on life’s deepest mysteries and quirky ideas during your shower time, while keeping track of those fleeting thoughts.",
-      "color": "#D433FF",
-      "metrics": [
-        {
-          "name": "Mind-Blowing Thoughts",
-          "style": {
-            "icon": "💭",
-            "color": "#D433FF"
-          },
-          "properties": [
-            {
-              "name": "Shower Epiphanies",
-              "value": "0",
-              "unit": "Epiphanies",
-              "type": "Number"
-            },
-            {
-              "name": "Deepest Thought",
-              "value": "",
-              "unit": "Thought",
-              "type": "String"
-            },
-            {
-              "name": "Weirdest Realization",
-              "value": "",
-              "unit": "Realization",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Creative Ideas",
-          "style": {
-            "icon": "💭",
-            "color": "#D433FF"
-          },
-          "properties": [
-            {
-              "name": "Inventions Thought Of",
-              "value": "0",
-              "unit": "Inventions",
-              "type": "Number"
-            },
-            {
-              "name": "Ideas for World Peace",
-              "value": "",
-              "unit": "Ideas",
-              "type": "String"
-            },
-            {
-              "name": "Random Business Ideas",
-              "value": "",
-              "unit": "Idea",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Forgotten Thoughts",
-          "style": {
-            "icon": "💭",
-            "color": "#D433FF"
-          },
-          "properties": [
-            {
-              "name": "Brilliant Ideas Forgotten",
-              "value": "0",
-              "unit": "Ideas",
-              "type": "Number"
-            },
-            {
-              "name": "Dreams Lost Down the Drain",
-              "value": "0",
-              "unit": "Dreams",
-              "type": "Number"
-            },
-            {
-              "name": "Regrettable Shower Thoughts",
-              "value": "",
-              "unit": "Thought",
-              "type": "String"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Master of Memes",
-      "emoji": "😂",
-      "description": "Create, share, and research the internet’s best memes while keeping track of your viral moments and LOL-worthy creations.",
-      "color": "#33D4FF",
-      "metrics": [
-        {
-          "name": "Meme Creation",
-          "style": {
-            "icon": "😂",
-            "color": "#33D4FF"
-          },
-          "properties": [
-            {
-              "name": "Memes Created",
-              "value": "0",
-              "unit": "Memes",
-              "type": "Number"
-            },
-            {
-              "name": "Most Liked Meme",
-              "value": "",
-              "unit": "Meme",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Meme Spread",
-          "style": {
-            "icon": "😂",
-            "color": "#33D4FF"
-          },
-          "properties": [
-            {
-              "name": "Memes Shared",
-              "value": "0",
-              "unit": "Shares",
-              "type": "Number"
-            },
-            {
-              "name": "Memes Gone Viral",
-              "value": "0",
-              "unit": "Memes",
-              "type": "Number"
-            },
-            {
-              "name": "Top Platform for Shares",
-              "value": "",
-              "unit": "Platform",
-              "type": "String"
-            }
-          ]
-        },
-        {
-          "name": "Meme Reactions",
-          "style": {
-            "icon": "😂",
-            "color": "#33D4FF"
-          },
-          "properties": [
-            {
-              "name": "LOL Count",
-              "value": "0",
-              "unit": "Reactions",
-              "type": "Number"
-            },
-            {
-              "name": "Facepalm Count",
-              "value": "0",
-              "unit": "Reactions",
-              "type": "Number"
-            },
-            {
-              "name": "Cry-laughing Emojis Sent",
-              "value": "0",
-              "unit": "Emojis",
-              "type": "Number"
             }
           ]
         }
