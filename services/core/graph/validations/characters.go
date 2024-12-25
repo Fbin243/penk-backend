@@ -27,10 +27,6 @@ func ValidateCharacterInput(characterInput model.CharacterInput) error {
 		return err
 	}
 
-	if err := validate.Struct(characterInput.Vision); err != nil {
-		return err
-	}
-
 	return nil
 }
 

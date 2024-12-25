@@ -72,7 +72,7 @@ input CharacterInput {
   """
   Vision of the character.
   """
-  vision: VisionInput
+  vision: VisionInput @goTag(key: "validate", value: "omitempty")
 }
 
 """

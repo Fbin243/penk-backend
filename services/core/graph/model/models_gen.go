@@ -32,7 +32,7 @@ type CharacterInput struct {
 	// List of custom metrics for the character.
 	CustomMetrics []CustomMetricInput `json:"customMetrics,omitempty" validate:"dive"`
 	// Vision of the character.
-	Vision *VisionInput `json:"vision,omitempty"`
+	Vision *VisionInput `json:"vision,omitempty" validate:"omitempty"`
 }
 
 // Input for defining a custom metric.
