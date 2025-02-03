@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"tenkhours/pkg/auth"
-	"tenkhours/pkg/db"
-	"tenkhours/pkg/pb"
 	"time"
 
+	"tenkhours/pkg/auth"
+	"tenkhours/pkg/pb"
+
+	rdb "tenkhours/pkg/db/redis"
+
 	"github.com/go-redis/redis/v8"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -22,8 +23,8 @@ type authClient struct {
 	RedisClient *redis.Client
 }
 
-func ComposeRPCClient() (*authClient, *grpc.ClientConn) {
-	port, found := os.LookupEnv("CORE_RPC_PORT")
+func ComposeAuthClient() (*authClient, *grpc.ClientConn) {
+	port, found := os.LookupEnv("CORE_GRPC_PORT")
 	if !found {
 		port = "50051"
 	}
@@ -34,25 +35,25 @@ func ComposeRPCClient() (*authClient, *grpc.ClientConn) {
 		log.Fatalf("did not connect: %v", err)
 	}
 
-	return &authClient{CoreClient: pb.NewCoreClient(conn), RedisClient: db.GetRedisClient()}, conn
+	return &authClient{CoreClient: pb.NewCoreClient(conn), RedisClient: rdb.GetRedisClient()}, conn
 }
 
-func (ac *authClient) IntrospectToken(ctx context.Context, token string) (*db.AuthSession, error) {
+func (ac *authClient) IntrospectToken(ctx context.Context, token string) (*rdb.AuthSession, error) {
 	firebaseProfile, err := auth.GetProfileByIDToken(token)
 	if err != nil {
 		return nil, fmt.Errorf("invalid token: %v", err)
 	}
 
-	var authSession db.AuthSession
+	var authSession rdb.AuthSession
 	// Check if there is any active session in Redis
-	keyFound, err := ac.RedisClient.Exists(context.Background(), db.GetAuthSessionKey(firebaseProfile.UID)).Result()
+	keyFound, err := ac.RedisClient.Exists(context.Background(), rdb.GetAuthSessionKey(firebaseProfile.UID)).Result()
 	if err != nil {
 		return nil, err
 	}
 
 	// Cache hit, return the profile from redis
 	if keyFound == 1 {
-		profileJSON, err := ac.RedisClient.Get(context.Background(), db.GetAuthSessionKey(firebaseProfile.UID)).Result()
+		profileJSON, err := ac.RedisClient.Get(context.Background(), rdb.GetAuthSessionKey(firebaseProfile.UID)).Result()
 		if err != nil {
 			return nil, err
 		}
@@ -79,12 +80,7 @@ func (ac *authClient) IntrospectToken(ctx context.Context, token string) (*db.Au
 		return nil, fmt.Errorf("failed to introspect profile")
 	}
 
-	oid, err := primitive.ObjectIDFromHex(res.ProfileID)
-	if err != nil {
-		return nil, err
-	}
-
-	authSession.ProfileID = oid
+	authSession.ProfileID = res.ProfileID
 
 	// Save profile in redis
 	authSessionJSON, err := json.Marshal(authSession)
@@ -92,7 +88,7 @@ func (ac *authClient) IntrospectToken(ctx context.Context, token string) (*db.Au
 		return nil, err
 	}
 
-	err = ac.RedisClient.Set(context.Background(), db.GetAuthSessionKey(firebaseProfile.UID), authSessionJSON, time.Hour).Err()
+	err = ac.RedisClient.Set(context.Background(), rdb.GetAuthSessionKey(firebaseProfile.UID), authSessionJSON, time.Hour).Err()
 	if err != nil {
 		return nil, err
 	}

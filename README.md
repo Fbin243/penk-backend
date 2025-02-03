@@ -50,8 +50,8 @@ To run a specific service with Air
 # Run core service with air
 make core
 
-# Run analytics service with air
-make analytics
+# Run analytic service with air
+make analytic
 ```
 
 # MongoDB Migration

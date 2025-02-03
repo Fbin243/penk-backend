@@ -40,13 +40,15 @@ func ReadResponseJson(res *http.Response) string {
 	return string(body)
 }
 
-type Assertion func(*http.Response, *http.Request) error
-type QueryParams struct {
-	Url       string
-	Query     string
-	Variables map[string]interface{}
-	Assertion []Assertion
-}
+type (
+	Assertion   func(*http.Response, *http.Request) error
+	QueryParams struct {
+		Url       string
+		Query     string
+		Variables map[string]interface{}
+		Assertion []Assertion
+	}
+)
 
 func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
 	testingT, ok := (*ctx).Value(TestingT).(apitest.TestingT)

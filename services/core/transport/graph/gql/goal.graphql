@@ -1,0 +1,46 @@
+type Goal {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  characterID: ID!
+  name: String!
+  description: String!
+  startDate: Time!
+  endDate: Time!
+  status: GoalFinishStatus!
+  target: [CustomMetric!]
+}
+
+enum GoalFinishStatus {
+  Unfinished
+  Finished
+}
+
+input GoalInput {
+  id: ID
+  name: String!
+  description: String
+  startDate: Time!
+  endDate: Time!
+  target: [GoalCustomMetricInput!]
+}
+
+input GoalCustomMetricInput {
+  id: ID!
+  properties: [GoalMetricPropertyInput!]
+}
+
+input GoalMetricPropertyInput {
+  id: ID!
+  value: String!
+}
+
+input GoalStatusFilter {  
+  finishStatus: GoalFinishStatus 
+  expireStatus: GoalExpireStatus
+}
+
+enum GoalExpireStatus {
+  Expired
+  Unexpired
+}

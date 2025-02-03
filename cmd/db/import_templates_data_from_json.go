@@ -1,11 +1,17 @@
 package db
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
-	"tenkhours/pkg/db"
-	"tenkhours/services/core/repo"
+
+	"tenkhours/pkg/db/base"
+	"tenkhours/services/core/entity"
+
+	mongodb "tenkhours/pkg/db/mongo"
+
+	mongorepo "tenkhours/services/core/repo/mongo"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -48,26 +54,26 @@ func readTemplatesFromJSON() error {
 	jsonParser := json.NewDecoder(jsonFile)
 	jsonParser.Decode(&categoriesMap)
 
-	templatesRepo := repo.NewTemplatesRepo(db.GetDBManager().DB)
-	templateCategoriesRepo := repo.NewTemplateCategoriesRepo(db.GetDBManager().DB)
+	templateRepo := mongorepo.NewTemplateRepo(mongodb.GetDBManager().DB)
+	templateCategoryRepo := mongorepo.NewTemplateCategoryRepo(mongodb.GetDBManager().DB)
 
-	templates := []repo.Template{}
+	templates := []entity.Template{}
 
 	// Loop through the categories and insert them into the database
 	for cateName, cateTemplates := range categoriesMap {
-		category := repo.TemplateCategory{
-			BaseModel:   &db.BaseModel{},
+		category := entity.TemplateCategory{
+			BaseEntity:  &base.BaseEntity{},
 			Name:        cateName,
 			Description: fmt.Sprintf("This category contains templates related to %s", cateName),
 		}
 
 		// Insert the category into the database
-		_, err = templateCategoriesRepo.InsertOne(&category)
+		_, err = templateCategoryRepo.InsertOne(context.Background(), &category)
 		if err != nil {
 			return err
 		}
 
-		// Loop throught the templates and insert them into the slide
+		// Loop through the templates and insert them into the slide
 		for _, template := range cateTemplates {
 			repoTemplate := mapToRepoTemplate(template)
 			repoTemplate.CategoryID = category.ID
@@ -76,7 +82,7 @@ func readTemplatesFromJSON() error {
 	}
 
 	// Insert the templates into the database
-	_, err = templatesRepo.InsertMany(templates)
+	_, err = templateRepo.InsertMany(context.Background(), templates)
 	if err != nil {
 		return err
 	}
@@ -84,34 +90,34 @@ func readTemplatesFromJSON() error {
 	return nil
 }
 
-func mapToRepoTemplate(t Template) repo.Template {
-	template := repo.Template{
-		BaseModel:   &db.BaseModel{},
+func mapToRepoTemplate(t Template) entity.Template {
+	template := entity.Template{
+		BaseEntity:  &base.BaseEntity{},
 		Name:        t.Name,
 		Description: t.Description,
-		CategoryID:  primitive.NewObjectID(),
-		Style: repo.TemplateStyle{
+		CategoryID:  primitive.NewObjectID().Hex(),
+		Style: entity.TemplateStyle{
 			Color: t.Color,
 			Icon:  t.Emoji,
 		},
-		Metrics: []repo.TemplateMetric{},
+		Metrics: []entity.TemplateMetric{},
 	}
 
 	for _, metric := range t.Metrics {
-		properties := []repo.TemplateProperty{}
+		properties := []entity.TemplateProperty{}
 		for _, property := range metric.Properties {
-			properties = append(properties, repo.TemplateProperty{
+			properties = append(properties, entity.TemplateProperty{
 				Name:  property.Name,
 				Value: property.Value,
 				Unit:  property.Unit,
-				Type:  repo.MetricPropertyType(property.Type),
+				Type:  entity.MetricPropertyType(property.Type),
 			})
 		}
 
-		template.Metrics = append(template.Metrics, repo.TemplateMetric{
+		template.Metrics = append(template.Metrics, entity.TemplateMetric{
 			Name:        metric.Name,
 			Description: metric.Description,
-			Style: repo.MetricStyle{
+			Style: entity.MetricStyle{
 				Color: metric.Style.Color,
 				Icon:  metric.Style.Icon,
 			},

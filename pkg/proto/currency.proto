@@ -1,0 +1,41 @@
+syntax = "proto3";  
+
+package pb;
+
+option go_package = "/pb";
+
+service Currency {
+    rpc CreateFish(CreateFishReq) returns (CreateFishResp) {}
+    rpc UpdateFish(UpdateFishReq) returns (UpdateFishResp) {}
+    rpc CatchFish(CatchFishReq) returns (CatchFishResp) {}
+}
+
+message CreateFishReq {
+    string profileID = 1;
+}
+
+message CreateFishResp {
+    bool success = 1;
+}
+
+message UpdateFishReq {
+    string profileID = 1;
+    int32 gold = 2;
+    int32 normal = 3;
+}
+
+message UpdateFishResp {
+    string fishID = 1;
+}
+
+message CatchFishReq {}
+
+message CatchFishResp {
+    FishType fishType = 1;
+    int32 number = 2;
+    enum FishType {
+        None = 0;
+        Normal = 1;
+        Gold = 2;
+    }
+}

@@ -1,0 +1,229 @@
+package business
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"time"
+
+	"tenkhours/pkg/auth"
+	"tenkhours/pkg/errors"
+	"tenkhours/pkg/utils"
+	"tenkhours/services/timetracking/entity"
+
+	mongodb "tenkhours/pkg/db/mongo"
+	rdb "tenkhours/pkg/db/redis"
+)
+
+type TimeTrackingBusiness struct {
+	coreClient     ICoreClient
+	currencyClient ICurrencyClient
+	cache          ICache
+}
+
+func NewTimeTrackingsBusiness(coreClient ICoreClient, currencyClient ICurrencyClient, cache ICache) *TimeTrackingBusiness {
+	return &TimeTrackingBusiness{
+		coreClient:     coreClient,
+		currencyClient: currencyClient,
+		cache:          cache,
+	}
+}
+
+func (biz *TimeTrackingBusiness) GetCurrentTimeTracking(ctx context.Context) (*entity.TimeTracking, error) {
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
+	if !ok {
+		return nil, errors.Unauthorized()
+	}
+
+	return biz.cache.GetCurrentTimeTracking(ctx, authSession.ProfileID)
+}
+
+func (biz *TimeTrackingBusiness) GetTotalCurrentTimeTracking(ctx context.Context, characterID string, timestamp time.Time) (int, error) {
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
+	if !ok {
+		return 0, errors.Unauthorized()
+	}
+
+	// Check permissions
+	authorized, err := biz.coreClient.CheckPermission(ctx, authSession.ProfileID, characterID, nil)
+	if !authorized || err != nil {
+		return 0, errors.PermissionDenied()
+	}
+
+	capturedRecord, err := biz.cache.GetCurrentCapturedRecord(ctx, authSession.ProfileID, characterID)
+	if errors.HasCode(err, errors.ErrCodeNotFound) {
+		return 0, nil
+	}
+	if err != nil {
+		return 0, fmt.Errorf("failed to get current captured record: %v", err)
+	}
+
+	// Get the timetracking from the timestamp to now
+	totalTime := 0
+	for _, timeTracking := range capturedRecord.TimeTrackings {
+		if timestamp.After(timeTracking.StartTime) && timestamp.Before(timeTracking.EndTime) {
+			// Case 1: The timestamp after the startTime and before the endTime
+			totalTime += int(timeTracking.EndTime.Sub(timestamp).Seconds())
+		} else if timestamp.Before(timeTracking.StartTime) {
+			// Case 2: The timestamp before the startTime
+			totalTime += int(timeTracking.Time)
+		}
+	}
+
+	return totalTime, nil
+}
+
+func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, characterID string, metricID *string, startTime time.Time) (*entity.TimeTracking, error) {
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
+	if !ok {
+		return nil, errors.Unauthorized()
+	}
+
+	// Calculate the difference between the server time and the client time
+	serverStartTime := time.Now()
+	duration := serverStartTime.Sub(startTime)
+	seconds := duration.Seconds()
+
+	if seconds > utils.MaxTimeDifference {
+		return nil, errors.NewGQLError(errors.ErrCodeOverMaxDifferenceDuration, "the period time is over the max difference duration")
+	}
+
+	authorized, err := biz.coreClient.CheckPermission(ctx, authSession.ProfileID, characterID, metricID)
+	if !authorized || err != nil {
+		return nil, errors.PermissionDenied()
+	}
+
+	// Check if there is an active time tracking
+	currentTimeTracking, err := biz.cache.GetCurrentTimeTracking(ctx, authSession.ProfileID)
+	if err != nil && !errors.HasCode(err, errors.ErrCodeNotFound) {
+		return nil, err
+	}
+
+	if currentTimeTracking != nil {
+		return nil, errors.NewGQLError(errors.ErrCodeTimeTrackingAlreadyExists, "time tracking already exists")
+	}
+
+	// Create a new time tracking
+	timeTracking := &entity.TimeTracking{
+		ID:              mongodb.GenObjectID(),
+		CharacterID:     characterID,
+		StartTime:       startTime,
+		MinDurationTime: utils.MinDurationTime,
+		MaxDurationTime: utils.MaxDurationTime,
+	}
+
+	if metricID != nil {
+		timeTracking.CustomMetricID = *metricID
+	}
+
+	err = biz.cache.CreateTimeTracking(ctx, authSession.ProfileID, timeTracking)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create time tracking: %v", err)
+	}
+
+	return timeTracking, nil
+}
+
+func (biz *TimeTrackingBusiness) UpdateTimeTracking(ctx context.Context) (*entity.TimeTracking, *entity.Fish, error) {
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
+	if !ok {
+		return nil, nil, errors.Unauthorized()
+	}
+
+	// Get the time tracking from Redis
+	timeTracking, err := biz.cache.GetCurrentTimeTracking(ctx, authSession.ProfileID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get current time tracking: %v", err)
+	}
+
+	err = biz.cache.DeleteCurrentTimeTracking(ctx, authSession.ProfileID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to delete current time tracking: %v", err)
+	}
+
+	// Calculate the duration time
+	endTime := time.Now()
+	duration := int32(endTime.Sub(timeTracking.StartTime).Seconds())
+	// TODO: Testing timtracking flow
+	// duration = 599 // Test for the min duration time
+	// duration = 600 // Test for the min duration time
+	// duration = 601 // Test for the min duration time
+	// duration = 14400 // Test for the max duration time
+	// duration = 14401 // Test for the max duration time
+
+	// Check if the duration time is in the valid range
+	if duration < timeTracking.MinDurationTime {
+		return nil, nil, errors.NewGQLError(errors.ErrCodeUnderMinDuration, "the period time is less than min duration time")
+	}
+
+	if duration > timeTracking.MaxDurationTime {
+		duration = int32(timeTracking.MaxDurationTime)
+	}
+
+	timeTracking.EndTime = timeTracking.StartTime.Add(time.Duration(duration) * time.Second)
+
+	// Upsert the time tracking in captured record
+	err = biz.cache.UpsertTimeTrackingInCapturedRecord(ctx, authSession.ProfileID, timeTracking, duration)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to upsert time tracking in captured record: %v", err)
+	}
+
+	// Update the time in the character by gRPC
+	var metricID *string
+	if timeTracking.CustomMetricID != "" {
+		metricID = &timeTracking.CustomMetricID
+	}
+	success, err := biz.coreClient.UpdateTimeInCharacter(ctx, timeTracking.CharacterID, metricID, duration)
+	if !success || err != nil {
+		return nil, nil, err
+	}
+
+	// Calculate the number of catches
+	fishCatchingInterval := getFishCatchingInterval()
+	numCatches := int(duration) / fishCatchingInterval
+
+	updatedFish := &entity.Fish{
+		ProfileID: authSession.ProfileID,
+		Gold:      0,
+		Normal:    0,
+	}
+
+	for i := 0; i < numCatches; i++ {
+		catchResult, err := biz.currencyClient.CatchFish(ctx)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		switch catchResult.FishType {
+		case "Normal":
+			updatedFish.Normal += catchResult.Number
+		case "Gold":
+			updatedFish.Gold += catchResult.Number
+		}
+	}
+
+	err = biz.currencyClient.UpdateFish(ctx, updatedFish)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to update fish %v", err)
+	}
+
+	return timeTracking, updatedFish, nil
+}
+
+// Helper function to get time interval fish catching
+func getFishCatchingInterval() int {
+	fishCatchingIntervalStr := os.Getenv("FISH_CATCHING_INTERVAL_SECONDS")
+	fishCatchingInterval := 5 // Default value (5 seconds) for testing
+
+	if fishCatchingIntervalStr != "" {
+		interval, err := strconv.Atoi(fishCatchingIntervalStr) // convert string to int
+		if err != nil {
+			log.Printf("Invalid FISH_CATCHING_INTERVAL_SECONDS: %v, using default 5 seconds", err)
+		} else {
+			fishCatchingInterval = interval
+		}
+	}
+	return fishCatchingInterval
+}

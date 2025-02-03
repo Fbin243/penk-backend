@@ -22,6 +22,7 @@ const (
 	Core_IntrospectProfile_FullMethodName     = "/pb.Core/IntrospectProfile"
 	Core_UpdateTimeInCharacter_FullMethodName = "/pb.Core/UpdateTimeInCharacter"
 	Core_CheckPermission_FullMethodName       = "/pb.Core/CheckPermission"
+	Core_BuyItem_FullMethodName               = "/pb.Core/BuyItem"
 )
 
 // CoreClient is the client API for Core service.
@@ -31,6 +32,7 @@ type CoreClient interface {
 	IntrospectProfile(ctx context.Context, in *IntrospectReq, opts ...grpc.CallOption) (*IntrospectResp, error)
 	UpdateTimeInCharacter(ctx context.Context, in *UpdateTimeReq, opts ...grpc.CallOption) (*UpdateTimeResp, error)
 	CheckPermission(ctx context.Context, in *CheckPermissionReq, opts ...grpc.CallOption) (*CheckPermissionResp, error)
+	BuyItem(ctx context.Context, in *BuyItemReq, opts ...grpc.CallOption) (*BuyItemRes, error)
 }
 
 type coreClient struct {
@@ -71,6 +73,16 @@ func (c *coreClient) CheckPermission(ctx context.Context, in *CheckPermissionReq
 	return out, nil
 }
 
+func (c *coreClient) BuyItem(ctx context.Context, in *BuyItemReq, opts ...grpc.CallOption) (*BuyItemRes, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BuyItemRes)
+	err := c.cc.Invoke(ctx, Core_BuyItem_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoreServer is the server API for Core service.
 // All implementations must embed UnimplementedCoreServer
 // for forward compatibility.
@@ -78,6 +90,7 @@ type CoreServer interface {
 	IntrospectProfile(context.Context, *IntrospectReq) (*IntrospectResp, error)
 	UpdateTimeInCharacter(context.Context, *UpdateTimeReq) (*UpdateTimeResp, error)
 	CheckPermission(context.Context, *CheckPermissionReq) (*CheckPermissionResp, error)
+	BuyItem(context.Context, *BuyItemReq) (*BuyItemRes, error)
 	mustEmbedUnimplementedCoreServer()
 }
 
@@ -96,6 +109,9 @@ func (UnimplementedCoreServer) UpdateTimeInCharacter(context.Context, *UpdateTim
 }
 func (UnimplementedCoreServer) CheckPermission(context.Context, *CheckPermissionReq) (*CheckPermissionResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckPermission not implemented")
+}
+func (UnimplementedCoreServer) BuyItem(context.Context, *BuyItemReq) (*BuyItemRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BuyItem not implemented")
 }
 func (UnimplementedCoreServer) mustEmbedUnimplementedCoreServer() {}
 func (UnimplementedCoreServer) testEmbeddedByValue()              {}
@@ -172,6 +188,24 @@ func _Core_CheckPermission_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Core_BuyItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BuyItemReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).BuyItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_BuyItem_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).BuyItem(ctx, req.(*BuyItemReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Core_ServiceDesc is the grpc.ServiceDesc for Core service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +224,10 @@ var Core_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckPermission",
 			Handler:    _Core_CheckPermission_Handler,
+		},
+		{
+			MethodName: "BuyItem",
+			Handler:    _Core_BuyItem_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,0 +1,161 @@
+type Character {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  profileID: ID!
+  name: String!
+  gender: Boolean!
+  tags: [String!]!
+  totalFocusedTime: Int!
+  customMetrics: [CustomMetric!]!
+  limitedMetricNumber: Int!
+  vision: Vision
+}
+
+type Vision {
+  name: String!
+  description: String
+}
+
+type CustomMetric {
+  id: ID!
+  name: String!
+  description: String!
+  time: Int!
+  style: MetricStyle!
+  properties: [MetricProperty!]!
+  limitedPropertyNumber: Int!
+}
+
+type MetricStyle {
+  color: String!
+  icon: String!
+}
+
+type MetricProperty {
+  id: ID!
+  name: String!
+  type: MetricPropertyType!
+  value: String!
+  unit: String!
+}
+
+"""
+Input for creating or updating a character.
+"""
+input CharacterInput {
+  """
+  ID of the character. If not provided, a new character will be created.
+  """
+  id: ID
+
+  """
+  The name of the character.
+  """
+  name: String!
+
+  """
+  Male is true, Female is false.
+  """
+  gender: Boolean!
+
+  """
+  List of string tags that describe the character.
+  """
+  tags: [String!]
+
+  """
+  List of custom metrics for the character.
+  """
+  customMetrics: [CustomMetricInput!]
+  
+  """
+  Vision of the character.
+  """
+  vision: VisionInput
+}
+
+"""
+Input for defining a custom metric.
+"""
+input CustomMetricInput {
+  """
+  ID of the custom metric. If not provided, a new property will be created.
+  """
+  id: ID
+
+  """
+  The name of the custom metric.
+  """
+  name: String!
+
+  """
+  Description of the custom metric.
+  """
+  description: String
+
+  """
+  Visual style of the metric displayed on screen.
+  """
+  style: MetricStyleInput!
+
+  """
+  List of properties that describe the metric.
+  """
+  properties: [MetricPropertyInput!]
+}
+
+"""
+Input for specifying the visual style of a metric.
+"""
+input MetricStyleInput {
+  """
+  Color of the metric, in Hex format.
+  """
+  color: String!
+
+  """
+  URL or file path of the icon for the metric.
+  """
+  icon: String!
+}
+
+"""
+Input for defining a property of a custom metric.
+"""
+input MetricPropertyInput {
+  """
+  ID of the property. If not provided, a new property will be created.
+  """
+  id: ID
+
+  """
+  Name of the property.
+  """
+  name: String!
+
+  """
+  Data type of the property (String or Number).
+  """
+  type: MetricPropertyType!
+
+  """
+  Specific value of the property based on its data type.
+  """
+  value: String!
+
+  """
+  Unit of the property value (e.g., seconds, meters, etc.).
+  """
+  unit: String!
+}
+
+enum MetricPropertyType {
+  String
+  Number
+}
+
+input VisionInput {
+  name: String!
+  description: String
+}

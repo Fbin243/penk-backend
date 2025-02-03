@@ -1,7 +1,6 @@
 SHELL := /bin/bash  # Use bash shell on Unix
 TENK_ENV ?= development
 GQLGEN_CMD = github.com/99designs/gqlgen
-PORTS = 8080 8082 8083 8084 8085
 
 core:
 	@echo "Starting core service..."
@@ -11,28 +10,28 @@ else
 	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/core.air.toml
 endif
 
-analytics:
-	@echo "Starting analytics service..."
+analytic:
+	@echo "Starting analytic service..."
 ifeq ($(OS),Windows_NT)
-	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/analytics.air.toml
+	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/analytic.air.toml
 else
-	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/analytics.air.toml
+	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/analytic.air.toml
 endif
 
-timetrackings:
-	@echo "Starting timetrackings service..."
+timetracking:
+	@echo "Starting timetracking service..."
 ifeq ($(OS),Windows_NT)
-	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/timetrackings.air.toml
+	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/timetracking.air.toml
 else
-	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/timetrackings.air.toml
+	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/timetracking.air.toml
 endif
 
-notifications:
-	@echo "Starting notifications service..."
+notification:
+	@echo "Starting notification service..."
 ifeq ($(OS),Windows_NT)
-	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/notifications.air.toml
+	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/notification.air.toml
 else
-	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/notifications.air.toml
+	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/notification.air.toml
 endif
 
 currency:
@@ -45,9 +44,7 @@ endif
 
 gateway:
 	@echo "Checking if all services are ready..."
-	@for port in $(PORTS); do \
-		while ! curl --silent --fail http://localhost:$$port/health; do sleep 1; done; \
-	done
+
 	@echo "All services are ready, starting gateway..."
 	cd services/gateway && npm run start
 
@@ -67,7 +64,7 @@ gqlgen:
 	@echo "Generating gqlgen code for services: $(SERVICE)"
 	@for service in $(SERVICE); do \
 		echo "Running gqlgen for service: $$service"; \
-		go run -C ./services/$$service $(GQLGEN_CMD); \
+		go run -C ./services/$$service/transport $(GQLGEN_CMD); \
 	done
 
 # Get new JWT token
@@ -83,10 +80,37 @@ templates:
 # Protocol Buffers Compiler
 protoc:
 	@echo "Generating protobuf code..."
-	find ./pkg/proto -name "*.proto" -exec \
+	@find ./pkg/proto -name "*.proto" -exec \
 	protoc --proto_path=./pkg/proto \
 	--go_out=./pkg/proto/pb --go_opt=paths=source_relative \
 	--go-grpc_out=./pkg/proto/pb --go-grpc_opt=paths=source_relative \
 	{} \;
 
-.PHONY: core analytics timetrackings notifications gateway dev tidy gqlgen token templates
+lint:
+	@echo "Running linters..."
+	@for module in $(shell find . -name 'go.mod' -exec dirname {} \;); do \
+		echo "Running linters in $$module"; \
+		(cd $$module && golangci-lint run); \
+	done
+
+lint-fix:
+	@echo "Running linters with fix..."
+	@for module in $(shell find . -name 'go.mod' -exec dirname {} \;); do \
+		echo "Running linters in $$module"; \
+		(cd $$module && golangci-lint run --fix); \
+	done
+
+unit-test:
+	@echo "Running unit tests..."
+	@for module in $(shell find . -name 'go.mod' -exec dirname {} \; | grep -v './test'); do \
+		echo "Running unit tests in $$module"; \
+		(cd $$module && go test ./...) && \
+		echo "SUCCESS: Tests passed in $$module" || \
+		{ echo "FAIL: Tests failed in $$module"; exit 1; }; \
+	done
+
+api-test:
+	@echo "Running API tests..."
+	@go run cmd/main.go api-test -f profile,character,timetracking
+
+.PHONY: core analytic timetracking notification

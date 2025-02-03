@@ -33,7 +33,6 @@ func TestUserFlow(t *testing.T) {
 				Query:     core.DeleteProfileQuery,
 				Assertion: []common.Assertion{jsonpath.Chain().NotPresent("$.errors").End()},
 			})
-
 		if err != nil {
 			log.Fatalf("Failed to clean up the profile and related data %v\n", err)
 		}
@@ -44,22 +43,20 @@ func TestUserFlow(t *testing.T) {
 	// Get the flows to run the test
 	flowKeyStr := os.Getenv("FLOWS")
 	if flowKeyStr == "" {
-		flowKeyStr = "profiles"
+		flowKeyStr = "profile"
 	}
 
 	flowsMap := map[common.FlowKey][]pineline.Stage{
-		common.ProfilesFlowKey:      flows.ProfilesFlow,
-		common.CharactersFlowKey:    flows.CharactersFlow,
-		common.TimeTrackingsFlowKey: flows.TimeTrackingsFlow,
-		common.SnapshotsFlowKey:     flows.SnapshotsFlow,
+		common.ProfileFlowKey:      flows.ProfileFlow,
+		common.CharacterFlowKey:    flows.CharacterFlow,
+		common.TimeTrackingFlowKey: flows.TimeTrackingFlow,
+		common.SnapshotFlowKey:     flows.SnapshotFlow,
 	}
 
 	flowKeys := strings.Split(flowKeyStr, ",")
 	log.Println("--> FLOWS: ", flowKeys)
 	for _, flowKey := range flowKeys {
-		p := pineline.Pineline(flowsMap[common.FlowKey(flowKey)]...)
-		err := p(&ctx)
-
+		err := pineline.Pineline(flowsMap[common.FlowKey(flowKey)]...)(&ctx)
 		if err != nil {
 			common.LogResponse()
 		}

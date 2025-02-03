@@ -1,0 +1,39 @@
+scalar Time
+
+type TimeTracking {
+  id: ID!
+  characterID: ID!
+  customMetricID: ID
+  startTime: Time!
+  endTime: Time
+}
+
+type Query {
+  currentTimeTracking: TimeTracking
+  totalCurrentTimeTracking(
+    characterID: ID!
+    """
+    The timestamp to calculate the total time tracked from it to now.
+    """
+    timestamp: Time!
+  ): Int!
+}
+
+type Mutation {
+  createTimeTracking(
+    characterID: ID!
+    customMetricID: ID
+    """
+    Start time of the tracking session in RFC3339Nano format.
+    """
+    startTime: Time!
+  ): TimeTracking!
+
+  updateTimeTracking: TimeTrackingWithFish!
+}
+
+type TimeTrackingWithFish {
+  timeTracking: TimeTracking!
+  normal: Int!
+  gold: Int!
+}

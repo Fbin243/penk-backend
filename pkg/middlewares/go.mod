@@ -5,7 +5,6 @@ go 1.22.3
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-redis/redis/v8 v8.11.5
-	go.mongodb.org/mongo-driver v1.17.1
 	google.golang.org/grpc v1.69.2
 )
 

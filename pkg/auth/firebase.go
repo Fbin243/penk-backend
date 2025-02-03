@@ -53,8 +53,8 @@ func GetProfileByIDToken(idToken string) (*FirebaseProfile, error) {
 		authProfile.Email = token.Claims["email"].(string)
 	}
 
-	if token.Claims["name"] != nil {
-		authProfile.Name = token.Claims["name"].(string)
+	if token.Claims["name"] == nil || token.Claims["name"].(string) == "" {
+		authProfile.Name = "Anonymous"
 	}
 
 	if token.Claims["picture"] != nil {

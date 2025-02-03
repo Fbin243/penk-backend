@@ -9,7 +9,7 @@ import (
 	"tenkhours/pkg/middlewares"
 	"tenkhours/pkg/pb"
 	"tenkhours/services/core/composer"
-	"tenkhours/services/core/graph"
+	"tenkhours/services/core/transport/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -41,7 +41,7 @@ func main() {
 	})
 
 	// Check authentication
-	authClient, conn := middlewares.ComposeRPCClient()
+	authClient, conn := middlewares.ComposeAuthClient()
 	defer conn.Close()
 	app.Use(middlewares.RequireAuth(authClient))
 
@@ -50,10 +50,12 @@ func main() {
 		Resolvers: composer.ComposeGraphQLResolver(),
 	}))
 	srv.SetErrorPresenter(errors.DefaultPresenter)
-
 	app.POST("/graphql", func(c *gin.Context) {
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
+
+	defer composer.GetComposer().CurrencyConn.Close()
+	defer composer.GetComposer().AnalyticConn.Close()
 
 	// Start RPC server
 	go startRPCServer()
@@ -71,7 +73,7 @@ func startRPCServer() {
 	s := grpc.NewServer()
 	pb.RegisterCoreServer(s, composer.ComposeRPCHandler())
 
-	port, found := os.LookupEnv("CORE_RPC_PORT")
+	port, found := os.LookupEnv("CORE_GRPC_PORT")
 	if !found {
 		port = "50051"
 	}

@@ -1,0 +1,10 @@
+type Mutation {
+  buyMetrics(fishType: FishType!, characterID: ID!): Boolean!
+  buySnapshots(fishType: FishType!): Boolean!
+  buyCharacters(fishType: FishType!): Boolean!
+}
+
+enum FishType {
+  Normal
+  Gold
+}

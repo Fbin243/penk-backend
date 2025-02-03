@@ -2,17 +2,20 @@ package main
 
 import (
 	"log"
+	"net"
 	"os"
 
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
+	"tenkhours/pkg/pb"
 	"tenkhours/services/currency/composer"
-	"tenkhours/services/currency/graph"
+	"tenkhours/services/currency/transport/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -38,7 +41,7 @@ func main() {
 	})
 
 	// Check authentication
-	authClient, conn := middlewares.ComposeRPCClient()
+	authClient, conn := middlewares.ComposeAuthClient()
 	defer conn.Close()
 	app.Use(middlewares.RequireAuth(authClient))
 
@@ -51,10 +54,35 @@ func main() {
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 
+	defer composer.GetComposer().CoreClientConn.Close()
+
+	// Start RPC server
+	go startRPCServer()
+
 	port, found := os.LookupEnv("CURRENCY_PORT")
 	if !found {
 		port = "8085"
 	}
 
 	app.Run(":" + port)
+}
+
+func startRPCServer() {
+	// Create the server for gRPC API
+	s := grpc.NewServer()
+	pb.RegisterCurrencyServer(s, composer.ComposeRPCHandler())
+
+	port, found := os.LookupEnv("CURRENCY_GRPC_PORT")
+	if !found {
+		port = "50055"
+	}
+
+	lis, err := net.Listen("tcp", ":"+port)
+	if err != nil {
+		log.Fatalf("Failed to listen: %v", err)
+	}
+
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
 }

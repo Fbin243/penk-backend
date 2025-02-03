@@ -1,0 +1,29 @@
+type Template {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  name: String!
+  description: String!
+  category: TemplateCategory
+  metrics: [TemplateMetric!]!
+}
+
+type TemplateMetric {
+  name: String!
+  description: String!
+  style: MetricStyle!
+  properties: [TemplateProperty!]!
+}
+
+type TemplateProperty {
+  name: String!
+  type: MetricPropertyType!
+  value: String!
+  unit: String!
+}
+
+type TemplateCategory {
+  id: ID!
+  name: String!
+  description: String!
+}

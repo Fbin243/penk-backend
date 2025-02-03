@@ -1,0 +1,15 @@
+type Query {
+  characters: [Character!]!
+  profile: Profile!
+  appSettings: AppSettings!
+  goals(characterID: ID!, status: GoalStatusFilter): [Goal!]!
+  templates: [Template!]!
+}
+
+type Mutation {
+  updateProfile(input: ProfileInput!): Profile!
+  deleteProfile: Profile!
+  upsertCharacter(input: CharacterInput!): Character!
+  deleteCharacter(id: ID!): Character!
+  upsertGoal(characterID: ID!, input: GoalInput!): Goal!
+}

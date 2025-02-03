@@ -1,0 +1,37 @@
+# extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@external", "@requires"])
+
+scalar Time
+scalar JSON
+
+type CapturedRecord {
+  id: ID!
+  timestamp: Time!
+  totalFocusedTime: Int!
+  customMetrics: [CapturedRecordCustomMetric!]
+  timeTrackings: [CapturedRecordTimeTracking!]
+  metadata: CapturedRecordMetadata!
+}
+
+type CapturedRecordCustomMetric {
+  id: ID!
+  time: Int!
+}
+
+type CapturedRecordTimeTracking {
+  customMetricID: ID!
+  time: Int!
+  startTime: Time!
+  endTime: Time!
+}
+
+type CapturedRecordMetadata {
+  characterID: ID!
+  profileID: ID!
+}
+
+enum AnalyticSection {
+  Overall
+  Distribution
+  Timeline
+  Frequency
+}
