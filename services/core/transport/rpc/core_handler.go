@@ -6,7 +6,6 @@ import (
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/pb"
 	"tenkhours/services/core/business"
-	"tenkhours/services/core/entity"
 )
 
 type CoreHandler struct {
@@ -20,19 +19,6 @@ func NewCoreHandler(profilesBusiness business.IProfileBusiness, charactersBusine
 		profilesBusiness:   profilesBusiness,
 		charactersBusiness: charactersBusiness,
 	}
-}
-
-func (hdl *CoreHandler) UpdateTimeInCharacter(ctx context.Context, req *pb.UpdateTimeReq) (*pb.UpdateTimeResp, error) {
-	resp := &pb.UpdateTimeResp{Success: false}
-
-	err := hdl.charactersBusiness.UpdateTimeInCharacter(ctx, req.CharacterID, req.MetricID, req.Time)
-	if err != nil {
-		return resp, err
-	}
-
-	resp.Success = true
-
-	return resp, nil
 }
 
 func (hdl *CoreHandler) IntrospectProfile(ctx context.Context, req *pb.IntrospectReq) (*pb.IntrospectResp, error) {
@@ -65,19 +51,6 @@ func (hdl *CoreHandler) CheckPermission(ctx context.Context, req *pb.CheckPermis
 	}
 
 	resp.Authorized = true
-
-	return resp, nil
-}
-
-func (hdl *CoreHandler) BuyItem(ctx context.Context, req *pb.BuyItemReq) (*pb.BuyItemRes, error) {
-	resp := &pb.BuyItemRes{Success: false}
-
-	err := hdl.profilesBusiness.BuyItem(ctx, req.ProfileID, req.CharacterID, req.MetricID, entity.ItemType(req.ItemType), req.Amount)
-	if err != nil {
-		return resp, err
-	}
-
-	resp.Success = true
 
 	return resp, nil
 }

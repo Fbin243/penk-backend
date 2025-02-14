@@ -10,25 +10,21 @@ mutation UpsertCharacter($input: CharacterInput!) {
         name
         gender
         tags
-        totalFocusedTime
-        limitedMetricNumber
-        customMetrics {
+        categories {
             id
             name
             description
-            time
-            limitedPropertyNumber
             style {
                 color
                 icon
             }
-            properties {
-                id
-                name
-                type
-                value
-                unit
-            }
+        }
+        metrics {
+            id
+            categoryID
+            name
+            value
+            unit
         }
     }
 }`
@@ -40,10 +36,8 @@ mutation DeleteCharacter($id: ID!) {
 		id
 		createdAt
 		updatedAt
-		limitedMetricNumber
 		name
 		tags
-		totalFocusedTime
 		profileID
 	}
 }`

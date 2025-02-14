@@ -107,7 +107,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "CapturedRecord.customMetrics":
+	case "CapturedRecord.categories":
 		if e.complexity.CapturedRecord.CustomMetrics == nil {
 			break
 		}
@@ -3207,7 +3207,7 @@ func (ec *executionContext) _CapturedRecord(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "customMetrics":
+		case "categories":
 			out.Values[i] = ec._CapturedRecord_customMetrics(ctx, field, obj)
 		case "timeTrackings":
 			out.Values[i] = ec._CapturedRecord_timeTrackings(ctx, field, obj)

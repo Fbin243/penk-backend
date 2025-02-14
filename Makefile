@@ -52,6 +52,10 @@ dev:
 	mkdir -p tmp
 	$(MAKE) -j $(SERVICE)
 
+test:
+	mkdir -p tmp
+	$(MAKE) TENK_ENV=test -j $(SERVICE)
+
 # Tidy go modules in workspace
 tidy:
 	@for module in $(shell find . -name 'go.mod' -exec dirname {} \;); do \
@@ -113,4 +117,4 @@ api-test:
 	@echo "Running API tests..."
 	@go run cmd/main.go api-test -f profile,character,timetracking
 
-.PHONY: core analytic timetracking notification
+.PHONY: core analytic timetracking notification test

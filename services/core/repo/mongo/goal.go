@@ -55,7 +55,7 @@ func (r *GoalRepo) GetGoalsByCharacterID(ctx context.Context, characterID string
 	return goals, err
 }
 
-func (r *GoalRepo) UpdateOneMetricInGoals(ctx context.Context, metric entity.CustomMetric, goalIDs []string) (*mongo.UpdateResult, error) {
+func (r *GoalRepo) UpdateOneMetricInGoals(ctx context.Context, metric entity.Category, goalIDs []string) (*mongo.UpdateResult, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -75,7 +75,7 @@ func (r *GoalRepo) RemoveOnePropertyFromGoals(ctx context.Context, metricID, pro
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	filter := bson.M{"_id": bson.M{"$in": goalIDs}, "target": bson.M{"$elemMatch": bson.M{"_id": metricID}}}
-	update := bson.M{"$pull": bson.M{"target.$.properties": bson.M{"_id": propertyID}}}
+	update := bson.M{"$pull": bson.M{"target.$.metrics": bson.M{"_id": propertyID}}}
 
 	return r.UpdateMany(ctx, filter, update)
 }

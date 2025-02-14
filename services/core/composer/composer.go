@@ -35,7 +35,7 @@ func GetComposer() *Composer {
 	characterRepo := mongorepo.NewCharacterRepo(mongodb)
 	goalRepo := mongorepo.NewGoalRepo(mongodb)
 	templateRepo := mongorepo.NewTemplateRepo(mongodb)
-	templateCategoryRepo := mongorepo.NewTemplateCategoryRepo(mongodb)
+	templateTopicRepo := mongorepo.NewTemplateTopicRepo(mongodb)
 	redisRepo := redisrepo.NewRedisRepo(redisClient)
 
 	// RPC Clients
@@ -45,15 +45,15 @@ func GetComposer() *Composer {
 	// Business
 	profileBiz := business.NewProfileBusiness(profileRepo, characterRepo, currencyClient, analyticClient, redisRepo)
 	characterBiz := business.NewCharacterBusiness(characterRepo, profileRepo, goalRepo)
-	goalBiz := business.NewGoalBusiness(goalRepo, characterRepo)
-	templateBiz := business.NewTemplateBusiness(templateRepo, templateCategoryRepo)
+	// goalBiz := business.NewGoalBusiness(goalRepo, characterRepo)
+	templateBiz := business.NewTemplateBusiness(templateRepo, templateTopicRepo)
 
 	return &Composer{
 		ProfileBiz:    profileBiz,
 		CharacaterBiz: characterBiz,
-		GoalBiz:       goalBiz,
-		TemplateBiz:   templateBiz,
-		CurrencyConn:  currencyConn,
-		AnalyticConn:  analyticConn,
+		// GoalBiz:       goalBiz,
+		TemplateBiz:  templateBiz,
+		CurrencyConn: currencyConn,
+		AnalyticConn: analyticConn,
 	}
 }

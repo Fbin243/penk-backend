@@ -30,7 +30,7 @@ func ValidateCharacterInput(characterInput entity.CharacterInput) error {
 	return nil
 }
 
-func ValidateCustomMetricInput(customMetricInput entity.CustomMetricInput) error {
+func ValidateCategoryInput(customMetricInput entity.CategoryInput) error {
 	if err := GetValidator().Struct(customMetricInput); err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func ValidateCustomMetricInput(customMetricInput entity.CustomMetricInput) error
 	return nil
 }
 
-func ValidateMetricPropertyInput(metricPropertyInput entity.MetricPropertyInput) error {
+func ValidateMetricInput(metricPropertyInput entity.MetricInput) error {
 	if err := GetValidator().Struct(metricPropertyInput); err != nil {
 		return err
 	}

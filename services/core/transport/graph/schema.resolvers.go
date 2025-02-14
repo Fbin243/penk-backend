@@ -65,10 +65,11 @@ func (r *queryResolver) Profile(ctx context.Context) (*entity.Profile, error) {
 // AppSettings is the resolver for the appSettings field.
 func (r *queryResolver) AppSettings(ctx context.Context) (*model.AppSettings, error) {
 	return &model.AppSettings{
-		MinDurationTime:       utils.MinDurationTime,
-		MaxDurationTime:       utils.MaxDurationTime,
-		LimitedMetricNumber:   utils.LimitedMetricNumber,
-		LimitedPropertyNumber: utils.LimitedPropertyNumber,
+		MinDurationTime:        utils.MinDurationTime,
+		MaxDurationTime:        utils.MaxDurationTime,
+		LimitedCharacterNumber: utils.LimitedCharacterNumber,
+		LimitedCategoryNumber:  utils.LimitedCategoryNumber,
+		LimitedMetricNumber:    utils.LimitedMetricNumber,
 	}, nil
 }
 

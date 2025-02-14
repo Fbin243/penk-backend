@@ -17,7 +17,6 @@ type ICache interface {
 }
 
 type ICoreClient interface {
-	UpdateTimeInCharacter(ctx context.Context, characterID string, metricID *string, time int32) (bool, error)
 	CheckPermission(ctx context.Context, profileID, characterID string, metricID *string) (bool, error)
 }
 

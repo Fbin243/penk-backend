@@ -6,8 +6,8 @@ enum ErrorCode {
     UNAUTHORIZED
     # Core errors
     LIMIT_CHARACTER
+    LIMIT_CATEGORY
     LIMIT_METRIC
-    LIMIT_PROPERTY
     GOAL_ALREADY_FINISHED
     GOAL_ALREADY_EXPIRED
     # Time tracking errors

@@ -17,10 +17,10 @@ type TemplateBusiness struct {
 	TemplateCategoryRepo ITemplateCategoryRepo
 }
 
-func NewTemplateBusiness(templateRepo ITemplateRepo, templateCategoryRepo ITemplateCategoryRepo) *TemplateBusiness {
+func NewTemplateBusiness(templateRepo ITemplateRepo, templateTopicRepo ITemplateCategoryRepo) *TemplateBusiness {
 	return &TemplateBusiness{
 		TemplateRepo:         templateRepo,
-		TemplateCategoryRepo: templateCategoryRepo,
+		TemplateCategoryRepo: templateTopicRepo,
 	}
 }
 
@@ -35,7 +35,7 @@ func (biz *TemplateBusiness) GetTemplates(ctx context.Context) ([]entity.Templat
 }
 
 // Get template category by ID
-func (biz *TemplateBusiness) GetTemplateCategory(ctx context.Context, id string) (*entity.TemplateCategory, error) {
+func (biz *TemplateBusiness) GetTemplateCategory(ctx context.Context, id string) (*entity.TemplateTopic, error) {
 	_, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()

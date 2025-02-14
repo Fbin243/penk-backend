@@ -7,7 +7,7 @@ type CapturedRecord {
   id: ID!
   timestamp: Time!
   totalFocusedTime: Int!
-  customMetrics: [CapturedRecordCustomMetric!]
+  categories: [CapturedRecordCustomMetric!]
   timeTrackings: [CapturedRecordTimeTracking!]
   metadata: CapturedRecordMetadata!
 }

@@ -1014,7 +1014,7 @@ func (ec *executionContext) _TimeTracking_customMetricID(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CustomMetricID, nil
+		return obj.CategoryID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)

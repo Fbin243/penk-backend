@@ -6,9 +6,8 @@ type Character {
   name: String!
   gender: Boolean!
   tags: [String!]!
-  totalFocusedTime: Int!
-  customMetrics: [CustomMetric!]!
-  limitedMetricNumber: Int!
+  categories: [Category!]!
+  metrics: [Metric!]!
   vision: Vision
 }
 
@@ -17,26 +16,23 @@ type Vision {
   description: String
 }
 
-type CustomMetric {
+type Category {
   id: ID!
   name: String!
   description: String!
-  time: Int!
-  style: MetricStyle!
-  properties: [MetricProperty!]!
-  limitedPropertyNumber: Int!
+  style: CategoryStyle!
 }
 
-type MetricStyle {
+type CategoryStyle {
   color: String!
   icon: String!
 }
 
-type MetricProperty {
+type Metric {
   id: ID!
+  categoryID: ID
   name: String!
-  type: MetricPropertyType!
-  value: String!
+  value: Float!
   unit: String!
 }
 
@@ -65,9 +61,14 @@ input CharacterInput {
   tags: [String!]
 
   """
-  List of custom metrics for the character.
+  List of categories for the character.
   """
-  customMetrics: [CustomMetricInput!]
+  categories: [CategoryInput!]
+
+  """
+  List of metrics for the character.
+  """
+  metrics: [MetricInput!]
   
   """
   Vision of the character.
@@ -76,83 +77,73 @@ input CharacterInput {
 }
 
 """
-Input for defining a custom metric.
+Input for defining a category.
 """
-input CustomMetricInput {
+input CategoryInput {
   """
-  ID of the custom metric. If not provided, a new property will be created.
+  ID of the category. If not provided, a new category will be created.
   """
   id: ID
 
   """
-  The name of the custom metric.
+  The name of the category.
   """
   name: String!
 
   """
-  Description of the custom metric.
+  Description of the category.
   """
   description: String
 
   """
   Visual style of the metric displayed on screen.
   """
-  style: MetricStyleInput!
-
-  """
-  List of properties that describe the metric.
-  """
-  properties: [MetricPropertyInput!]
+  style: CategoryStyleInput!
 }
 
 """
 Input for specifying the visual style of a metric.
 """
-input MetricStyleInput {
+input CategoryStyleInput {
   """
-  Color of the metric, in Hex format.
+  Color of the category, in Hex format.
   """
   color: String!
 
   """
-  URL or file path of the icon for the metric.
+  URL or file path of the icon for the category.
   """
   icon: String!
 }
 
 """
-Input for defining a property of a custom metric.
+Input for defining a metric of a category.
 """
-input MetricPropertyInput {
+input MetricInput {
   """
-  ID of the property. If not provided, a new property will be created.
+  ID of the metric. If not provided, a new metric will be created.
   """
   id: ID
 
   """
-  Name of the property.
+  ID of category including the metric
+  """
+  categoryID: ID
+
+  """
+  Name of the metric.
   """
   name: String!
 
   """
-  Data type of the property (String or Number).
+  Metric value in float
   """
-  type: MetricPropertyType!
+  value: Float!
 
   """
-  Specific value of the property based on its data type.
-  """
-  value: String!
-
-  """
-  Unit of the property value (e.g., seconds, meters, etc.).
+  Unit of the metric value (e.g., seconds, meters, etc.).
   """
   unit: String!
-}
-
-enum MetricPropertyType {
-  String
-  Number
 }
 
 input VisionInput {

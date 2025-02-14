@@ -12,22 +12,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var metric = entity.CustomMetric{
+var category = entity.Category{
 	ID:          primitive.NewObjectID().Hex(),
-	Name:        "Metric name",
-	Description: "Metric desc",
-	Style: entity.MetricStyle{
+	Name:        "Example name",
+	Description: "Example desc",
+	Style: entity.CategoryStyle{
 		Color: "red",
 		Icon:  "icon.png",
-	},
-	Properties: []entity.MetricProperty{
-		{
-			ID:    primitive.NewObjectID().Hex(),
-			Name:  "Property name",
-			Type:  "int",
-			Value: "10",
-			Unit:  "units",
-		},
 	},
 }
 
@@ -38,18 +29,16 @@ func NewCharacter() *entity.Character {
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		},
-		ProfileID:        primitive.NewObjectID().Hex(),
-		Name:             "example",
-		Tags:             []string{"#tag1", "#tag2"},
-		Gender:           false,
-		TotalFocusedTime: 0,
-		CustomMetrics: []entity.CustomMetric{
-			metric, metric, metric,
+		ProfileID: primitive.NewObjectID().Hex(),
+		Name:      "Example",
+		Tags:      []string{"#tag1", "#tag2"},
+		Gender:    false,
+		Categories: []entity.Category{
+			category, category, category,
 		},
-		LimitedMetricNumber: 2,
 		Vision: entity.Vision{
-			Name:        "Vision name",
-			Description: "Vision desc",
+			Name:        "Example name",
+			Description: "Example desc",
 		},
 	}
 }
@@ -60,9 +49,7 @@ func assertCharacter(t *testing.T, expected, actual *entity.Character) {
 	assert.Equal(t, expected.Name, actual.Name)
 	assert.Equal(t, expected.Tags, actual.Tags)
 	assert.Equal(t, expected.Gender, actual.Gender)
-	assert.Equal(t, expected.TotalFocusedTime, actual.TotalFocusedTime)
-	assert.Equal(t, expected.CustomMetrics, actual.CustomMetrics)
-	assert.Equal(t, expected.LimitedMetricNumber, actual.LimitedMetricNumber)
+	assert.Equal(t, expected.Categories, actual.Categories)
 	assert.Equal(t, expected.Vision, actual.Vision)
 }
 

@@ -23,7 +23,7 @@ package mongorepo_test
 // 	StartDate:   time.Now(),
 // 	EndDate:     time.Now(),
 // 	Status:      entity.GoalFinishStatusUnfinished,
-// 	Target:      []entity.CustomMetric{},
+// 	Target:      []entity.Category{},
 // }
 
 // func TestCreateNewGoal(t *testing.T) {

@@ -24,6 +24,4 @@ type IFishRepo interface {
 	DeleteFishByProfileID(ctx context.Context, profileID string) (*entity.Fish, error)
 }
 
-type ICoreClient interface {
-	BuyItem(ctx context.Context, profileID, characterID, metricID *string, item entity.ItemType, amount int32) error
-}
+type ICoreClient interface{}

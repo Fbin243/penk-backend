@@ -12,17 +12,15 @@ query Snapshots ($characterID: ObjectID) {
             name
             gender
             tags
-            totalFocusedTime
-            customMetrics {
+            categories {
                 id
                 name
                 description
-                time
                 style {
                     color
                     icon
                 }
-                properties {
+                metrics {
                     id
                     name
                     type
@@ -46,14 +44,12 @@ mutation CreateSnapshot ($characterID: ObjectID!, $description: String) {
             id
             name
             tags
-            totalFocusedTime
             profileID
-            customMetrics {
+            categories {
                 description
                 id
                 name
-                time
-                properties {
+                metrics {
                     id
                     name
                     type

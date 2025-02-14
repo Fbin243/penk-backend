@@ -6,15 +6,26 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"tenkhours/services/core/entity"
 )
 
-// Category is the resolver for the category field.
-func (r *templateResolver) Category(ctx context.Context, obj *entity.Template) (*entity.TemplateCategory, error) {
-	return r.TemplateBusiness.GetTemplateCategory(ctx, obj.CategoryID)
+// Topic is the resolver for the topic field.
+func (r *templateResolver) Topic(ctx context.Context, obj *entity.Template) (*entity.TemplateTopic, error) {
+	panic(fmt.Errorf("not implemented: Topic - topic"))
 }
 
 // Template returns TemplateResolver implementation.
 func (r *Resolver) Template() TemplateResolver { return &templateResolver{r} }
 
 type templateResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *templateResolver) Category(ctx context.Context, obj *entity.Template) (*entity.TemplateTopic, error) {
+	return r.TemplateBusiness.GetTemplateCategory(ctx, obj.TopicID)
+}

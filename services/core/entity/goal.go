@@ -14,7 +14,7 @@ type Goal struct {
 	StartDate        time.Time        `json:"startDate"   bson:"start_date"`
 	EndDate          time.Time        `json:"endDate"     bson:"end_date"`
 	Status           GoalFinishStatus `json:"status"      bson:"status"`
-	Target           []CustomMetric   `json:"target"      bson:"target"`
+	Target           []Category       `json:"target"      bson:"target"`
 }
 
 type (

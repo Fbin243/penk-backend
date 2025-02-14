@@ -20,7 +20,7 @@ type CharacterRepo struct {
 
 func NewCharacterRepo(db *mongo.Database) *CharacterRepo {
 	return &CharacterRepo{mongodb.NewBaseRepo(
-		db.Collection(mongodb.CharacterCollection),
+		db.Collection(mongodb.CharactersCollection),
 		&mongodb.Mapper[entity.Character, Character]{},
 	)}
 }

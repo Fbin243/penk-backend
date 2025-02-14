@@ -8,7 +8,7 @@ type Goal {
   startDate: Time!
   endDate: Time!
   status: GoalFinishStatus!
-  target: [CustomMetric!]
+  target: [Category!]
 }
 
 enum GoalFinishStatus {
@@ -22,17 +22,17 @@ input GoalInput {
   description: String
   startDate: Time!
   endDate: Time!
-  target: [GoalCustomMetricInput!]
+  target: [GoalCategoryInput!]
 }
 
-input GoalCustomMetricInput {
+input GoalCategoryInput {
   id: ID!
-  properties: [GoalMetricPropertyInput!]
+  metrics: [GoalMetricInput!]
 }
 
-input GoalMetricPropertyInput {
+input GoalMetricInput {
   id: ID!
-  value: String!
+  value: Float!
 }
 
 input GoalStatusFilter {  

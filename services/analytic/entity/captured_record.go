@@ -6,7 +6,7 @@ type CapturedRecord struct {
 	ID               string                       `json:"id"                      bson:"_id,omitempty"`
 	Timestamp        time.Time                    `json:"timestamp"               bson:"timestamp,omitempty"`
 	TotalFocusedTime int32                        `json:"totalFocusedTime"        bson:"total_focused_time,omitempty"`
-	CustomMetrics    []CapturedRecordCustomMetric `json:"customMetrics,omitempty" bson:"custom_metrics,omitempty"`
+	CustomMetrics    []CapturedRecordCustomMetric `json:"categories,omitempty"    bson:"custom_metrics,omitempty"`
 	TimeTrackings    []CapturedRecordTimeTracking `json:"timeTrackings,omitempty" bson:"time_trackings,omitempty"`
 	Metadata         CapturedRecordMetadata       `json:"metadata"                bson:"metadata,omitempty"`
 }

@@ -107,15 +107,13 @@ func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, charact
 
 	// Create a new time tracking
 	timeTracking := &entity.TimeTracking{
-		ID:              mongodb.GenObjectID(),
-		CharacterID:     characterID,
-		StartTime:       startTime,
-		MinDurationTime: utils.MinDurationTime,
-		MaxDurationTime: utils.MaxDurationTime,
+		ID:          mongodb.GenObjectID(),
+		CharacterID: characterID,
+		StartTime:   startTime,
 	}
 
 	if metricID != nil {
-		timeTracking.CustomMetricID = *metricID
+		timeTracking.CategoryID = *metricID
 	}
 
 	err = biz.cache.CreateTimeTracking(ctx, authSession.ProfileID, timeTracking)
@@ -146,20 +144,14 @@ func (biz *TimeTrackingBusiness) UpdateTimeTracking(ctx context.Context) (*entit
 	// Calculate the duration time
 	endTime := time.Now()
 	duration := int32(endTime.Sub(timeTracking.StartTime).Seconds())
-	// TODO: Testing timtracking flow
-	// duration = 599 // Test for the min duration time
-	// duration = 600 // Test for the min duration time
-	// duration = 601 // Test for the min duration time
-	// duration = 14400 // Test for the max duration time
-	// duration = 14401 // Test for the max duration time
 
 	// Check if the duration time is in the valid range
-	if duration < timeTracking.MinDurationTime {
+	if duration < utils.MinDurationTime {
 		return nil, nil, errors.NewGQLError(errors.ErrCodeUnderMinDuration, "the period time is less than min duration time")
 	}
 
-	if duration > timeTracking.MaxDurationTime {
-		duration = int32(timeTracking.MaxDurationTime)
+	if duration > utils.MaxDurationTime {
+		duration = int32(utils.MaxDurationTime)
 	}
 
 	timeTracking.EndTime = timeTracking.StartTime.Add(time.Duration(duration) * time.Second)
@@ -168,16 +160,6 @@ func (biz *TimeTrackingBusiness) UpdateTimeTracking(ctx context.Context) (*entit
 	err = biz.cache.UpsertTimeTrackingInCapturedRecord(ctx, authSession.ProfileID, timeTracking, duration)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to upsert time tracking in captured record: %v", err)
-	}
-
-	// Update the time in the character by gRPC
-	var metricID *string
-	if timeTracking.CustomMetricID != "" {
-		metricID = &timeTracking.CustomMetricID
-	}
-	success, err := biz.coreClient.UpdateTimeInCharacter(ctx, timeTracking.CharacterID, metricID, duration)
-	if !success || err != nil {
-		return nil, nil, err
 	}
 
 	// Calculate the number of catches

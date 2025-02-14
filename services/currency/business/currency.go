@@ -15,8 +15,6 @@ import (
 	rdb "tenkhours/pkg/db/redis"
 
 	config "tenkhours/services/currency/utils"
-
-	"github.com/samber/lo"
 )
 
 type CurrencyBusiness struct {
@@ -154,13 +152,13 @@ func (biz *CurrencyBusiness) BuyMetrics(ctx context.Context, fishType entity.Fis
 	}
 
 	cost := 0
-	increase := 0
+	// increase := 0
 	foundConfig := false
 
 	for _, cfg := range exchangeConfigs {
 		if cfg.ItemType == "metric" && cfg.FishType == string(fishType) {
 			cost = cfg.Number
-			increase = cfg.Increase
+			// increase = cfg.Increase
 			foundConfig = true
 			break
 		}
@@ -185,11 +183,11 @@ func (biz *CurrencyBusiness) BuyMetrics(ctx context.Context, fishType entity.Fis
 		return false, fmt.Errorf("invalid fish type: %s", fishType)
 	}
 
-	// Buy metric
-	err = biz.CoreClient.BuyItem(ctx, lo.ToPtr(authSession.ProfileID), lo.ToPtr(characterID), nil, entity.ItemTypeMetric, int32(increase))
-	if err != nil {
-		return false, fmt.Errorf("failed to buy metric: %v", err)
-	}
+	// // Buy metric
+	// err = biz.CoreClient.BuyItem(ctx, lo.ToPtr(authSession.ProfileID), lo.ToPtr(characterID), nil, entity.ItemTypeMetric, int32(increase))
+	// if err != nil {
+	// 	return false, fmt.Errorf("failed to buy metric: %v", err)
+	// }
 
 	if _, err := biz.FishRepo.UpdateFishByProfileID(ctx, authSession.ProfileID, fish); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)
@@ -295,13 +293,13 @@ func (biz *CurrencyBusiness) BuyCharacters(ctx context.Context, fishType entity.
 	}
 
 	cost := 0
-	increase := 0
+	// increase := 0
 	foundConfig := false
 
 	for _, cfg := range exchangeConfigs {
 		if cfg.ItemType == "character" && cfg.FishType == string(fishType) {
 			cost = cfg.Number
-			increase = cfg.Increase
+			// increase = cfg.Increase
 			foundConfig = true
 			break
 		}
@@ -327,10 +325,10 @@ func (biz *CurrencyBusiness) BuyCharacters(ctx context.Context, fishType entity.
 	}
 
 	// Buy character
-	err = biz.CoreClient.BuyItem(ctx, lo.ToPtr(authSession.ProfileID), nil, nil, entity.ItemTypeCharacter, int32(increase))
-	if err != nil {
-		return false, fmt.Errorf("failed to buy metric: %v", err)
-	}
+	// err = biz.CoreClient.BuyItem(ctx, lo.ToPtr(authSession.ProfileID), nil, nil, entity.ItemTypeCharacter, int32(increase))
+	// if err != nil {
+	// 	return false, fmt.Errorf("failed to buy metric: %v", err)
+	// }
 
 	if _, err := biz.FishRepo.UpdateFishByProfileID(ctx, authSession.ProfileID, fish); err != nil {
 		return false, fmt.Errorf("failed to update fish: %v", err)

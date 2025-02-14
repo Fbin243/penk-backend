@@ -3,7 +3,6 @@ package core
 var ProfileQuery = `query { 
 	profile {
         autoSnapshot
-        limitedCharacterNumber
         availableSnapshots
         createdAt
         currentCharacterID
@@ -16,28 +15,24 @@ var ProfileQuery = `query {
         characters {
             gender
             id
-            limitedMetricNumber
             name
             tags
-            totalFocusedTime
             profileID
-            customMetrics {
+            categories {
                 description
                 id
-                limitedPropertyNumber
                 name
-                time
-                properties {
-                    id
-                    name
-                    type
-                    unit
-                    value
-                }
                 style {
                     color
                     icon
                 }
+            }
+            metrics {
+                id
+                categoryID
+                name
+                unit
+                value
             }
         }
     }
@@ -71,33 +66,6 @@ mutation DeleteProfile {
         currentCharacterID
         availableSnapshots
         autoSnapshot
-        characters {
-            id
-            profileID
-            name
-            gender
-            tags
-            totalFocusedTime
-            limitedMetricNumber
-            customMetrics {
-                id
-                name
-                description
-                time
-                limitedPropertyNumber
-                style {
-                    color
-                    icon
-                }
-                properties {
-                    id
-                    name
-                    type
-                    value
-                    unit
-                }
-            }
-        }
     }
 }
 `

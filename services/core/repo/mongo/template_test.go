@@ -13,37 +13,16 @@ import (
 )
 
 func NewTemplate() *entity.Template {
-	property := entity.TemplateProperty{
-		Name:  "example property",
-		Type:  entity.MetricPropertyTypeNumber,
-		Value: "100",
+	metric := entity.TemplateMetric{
+		Name:  "example metric",
+		Value: 100,
 		Unit:  "example unit",
 	}
 
-	metric := entity.TemplateMetric{
-		Name:        "example metric",
+	category := entity.TemplateCategory{
+		Name:        "example category",
 		Description: "example description",
-		Style: entity.MetricStyle{
-			Color: "#000000",
-			Icon:  "example",
-		},
-		Properties: []entity.TemplateProperty{
-			property,
-			property,
-			property,
-		},
-	}
-
-	return &entity.Template{
-		BaseEntity: &base.BaseEntity{
-			ID:        primitive.NewObjectID().Hex(),
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
-		Name:        "example",
-		Description: "example description",
-		CategoryID:  primitive.NewObjectID().Hex(),
-		Style: entity.TemplateStyle{
+		Style: entity.CategoryStyle{
 			Color: "#000000",
 			Icon:  "example",
 		},
@@ -53,15 +32,35 @@ func NewTemplate() *entity.Template {
 			metric,
 		},
 	}
+
+	return &entity.Template{
+		BaseEntity: &base.BaseEntity{
+			ID:        primitive.NewObjectID().Hex(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		Name:        "example template",
+		Description: "example description",
+		TopicID:     primitive.NewObjectID().Hex(),
+		Style: entity.TemplateStyle{
+			Color: "#000000",
+			Icon:  "example",
+		},
+		Categories: []entity.TemplateCategory{
+			category,
+			category,
+			category,
+		},
+	}
 }
 
 func assertTemplate(t *testing.T, expected, actual *entity.Template) {
 	assert.Equal(t, expected.ID, actual.ID)
 	assert.Equal(t, expected.Name, actual.Name)
 	assert.Equal(t, expected.Description, actual.Description)
-	assert.Equal(t, expected.CategoryID, actual.CategoryID)
+	assert.Equal(t, expected.TopicID, actual.TopicID)
 	assert.Equal(t, expected.Style, actual.Style)
-	assert.Equal(t, expected.Metrics, actual.Metrics)
+	assert.Equal(t, expected.Categories, actual.Categories)
 }
 
 func TestGetTemplates(t *testing.T) {

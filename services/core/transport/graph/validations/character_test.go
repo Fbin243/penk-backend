@@ -33,6 +33,43 @@ func TestValidateCharacterInput(t *testing.T) {
 			character: entity.CharacterInput{Name: "This is a very long name that exceeds the maximum allowed length of fifty characters. This is a very long name that exceeds the maximum allowed length of fifty characters."},
 			hasError:  true,
 		},
+		{
+			name: "invalid tags",
+			character: entity.CharacterInput{
+				Name: "Category",
+				Tags: []string{"#tag_too_longggggggggg"},
+			},
+			hasError: true,
+		},
+		{
+			name: "invalid categories",
+			character: entity.CharacterInput{
+				Name: "Category",
+				Categories: []entity.CategoryInput{
+					{
+						Name: "Category",
+						Style: lo.ToPtr(entity.CategoryStyleInput{
+							Color: "ff0000",
+						}),
+					},
+				},
+			},
+			hasError: true,
+		},
+		{
+			name: "invalid metrics",
+			character: entity.CharacterInput{
+				Name: "Category",
+				Metrics: []entity.MetricInput{
+					{
+						Name:  "Category",
+						Value: 10,
+						Unit:  "Unit too longgggggggggggggggggggggggggggggggggggggg",
+					},
+				},
+			},
+			hasError: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -47,43 +84,43 @@ func TestValidateCharacterInput(t *testing.T) {
 	}
 }
 
-func TestValidateCustomMetric(t *testing.T) {
+func TestValidateCategoryInput(t *testing.T) {
 	type testCase struct {
 		name     string
-		metric   entity.CustomMetricInput
+		category entity.CategoryInput
 		hasError bool
 	}
 
 	tests := []testCase{
 		{
-			name: "valid metric",
-			metric: entity.CustomMetricInput{
-				Name:        "Metric",
+			name: "valid category",
+			category: entity.CategoryInput{
+				Name:        "Category",
 				Description: lo.ToPtr("This is a description"),
 			},
 			hasError: false,
 		},
 		{
 			name: "description with maximum length",
-			metric: entity.CustomMetricInput{
-				Name:        "Metric",
+			category: entity.CategoryInput{
+				Name:        "Category",
 				Description: lo.ToPtr("This is a enough description with maximum length. This is a enough description with maximum length. This is a enough description with maximum length. This is a enough description with maximum length. This is a enough description with maximum length. Th..."),
 			},
 			hasError: false,
 		},
 		{
 			name: "too long description",
-			metric: entity.CustomMetricInput{
-				Name:        "Metric",
+			category: entity.CategoryInput{
+				Name:        "Category",
 				Description: lo.ToPtr("This is a very long description that exceeds the maximum allowed length of two hundred fifty five characters. This is a very long description that exceeds the maximum allowed length of two hundred fifty five characters. This is a very long description t..."),
 			},
 			hasError: true,
 		},
 		{
 			name: "color with valid hex",
-			metric: entity.CustomMetricInput{
-				Name: "Metric",
-				Style: lo.ToPtr(entity.MetricStyleInput{
+			category: entity.CategoryInput{
+				Name: "Category",
+				Style: lo.ToPtr(entity.CategoryStyleInput{
 					Color: "#ff0000",
 				}),
 			},
@@ -91,29 +128,11 @@ func TestValidateCustomMetric(t *testing.T) {
 		},
 		{
 			name: "color with invalid hex",
-			metric: entity.CustomMetricInput{
-				Name: "Metric",
-				Style: lo.ToPtr(entity.MetricStyleInput{
+			category: entity.CategoryInput{
+				Name: "Category",
+				Style: lo.ToPtr(entity.CategoryStyleInput{
 					Color: "ff0000",
 				}),
-			},
-			hasError: true,
-		},
-		{
-			name: "invalid property",
-			metric: entity.CustomMetricInput{
-				Name: "Metric",
-				Style: lo.ToPtr(entity.MetricStyleInput{
-					Color: "ff0000",
-				}),
-				Properties: []entity.MetricPropertyInput{
-					{
-						Name:  "Property",
-						Type:  "",
-						Value: "10",
-						Unit:  "kg",
-					},
-				},
 			},
 			hasError: true,
 		},
@@ -121,7 +140,7 @@ func TestValidateCustomMetric(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := validations.ValidateCustomMetricInput(tc.metric)
+			err := validations.ValidateCategoryInput(tc.category)
 			if tc.hasError {
 				assert.Error(t, err)
 			} else {
@@ -131,59 +150,46 @@ func TestValidateCustomMetric(t *testing.T) {
 	}
 }
 
-func TestValidateMetricProperty(t *testing.T) {
+func TestValidateMetric(t *testing.T) {
 	type testCase struct {
 		name     string
-		property entity.MetricPropertyInput
+		metric   entity.MetricInput
 		hasError bool
 	}
 
 	tests := []testCase{
 		{
-			name: "valid property",
-			property: entity.MetricPropertyInput{
-				Name:  "Property",
-				Type:  entity.MetricPropertyTypeString,
-				Value: "10",
+			name: "valid metric",
+			metric: entity.MetricInput{
+				Name:  "Category",
+				Value: 10,
 				Unit:  "kg",
 			},
 			hasError: false,
 		},
 		{
 			name: "without unit",
-			property: entity.MetricPropertyInput{
-				Name:  "Property",
-				Type:  entity.MetricPropertyTypeString,
-				Value: "10",
+			metric: entity.MetricInput{
+				Name:  "Category",
+				Value: 10,
 				Unit:  "",
 			},
 			hasError: false,
 		},
 		{
 			name: "missing name",
-			property: entity.MetricPropertyInput{
+			metric: entity.MetricInput{
 				Name:  "",
-				Type:  entity.MetricPropertyTypeString,
-				Value: "10",
+				Value: 10,
 				Unit:  "kg",
 			},
 			hasError: true,
-		},
-		{
-			name: "missing value",
-			property: entity.MetricPropertyInput{
-				Name:  "Property",
-				Type:  entity.MetricPropertyTypeString,
-				Value: "",
-				Unit:  "kg",
-			},
-			hasError: false,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := validations.ValidateMetricPropertyInput(tc.property)
+			err := validations.ValidateMetricInput(tc.metric)
 			if tc.hasError {
 				assert.Error(t, err)
 			} else {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"tenkhours/pkg/utils"
+	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/test/common"
 
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
@@ -14,8 +14,7 @@ import (
 type UpsertCharacterStage struct {
 	common.Metadata
 	common.Case
-	CharacterKey    common.ContextKey
-	NumberOfMetrics int
+	CharacterKey common.ContextKey
 }
 
 func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
@@ -31,13 +30,19 @@ func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 		"tags":   []interface{}{"#Tag1", "#Tag2"},
 	}
 
-	metricInput := map[string]interface{}{
-		"name":        "Metric name",
-		"description": "This is the metric description",
+	categoryInput := map[string]interface{}{
+		"name":        "Example name",
+		"description": "Example desc",
 		"style": map[string]interface{}{
 			"color": "#000000",
 			"icon":  "icon.png",
 		},
+	}
+
+	metricInput := map[string]interface{}{
+		"name":  "Example name",
+		"value": 123.456,
+		"unit":  "Example unit",
 	}
 
 	assertion := jsonpath.Chain().NotPresent("$.errors")
@@ -49,10 +54,8 @@ func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 			Equal("$.data.upsertCharacter.name", characterInput["name"]).
 			Equal("$.data.upsertCharacter.gender", characterInput["gender"]).
 			Equal("$.data.upsertCharacter.tags", characterInput["tags"]).
-			Equal("$.data.upsertCharacter.limitedMetricNumber", float64(utils.LimitedMetricNumber)).
-			Equal("$.data.upsertCharacter.totalFocusedTime", float64(0)).
 			Equal("$.data.upsertCharacter.profileID", gjson.Get(profile, "id").Value()).
-			Equal("$.data.upsertCharacter.customMetrics", []interface{}{})
+			Equal("$.data.upsertCharacter.categories", []interface{}{})
 
 	case common.UpdateCharacter:
 		character, ok := (*ctx).Value(s.CharacterKey).(string)
@@ -69,27 +72,82 @@ func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 			Equal("$.data.upsertCharacter.name", characterInput["name"]).
 			Equal("$.data.upsertCharacter.tags", characterInput["tags"])
 
+	case common.CreateCategories:
+		character, ok := (*ctx).Value(s.CharacterKey).(string)
+		if !ok {
+			return common.ErrNotFoundInContext("CharacterKey")
+		}
+
+		characterInput["id"] = gjson.Get(character, "id").Value()
+		characterInput["categories"] = []interface{}{categoryInput, categoryInput, categoryInput}
+
+		assertion = assertion.
+			Equal("$.data.upsertCharacter.id", characterInput["id"]).
+			Equal("$.data.upsertCharacter.categories[0].name", categoryInput["name"]).
+			Equal("$.data.upsertCharacter.categories[0].description", categoryInput["description"]).
+			Equal("$.data.upsertCharacter.categories[0].style", categoryInput["style"].(map[string]interface{}))
+
+		assertions = append(assertions, jsonpath.Len("$.data.upsertCharacter.categories", 3))
+
+	case common.UpdateCategories:
+		character, ok := (*ctx).Value(s.CharacterKey).(string)
+		if !ok {
+			return common.ErrNotFoundInContext("CharacterKey")
+		}
+
+		// Update the first category
+		characterInput["id"] = gjson.Get(character, "id").Value()
+		updateCategoryInput := map[string]interface{}{
+			"id":          gjson.Get(character, "categories.0.id").Value(),
+			"name":        "Update name",
+			"description": "Update description",
+			"style": map[string]interface{}{
+				"color": "#FFFFFF",
+				"icon":  "update_icon.png",
+			},
+		}
+
+		characterInput["categories"] = []interface{}{updateCategoryInput, categoryInput, categoryInput}
+
+		assertion = assertion.
+			Equal("$.data.upsertCharacter.id", characterInput["id"]).
+			Equal("$.data.upsertCharacter.categories[0].id", updateCategoryInput["id"]).
+			Equal("$.data.upsertCharacter.categories[0].name", updateCategoryInput["name"]).
+			Equal("$.data.upsertCharacter.categories[0].description", updateCategoryInput["description"]).
+			Equal("$.data.upsertCharacter.categories[0].style", updateCategoryInput["style"].(map[string]interface{}))
+		assertions = append(assertions, jsonpath.Len("$.data.upsertCharacter.categories", 3))
+
+	case common.DeleteCategories:
+		character, ok := (*ctx).Value(s.CharacterKey).(string)
+		if !ok {
+			return common.ErrNotFoundInContext("CharacterKey")
+		}
+
+		characterInput["id"] = gjson.Get(character, "id").Value()
+		characterInput["categories"] = []interface{}{categoryInput, categoryInput}
+
+		assertion = assertion.
+			Equal("$.data.upsertCharacter.id", characterInput["id"])
+
+		assertions = append(assertions, jsonpath.Len("$.data.upsertCharacter.categories", 2))
+
 	case common.CreateMetrics:
 		character, ok := (*ctx).Value(s.CharacterKey).(string)
 		if !ok {
 			return common.ErrNotFoundInContext("CharacterKey")
 		}
 
-		metricInputs := []interface{}{}
-		for i := 0; i < s.NumberOfMetrics; i++ {
-			metricInputs = append(metricInputs, metricInput)
-		}
 		characterInput["id"] = gjson.Get(character, "id").Value()
-		characterInput["customMetrics"] = metricInputs
+		characterInput["metrics"] = []interface{}{metricInput, metricInput, metricInput}
 
 		assertion = assertion.
 			Equal("$.data.upsertCharacter.id", characterInput["id"]).
-			Equal("$.data.upsertCharacter.customMetrics[0].name", metricInput["name"]).
-			Equal("$.data.upsertCharacter.customMetrics[0].description", metricInput["description"]).
-			Equal("$.data.upsertCharacter.customMetrics[0].style", metricInput["style"].(map[string]interface{})).
-			Equal("$.data.upsertCharacter.customMetrics[0].time", float64(0)).
-			Equal("$.data.upsertCharacter.customMetrics[0].limitedPropertyNumber", float64(utils.LimitedPropertyNumber))
-		assertions = append(assertions, jsonpath.Len("$.data.upsertCharacter.customMetrics", s.NumberOfMetrics))
+			Equal("$.data.upsertCharacter.metrics[0].name", metricInput["name"]).
+			Equal("$.data.upsertCharacter.metrics[0].value", metricInput["value"]).
+			Equal("$.data.upsertCharacter.metrics[0].unit", metricInput["unit"])
+
+		assertions = append(assertions,
+			jsonpath.Len("$.data.upsertCharacter.metrics", 3))
 
 	case common.UpdateMetrics:
 		character, ok := (*ctx).Value(s.CharacterKey).(string)
@@ -97,29 +155,24 @@ func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 			return common.ErrNotFoundInContext("CharacterKey")
 		}
 
-		// Update the first metric
 		characterInput["id"] = gjson.Get(character, "id").Value()
-		metricInput["id"] = gjson.Get(character, "customMetrics.0.id").Value()
-		metricInput["name"] = "Update metric name"
-		metricInput["description"] = "Update metric description"
-		metricInput["style"] = map[string]interface{}{
-			"color": "#FFFFFF",
-			"icon":  "update_icon.png",
+		updateMetricInput := map[string]interface{}{
+			"id":         gjson.Get(character, "metrics.0.id").Value(),
+			"categoryID": mongodb.GenObjectID(),
+			"name":       "Update name",
+			"value":      789.0,
+			"unit":       "Update unit",
 		}
 
-		metricInputs := []interface{}{metricInput}
-		for i := 0; i < s.NumberOfMetrics-1; i++ {
-			metricInputs = append(metricInputs, metricInput)
-		}
-
-		characterInput["customMetrics"] = metricInputs
+		characterInput["metrics"] = []interface{}{updateMetricInput, metricInput, metricInput}
 
 		assertion = assertion.
-			Equal("$.data.upsertCharacter.id", gjson.Get(character, "id").Value()).
-			Equal("$.data.upsertCharacter.customMetrics[0].name", metricInput["name"]).
-			Equal("$.data.upsertCharacter.customMetrics[0].description", metricInput["description"]).
-			Equal("$.data.upsertCharacter.customMetrics[0].style", metricInput["style"].(map[string]interface{}))
-		assertions = append(assertions, jsonpath.Len("$.data.upsertCharacter.customMetrics", s.NumberOfMetrics))
+			Equal("$.data.upsertCharacter.id", characterInput["id"]).
+			Equal("$.data.upsertCharacter.metrics[0].id", updateMetricInput["id"]).
+			Equal("$.data.upsertCharacter.metrics[0].name", updateMetricInput["name"]).
+			Equal("$.data.upsertCharacter.metrics[0].value", updateMetricInput["value"]).
+			Equal("$.data.upsertCharacter.metrics[0].unit", updateMetricInput["unit"])
+		assertions = append(assertions, jsonpath.Len("$.data.upsertCharacter.metrics", 3))
 
 	case common.DeleteMetrics:
 		character, ok := (*ctx).Value(s.CharacterKey).(string)
@@ -127,19 +180,13 @@ func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 			return common.ErrNotFoundInContext("CharacterKey")
 		}
 
-		// Remove the first metric
-		metricInputs := []interface{}{}
-		for i := 0; i < s.NumberOfMetrics-1; i++ {
-			metricInputs = append(metricInputs, metricInput)
-		}
-
 		characterInput["id"] = gjson.Get(character, "id").Value()
-		characterInput["customMetrics"] = metricInputs
+		characterInput["metrics"] = []interface{}{metricInput, metricInput}
 
 		assertion = assertion.
 			Equal("$.data.upsertCharacter.id", characterInput["id"])
 
-		assertions = append(assertions, jsonpath.Len("$.data.upsertCharacter.customMetrics", s.NumberOfMetrics-1))
+		assertions = append(assertions, jsonpath.Len("$.data.upsertCharacter.metrics", 2))
 	}
 
 	if s.ExpectError {

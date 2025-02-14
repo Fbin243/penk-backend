@@ -4,25 +4,24 @@ type Template {
   updatedAt: Time!
   name: String!
   description: String!
-  category: TemplateCategory
+  topic: TemplateTopic
+  categories: [TemplateCategory!]!
+}
+
+type TemplateCategory {
+  name: String!
+  description: String!
+  style: CategoryStyle!
   metrics: [TemplateMetric!]!
 }
 
 type TemplateMetric {
   name: String!
-  description: String!
-  style: MetricStyle!
-  properties: [TemplateProperty!]!
-}
-
-type TemplateProperty {
-  name: String!
-  type: MetricPropertyType!
-  value: String!
+  value: Float!
   unit: String!
 }
 
-type TemplateCategory {
+type TemplateTopic {
   id: ID!
   name: String!
   description: String!

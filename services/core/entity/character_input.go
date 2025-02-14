@@ -1,12 +1,13 @@
 package entity
 
 type CharacterInput struct {
-	ID            *string             `json:"id,omitempty"`
-	Name          string              `json:"name"                    validate:"min=1,max=50"`
-	Gender        bool                `json:"gender"`
-	Tags          []string            `json:"tags,omitempty"          validate:"tags_valid,dive"`
-	CustomMetrics []CustomMetricInput `json:"customMetrics,omitempty" validate:"dive"`
-	Vision        *VisionInput        `json:"vision,omitempty"        validate:"omitempty"`
+	ID         *string         `json:"id,omitempty"`
+	Name       string          `json:"name"                 validate:"min=1,max=50"`
+	Gender     bool            `json:"gender"`
+	Tags       []string        `json:"tags,omitempty"       validate:"tags_valid,dive"`
+	Categories []CategoryInput `json:"categories,omitempty" validate:"dive"`
+	Metrics    []MetricInput   `json:"metrics,omitempty"    validate:"dive"`
+	Vision     *VisionInput    `json:"vision,omitempty"     validate:"omitempty"`
 }
 
 type VisionInput struct {
@@ -14,23 +15,22 @@ type VisionInput struct {
 	Description *string `json:"description,omitempty" validate:"omitempty,max=255"`
 }
 
-type CustomMetricInput struct {
-	ID          *string               `json:"id,omitempty"`
-	Name        string                `json:"name"                  validate:"min=1,max=50"`
-	Description *string               `json:"description,omitempty" validate:"omitempty,max=255"`
-	Style       *MetricStyleInput     `json:"style"`
-	Properties  []MetricPropertyInput `json:"properties,omitempty"  validate:"dive"`
+type CategoryInput struct {
+	ID          *string             `json:"id,omitempty"`
+	Name        string              `json:"name"                  validate:"min=1,max=50"`
+	Description *string             `json:"description,omitempty" validate:"omitempty,max=255"`
+	Style       *CategoryStyleInput `json:"style"`
 }
 
-type MetricPropertyInput struct {
-	ID    *string            `json:"id,omitempty"`
-	Name  string             `json:"name"         validate:"min=1,max=50"`
-	Type  MetricPropertyType `json:"type"`
-	Value string             `json:"value"        validate:"omitempty,max=50"`
-	Unit  string             `json:"unit"         validate:"omitempty,max=50"`
+type MetricInput struct {
+	ID         *string `json:"id,omitempty"`
+	CategoryID *string `json:"category_id,omitempty"`
+	Name       string  `json:"name"                  validate:"min=1,max=50"`
+	Value      float64 `json:"value"`
+	Unit       string  `json:"unit"                  validate:"omitempty,max=50"`
 }
 
-type MetricStyleInput struct {
+type CategoryStyleInput struct {
 	Color string `json:"color" validate:"hexcolor"`
 	Icon  string `json:"icon"`
 }

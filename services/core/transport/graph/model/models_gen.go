@@ -3,10 +3,11 @@
 package model
 
 type AppSettings struct {
-	MinDurationTime       int `json:"minDurationTime"`
-	MaxDurationTime       int `json:"maxDurationTime"`
-	LimitedMetricNumber   int `json:"limitedMetricNumber"`
-	LimitedPropertyNumber int `json:"limitedPropertyNumber"`
+	MinDurationTime        int `json:"minDurationTime"`
+	MaxDurationTime        int `json:"maxDurationTime"`
+	LimitedCharacterNumber int `json:"limitedCharacterNumber"`
+	LimitedCategoryNumber  int `json:"limitedCategoryNumber"`
+	LimitedMetricNumber    int `json:"limitedMetricNumber"`
 }
 
 type Fish struct {

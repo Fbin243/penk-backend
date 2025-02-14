@@ -17,14 +17,14 @@ const (
 	UpdateProfile
 	CreateCharacter
 	UpdateCharacter
+	CreateCategories
+	UpdateCategories
+	DeleteCategories
 	CreateMetrics
 	UpdateMetrics
 	DeleteMetrics
-	CreateProperties
-	UpdateProperties
-	DeleteProperties
-	TimeTrackingWithoutMetric
-	TimeTrackingWithMetric
+	TimeTrackingWithoutCategory
+	TimeTrackingWithCategory
 )
 
 type FlowKey string

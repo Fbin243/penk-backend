@@ -17,7 +17,6 @@ type IProfileBusiness interface {
 	DeleteProfile(ctx context.Context) (*entity.Profile, error)
 	IntrospectProfile(ctx context.Context, firebaseProfile auth.FirebaseProfile) (*entity.Profile, error)
 	CheckPermission(ctx context.Context, profileID, characterID string, metricID *string) error
-	BuyItem(ctx context.Context, profileID, characterID, metricID *string, item entity.ItemType, amount int32) error
 }
 
 type ICharacterBusiness interface {
@@ -25,7 +24,6 @@ type ICharacterBusiness interface {
 	GetCharactersByProfileID(ctx context.Context) ([]entity.Character, error)
 	UpsertCharacter(ctx context.Context, input entity.CharacterInput) (*entity.Character, error)
 	DeleteCharacter(ctx context.Context, id string) (*entity.Character, error)
-	UpdateTimeInCharacter(ctx context.Context, characterID string, metricID *string, time int32) error
 }
 
 type IGoalBusiness interface {
@@ -35,7 +33,7 @@ type IGoalBusiness interface {
 
 type ITemplateBusiness interface {
 	GetTemplates(ctx context.Context) ([]entity.Template, error)
-	GetTemplateCategory(ctx context.Context, id string) (*entity.TemplateCategory, error)
+	GetTemplateCategory(ctx context.Context, id string) (*entity.TemplateTopic, error)
 }
 
 // Repository
@@ -58,7 +56,7 @@ type IGoalRepo interface {
 	base.IBaseRepo[entity.Goal]
 	GetGoalsByCharacterID(ctx context.Context, characterID string, status *entity.GoalStatusFilter) ([]entity.Goal, error)
 	// TODO: @Fbin243 refactor the return type
-	UpdateOneMetricInGoals(ctx context.Context, metric entity.CustomMetric, goalIDs []string) (*mongo.UpdateResult, error)
+	UpdateOneMetricInGoals(ctx context.Context, metric entity.Category, goalIDs []string) (*mongo.UpdateResult, error)
 	RemoveOnePropertyFromGoals(ctx context.Context, metricID, propertyID string, goalIDs []string) (*mongo.UpdateResult, error)
 	UpdateStatusOfGoals(ctx context.Context, goalIDs []string, status entity.GoalFinishStatus) (*mongo.UpdateResult, error)
 }
@@ -68,7 +66,7 @@ type ITemplateRepo interface {
 }
 
 type ITemplateCategoryRepo interface {
-	base.IBaseRepo[entity.TemplateCategory]
+	base.IBaseRepo[entity.TemplateTopic]
 }
 
 type ICache interface {

@@ -19,7 +19,7 @@ type ProfileRepo struct {
 }
 
 func NewProfileRepo(db *mongo.Database) *ProfileRepo {
-	profilesCollection := db.Collection(mongodb.ProfileCollection)
+	profilesCollection := db.Collection(mongodb.ProfilesCollection)
 	_, err := profilesCollection.Indexes().CreateMany(context.TODO(), []mongo.IndexModel{
 		{
 			Keys:    bson.D{{Key: "email", Value: 1}},

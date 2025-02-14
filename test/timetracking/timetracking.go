@@ -36,12 +36,12 @@ func (s CreateTimeTrackingStage) Exec(ctx *context.Context) error {
 		Equal("$.data.createTimeTracking.endTime", nil)
 
 	switch s.Case {
-	case common.TimeTrackingWithoutMetric:
+	case common.TimeTrackingWithoutCategory:
 		assertion = assertion.Equal("$.data.createTimeTracking.customMetricID", nil)
 
-	case common.TimeTrackingWithMetric:
+	case common.TimeTrackingWithCategory:
 		// Track with the first metric
-		assertion = assertion.Equal("$.data.createTimeTracking.customMetricID", gjson.Get(character, "customMetrics.0.id").Value())
+		assertion = assertion.Equal("$.data.createTimeTracking.customMetricID", gjson.Get(character, "categories.0.id").Value())
 	}
 
 	if s.ExpectError {
@@ -83,15 +83,15 @@ func (s UpdateTimeTracking) Exec(ctx *context.Context) error {
 		NotEqual("$.data.updateTimeTracking.timeTracking.endTime", nil)
 
 	switch s.Case {
-	case common.TimeTrackingWithoutMetric:
+	case common.TimeTrackingWithoutCategory:
 		assertion = assertion.Equal("$.data.updateTimeTracking.timeTracking.customMetricID", nil).
 			Present("$.data.updateTimeTracking.timeTracking.gold").
 			Present("$.data.updateTimeTracking.timeTracking.normal")
 
-	case common.TimeTrackingWithMetric:
+	case common.TimeTrackingWithCategory:
 		// Track with the first metric
 		assertion = assertion.
-			Equal("$.data.createTimeTracking.timeTracking.customMetricID", gjson.Get(character, "customMetrics.0.id").Value()).
+			Equal("$.data.createTimeTracking.timeTracking.customMetricID", gjson.Get(character, "categories.0.id").Value()).
 			Present("$.data.updateTimeTracking.timeTracking.gold").
 			Present("$.data.updateTimeTracking.timeTracking.normal")
 	}

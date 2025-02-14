@@ -18,12 +18,12 @@ import (
 )
 
 var (
-	testdb               *mongo.Database
-	profileRepo          business.IProfileRepo
-	characterRepo        business.ICharacterRepo
-	goalRepo             business.IGoalRepo
-	templateRepo         business.ITemplateRepo
-	templateCategoryRepo business.ITemplateCategoryRepo
+	testdb            *mongo.Database
+	profileRepo       business.IProfileRepo
+	characterRepo     business.ICharacterRepo
+	goalRepo          business.IGoalRepo
+	templateRepo      business.ITemplateRepo
+	templateTopicRepo business.ITemplateCategoryRepo
 )
 
 func TestMain(m *testing.M) {
@@ -37,7 +37,7 @@ func TestMain(m *testing.M) {
 	characterRepo = mongorepo.NewCharacterRepo(testdb)
 	goalRepo = mongorepo.NewGoalRepo(testdb)
 	templateRepo = mongorepo.NewTemplateRepo(testdb)
-	templateCategoryRepo = mongorepo.NewTemplateCategoryRepo(testdb)
+	templateTopicRepo = mongorepo.NewTemplateTopicRepo(testdb)
 
 	code := m.Run()
 

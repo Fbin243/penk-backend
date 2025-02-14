@@ -97,20 +97,18 @@ models:
     model: tenkhours/services/core/entity.Character
   CharacterInput:
     model: tenkhours/services/core/entity.CharacterInput
-  CustomMetric:
-    model: tenkhours/services/core/entity.CustomMetric
-  CustomMetricInput:
-    model: tenkhours/services/core/entity.CustomMetricInput
-  MetricProperty:
-    model: tenkhours/services/core/entity.MetricProperty
-  MetricPropertyInput:
-    model: tenkhours/services/core/entity.MetricPropertyInput
-  MetricStyle:
-    model: tenkhours/services/core/entity.MetricStyle
-  MetricStyleInput:
-    model: tenkhours/services/core/entity.MetricStyleInput
-  MetricPropertyType:
-    model: tenkhours/services/core/entity.MetricPropertyType
+  Category:
+    model: tenkhours/services/core/entity.Category
+  CategoryInput:
+    model: tenkhours/services/core/entity.CategoryInput
+  Metric:
+    model: tenkhours/services/core/entity.Metric
+  MetricInput:
+    model: tenkhours/services/core/entity.MetricInput
+  CategoryStyle:
+    model: tenkhours/services/core/entity.CategoryStyle
+  CategoryStyleInput:
+    model: tenkhours/services/core/entity.CategoryStyleInput
   Vision:
     model: tenkhours/services/core/entity.Vision
   VisionInput:
@@ -119,10 +117,10 @@ models:
     model: tenkhours/services/core/entity.Goal
   GoalInput:
     model: tenkhours/services/core/entity.GoalInput
-  GoalCustomMetricInput:
-    model: tenkhours/services/core/entity.GoalCustomMetricInput
-  GoalMetricPropertyInput:
-    model: tenkhours/services/core/entity.GoalMetricPropertyInput
+  GoalCategoryInput:
+    model: tenkhours/services/core/entity.GoalCategoryInput
+  GoalMetricInput:
+    model: tenkhours/services/core/entity.GoalMetricInput
   GoalFinishStatus:
     model: tenkhours/services/core/entity.GoalFinishStatus
   GoalExpireStatus:
@@ -134,9 +132,9 @@ models:
     fields:
       category:
         resolver: true
-  TemplateMetric:
-    model: tenkhours/services/core/entity.TemplateMetric
-  TemplateProperty:
-    model: tenkhours/services/core/entity.TemplateProperty
   TemplateCategory:
     model: tenkhours/services/core/entity.TemplateCategory
+  TemplateMetric:
+    model: tenkhours/services/core/entity.TemplateMetric
+  TemplateTopic:
+    model: tenkhours/services/core/entity.TemplateTopic

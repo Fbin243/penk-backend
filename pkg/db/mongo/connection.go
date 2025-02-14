@@ -13,16 +13,16 @@ import (
 )
 
 var (
-	ProfileCollection            = "profiles"
-	CharacterCollection          = "characters"
-	GoalsCollection              = "goals"
-	TimeTrackingsCollection      = "time_trackings"
-	SnapshotsCollection          = "snapshots"
-	CapturedRecordsCollection    = "captured_records"
-	FishCollection               = "fish"
-	TemplatesCollection          = "templates"
-	TemplateCategoriesCollection = "template_categories"
-	FindOneAndUpdateOptions      = options.FindOneAndUpdate().SetReturnDocument(options.After)
+	ProfilesCollection        = "profiles"
+	CharactersCollection      = "characters"
+	GoalsCollection           = "goals"
+	TimeTrackingsCollection   = "time_trackings"
+	SnapshotsCollection       = "snapshots"
+	CapturedRecordsCollection = "captured_records"
+	FishCollection            = "fish"
+	TemplatesCollection       = "templates"
+	TemplateTopicsCollection  = "template_topics"
+	FindOneAndUpdateOptions   = options.FindOneAndUpdate().SetReturnDocument(options.After)
 )
 
 type DatabaseManager struct {

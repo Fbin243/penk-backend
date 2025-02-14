@@ -6,9 +6,7 @@ option go_package = "/pb";
 
 service Core {
     rpc IntrospectProfile(IntrospectReq) returns (IntrospectResp) {}
-    rpc UpdateTimeInCharacter(UpdateTimeReq) returns (UpdateTimeResp) {}
     rpc CheckPermission(CheckPermissionReq) returns (CheckPermissionResp) {}
-    rpc BuyItem(BuyItemReq) returns (BuyItemRes) {}
 }
 
 message IntrospectReq {   
@@ -23,16 +21,6 @@ message IntrospectResp {
     string profileID = 2;
 }
 
-message UpdateTimeReq {
-    string characterID = 1;
-    optional string metricID = 2;
-    int32 time = 3;
-}
-
-message UpdateTimeResp {
-    bool success = 1;
-}
-
 message CheckPermissionReq {
     string profileID = 1;
     string characterID = 2;
@@ -41,22 +29,4 @@ message CheckPermissionReq {
 
 message CheckPermissionResp {
     bool authorized = 1;
-}
-
-message BuyItemReq {
-    optional string profileID = 1;
-    optional string characterID = 2;
-    optional string metricID = 3;
-    ItemType itemType = 4;
-    int32 amount = 5;
-
-    enum ItemType {
-        Character = 0;
-        Metric = 1;
-        Property = 2;
-    }
-}
-
-message BuyItemRes {
-    bool success = 1;
 }

@@ -12,30 +12,26 @@
             "icon": "📚",
             "color": "#4CAF50"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Kiến thức mới",
               "value": "0",
-              "unit": "Kiến thức",
-              "type": "Number"
+              "unit": "Kiến thức"
             },
             {
               "name": "Số tín chỉ hoàn thành",
               "value": "0",
-              "unit": "Tín chỉ",
-              "type": "Number"
+              "unit": "Tín chỉ"
             },
             {
               "name": "Tín chỉ tốt nghiệp",
               "value": "0",
-              "unit": "Tín chỉ",
-              "type": "Number"
+              "unit": "Tín chỉ"
             },
             {
               "name": "GPA hiện tại",
               "value": "0",
-              "unit": "GPA",
-              "type": "Number"
+              "unit": "GPA"
             }
           ]
         },
@@ -45,30 +41,26 @@
             "icon": "🎉",
             "color": "#FF9800"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "CLB đang tham gia",
               "value": "",
-              "unit": "CLB",
-              "type": "String"
+              "unit": "CLB"
             },
             {
               "name": "Sự kiện học thuật",
               "value": "",
-              "unit": "Sự kiện",
-              "type": "String"
+              "unit": "Sự kiện"
             },
             {
               "name": "Job fair",
               "value": "",
-              "unit": "Sự kiện",
-              "type": "String"
+              "unit": "Sự kiện"
             },
             {
               "name": "Hoạt động tình nguyện",
               "value": "",
-              "unit": "Sự kiện",
-              "type": "String"
+              "unit": "Sự kiện"
             }
           ]
         },
@@ -78,24 +70,21 @@
             "icon": "⏰",
             "color": "#2196F3"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Đêm không ngủ",
               "value": "0",
-              "unit": "Đêm",
-              "type": "Number"
+              "unit": "Đêm"
             },
             {
               "name": "Số cốc cà phê đã uống",
               "value": "0",
-              "unit": "Cốc",
-              "type": "Number"
+              "unit": "Cốc"
             },
             {
               "name": "Số bài tập đã hoàn thành",
               "value": "0",
-              "unit": "Bài tập",
-              "type": "Number"
+              "unit": "Bài tập"
             }
           ]
         },
@@ -105,24 +94,21 @@
             "icon": "⚽",
             "color": "#FF5722"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Môn thể thao yêu thích",
               "value": "",
-              "unit": "Môn thể thao",
-              "type": "String"
+              "unit": "Môn thể thao"
             },
             {
               "name": "Số trận đấu đã tham gia",
               "value": "0",
-              "unit": "Trận",
-              "type": "Number"
+              "unit": "Trận"
             },
             {
               "name": "Thành tích cao nhất",
               "value": "",
-              "unit": "Thành tích",
-              "type": "String"
+              "unit": "Thành tích"
             }
           ]
         },
@@ -132,24 +118,21 @@
             "icon": "🤝",
             "color": "#009688"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Số buổi thuyết trình",
               "value": "0",
-              "unit": "Buổi",
-              "type": "Number"
+              "unit": "Buổi"
             },
             {
               "name": "Số lần họp nhóm",
               "value": "0",
-              "unit": "Lần",
-              "type": "Number"
+              "unit": "Lần"
             },
             {
               "name": "Kỹ năng mềm tốt nhất",
               "value": "",
-              "unit": "Kỹ năng",
-              "type": "String"
+              "unit": "Kỹ năng"
             }
           ]
         },
@@ -159,36 +142,31 @@
             "icon": "🎮",
             "color": "#E91E63"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Game time",
               "value": "0",
-              "unit": "Giờ",
-              "type": "Number"
+              "unit": "Giờ"
             },
             {
               "name": "Số trận đã chơi",
               "value": "0",
-              "unit": "Trận",
-              "type": "Number"
+              "unit": "Trận"
             },
             {
               "name": "Số trận thắng",
               "value": "0",
-              "unit": "Trận",
-              "type": "Number"
+              "unit": "Trận"
             },
             {
               "name": "Số tập phim đã xem",
               "value": "0",
-              "unit": "Tập",
-              "type": "Number"
+              "unit": "Tập"
             },
             {
               "name": "Bộ phim yêu thích",
               "value": "",
-              "unit": "Hoạt động",
-              "type": "String"
+              "unit": "Hoạt động"
             }
           ]
         }
@@ -206,30 +184,26 @@
             "icon": "👨‍💻",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Số học phần đã học",
               "value": "0",
-              "unit": "học phần",
-              "type": "Number"
+              "unit": "học phần"
             },
             {
               "name": "GPA hiện tại",
               "value": "0",
-              "unit": "",
-              "type": "Number"
+              "unit": ""
             },
             {
               "name": "Học phần yêu thích",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Tín chỉ đã tích lũy",
               "value": "0",
-              "unit": "tín chỉ",
-              "type": "Number"
+              "unit": "tín chỉ"
             }
           ]
         },
@@ -240,24 +214,21 @@
             "icon": "👨‍💻",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Các khái niệm cơ bản trong lập trình đã nắm vững",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Số bài tập đã làm",
               "value": "0",
-              "unit": "bài tập",
-              "type": "Number"
+              "unit": "bài tập"
             },
             {
               "name": "Ngôn ngữ lập trình yêu thích",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         },
@@ -268,30 +239,26 @@
             "icon": "👨‍💻",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Các cấu trúc dữ liệu đã học",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Cấu trúc dữ liệu tâm đắc",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Số bài tập đã làm",
               "value": "0",
-              "unit": "bài tập",
-              "type": "Number"
+              "unit": "bài tập"
             },
             {
               "name": "Số lần ôn tập",
               "value": "0",
-              "unit": "lần",
-              "type": "Number"
+              "unit": "lần"
             }
           ]
         },
@@ -302,30 +269,26 @@
             "icon": "👨‍💻",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Các giải thuật đã học",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Giải thuật yêu thích",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Số bài tập đã làm",
               "value": "0",
-              "unit": "bài tập",
-              "type": "Number"
+              "unit": "bài tập"
             },
             {
               "name": "Số lần ôn tập",
               "value": "0",
-              "unit": "lần",
-              "type": "Number"
+              "unit": "lần"
             }
           ]
         },
@@ -336,24 +299,21 @@
             "icon": "👨‍💻",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Các khái niệm trong hệ điều hành đã nắm vững",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Số bài tập đã làm",
               "value": "0",
-              "unit": "bài tập",
-              "type": "Number"
+              "unit": "bài tập"
             },
             {
               "name": "Hệ điều hành yêu thích",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         },
@@ -364,30 +324,26 @@
             "icon": "👨‍💻",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Tổng số bài đã làm",
               "value": "0",
-              "unit": "bài",
-              "type": "Number"
+              "unit": "bài"
             },
             {
               "name": "Số bài easy",
               "value": "0",
-              "unit": "bài",
-              "type": "Number"
+              "unit": "bài"
             },
             {
               "name": "Số bài medium",
               "value": "0",
-              "unit": "bài",
-              "type": "Number"
+              "unit": "bài"
             },
             {
               "name": "Số bài hard",
               "value": "0",
-              "unit": "bài",
-              "type": "Number"
+              "unit": "bài"
             }
           ]
         }
@@ -400,7 +356,7 @@
       "emoji": "👨‍💻",
       "description": "Người phát triển hệ thống phía server, xây dựng API, xử lý dữ liệu, ...",
       "color": "#FF5733",
-      "metrics": [
+      "categories": [
         {
           "name": "Internet",
           "description": "Học các kiến thức liên quan đến Internet như HTTP, HTTPS, Domain name, DNS, Hosting, ...",
@@ -408,12 +364,11 @@
             "icon": "👨‍💻",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Các khái niệm đã nắm vững",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         },
@@ -424,18 +379,16 @@
             "icon": "👨‍💻",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Ngôn ngữ lập trình thành thạo",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Các framework đã sử dụng",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         },
@@ -446,18 +399,16 @@
             "icon": "👨‍💻",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Số lệnh Git cơ bản đã nắm",
               "value": "0",
-              "unit": "",
-              "type": "Number"
+              "unit": ""
             },
             {
               "name": "Số repository đã tạo",
               "value": "0",
-              "unit": "repository",
-              "type": "Number"
+              "unit": "repository"
             }
           ]
         },
@@ -468,24 +419,21 @@
             "icon": "👨‍💻",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Số loại cơ sở dữ liệu đã sử dụng",
               "value": "0",
-              "unit": "",
-              "type": "Number"
+              "unit": ""
             },
             {
               "name": "Các câu lệnh SQL đã nắm",
               "value": "0",
-              "unit": "",
-              "type": "Number"
+              "unit": ""
             },
             {
               "name": "Cơ sở dữ liệu yêu thích",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         },
@@ -496,18 +444,16 @@
             "icon": "👨‍💻",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Các loại API đã xây dựng",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Số API đã xây dựng",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         }
@@ -518,7 +464,7 @@
       "emoji": "👩‍💻",
       "description": "Người phát triển giao diện người dùng, xây dựng ứng dụng web và tối ưu trải nghiệm người dùng.",
       "color": "#4CAF50",
-      "metrics": [
+      "categories": [
         {
           "name": "HTML/CSS",
           "description": "Hiểu biết vững về HTML5, CSS3, và các kỹ thuật tạo giao diện web động và tương tác.",
@@ -526,24 +472,21 @@
             "icon": "🌐",
             "color": "#4CAF50"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Các thẻ HTML đã nắm vững",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Các kỹ thuật CSS đã sử dụng",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Tổng số dự án đã sử dụng HTML/CSS",
               "value": "0",
-              "unit": "dự án",
-              "type": "Number"
+              "unit": "dự án"
             }
           ]
         },
@@ -554,24 +497,21 @@
             "icon": "📜",
             "color": "#4CAF50"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Số dự án JavaScript đã tham gia",
               "value": "0",
-              "unit": "dự án",
-              "type": "Number"
+              "unit": "dự án"
             },
             {
               "name": "Các thư viện JavaScript đã sử dụng",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Kỹ năng lập trình bất đồng bộ (Promises, Async/Await)",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         },
@@ -582,18 +522,16 @@
             "icon": "⚛️",
             "color": "#4CAF50"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Frameworks đã sử dụng",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Số dự án sử dụng frameworks",
               "value": "0",
-              "unit": "dự án",
-              "type": "Number"
+              "unit": "dự án"
             }
           ]
         },
@@ -604,18 +542,16 @@
             "icon": "📱",
             "color": "#4CAF50"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Các phương pháp Responsive Design đã áp dụng",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Số dự án đã thiết kế responsive",
               "value": "0",
-              "unit": "dự án",
-              "type": "Number"
+              "unit": "dự án"
             }
           ]
         },
@@ -626,18 +562,16 @@
             "icon": "💻",
             "color": "#4CAF50"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Số lệnh Git cơ bản đã nắm",
               "value": "0",
-              "unit": "",
-              "type": "Number"
+              "unit": ""
             },
             {
               "name": "Số repository đã tạo",
               "value": "0",
-              "unit": "repository",
-              "type": "Number"
+              "unit": "repository"
             }
           ]
         },
@@ -648,18 +582,16 @@
             "icon": "🎨",
             "color": "#4CAF50"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Các công cụ thiết kế đã sử dụng (Figma, Sketch, ...)",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "Kinh nghiệm với UI/UX Principles",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         }
@@ -670,31 +602,28 @@
       "emoji": "🎨",
       "description": "Xây dựng trải nghiệm và giao diện người dùng xuất sắc bằng cách nắm vững các nguyên tắc thiết kế và công cụ, tập trung vào phương pháp lấy người dùng làm trung tâm.",
       "color": "#673AB7",
-      "metrics": [
+      "categories": [
         {
           "name": "Understanding User Behavior",
           "style": {
             "icon": "🧠",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Behavioral Models Learned",
               "value": "0",
-              "unit": "Mô hình",
-              "type": "Number"
+              "unit": "Mô hình"
             },
             {
               "name": "Behavior Change Techniques",
               "value": "0",
-              "unit": "Kỹ thuật",
-              "type": "Number"
+              "unit": "Kỹ thuật"
             },
             {
               "name": "Favorite Behavior Framework",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         },
@@ -704,24 +633,21 @@
             "icon": "✍️",
             "color": "#9B59B6"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Wireframe đã tạo",
               "value": "0",
-              "unit": "Wireframe",
-              "type": "Number"
+              "unit": "Wireframe"
             },
             {
               "name": "Prototype đã phát triển",
               "value": "0",
-              "unit": "Prototype",
-              "type": "Number"
+              "unit": "Prototype"
             },
             {
               "name": "Công cụ thiết kế yêu thích",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         },
@@ -731,24 +657,21 @@
             "icon": "🔄",
             "color": "#E67E22"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "A/B test đã thực hiện",
               "value": "0",
-              "unit": "Bài kiểm thử",
-              "type": "Number"
+              "unit": "Bài kiểm thử"
             },
             {
               "name": "Multivariate Tests đã chạy",
               "value": "0",
-              "unit": "Thử nghiệm",
-              "type": "Number"
+              "unit": "Thử nghiệm"
             },
             {
               "name": "Kỹ thuật thu thập Feedback",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         },
@@ -758,24 +681,21 @@
             "icon": "📐",
             "color": "#3498DB"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "UI Pattern đã học",
               "value": "0",
-              "unit": "Mẫu",
-              "type": "Number"
+              "unit": "Mẫu"
             },
             {
               "name": "Layout Principle yêu thích",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             },
             {
               "name": "UI Designs đã làm",
               "value": "0",
-              "unit": "Thiết kế",
-              "type": "Number"
+              "unit": "Thiết kế"
             }
           ]
         },
@@ -785,24 +705,21 @@
             "icon": "♿",
             "color": "#1ABC9C"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Accessibility Standards",
               "value": "0",
-              "unit": "Tiêu chuẩn",
-              "type": "Number"
+              "unit": "Tiêu chuẩn"
             },
             {
               "name": "Usability Tests",
               "value": "0",
-              "unit": "Thử nghiệm",
-              "type": "Number"
+              "unit": "Thử nghiệm"
             },
             {
               "name": "Favorite Accessibility Feature",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         }
@@ -823,36 +740,31 @@
             "icon": "💪",
             "color": "#FF5733"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Bench Press (Personal Record)",
               "value": "0",
-              "unit": "kg",
-              "type": "Number"
+              "unit": "kg"
             },
             {
               "name": "Squats (Personal Record)",
               "value": "0",
-              "unit": "kg",
-              "type": "Number"
+              "unit": "kg"
             },
             {
               "name": "Lat Pulldown (Personal Record)",
               "value": "0",
-              "unit": "kg",
-              "type": "Number"
+              "unit": "kg"
             },
             {
               "name": "Shoulder Press (Personal Record)",
               "value": "0",
-              "unit": "kg",
-              "type": "Number"
+              "unit": "kg"
             },
             {
               "name": "Biceps Curl (Personal Record)",
               "value": "0",
-              "unit": "kg",
-              "type": "Number"
+              "unit": "kg"
             }
           ]
         },
@@ -863,36 +775,31 @@
             "icon": "🤸",
             "color": "#33FF57"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Pushups Record",
               "value": "0",
-              "unit": "Reps",
-              "type": "Number"
+              "unit": "Reps"
             },
             {
               "name": "Pull ups Record",
               "value": "0",
-              "unit": "Reps",
-              "type": "Number"
+              "unit": "Reps"
             },
             {
               "name": "Situps Record",
               "value": "0",
-              "unit": "Reps",
-              "type": "Number"
+              "unit": "Reps"
             },
             {
               "name": "Plank Record",
               "value": "0",
-              "unit": "Minutes",
-              "type": "Number"
+              "unit": "Minutes"
             },
             {
               "name": "Burpees Record",
               "value": "0",
-              "unit": "Reps",
-              "type": "Number"
+              "unit": "Reps"
             }
           ]
         },
@@ -903,24 +810,21 @@
             "icon": "🏋️",
             "color": "#33A1FF"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Running Record in 1 hour",
               "value": "0",
-              "unit": "km",
-              "type": "Number"
+              "unit": "km"
             },
             {
               "name": "Jump Rope Record in 10 minute",
               "value": "0",
-              "unit": "Reps",
-              "type": "Number"
+              "unit": "Reps"
             },
             {
               "name": "Cycling",
               "value": "0",
-              "unit": "km",
-              "type": "Number"
+              "unit": "km"
             }
           ]
         },
@@ -931,30 +835,26 @@
             "icon": "⚖️",
             "color": "#FFC300"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Current Weight",
               "value": "0",
-              "unit": "kg",
-              "type": "Number"
+              "unit": "kg"
             },
             {
               "name": "Current Height",
               "value": "0",
-              "unit": "cm",
-              "type": "Number"
+              "unit": "cm"
             },
             {
               "name": "Daily Calorie Intake",
               "value": "0",
-              "unit": "Calories",
-              "type": "Number"
+              "unit": "Calories"
             },
             {
               "name": "Calories Consumed Today",
               "value": "0",
-              "unit": "Calories",
-              "type": "Number"
+              "unit": "Calories"
             }
           ]
         },
@@ -965,18 +865,16 @@
             "icon": "🧘",
             "color": "#FF69B4"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Yoga Sessions",
               "value": "0",
-              "unit": "Sessions",
-              "type": "Number"
+              "unit": "Sessions"
             },
             {
               "name": "Stretching Exercises",
               "value": "0",
-              "unit": "Exercises",
-              "type": "Number"
+              "unit": "Exercises"
             }
           ]
         }
@@ -994,30 +892,26 @@
             "icon": "🏓",
             "color": "#FF5722"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Số trận đã chơi",
               "value": "0",
-              "unit": "Trận",
-              "type": "Number"
+              "unit": "Trận"
             },
             {
               "name": "Số trận thắng",
               "value": "0",
-              "unit": "Trận",
-              "type": "Number"
+              "unit": "Trận"
             },
             {
               "name": "Số bóng đã sử dụng",
               "value": "0",
-              "unit": "Quả bóng",
-              "type": "Number"
+              "unit": "Quả bóng"
             },
             {
               "name": "Cú đánh yêu thích",
               "value": "",
-              "unit": "",
-              "type": "String"
+              "unit": ""
             }
           ]
         },
@@ -1027,54 +921,46 @@
             "icon": "🤾‍♂️",
             "color": "#3F51B5"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Dink Shots",
               "value": "0",
-              "unit": "Lượt tập",
-              "type": "Number"
+              "unit": "Lượt tập"
             },
             {
               "name": "Drive Shots",
               "value": "0",
-              "unit": "Lượt tập",
-              "type": "Number"
+              "unit": "Lượt tập"
             },
             {
               "name": "Volley Shots",
               "value": "0",
-              "unit": "Lượt tập",
-              "type": "Number"
+              "unit": "Lượt tập"
             },
             {
               "name": "Lob Shots",
               "value": "0",
-              "unit": "Lượt tập",
-              "type": "Number"
+              "unit": "Lượt tập"
             },
             {
               "name": "Drop Shots",
               "value": "0",
-              "unit": "Lượt tập",
-              "type": "Number"
+              "unit": "Lượt tập"
             },
             {
               "name": "Third Shot Drops",
               "value": "0",
-              "unit": "Lượt tập",
-              "type": "Number"
+              "unit": "Lượt tập"
             },
             {
               "name": "Erne Shots",
               "value": "0",
-              "unit": "Lượt tập",
-              "type": "Number"
+              "unit": "Lượt tập"
             },
             {
               "name": "Spin Shots",
               "value": "0",
-              "unit": "Lượt tập",
-              "type": "Number"
+              "unit": "Lượt tập"
             }
           ]
         },
@@ -1084,24 +970,21 @@
             "icon": "🏆",
             "color": "#4CAF50"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Số giải tham gia",
               "value": "0",
-              "unit": "Giải",
-              "type": "Number"
+              "unit": "Giải"
             },
             {
               "name": "Số huy chương",
               "value": "0",
-              "unit": "Huy chương",
-              "type": "Number"
+              "unit": "Huy chương"
             },
             {
               "name": "Thành tích đáng nhớ nhất",
               "value": "",
-              "unit": "Thành tích",
-              "type": "String"
+              "unit": "Thành tích"
             }
           ]
         },
@@ -1111,24 +994,21 @@
             "icon": "🎒",
             "color": "#9C27B0"
           },
-          "properties": [
+          "metrics": [
             {
               "name": "Vợt yêu thích",
               "value": "",
-              "unit": "Vợt",
-              "type": "String"
+              "unit": "Vợt"
             },
             {
               "name": "Số bóng đã sử dụng",
               "value": "0",
-              "unit": "Quả bóng",
-              "type": "Number"
+              "unit": "Quả bóng"
             },
             {
               "name": "Sân tập thường xuyên",
               "value": "",
-              "unit": "Địa điểm",
-              "type": "String"
+              "unit": "Địa điểm"
             }
           ]
         }

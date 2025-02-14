@@ -12,8 +12,8 @@ const (
 
 	// Core errors
 	ErrCodeLimitCharacter      ErrorCode = "LIMIT_CHARACTER"
+	ErrCodeLimitCategory       ErrorCode = "LIMIT_CATEGORY"
 	ErrCodeLimitMetric         ErrorCode = "LIMIT_METRIC"
-	ErrCodeLimitProperty       ErrorCode = "LIMIT_PROPERTY"
 	ErrCodeGoalAlreadyFinished ErrorCode = "GOAL_ALREADY_FINISHED"
 	ErrCodeGoalAlreadyExpired  ErrorCode = "GOAL_ALREADY_EXPIRED"
 

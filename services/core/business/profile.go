@@ -121,14 +121,13 @@ func (biz *ProfileBusiness) IntrospectProfile(ctx context.Context, firebaseProfi
 	if err == mongo.ErrNoDocuments {
 		// profile not found, mean the new account
 		newProfile := entity.Profile{
-			BaseEntity:             &base.BaseEntity{},
-			Name:                   firebaseProfile.Name,
-			Email:                  firebaseProfile.Email,
-			FirebaseUID:            firebaseProfile.UID,
-			ImageURL:               firebaseProfile.Picture,
-			AutoSnapshot:           true,
-			AvailableSnapshots:     utils.DefaultSnapshotsNumber,
-			LimitedCharacterNumber: utils.LimitedCharacterNumber,
+			BaseEntity:         &base.BaseEntity{},
+			Name:               firebaseProfile.Name,
+			Email:              firebaseProfile.Email,
+			FirebaseUID:        firebaseProfile.UID,
+			ImageURL:           firebaseProfile.Picture,
+			AutoSnapshot:       true,
+			AvailableSnapshots: utils.DefaultSnapshotsNumber,
 		}
 
 		// Create new profile for the new user in DB
@@ -164,7 +163,7 @@ func (biz *ProfileBusiness) CheckPermission(ctx context.Context, profileID, char
 	// Check if the metric belongs to the character
 	if metricID != nil {
 		found := false
-		for _, metric := range character.CustomMetrics {
+		for _, metric := range character.Categories {
 			if metric.ID == *metricID {
 				found = true
 				break
@@ -173,65 +172,6 @@ func (biz *ProfileBusiness) CheckPermission(ctx context.Context, profileID, char
 
 		if !found {
 			return errors.PermissionDenied()
-		}
-	}
-
-	return nil
-}
-
-func (biz *ProfileBusiness) BuyItem(ctx context.Context, profileID, characterID, metricID *string, item entity.ItemType, amount int32) error {
-	switch item {
-	case entity.ItemTypeCharacter:
-		if profileID == nil {
-			return fmt.Errorf("profileID is required to buy a new character")
-		}
-
-		profile, err := biz.ProfileRepo.FindByID(ctx, *profileID)
-		if err != nil {
-			return err
-		}
-
-		profile.LimitedCharacterNumber += amount
-		_, err = biz.ProfileRepo.UpdateByID(ctx, profile.ID, profile)
-		if err != nil {
-			return err
-		}
-
-	case entity.ItemTypeMetric:
-		if characterID == nil {
-			return fmt.Errorf("characterID is required to buy a new metric")
-		}
-
-		character, err := biz.CharacterRepo.FindByID(ctx, *characterID)
-		if err != nil {
-			return err
-		}
-
-		character.LimitedMetricNumber += amount
-		_, err = biz.CharacterRepo.UpdateByID(ctx, character.ID, character)
-		if err != nil {
-			return err
-		}
-
-	case entity.ItemTypeProperty:
-		if characterID == nil && metricID == nil {
-			return fmt.Errorf("characterID and metricID are required to buy a new property")
-		}
-
-		character, err := biz.CharacterRepo.FindByID(ctx, *characterID)
-		if err != nil {
-			return err
-		}
-
-		for i, metric := range character.CustomMetrics {
-			if metric.ID == *metricID {
-				character.CustomMetrics[i].LimitedPropertyNumber += amount
-			}
-		}
-
-		_, err = biz.CharacterRepo.UpdateByID(ctx, character.ID, character)
-		if err != nil {
-			return err
 		}
 	}
 

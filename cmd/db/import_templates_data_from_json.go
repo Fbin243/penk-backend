@@ -21,26 +21,25 @@ type Style struct {
 	Color string `json:"color"`
 }
 
-type Property struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-	Unit  string `json:"unit"`
-	Type  string `json:"type"`
+type Metric struct {
+	Name  string  `json:"name"`
+	Value float64 `json:"value"`
+	Unit  string  `json:"unit"`
 }
 
-type Metric struct {
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Style       Style      `json:"style"`
-	Properties  []Property `json:"properties"`
+type Category struct {
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Style       Style    `json:"style"`
+	Metrics     []Metric `json:"metrics"`
 }
 
 type Template struct {
-	Name        string   `json:"name"`
-	Emoji       string   `json:"emoji"`
-	Description string   `json:"description"`
-	Color       string   `json:"color"`
-	Metrics     []Metric `json:"metrics"`
+	Name        string     `json:"name"`
+	Emoji       string     `json:"emoji"`
+	Description string     `json:"description"`
+	Color       string     `json:"color"`
+	Categories  []Category `json:"categories"`
 }
 
 func readTemplatesFromJSON() error {
@@ -50,33 +49,33 @@ func readTemplatesFromJSON() error {
 	}
 	defer jsonFile.Close()
 
-	categoriesMap := map[string][]Template{}
+	topicsMap := map[string][]Template{}
 	jsonParser := json.NewDecoder(jsonFile)
-	jsonParser.Decode(&categoriesMap)
+	jsonParser.Decode(&topicsMap)
 
 	templateRepo := mongorepo.NewTemplateRepo(mongodb.GetDBManager().DB)
-	templateCategoryRepo := mongorepo.NewTemplateCategoryRepo(mongodb.GetDBManager().DB)
+	templateTopicRepo := mongorepo.NewTemplateTopicRepo(mongodb.GetDBManager().DB)
 
 	templates := []entity.Template{}
 
 	// Loop through the categories and insert them into the database
-	for cateName, cateTemplates := range categoriesMap {
-		category := entity.TemplateCategory{
+	for topicName, topicTemplates := range topicsMap {
+		category := entity.TemplateTopic{
 			BaseEntity:  &base.BaseEntity{},
-			Name:        cateName,
-			Description: fmt.Sprintf("This category contains templates related to %s", cateName),
+			Name:        topicName,
+			Description: fmt.Sprintf("This topic contains templates related to %s", topicName),
 		}
 
 		// Insert the category into the database
-		_, err = templateCategoryRepo.InsertOne(context.Background(), &category)
+		_, err = templateTopicRepo.InsertOne(context.Background(), &category)
 		if err != nil {
 			return err
 		}
 
 		// Loop through the templates and insert them into the slide
-		for _, template := range cateTemplates {
+		for _, template := range topicTemplates {
 			repoTemplate := mapToRepoTemplate(template)
-			repoTemplate.CategoryID = category.ID
+			repoTemplate.TopicID = category.ID
 			templates = append(templates, repoTemplate)
 		}
 	}
@@ -95,33 +94,32 @@ func mapToRepoTemplate(t Template) entity.Template {
 		BaseEntity:  &base.BaseEntity{},
 		Name:        t.Name,
 		Description: t.Description,
-		CategoryID:  primitive.NewObjectID().Hex(),
+		TopicID:     primitive.NewObjectID().Hex(),
 		Style: entity.TemplateStyle{
 			Color: t.Color,
 			Icon:  t.Emoji,
 		},
-		Metrics: []entity.TemplateMetric{},
+		Categories: []entity.TemplateCategory{},
 	}
 
-	for _, metric := range t.Metrics {
-		properties := []entity.TemplateProperty{}
-		for _, property := range metric.Properties {
-			properties = append(properties, entity.TemplateProperty{
-				Name:  property.Name,
-				Value: property.Value,
-				Unit:  property.Unit,
-				Type:  entity.MetricPropertyType(property.Type),
+	for _, category := range t.Categories {
+		metrics := []entity.TemplateMetric{}
+		for _, metric := range category.Metrics {
+			metrics = append(metrics, entity.TemplateMetric{
+				Name:  metric.Name,
+				Value: metric.Value,
+				Unit:  metric.Unit,
 			})
 		}
 
-		template.Metrics = append(template.Metrics, entity.TemplateMetric{
-			Name:        metric.Name,
-			Description: metric.Description,
-			Style: entity.MetricStyle{
-				Color: metric.Style.Color,
-				Icon:  metric.Style.Icon,
+		template.Categories = append(template.Categories, entity.TemplateCategory{
+			Name:        category.Name,
+			Description: category.Description,
+			Style: entity.CategoryStyle{
+				Color: category.Style.Color,
+				Icon:  category.Style.Icon,
 			},
-			Properties: properties,
+			Metrics: metrics,
 		})
 	}
 

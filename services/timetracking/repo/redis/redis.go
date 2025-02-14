@@ -116,18 +116,18 @@ func (r *RedisRepo) UpsertTimeTrackingInCapturedRecord(ctx context.Context, prof
 
 	// Add the time tracking to the captured record
 	capturedRecord.TimeTrackings = append(capturedRecord.TimeTrackings, entity.CapturedRecordTimeTracking{
-		CustomMetricID: timeTracking.CustomMetricID,
+		CustomMetricID: timeTracking.CategoryID,
 		Time:           duration,
 		StartTime:      timeTracking.StartTime,
 		EndTime:        timeTracking.EndTime,
 	})
 
-	if timeTracking.CustomMetricID != "" {
+	if timeTracking.CategoryID != "" {
 		// Check if this custom metric already exists in the captured record
 		found := false
 		for j, capturedCustomMetric := range capturedRecord.CustomMetrics {
 			// If it exists, add the time to it
-			if capturedCustomMetric.ID == timeTracking.CustomMetricID {
+			if capturedCustomMetric.ID == timeTracking.CategoryID {
 				capturedRecord.CustomMetrics[j].Time += int32(duration)
 				found = true
 			}
@@ -136,7 +136,7 @@ func (r *RedisRepo) UpsertTimeTrackingInCapturedRecord(ctx context.Context, prof
 		// If it doesn't exist, create a new one
 		if !found {
 			capturedRecord.CustomMetrics = append(capturedRecord.CustomMetrics, entity.CapturedRecordCustomMetric{
-				ID:   timeTracking.CustomMetricID,
+				ID:   timeTracking.CategoryID,
 				Time: int32(duration),
 			})
 		}

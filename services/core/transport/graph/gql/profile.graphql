@@ -11,7 +11,6 @@ type Profile {
   currentCharacterID: ID
   characters: [Character!]!
   availableSnapshots: Int!
-  limitedCharacterNumber: Int!
   autoSnapshot: Boolean!
   fish: Fish!
 }
