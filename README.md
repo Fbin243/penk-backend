@@ -54,7 +54,7 @@ make core
 make analytic
 ```
 
-# MongoDB Migration
+## MongoDB Migration
 
 Please follow this guide: <https://www.npmjs.com/package/migrate-mongo>
 
@@ -64,4 +64,20 @@ npm i -g migrate-mongo
 # migrate-mongo up
 # migrate-mongo down
 # migrate-mongo status
+```
+
+## Start services, run unit tests and API tests
+
+```sh
+# Microservices
+make test SERVICE="core analytic timetracking currency"
+
+# Gateway
+make gateway
+
+# Run unit tests
+make unit-test
+
+# Run api tests
+make api-test
 ```
