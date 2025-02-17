@@ -14,13 +14,20 @@ export const handleToolCalls = async (
     const toolCallPromises = toolCalls.map(async (toolCall) => {
       try {
         const args = JSON.parse(toolCall.function.arguments);
+        const result = await openaiPenKMap[toolCall.function.name](args);
         console.log(
-          chalk.green(`[Function Detected] ${toolCall.function.name}, args:`),
+          chalk.magentaBright(
+            `[Function calling] ${toolCall.function.name}, args:`,
+          ),
         );
         console.dir(args, { depth: null, colors: true });
         console.log();
 
-        const result = await openaiPenKMap[toolCall.function.name](args);
+        console.log(
+          chalk.magentaBright(`[Result injecting] ${toolCall.function.name}`),
+        );
+        console.dir(result, { depth: null, colors: true });
+        console.log();
         return { toolCallId: toolCall.id, result };
       } catch (error) {
         console.error(`Error processing tool call ${toolCall.id}:`, error);
@@ -37,7 +44,7 @@ export const handleToolCalls = async (
       messages.push({
         role: "tool",
         tool_call_id: toolCallId,
-        content: `${result}`,
+        content: JSON.stringify(result),
       });
     });
   } catch (error) {

@@ -67,7 +67,7 @@ const testUser: User = {
     },
   ],
 };
-console.log(chalk.redBright("[Inject user context]"));
+console.log(chalk.redBright("[User Context injecting]"));
 console.dir(testUser, { depth: null, colors: true });
 console.log();
 
