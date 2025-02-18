@@ -149,29 +149,35 @@ func (biz *ProfileBusiness) IntrospectProfile(ctx context.Context, firebaseProfi
 	return profile, nil
 }
 
-func (biz *ProfileBusiness) CheckPermission(ctx context.Context, profileID, characterID string, metricID *string) error {
-	// Check if the character belongs to the profile
-	character, err := biz.CharacterRepo.FindByID(ctx, characterID)
-	if err != nil {
-		return err
-	}
-
-	if character.ProfileID != profileID {
-		return errors.PermissionDenied()
-	}
-
-	// Check if the metric belongs to the character
-	if metricID != nil {
-		found := false
-		for _, metric := range character.Categories {
-			if metric.ID == *metricID {
-				found = true
-				break
-			}
+func (biz *ProfileBusiness) CheckPermission(ctx context.Context, profileID, characterID, categoryID *string) error {
+	if profileID != nil && characterID != nil {
+		character, err := biz.CharacterRepo.FindByID(ctx, *characterID)
+		if err != nil {
+			return err
 		}
 
-		if !found {
+		profile := entity.Profile{
+			BaseEntity: &base.BaseEntity{
+				ID: *profileID,
+			},
+		}
+
+		if ok, _ := auth.CheckPermission(profile, character, "write"); !ok {
 			return errors.PermissionDenied()
+		}
+
+		if categoryID != nil {
+			found := false
+			for _, category := range character.Categories {
+				if category.ID == *categoryID {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				return errors.PermissionDenied()
+			}
 		}
 	}
 

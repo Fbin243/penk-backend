@@ -22,9 +22,9 @@ message IntrospectResp {
 }
 
 message CheckPermissionReq {
-    string profileID = 1;
-    string characterID = 2;
-    optional string metricID = 3;
+    optional string profileID = 2;
+    optional string characterID = 3;
+    optional string categoryID = 4;
 }
 
 message CheckPermissionResp {

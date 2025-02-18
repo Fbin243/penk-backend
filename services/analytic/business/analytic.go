@@ -10,6 +10,8 @@ import (
 	"tenkhours/services/analytic/entity"
 
 	rdb "tenkhours/pkg/db/redis"
+
+	"github.com/samber/lo"
 )
 
 type AnalyticBusiness struct {
@@ -38,7 +40,7 @@ func (biz *AnalyticBusiness) GetAnalyticResults(ctx context.Context, characterID
 	}
 
 	if characterID != nil {
-		authorized, err := biz.CoreClient.CheckPermission(ctx, authSession.ProfileID, *characterID, nil)
+		authorized, err := biz.CoreClient.CheckPermission(ctx, lo.ToPtr(authSession.ProfileID), characterID, nil)
 		if !authorized || err != nil {
 			return nil, errors.PermissionDenied()
 		}

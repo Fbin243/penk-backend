@@ -135,7 +135,7 @@ func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.
 		return nil, err
 	}
 
-	if character.ProfileID != profile.ID {
+	if ok, _ := auth.CheckPermission(profile, character, "write"); !ok {
 		return nil, errors.PermissionDenied()
 	}
 
@@ -206,7 +206,7 @@ func (biz *CharacterBusiness) upsertCategoriesInCharacter(ctx context.Context, c
 		} else {
 			// Update old category
 			if _, ok := categoriesMap[*categoryInput.ID]; !ok {
-				return errors.PermissionDenied()
+				return errors.BadRequest()
 			}
 
 			oldCategory := categoriesMap[*categoryInput.ID]
@@ -258,7 +258,7 @@ func (biz *CharacterBusiness) upsertMetricsInCharacter(ctx context.Context, char
 		} else {
 			// Update old metric
 			if _, ok := metricsMap[*metricInput.ID]; !ok {
-				return errors.PermissionDenied()
+				return errors.BadRequest()
 			}
 
 			oldMetric := metricsMap[*metricInput.ID]
@@ -287,7 +287,13 @@ func (biz *CharacterBusiness) DeleteCharacter(ctx context.Context, id string) (*
 		return nil, err
 	}
 
-	if character.ProfileID != authSession.ProfileID {
+	profile := &entity.Profile{
+		BaseEntity: &base.BaseEntity{
+			ID: authSession.ProfileID,
+		},
+	}
+
+	if ok, _ := auth.CheckPermission(profile, character, "write"); !ok {
 		return nil, errors.PermissionDenied()
 	}
 

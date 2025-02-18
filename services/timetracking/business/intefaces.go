@@ -17,7 +17,7 @@ type ICache interface {
 }
 
 type ICoreClient interface {
-	CheckPermission(ctx context.Context, profileID, characterID string, metricID *string) (bool, error)
+	CheckPermission(ctx context.Context, profileID, characterID, categoryID *string) (bool, error)
 }
 
 type ICurrencyClient interface {
