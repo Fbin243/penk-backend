@@ -1,9 +1,10 @@
+import chalk from "chalk";
 import {
   ChatCompletionMessageParam,
   ChatCompletionMessageToolCall,
 } from "openai/resources";
+
 import { openaiPenKMap } from "./functions";
-import chalk from "chalk";
 
 export const handleToolCalls = async (
   toolCalls: ChatCompletionMessageToolCall[],

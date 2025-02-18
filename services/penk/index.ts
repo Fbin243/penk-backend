@@ -1,16 +1,17 @@
-import { readFileSync } from "fs";
-import dotenv from "dotenv";
-import readline from "readline";
-import OpenAI from "openai";
 import chalk from "chalk";
-import {
-  openaiCreateTimeTracking,
-  openaiUpdateTimeTracking,
-} from "./functions/statTracking";
+import dotenv from "dotenv";
+import { readFileSync } from "fs";
+import OpenAI from "openai";
 import {
   ChatCompletionMessageParam,
   ChatCompletionTool,
 } from "openai/resources";
+import readline from "readline";
+
+import {
+  openaiCreateTimeTracking,
+  openaiUpdateTimeTracking,
+} from "./functions/statTracking";
 import { User } from "./functions/types";
 import { handleToolCalls } from "./utils";
 

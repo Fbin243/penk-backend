@@ -1,4 +1,5 @@
 import { FunctionDefinition } from "openai/resources";
+
 import { PenKFunction, TimeTracking, TimeTrackingWithFish } from "./types";
 
 const localTimeTrackings: TimeTracking[] = [];
