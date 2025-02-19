@@ -45,7 +45,7 @@ func (hdl *CoreHandler) IntrospectProfile(ctx context.Context, req *pb.Introspec
 func (hdl *CoreHandler) CheckPermission(ctx context.Context, req *pb.CheckPermissionReq) (*pb.CheckPermissionResp, error) {
 	resp := &pb.CheckPermissionResp{Authorized: false}
 
-	err := hdl.profilesBusiness.CheckPermission(ctx, req.ProfileID, req.CharacterID, req.MetricID)
+	err := hdl.profilesBusiness.CheckPermission(ctx, req.ProfileID, req.CharacterID, req.CategoryID)
 	if err != nil {
 		return resp, err
 	}

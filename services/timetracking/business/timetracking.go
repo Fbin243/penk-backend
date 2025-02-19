@@ -15,6 +15,8 @@ import (
 
 	mongodb "tenkhours/pkg/db/mongo"
 	rdb "tenkhours/pkg/db/redis"
+
+	"github.com/samber/lo"
 )
 
 type TimeTrackingBusiness struct {
@@ -47,7 +49,7 @@ func (biz *TimeTrackingBusiness) GetTotalCurrentTimeTracking(ctx context.Context
 	}
 
 	// Check permissions
-	authorized, err := biz.coreClient.CheckPermission(ctx, authSession.ProfileID, characterID, nil)
+	authorized, err := biz.coreClient.CheckPermission(ctx, lo.ToPtr(authSession.ProfileID), lo.ToPtr(characterID), nil)
 	if !authorized || err != nil {
 		return 0, errors.PermissionDenied()
 	}
@@ -75,7 +77,7 @@ func (biz *TimeTrackingBusiness) GetTotalCurrentTimeTracking(ctx context.Context
 	return totalTime, nil
 }
 
-func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, characterID string, metricID *string, startTime time.Time) (*entity.TimeTracking, error) {
+func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, characterID string, categoryID *string, startTime time.Time) (*entity.TimeTracking, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.Unauthorized()
@@ -90,7 +92,7 @@ func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, charact
 		return nil, errors.NewGQLError(errors.ErrCodeOverMaxDifferenceDuration, "the period time is over the max difference duration")
 	}
 
-	authorized, err := biz.coreClient.CheckPermission(ctx, authSession.ProfileID, characterID, metricID)
+	authorized, err := biz.coreClient.CheckPermission(ctx, lo.ToPtr(authSession.ProfileID), lo.ToPtr(characterID), categoryID)
 	if !authorized || err != nil {
 		return nil, errors.PermissionDenied()
 	}
@@ -112,8 +114,8 @@ func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, charact
 		StartTime:   startTime,
 	}
 
-	if metricID != nil {
-		timeTracking.CategoryID = *metricID
+	if categoryID != nil {
+		timeTracking.CategoryID = *categoryID
 	}
 
 	err = biz.cache.CreateTimeTracking(ctx, authSession.ProfileID, timeTracking)

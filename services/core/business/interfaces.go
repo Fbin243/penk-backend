@@ -16,7 +16,7 @@ type IProfileBusiness interface {
 	UpdateProfile(ctx context.Context, input entity.ProfileInput) (*entity.Profile, error)
 	DeleteProfile(ctx context.Context) (*entity.Profile, error)
 	IntrospectProfile(ctx context.Context, firebaseProfile auth.FirebaseProfile) (*entity.Profile, error)
-	CheckPermission(ctx context.Context, profileID, characterID string, metricID *string) error
+	CheckPermission(ctx context.Context, profileID, characterID, categoryID *string) error
 }
 
 type ICharacterBusiness interface {

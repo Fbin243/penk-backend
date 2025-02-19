@@ -4,6 +4,7 @@ go 1.22.3
 
 require (
 	firebase.google.com/go v3.13.0+incompatible
+	github.com/casbin/casbin/v2 v2.103.0
 	google.golang.org/api v0.170.0
 )
 
@@ -15,6 +16,8 @@ require (
 	cloud.google.com/go/iam v1.1.7 // indirect
 	cloud.google.com/go/longrunning v0.5.5 // indirect
 	cloud.google.com/go/storage v1.40.0 // indirect
+	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
+	github.com/casbin/govaluate v1.3.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect

@@ -47,3 +47,7 @@ func Unauthorized() *gqlerror.Error {
 func PermissionDenied() *gqlerror.Error {
 	return NewGQLError(ErrCodePermissionDenied, "permission denied")
 }
+
+func BadRequest() *gqlerror.Error {
+	return NewGQLError(ErrCodeBadRequest, "bad request")
+}

@@ -14,11 +14,11 @@ func NewCoreClient(coreClient pb.CoreClient) *CoreClient {
 	return &CoreClient{CoreClient: coreClient}
 }
 
-func (c *CoreClient) CheckPermission(ctx context.Context, profileID, characterID string, metricID *string) (bool, error) {
+func (c *CoreClient) CheckPermission(ctx context.Context, profileID, characterID, categoryID *string) (bool, error) {
 	req := &pb.CheckPermissionReq{
 		ProfileID:   profileID,
 		CharacterID: characterID,
-		MetricID:    metricID,
+		CategoryID:  categoryID,
 	}
 
 	res, err := c.CoreClient.CheckPermission(context.TODO(), req)
