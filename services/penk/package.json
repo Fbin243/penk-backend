@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "start": "tsx index.ts",
+    "gen-grpc": "proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=proto/ ../../pkg/proto/*.proto",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -19,6 +20,8 @@
     "typescript-eslint": "^8.24.1"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.12.6",
+    "@grpc/proto-loader": "^0.7.13",
     "chalk": "^5.4.1",
     "dotenv": "^16.4.7",
     "openai": "^4.85.1"
