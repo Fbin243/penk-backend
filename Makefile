@@ -42,6 +42,10 @@ else
 	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/currency.air.toml
 endif
 
+penk:
+	@echo "Starting penk service..."
+	cd services/penk && npm run start
+
 gateway:
 	@echo "Checking if all services are ready..."
 

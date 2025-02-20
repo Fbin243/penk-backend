@@ -22,12 +22,12 @@
     "typescript-eslint": "^8.24.1"
   },
   "dependencies": {
+    "@apollo/subgraph": "^2.10.0",
     "@grpc/grpc-js": "^1.12.6",
     "@grpc/proto-loader": "^0.7.13",
+    "apollo-server": "^3.13.0",
     "chalk": "^5.4.1",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "graphql-http": "^1.22.4",
     "openai": "^4.85.1"
   }
 }

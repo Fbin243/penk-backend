@@ -69,8 +69,11 @@ npm i -g migrate-mongo
 ## Start services, run unit tests and API tests
 
 ```sh
-# Microservices
-make test SERVICE="core analytic timetracking currency"
+# Microservices (Test DB)
+make test SERVICE="core analytic timetracking currency penk"
+
+# Microservices (Dev DB)
+make dev SERVICE="core analytic timetracking currency penk"
 
 # Gateway
 make gateway

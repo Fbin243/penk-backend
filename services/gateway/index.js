@@ -1,5 +1,9 @@
 const { ApolloServer } = require("apollo-server");
-const { ApolloGateway, IntrospectAndCompose, RemoteGraphQLDataSource } = require("@apollo/gateway");
+const {
+  ApolloGateway,
+  IntrospectAndCompose,
+  RemoteGraphQLDataSource,
+} = require("@apollo/gateway");
 const fetch = require("node-fetch");
 
 const subgraphs = [
@@ -8,6 +12,7 @@ const subgraphs = [
   { name: "analytic", url: "http://localhost:8083/graphql" },
   { name: "notification", url: "http://localhost:8084/graphql" },
   { name: "currency", url: "http://localhost:8085/graphql" },
+  { name: "penk", url: "http://localhost:8099/graphql" },
 ];
 
 async function startGateway() {
@@ -25,7 +30,7 @@ async function startGateway() {
       } catch (e) {
         console.error(`Subgraph at ${url} is not reachable`);
       }
-    })
+    }),
   );
 
   // Create the apollo gateway
