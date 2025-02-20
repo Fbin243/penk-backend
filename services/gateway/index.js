@@ -38,7 +38,7 @@ async function startGateway() {
     supergraphSdl: new IntrospectAndCompose({
       subgraphs: reachableSubgraphs,
     }),
-    buildService({ name, url }) {
+    buildService({ url }) {
       return new RemoteGraphQLDataSource({
         url,
         willSendRequest({ request, context }) {

@@ -11,7 +11,10 @@ const typeDefs = gql(
 
 const resolvers: Resolvers = {
   Query: {
-    helloPenK: () => "PenK",
+    helloPenK: (_, __, context) => {
+      console.log("--> context", context);
+      return "PenK";
+    },
   },
 };
 
