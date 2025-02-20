@@ -13,8 +13,8 @@ const server = new ApolloServer({
     allowedHeaders: "Authorization",
   },
   context: ({ req }) => {
-    const token = req.headers.Authorization
-      ? `${req.headers.Authorization}`.split(" ")[1]
+    const token = req.headers.authorization
+      ? `${req.headers.authorization}`.split(" ")[1]
       : "";
 
     return {
