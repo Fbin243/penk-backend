@@ -4,6 +4,7 @@ import { readFileSync } from "fs";
 import { resolve } from "path";
 
 import { UserContext } from "../database/mongodb";
+import { getRedisClient } from "../database/redis";
 import { Resolvers } from "./__generated__/resolvers-types";
 
 const typeDefs = gql(
@@ -12,7 +13,9 @@ const typeDefs = gql(
 
 const resolvers: Resolvers = {
   Query: {
-    helloPenK: () => {
+    helloPenK: async () => {
+      const redisClient = await getRedisClient();
+      await redisClient.set("mykey", "myvalue", { EX: 300 });
       return "PenK";
     },
     userContext: async () => {
