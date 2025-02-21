@@ -10,8 +10,8 @@ import readline from "readline";
 import {
   openaiCreateTimeTracking,
   openaiUpdateTimeTracking,
-} from "./functions/statTracking";
-import { User } from "./functions/types";
+} from "../functions/statTracking";
+import { User } from "../functions/types";
 import { handleToolCalls } from "./utils";
 
 const rl = readline.createInterface({

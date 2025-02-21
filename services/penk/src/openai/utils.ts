@@ -4,7 +4,7 @@ import {
   ChatCompletionMessageToolCall,
 } from "openai/resources";
 
-import { openaiPenKMap } from "./functions";
+import { openaiPenKMap } from "../functions";
 
 export const handleToolCalls = async (
   toolCalls: ChatCompletionMessageToolCall[],

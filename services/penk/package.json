@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "tsx src/index.ts",
+    "start:production": "NODE_ENV=production tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
     "gen-graphql": "graphql-codegen --config codegen.yml",
     "gen-grpc": "proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=proto/ ../../pkg/proto/*.proto",

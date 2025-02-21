@@ -5,7 +5,7 @@ import { schema } from "./graphql";
 import { ResolverContext } from "./graphql/types";
 
 dotenv.config({
-  path: ".env.penk",
+  path: `.env.${process.env.NODE_ENV || "development"}`,
 });
 
 const server = new ApolloServer({
