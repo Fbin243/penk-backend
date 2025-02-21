@@ -1,4 +1,18 @@
 type Query {
   helloPenK: String!
+  userContext: UserContext!
+}
+
+type UserContext {
+  id: ID!
+  profileID: ID!
+  timezone: String!
+  locale: String!
+  preferences: Preferences!
+  context: String!
+}
+
+type Preferences {
+  tone: String!
 }
 

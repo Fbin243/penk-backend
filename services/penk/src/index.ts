@@ -1,12 +1,9 @@
+import "./bootstrap";
+
 import { ApolloServer } from "apollo-server";
-import dotenv from "dotenv";
 
 import { schema } from "./graphql";
 import { ResolverContext } from "./graphql/types";
-
-dotenv.config({
-  path: `.env.${process.env.NODE_ENV || "development"}`,
-});
 
 const server = new ApolloServer({
   cors: {

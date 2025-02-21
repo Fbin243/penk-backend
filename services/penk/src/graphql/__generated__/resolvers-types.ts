@@ -16,9 +16,25 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type Preferences = {
+  __typename?: 'Preferences';
+  tone: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   helloPenK: Scalars['String']['output'];
+  userContext: UserContext;
+};
+
+export type UserContext = {
+  __typename?: 'UserContext';
+  context: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  locale: Scalars['String']['output'];
+  preferences: Preferences;
+  profileID: Scalars['ID']['output'];
+  timezone: Scalars['String']['output'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -94,22 +110,46 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  Preferences: ResolverTypeWrapper<Preferences>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  UserContext: ResolverTypeWrapper<UserContext>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
+  ID: Scalars['ID']['output'];
+  Preferences: Preferences;
   Query: {};
   String: Scalars['String']['output'];
+  UserContext: UserContext;
+}>;
+
+export type PreferencesResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Preferences'] = ResolversParentTypes['Preferences']> = ResolversObject<{
+  tone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   helloPenK?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userContext?: Resolver<ResolversTypes['UserContext'], ParentType, ContextType>;
+}>;
+
+export type UserContextResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UserContext'] = ResolversParentTypes['UserContext']> = ResolversObject<{
+  context?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  preferences?: Resolver<ResolversTypes['Preferences'], ParentType, ContextType>;
+  profileID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type Resolvers<ContextType = ResolverContext> = ResolversObject<{
+  Preferences?: PreferencesResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  UserContext?: UserContextResolvers<ContextType>;
 }>;
 
