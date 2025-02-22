@@ -51,6 +51,7 @@ func TestUserFlow(t *testing.T) {
 		common.CharacterFlowKey:    flows.CharacterFlow,
 		common.TimeTrackingFlowKey: flows.TimeTrackingFlow,
 		common.SnapshotFlowKey:     flows.SnapshotFlow,
+		common.GoalFlowKey:         flows.GoalFlow,
 	}
 
 	flowKeys := strings.Split(flowKeyStr, ",")

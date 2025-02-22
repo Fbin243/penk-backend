@@ -5,39 +5,82 @@ type Goal {
   characterID: ID!
   name: String!
   description: String!
-  startDate: Time!
-  endDate: Time!
+  startTime: Time!
+  endTime: Time!
   status: GoalFinishStatus!
-  target: [Category!]
+  metrics: [GoalMetric!]!
+  checkboxes: [Checkbox!]!
 }
 
-enum GoalFinishStatus {
-  Unfinished
-  Finished
+type GoalMetric {
+  id: ID!
+  categoryID: ID
+  name: String!
+  value: Float!
+  unit: String!
+  condition: MetricCondition!
+  targetValue: Float
+  rangeValue: Range
 }
 
+type Range {
+  min: Float!
+  max: Float!
+}
+
+type Checkbox {
+  id: ID!
+  name: String!
+  value: Boolean!
+}
+
+# Inputs
 input GoalInput {
   id: ID
+  characterID: ID!
   name: String!
   description: String
-  startDate: Time!
-  endDate: Time!
-  target: [GoalCategoryInput!]
-}
-
-input GoalCategoryInput {
-  id: ID!
+  startTime: Time!
+  endTime: Time!
   metrics: [GoalMetricInput!]
+  checkboxes: [CheckboxInput!]
 }
 
 input GoalMetricInput {
-  id: ID!
-  value: Float!
+  id: ID
+  condition: MetricCondition!
+  targetValue: Float
+  rangeValue: RangeInput
+}
+
+input RangeInput {
+  min: Float!
+  max: Float!
+}
+
+input CheckboxInput {
+  id: ID
+  name: String!
+  value: Boolean!
 }
 
 input GoalStatusFilter {  
   finishStatus: GoalFinishStatus 
   expireStatus: GoalExpireStatus
+}
+
+enum MetricCondition {
+  lt
+  lte
+  eq
+  gte
+  gt
+  ir
+}
+
+enum GoalFinishStatus {
+  Unfinished
+  Finished
 }
 
 enum GoalExpireStatus {

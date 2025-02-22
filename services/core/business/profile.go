@@ -37,7 +37,7 @@ func NewProfileBusiness(profileRepo IProfileRepo, characterRepo ICharacterRepo, 
 func (biz *ProfileBusiness) GetProfile(ctx context.Context) (*entity.Profile, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return nil, errors.Unauthorized()
+		return nil, errors.ErrUnauthorized
 	}
 
 	return biz.ProfileRepo.FindByID(ctx, authSession.ProfileID)
@@ -47,7 +47,7 @@ func (biz *ProfileBusiness) GetProfile(ctx context.Context) (*entity.Profile, er
 func (biz *ProfileBusiness) UpdateProfile(ctx context.Context, input entity.ProfileInput) (*entity.Profile, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return nil, errors.Unauthorized()
+		return nil, errors.ErrUnauthorized
 	}
 
 	profile, err := biz.ProfileRepo.FindByID(ctx, authSession.ProfileID)
@@ -59,7 +59,7 @@ func (biz *ProfileBusiness) UpdateProfile(ctx context.Context, input entity.Prof
 	profile.Name = input.Name
 	profile.ImageURL = input.ImageURL
 	if input.CurrentCharacterID != nil {
-		profile.CurrentCharacterID = *input.CurrentCharacterID
+		profile.CurrentCharacterID = input.CurrentCharacterID
 	}
 	if input.AutoSnapshot != nil {
 		profile.AutoSnapshot = *input.AutoSnapshot
@@ -79,7 +79,7 @@ func (biz *ProfileBusiness) UpdateProfile(ctx context.Context, input entity.Prof
 func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return nil, errors.Unauthorized()
+		return nil, errors.ErrUnauthorized
 	}
 
 	var profile *entity.Profile
@@ -163,7 +163,7 @@ func (biz *ProfileBusiness) CheckPermission(ctx context.Context, profileID, char
 		}
 
 		if ok, _ := auth.CheckPermission(profile, character, "write"); !ok {
-			return errors.PermissionDenied()
+			return errors.ErrPermissionDenied
 		}
 
 		if categoryID != nil {
@@ -176,7 +176,7 @@ func (biz *ProfileBusiness) CheckPermission(ctx context.Context, profileID, char
 			}
 
 			if !found {
-				return errors.PermissionDenied()
+				return errors.ErrPermissionDenied
 			}
 		}
 	}

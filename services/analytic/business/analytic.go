@@ -30,7 +30,7 @@ func NewAnalyticBusiness(capturedRepo ICapturedRecordRepo, coreClient ICoreClien
 func (biz *AnalyticBusiness) GetAnalyticResults(ctx context.Context, characterID *string, startTime, endTime *time.Time, analyticSections []entity.AnalyticSection) (map[string]interface{}, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return nil, errors.Unauthorized()
+		return nil, errors.ErrUnauthorized
 	}
 
 	capturedRecordFilter := entity.GetCapturedRecordFilter{
@@ -42,7 +42,7 @@ func (biz *AnalyticBusiness) GetAnalyticResults(ctx context.Context, characterID
 	if characterID != nil {
 		authorized, err := biz.CoreClient.CheckPermission(ctx, lo.ToPtr(authSession.ProfileID), characterID, nil)
 		if !authorized || err != nil {
-			return nil, errors.PermissionDenied()
+			return nil, errors.ErrPermissionDenied
 		}
 	}
 

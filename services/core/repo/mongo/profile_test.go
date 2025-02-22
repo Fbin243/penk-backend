@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"tenkhours/pkg/db/base"
+	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/services/core/entity"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -21,9 +23,9 @@ func NewProfile() *entity.Profile {
 		},
 		Name:               "example",
 		ImageURL:           "https://example.com",
-		CurrentCharacterID: primitive.NewObjectID().Hex(),
-		Email:              primitive.NewObjectID().Hex() + "@gmail.com",
-		FirebaseUID:        primitive.NewObjectID().Hex(),
+		CurrentCharacterID: lo.ToPtr(mongodb.GenObjectID()),
+		Email:              mongodb.GenObjectID() + "@gmail.com",
+		FirebaseUID:        mongodb.GenObjectID(),
 	}
 }
 
@@ -75,12 +77,12 @@ func TestUpdateProfile(t *testing.T) {
 	updateInput := map[string]any{
 		"name":                 "updated",
 		"image_url":            "https://updated.com",
-		"current_character_id": primitive.NewObjectID().Hex(),
+		"current_character_id": lo.ToPtr(mongodb.GenObjectID()),
 	}
 
 	profile.Name = updateInput["name"].(string)
 	profile.ImageURL = updateInput["image_url"].(string)
-	profile.CurrentCharacterID = updateInput["current_character_id"].(string)
+	profile.CurrentCharacterID = updateInput["current_character_id"].(*string)
 
 	updatedProfile, err := profileRepo.UpdateByID(context.Background(), profile.ID, profile)
 	assert.Nil(t, err)

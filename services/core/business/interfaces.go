@@ -6,8 +6,6 @@ import (
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
 	"tenkhours/services/core/entity"
-
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Business
@@ -28,7 +26,8 @@ type ICharacterBusiness interface {
 
 type IGoalBusiness interface {
 	GetGoals(ctx context.Context, characterID string, status *entity.GoalStatusFilter) ([]entity.Goal, error)
-	UpsertGoal(ctx context.Context, characterID string, input entity.GoalInput) (*entity.Goal, error)
+	UpsertGoal(ctx context.Context, input entity.GoalInput) (*entity.Goal, error)
+	DeleteGoal(ctx context.Context, id string) (*entity.Goal, error)
 }
 
 type ITemplateBusiness interface {
@@ -50,15 +49,14 @@ type ICharacterRepo interface {
 	GetAllCharacters(ctx context.Context) ([]entity.Character, error)
 	DeleteCharacter(ctx context.Context, id string) (*entity.Character, error)
 	DeleteCharactersByProfileID(ctx context.Context, profileID string) error
+	ValidateCharacter(ctx context.Context, profileID, characterID string) error
 }
 
 type IGoalRepo interface {
 	base.IBaseRepo[entity.Goal]
 	GetGoalsByCharacterID(ctx context.Context, characterID string, status *entity.GoalStatusFilter) ([]entity.Goal, error)
-	// TODO: @Fbin243 refactor the return type
-	UpdateOneMetricInGoals(ctx context.Context, metric entity.Category, goalIDs []string) (*mongo.UpdateResult, error)
-	RemoveOnePropertyFromGoals(ctx context.Context, metricID, propertyID string, goalIDs []string) (*mongo.UpdateResult, error)
-	UpdateStatusOfGoals(ctx context.Context, goalIDs []string, status entity.GoalFinishStatus) (*mongo.UpdateResult, error)
+	ValidateGoal(ctx context.Context, profileID, goalID string) error
+	UpdateStatusOfGoals(ctx context.Context, goalIDs []string, status entity.GoalFinishStatus) error
 }
 
 type ITemplateRepo interface {

@@ -8,6 +8,7 @@ import (
 	"tenkhours/services/core/entity"
 
 	mongodb "tenkhours/pkg/db/mongo"
+	"tenkhours/pkg/errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -89,4 +90,19 @@ func (r *CharacterRepo) DeleteCharactersByProfileID(ctx context.Context, profile
 	_, err := r.DeleteMany(ctx, bson.M{"profile_id": mongodb.ToObjectID(profileID)})
 
 	return err
+}
+
+func (r *CharacterRepo) ValidateCharacter(ctx context.Context, profileID, characterID string) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	count, err := r.CountDocuments(ctx, bson.M{"profile_id": mongodb.ToObjectID(profileID), "_id": mongodb.ToObjectID(characterID)})
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.ErrMongoNotFound
+	}
+
+	return nil
 }

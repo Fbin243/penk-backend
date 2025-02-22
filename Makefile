@@ -108,13 +108,13 @@ unit-test:
 	@echo "Running unit tests..."
 	@for module in $(shell find . -name 'go.mod' -exec dirname {} \; | grep -v './test'); do \
 		echo "Running unit tests in $$module"; \
-		(cd $$module && go test ./...) && \
+		(cd $$module && go test ./... -v) && \
 		echo "SUCCESS: Tests passed in $$module" || \
 		{ echo "FAIL: Tests failed in $$module"; exit 1; }; \
 	done
 
 api-test:
 	@echo "Running API tests..."
-	@go run cmd/main.go api-test -f profile,character,timetracking
+	@go run cmd/main.go api-test -f profile,character,timetracking,goal
 
 .PHONY: core analytic timetracking notification test

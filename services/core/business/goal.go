@@ -1,164 +1,229 @@
 package business
 
-// import (
-// 	"context"
-// 	"time"
+import (
+	"context"
+	"time"
 
-// 	"tenkhours/pkg/auth"
-// 	"tenkhours/pkg/db/base"
-// 	"tenkhours/pkg/errors"
-// 	"tenkhours/services/core/entity"
+	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db/base"
+	mongodb "tenkhours/pkg/db/mongo"
+	rdb "tenkhours/pkg/db/redis"
+	"tenkhours/pkg/errors"
+	"tenkhours/services/core/entity"
+)
 
-// 	rdb "tenkhours/pkg/db/redis"
-// )
+type GoalBusiness struct {
+	GoalRepo      IGoalRepo
+	CharacterRepo ICharacterRepo
+}
 
-// type GoalBusiness struct {
-// 	GoalRepo      IGoalRepo
-// 	CharacterRepo ICharacterRepo
-// }
+func NewGoalBusiness(goalRepo IGoalRepo, characterRepo ICharacterRepo) *GoalBusiness {
+	return &GoalBusiness{goalRepo, characterRepo}
+}
 
-// func NewGoalBusiness(goalRepo IGoalRepo, characterRepo ICharacterRepo) *GoalBusiness {
-// 	return &GoalBusiness{goalRepo, characterRepo}
-// }
+func (biz *GoalBusiness) GetGoals(ctx context.Context, characterID string, status *entity.GoalStatusFilter) ([]entity.Goal, error) {
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
+	if !ok {
+		return nil, errors.ErrUnauthorized
+	}
 
-// func (biz *GoalBusiness) GetGoals(ctx context.Context, characterID string, status *entity.GoalStatusFilter) ([]entity.Goal, error) {
-// 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-// 	if !ok {
-// 		return nil, errors.Unauthorized()
-// 	}
+	err := biz.CharacterRepo.ValidateCharacter(ctx, authSession.ProfileID, characterID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	// Check if the character belongs to the user
-// 	character, err := biz.CharacterRepo.FindByID(ctx, characterID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	goals, err := biz.GoalRepo.GetGoalsByCharacterID(ctx, characterID, status)
+	if err != nil {
+		return nil, err
+	}
 
-// 	if character.ProfileID != authSession.ProfileID {
-// 		return nil, errors.PermissionDenied()
-// 	}
+	return goals, nil
+}
 
-// 	return biz.GoalRepo.GetGoalsByCharacterID(ctx, characterID, status)
-// }
+func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput) (*entity.Goal, error) {
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
+	if !ok {
+		return nil, errors.ErrUnauthorized
+	}
 
-// func (biz *GoalBusiness) UpsertGoal(ctx context.Context, characterID string, input entity.GoalInput) (*entity.Goal, error) {
-// 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-// 	if !ok {
-// 		return nil, errors.Unauthorized()
-// 	}
+	err := biz.CharacterRepo.ValidateCharacter(ctx, authSession.ProfileID, input.CharacterID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	// Check if the character belongs to the user
-// 	character, err := biz.CharacterRepo.FindByID(ctx, characterID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	var goal *entity.Goal
+	var character *entity.Character
+	metricMap := map[string]entity.Metric{}
 
-// 	if character.ProfileID != authSession.ProfileID {
-// 		return nil, errors.PermissionDenied()
-// 	}
+	if input.ID != nil {
+		// Update existing goal
+		goal, err = biz.GoalRepo.FindByID(ctx, *input.ID)
+		if err != nil {
+			return nil, err
+		}
 
-// 	var goal *entity.Goal
+		if goal.CharacterID != input.CharacterID {
+			return nil, errors.ErrPermissionDenied
+		}
 
-// 	if input.ID != nil {
-// 		// Get the existing goal
-// 		goal, err = biz.GoalRepo.FindByID(ctx, *input.ID)
-// 		if err != nil {
-// 			return nil, err
-// 		}
+		// Just update if the goal is still unfinished and unexpired
+		if goal.Status == entity.GoalFinishStatusFinished {
+			return nil, errors.NewGQLError(errors.ErrCodeGoalAlreadyFinished, nil)
+		}
 
-// 		// Check permission
-// 		if goal.CharacterID != characterID {
-// 			return nil, errors.PermissionDenied()
-// 		}
+		if goal.EndTime.Before(time.Now()) {
+			return nil, errors.NewGQLError(errors.ErrCodeGoalAlreadyExpired, nil)
+		}
+	} else {
+		// Create new goal
+		goal = &entity.Goal{
+			BaseEntity:  &base.BaseEntity{},
+			CharacterID: input.CharacterID,
+			Status:      entity.GoalFinishStatusUnfinished,
+		}
+	}
 
-// 		// Just update if the goal is still unfinished and unexpired
-// 		if goal.Status == entity.GoalFinishStatusFinished {
-// 			return nil, errors.NewGQLError(errors.ErrCodeGoalAlreadyFinished, nil)
-// 		}
+	goal.Name = input.Name
+	goal.StartTime = input.StartTime
+	goal.EndTime = input.EndTime
+	if input.Description != nil {
+		goal.Description = *input.Description
+	}
+	if input.Metrics != nil {
+		character, err = biz.CharacterRepo.FindByID(ctx, goal.CharacterID)
+		if err != nil {
+			return nil, err
+		}
 
-// 		if goal.EndDate.Before(time.Now()) {
-// 			return nil, errors.NewGQLError(errors.ErrCodeGoalAlreadyExpired, nil)
-// 		}
-// 	} else {
-// 		// Create new goal
-// 		goal = &entity.Goal{
-// 			BaseEntity:  &base.BaseEntity{},
-// 			CharacterID: characterID,
-// 			Name:        input.Name,
-// 			StartDate:   input.StartDate,
-// 			EndDate:     input.EndDate,
-// 			Status:      entity.GoalFinishStatusUnfinished,
-// 		}
-// 	}
+		for _, metric := range character.Metrics {
+			metricMap[metric.ID] = metric
+		}
 
-// 	if input.Description != nil {
-// 		goal.Description = *input.Description
-// 	}
+		err := biz.upsertMetricsInGoal(ctx, upsertMetricInGoalInput{
+			goal:         goal,
+			metricInputs: input.Metrics,
+			character:    character,
+			metricMap:    metricMap,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	if input.Checkboxes != nil {
+		err := biz.upsertCheckboxesInGoal(ctx, goal, input.Checkboxes)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if input.Metrics != nil ||
+		input.Checkboxes != nil {
+		goal.UpdateStatus(metricMap)
+	}
 
-// 	if input.Target != nil {
-// 		targets := make([]entity.Category, 0)
+	if input.ID != nil {
+		goal, err = biz.GoalRepo.UpdateByID(ctx, *input.ID, goal)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		goal, err = biz.GoalRepo.InsertOne(ctx, goal)
+		if err != nil {
+			return nil, err
+		}
+	}
 
-// 		// Convert custom metrics to map for validation
-// 		customMetricsMap := make(map[string]entity.Category)
-// 		for _, metric := range character.Categories {
-// 			customMetricsMap[metric.ID] = metric
-// 		}
+	return goal, nil
+}
 
-// 		// Add tracked metric to the goal
-// 		for _, metric := range input.Target {
-// 			// Validate metric in target
-// 			if _, ok := customMetricsMap[metric.ID]; !ok {
-// 				return nil, errors.PermissionDenied()
-// 			}
+type upsertMetricInGoalInput struct {
+	goal         *entity.Goal
+	metricInputs []entity.GoalMetricInput
+	character    *entity.Character
+	metricMap    map[string]entity.Metric
+}
 
-// 			currentMetric := customMetricsMap[metric.ID]
+func (biz *GoalBusiness) upsertMetricsInGoal(_ context.Context, input upsertMetricInGoalInput) error {
+	metrics := []entity.GoalTargetMetric{}
+	for _, metric := range input.character.Metrics {
+		input.metricMap[metric.ID] = metric
+	}
 
-// 			trackedMetric := entity.Category{
-// 				ID:          metric.ID,
-// 				Name:        currentMetric.Name,
-// 				Description: currentMetric.Description,
-// 				Style:       currentMetric.Style,
-// 				Metrics:     make([]entity.Metric, 0),
-// 			}
+	for _, metricInput := range input.metricInputs {
+		if _, ok := input.metricMap[metricInput.ID]; !ok {
+			return errors.NewGQLError(errors.ErrCodeBadRequest, "Metric not found")
+		}
 
-// 			propertiesMap := make(map[string]entity.Metric)
-// 			for _, property := range currentMetric.Metrics {
-// 				propertiesMap[property.ID] = property
-// 			}
+		metric := entity.GoalTargetMetric{
+			ID:        input.metricMap[metricInput.ID].ID,
+			Condition: metricInput.Condition,
+		}
 
-// 			for _, property := range metric.Metrics {
-// 				if _, ok := propertiesMap[property.ID]; !ok {
-// 					return nil, errors.PermissionDenied()
-// 				}
+		switch metricInput.Condition {
+		case entity.MetricConditionInRange:
+			metric.RangeValue = &entity.Range{
+				Min: metricInput.RangeValue.Min,
+				Max: metricInput.RangeValue.Max,
+			}
+		default:
+			metric.TargetValue = metricInput.TargetValue
+		}
 
-// 				// currentProperty := propertiesMap[property.ID]
+		metrics = append(metrics, metric)
+	}
 
-// 				// Check if the property value is valid
-// 				// switch currentProperty.Type {
-// 				// case entity.MetricPropertyTypeNumber:
-// 				// 	_, err := strconv.Atoi(property.Value)
-// 				// 	if err != nil {
-// 				// 		return nil, err
-// 				// 	}
-// 				// }
+	input.goal.Target.Metrics = metrics
 
-// 				// trackedMetric.Metrics = append(trackedMetric.Metrics, entity.Metric{
-// 				// 	ID:    property.ID,
-// 				// 	Name:  currentProperty.Name,
-// 				// 	Type:  currentProperty.Type,
-// 				// 	Value: property.Value,
-// 				// 	Unit:  currentProperty.Unit,
-// 				// })
-// 			}
+	return nil
+}
 
-// 			targets = append(targets, trackedMetric)
-// 		}
+func (biz *GoalBusiness) upsertCheckboxesInGoal(_ context.Context, goal *entity.Goal, checkboxInputs []entity.CheckboxInput) error {
+	checkboxes := []entity.Checkbox{}
+	checkboxMap := map[string]entity.Checkbox{}
+	for _, checkbox := range goal.Target.Checkboxes {
+		checkboxMap[checkbox.ID] = checkbox
+	}
 
-// 		goal.Target = targets
-// 	}
+	for _, checkboxInput := range checkboxInputs {
+		checkbox := entity.Checkbox{}
+		if checkboxInput.ID != nil {
+			if _, ok := checkboxMap[*checkboxInput.ID]; !ok {
+				return errors.NewGQLError(errors.ErrCodeBadRequest, "Category not found")
+			}
 
-// 	if input.ID != nil {
-// 		return biz.GoalRepo.UpdateByID(ctx, *input.ID, goal)
-// 	}
+			checkbox = checkboxMap[*checkboxInput.ID]
+			checkbox.Name = checkboxInput.Name
+			checkbox.Value = checkboxInput.Value
+		} else {
+			checkbox = entity.Checkbox{
+				ID:    mongodb.GenObjectID(),
+				Name:  checkboxInput.Name,
+				Value: checkboxInput.Value,
+			}
+		}
 
-// 	return biz.GoalRepo.InsertOne(ctx, goal)
-// }
+		checkboxes = append(checkboxes, checkbox)
+	}
+
+	goal.Target.Checkboxes = checkboxes
+
+	return nil
+}
+
+func (biz *GoalBusiness) DeleteGoal(ctx context.Context, goalID string) (*entity.Goal, error) {
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
+	if !ok {
+		return nil, errors.ErrUnauthorized
+	}
+
+	err := biz.GoalRepo.ValidateGoal(ctx, authSession.ProfileID, goalID)
+	if err != nil {
+		return nil, err
+	}
+
+	goal, err := biz.GoalRepo.DeleteByID(ctx, goalID)
+	if err != nil {
+		return nil, err
+	}
+
+	return goal, nil
+}

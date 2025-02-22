@@ -29,7 +29,7 @@ func (s UpsertProfileStage) Exec(ctx *context.Context) error {
 			Equal("$.data.profile.availableSnapshots", float64(utils.DefaultSnapshotsNumber)).
 			Equal("$.data.profile.autoSnapshot", true).
 			Equal("$.data.profile.characters", []interface{}{}).
-			Equal("$.data.profile.currentCharacterID", "")
+			Equal("$.data.profile.currentCharacterID", nil)
 
 	case common.UpdateProfile:
 		profileInput := map[string]interface{}{

@@ -1,6 +1,7 @@
 package core
 
-var ProfileQuery = `query { 
+var ProfileQuery = `
+query { 
 	profile {
         autoSnapshot
         availableSnapshots
@@ -38,7 +39,8 @@ var ProfileQuery = `query {
     }
 }`
 
-var UpdateProfileQuery = `mutation UpdateProfile($input: ProfileInput!) {
+var UpdateProfileQuery = `
+mutation UpdateProfile($input: ProfileInput!) {
 	updateProfile(input: $input) {
 		autoSnapshot
 		availableSnapshots
@@ -67,5 +69,4 @@ mutation DeleteProfile {
         availableSnapshots
         autoSnapshot
     }
-}
-`
+}`

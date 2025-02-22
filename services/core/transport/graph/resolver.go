@@ -12,6 +12,7 @@ import (
 type Resolver struct {
 	ProfileBusiness   business.IProfileBusiness
 	CharacterBusiness business.ICharacterBusiness
-	GoalsBusiness     business.IGoalBusiness
+	GoalBusiness      business.IGoalBusiness
 	TemplateBusiness  business.ITemplateBusiness
+	CharacterRepo     business.ICharacterRepo
 }
