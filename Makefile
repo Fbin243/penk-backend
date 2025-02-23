@@ -6,7 +6,6 @@ DB_URI=mongodb+srv://$(MONGO_USER):$(MONGO_PASSWORD)@$(MONGO_ADDRESS)/$(MONGO_DA
 
 # export .env file
 -include $(ENV_FILE)
-export
 
 core:
 	@echo "Starting core service..."
