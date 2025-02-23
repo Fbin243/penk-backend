@@ -3,6 +3,10 @@ type Query {
   messages: [Message!]!
 }
 
+type Mutation {
+  chat(content: String!): Message!
+}
+
 type UserContext {
   id: ID!
   profileID: ID!
@@ -17,8 +21,6 @@ type Preferences {
 }
 
 type Message {
-  id: ID!
-  userID: ID!
   type: MessageType!
   content: String!
   timestamp: String!

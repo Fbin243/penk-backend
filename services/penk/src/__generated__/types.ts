@@ -7,6 +7,7 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string; }
@@ -19,10 +20,8 @@ export type Scalars = {
 export type Message = {
   __typename?: 'Message';
   content: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
   timestamp: Scalars['String']['output'];
   type: MessageType;
-  userID: Scalars['ID']['output'];
 };
 
 export enum MessageType {
@@ -30,6 +29,16 @@ export enum MessageType {
   AiMessage = 'AI_MESSAGE',
   UserMessage = 'USER_MESSAGE'
 }
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  chat: Message;
+};
+
+
+export type MutationChatArgs = {
+  content: Scalars['String']['input'];
+};
 
 export type Preferences = {
   __typename?: 'Preferences';
@@ -128,6 +137,7 @@ export type ResolversTypes = ResolversObject<{
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Message: ResolverTypeWrapper<Message>;
   MessageType: MessageType;
+  Mutation: ResolverTypeWrapper<{}>;
   Preferences: ResolverTypeWrapper<Preferences>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
@@ -139,6 +149,7 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
   ID: Scalars['ID']['output'];
   Message: Message;
+  Mutation: {};
   Preferences: Preferences;
   Query: {};
   String: Scalars['String']['output'];
@@ -147,11 +158,13 @@ export type ResolversParentTypes = ResolversObject<{
 
 export type MessageResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Message'] = ResolversParentTypes['Message']> = ResolversObject<{
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['MessageType'], ParentType, ContextType>;
-  userID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  chat?: Resolver<ResolversTypes['Message'], ParentType, ContextType, RequireFields<MutationChatArgs, 'content'>>;
 }>;
 
 export type PreferencesResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Preferences'] = ResolversParentTypes['Preferences']> = ResolversObject<{
@@ -176,6 +189,7 @@ export type UserContextResolvers<ContextType = ResolverContext, ParentType exten
 
 export type Resolvers<ContextType = ResolverContext> = ResolversObject<{
   Message?: MessageResolvers<ContextType>;
+  Mutation?: MutationResolvers<ContextType>;
   Preferences?: PreferencesResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   UserContext?: UserContextResolvers<ContextType>;

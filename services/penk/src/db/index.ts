@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+import { MessageType } from "../__generated__/types";
+
 const conn = mongoose.createConnection(
   process.env.MONGO_CONNECTION_STRING || "",
 );
@@ -23,4 +25,36 @@ const UserContextSchema = new Schema({
   context: String,
 });
 
-export const UserContext = conn.model("user_contexts", UserContextSchema);
+export const UserContextModel = conn.model("user_contexts", UserContextSchema);
+
+const MessageSchema = new Schema(
+  {
+    profileId: {
+      type: Schema.Types.ObjectId,
+      ref: "profiles",
+      required: true,
+      unique: true,
+    },
+    timestamp: { type: Date, required: true },
+    content: { type: String, required: true },
+    type: {
+      type: String,
+      required: true,
+      enum: [
+        MessageType.UserMessage,
+        MessageType.AiMessage,
+        MessageType.AiError,
+      ],
+    },
+  },
+  {
+    timeseries: {
+      metaField: "profileId",
+      timeField: "timestamp",
+      granularity: "seconds",
+    },
+    versionKey: false,
+  },
+);
+
+export const MessageModel = conn.model("penk_messages", MessageSchema);

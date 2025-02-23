@@ -27,10 +27,3 @@ export interface Character {
   name: string;
   categories: Category[];
 }
-
-export interface User {
-  id: string;
-  name: string;
-  currentCharacterId?: string;
-  characters: Character[];
-}

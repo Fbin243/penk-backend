@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import {
   ChatCompletionMessageParam,
   ChatCompletionMessageToolCall,
@@ -16,17 +15,11 @@ export const handleToolCalls = async (
       try {
         const args = JSON.parse(toolCall.function.arguments);
         const result = await openaiPenKMap[toolCall.function.name](args);
-        console.log(
-          chalk.magentaBright(
-            `[Function calling] ${toolCall.function.name}, args:`,
-          ),
-        );
+        console.log(`[Function calling] ${toolCall.function.name}, args:`);
         console.dir(args, { depth: null, colors: true });
         console.log();
 
-        console.log(
-          chalk.magentaBright(`[Result injecting] ${toolCall.function.name}`),
-        );
+        console.log(`[Result injecting] ${toolCall.function.name}`);
         console.dir(result, { depth: null, colors: true });
         console.log();
         return { toolCallId: toolCall.id, result };
