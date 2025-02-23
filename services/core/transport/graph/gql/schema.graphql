@@ -11,5 +11,6 @@ type Mutation {
   deleteProfile: Profile!
   upsertCharacter(input: CharacterInput!): Character!
   deleteCharacter(id: ID!): Character!
-  upsertGoal(characterID: ID!, input: GoalInput!): Goal!
+  upsertGoal(input: GoalInput!): Goal!
+  deleteGoal(id: ID!): Goal!
 }

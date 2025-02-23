@@ -28,7 +28,7 @@ func NewTemplateBusiness(templateRepo ITemplateRepo, templateTopicRepo ITemplate
 func (biz *TemplateBusiness) GetTemplates(ctx context.Context) ([]entity.Template, error) {
 	_, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return nil, errors.Unauthorized()
+		return nil, errors.ErrUnauthorized
 	}
 
 	return biz.TemplateRepo.FindAll(ctx)
@@ -38,7 +38,7 @@ func (biz *TemplateBusiness) GetTemplates(ctx context.Context) ([]entity.Templat
 func (biz *TemplateBusiness) GetTemplateCategory(ctx context.Context, id string) (*entity.TemplateTopic, error) {
 	_, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return nil, errors.Unauthorized()
+		return nil, errors.ErrUnauthorized
 	}
 
 	category, err := biz.TemplateCategoryRepo.FindByID(ctx, id)

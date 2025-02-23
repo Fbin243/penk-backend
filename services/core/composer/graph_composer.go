@@ -9,7 +9,8 @@ func ComposeGraphQLResolver() *graph.Resolver {
 	return &graph.Resolver{
 		ProfileBusiness:   composer.ProfileBiz,
 		CharacterBusiness: composer.CharacaterBiz,
-		GoalsBusiness:     composer.GoalBiz,
+		GoalBusiness:      composer.GoalBiz,
 		TemplateBusiness:  composer.TemplateBiz,
+		CharacterRepo:     composer.CharacterRepo,
 	}
 }

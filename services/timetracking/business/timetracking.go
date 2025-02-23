@@ -36,7 +36,7 @@ func NewTimeTrackingsBusiness(coreClient ICoreClient, currencyClient ICurrencyCl
 func (biz *TimeTrackingBusiness) GetCurrentTimeTracking(ctx context.Context) (*entity.TimeTracking, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return nil, errors.Unauthorized()
+		return nil, errors.ErrUnauthorized
 	}
 
 	return biz.cache.GetCurrentTimeTracking(ctx, authSession.ProfileID)
@@ -45,17 +45,17 @@ func (biz *TimeTrackingBusiness) GetCurrentTimeTracking(ctx context.Context) (*e
 func (biz *TimeTrackingBusiness) GetTotalCurrentTimeTracking(ctx context.Context, characterID string, timestamp time.Time) (int, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return 0, errors.Unauthorized()
+		return 0, errors.ErrUnauthorized
 	}
 
 	// Check permissions
 	authorized, err := biz.coreClient.CheckPermission(ctx, lo.ToPtr(authSession.ProfileID), lo.ToPtr(characterID), nil)
 	if !authorized || err != nil {
-		return 0, errors.PermissionDenied()
+		return 0, errors.ErrPermissionDenied
 	}
 
 	capturedRecord, err := biz.cache.GetCurrentCapturedRecord(ctx, authSession.ProfileID, characterID)
-	if errors.HasCode(err, errors.ErrCodeNotFound) {
+	if errors.HasCode(err, errors.ErrCodeRedisNotFound) {
 		return 0, nil
 	}
 	if err != nil {
@@ -80,7 +80,7 @@ func (biz *TimeTrackingBusiness) GetTotalCurrentTimeTracking(ctx context.Context
 func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, characterID string, categoryID *string, startTime time.Time) (*entity.TimeTracking, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return nil, errors.Unauthorized()
+		return nil, errors.ErrUnauthorized
 	}
 
 	// Calculate the difference between the server time and the client time
@@ -94,12 +94,12 @@ func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, charact
 
 	authorized, err := biz.coreClient.CheckPermission(ctx, lo.ToPtr(authSession.ProfileID), lo.ToPtr(characterID), categoryID)
 	if !authorized || err != nil {
-		return nil, errors.PermissionDenied()
+		return nil, errors.ErrPermissionDenied
 	}
 
 	// Check if there is an active time tracking
 	currentTimeTracking, err := biz.cache.GetCurrentTimeTracking(ctx, authSession.ProfileID)
-	if err != nil && !errors.HasCode(err, errors.ErrCodeNotFound) {
+	if err != nil && !errors.HasCode(err, errors.ErrCodeRedisNotFound) {
 		return nil, err
 	}
 
@@ -129,7 +129,7 @@ func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, charact
 func (biz *TimeTrackingBusiness) UpdateTimeTracking(ctx context.Context) (*entity.TimeTracking, *entity.Fish, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return nil, nil, errors.Unauthorized()
+		return nil, nil, errors.ErrUnauthorized
 	}
 
 	// Get the time tracking from Redis

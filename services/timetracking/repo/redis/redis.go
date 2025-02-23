@@ -43,7 +43,7 @@ func (r *RedisRepo) GetCurrentTimeTracking(ctx context.Context, profileID string
 	// Get the current time tracking from Redis
 	currentTimetrackingJSON, err := r.Get(ctx, rdb.GetTimeTrackingKey(profileID)).Result()
 	if err == redis.Nil {
-		return nil, errors.NewGQLError(errors.ErrCodeNotFound, err)
+		return nil, errors.NewGQLError(errors.ErrCodeRedisNotFound, err)
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to get time tracking from redis: %v", err)
 	}
@@ -71,7 +71,7 @@ func (r *RedisRepo) GetCurrentCapturedRecord(ctx context.Context, profileID, cha
 	// Get the timetracking from the current captured record in Redis
 	capturedRecordJSON, err := r.HGet(ctx, rdb.GetCapturedRecordKey(profileID), characterID).Result()
 	if err == redis.Nil {
-		return nil, errors.NewGQLError(errors.ErrCodeNotFound, nil)
+		return nil, errors.NewGQLError(errors.ErrCodeRedisNotFound, nil)
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to get captured record from redis: %v", err)
 	}

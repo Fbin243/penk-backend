@@ -133,7 +133,7 @@ func (biz *CurrencyBusiness) CatchFish(ctx context.Context) (*entity.CatchFishRe
 func (biz *CurrencyBusiness) BuyMetrics(ctx context.Context, fishType entity.FishType, characterID string) (bool, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return false, errors.Unauthorized()
+		return false, errors.ErrUnauthorized
 	}
 
 	fish, err := biz.FishRepo.GetFishByProfileID(ctx, authSession.ProfileID)
@@ -200,7 +200,7 @@ func (biz *CurrencyBusiness) BuyMetrics(ctx context.Context, fishType entity.Fis
 func (biz *CurrencyBusiness) BuySnapshots(ctx context.Context, fishType entity.FishType) (bool, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return false, errors.Unauthorized()
+		return false, errors.ErrUnauthorized
 	}
 
 	fish, err := biz.FishRepo.GetFishByProfileID(ctx, authSession.ProfileID)
@@ -274,7 +274,7 @@ func (biz *CurrencyBusiness) BuySnapshots(ctx context.Context, fishType entity.F
 func (biz *CurrencyBusiness) BuyCharacters(ctx context.Context, fishType entity.FishType) (bool, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
-		return false, errors.Unauthorized()
+		return false, errors.ErrUnauthorized
 	}
 
 	fish, err := biz.FishRepo.GetFishByProfileID(ctx, authSession.ProfileID)

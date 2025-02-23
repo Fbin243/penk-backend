@@ -18,7 +18,7 @@ var TestAPICommand = cli.Command{
 			Name:        "uid",
 			Aliases:     []string{"u"},
 			Usage:       "firebase `UID` of the user",
-			Value:       "lstMYDOFoXWQ2s4TGyR4GTrGpKO2",
+			Value:       "OSXiAfFWsGcRATGzspuHqDjrdSf2",
 			DefaultText: "UID",
 		},
 		&cli.StringSliceFlag{

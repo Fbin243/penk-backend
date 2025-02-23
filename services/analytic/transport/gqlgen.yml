@@ -82,8 +82,8 @@ models:
     model: github.com/99designs/gqlgen/graphql.Map
   CapturedRecord:
     model: tenkhours/services/analytic/entity.CapturedRecord
-  CapturedRecordCustomMetric:
-    model: tenkhours/services/analytic/entity.CapturedRecordCustomMetric
+  CapturedRecordCategory:
+    model: tenkhours/services/analytic/entity.CapturedRecordCategory
   CapturedRecordTimeTracking:
     model: tenkhours/services/analytic/entity.CapturedRecordTimeTracking
   CapturedRecordMetadata:

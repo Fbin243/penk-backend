@@ -115,18 +115,26 @@ models:
     model: tenkhours/services/core/entity.VisionInput
   Goal:
     model: tenkhours/services/core/entity.Goal
-  GoalInput:
-    model: tenkhours/services/core/entity.GoalInput
-  GoalCategoryInput:
-    model: tenkhours/services/core/entity.GoalCategoryInput
-  GoalMetricInput:
-    model: tenkhours/services/core/entity.GoalMetricInput
+  Checkbox:
+    model: tenkhours/services/core/entity.Checkbox
+  MetricCondition:
+    model: tenkhours/services/core/entity.MetricCondition
+  Range:
+    model: tenkhours/services/core/entity.Range
   GoalFinishStatus:
     model: tenkhours/services/core/entity.GoalFinishStatus
   GoalExpireStatus:
     model: tenkhours/services/core/entity.GoalExpireStatus
   GoalStatusFilter:
     model: tenkhours/services/core/entity.GoalStatusFilter
+  GoalInput:
+    model: tenkhours/services/core/entity.GoalInput
+  GoalMetricInput:
+    model: tenkhours/services/core/entity.GoalMetricInput
+  CheckboxInput:
+    model: tenkhours/services/core/entity.CheckboxInput
+  RangeInput:
+    model: tenkhours/services/core/entity.RangeInput
   Template:
     model: tenkhours/services/core/entity.Template
     fields:

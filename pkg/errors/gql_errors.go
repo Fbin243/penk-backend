@@ -6,6 +6,14 @@ import (
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
+var (
+	ErrUnauthorized     = NewGQLError(ErrCodeUnauthorized, "unauthorized")
+	ErrPermissionDenied = NewGQLError(ErrCodePermissionDenied, "permission denied")
+	ErrBadRequest       = NewGQLError(ErrCodeBadRequest, "bad request")
+	ErrMongoNotFound    = NewGQLError(ErrCodeMongoNotFound, "mongo not found")
+	ErrRedisNotFound    = NewGQLError(ErrCodeRedisNotFound, "redis not found")
+)
+
 func NewGQLError(code ErrorCode, msg any) *gqlerror.Error {
 	var message string
 
@@ -38,16 +46,4 @@ func HasCode(err error, code ErrorCode) bool {
 	}
 
 	return false
-}
-
-func Unauthorized() *gqlerror.Error {
-	return NewGQLError(ErrCodeUnauthorized, "unauthorized")
-}
-
-func PermissionDenied() *gqlerror.Error {
-	return NewGQLError(ErrCodePermissionDenied, "permission denied")
-}
-
-func BadRequest() *gqlerror.Error {
-	return NewGQLError(ErrCodeBadRequest, "bad request")
 }

@@ -30,8 +30,7 @@ query Snapshots ($characterID: ObjectID) {
             }
         }
     }
-}
-`
+}`
 
 var CreateSnapshotQuery = `
 mutation CreateSnapshot ($characterID: ObjectID!, $description: String) {
@@ -63,5 +62,4 @@ mutation CreateSnapshot ($characterID: ObjectID!, $description: String) {
             }
         }
     }
-}
-`
+}`

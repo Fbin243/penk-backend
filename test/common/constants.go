@@ -8,6 +8,7 @@ const (
 	Character
 	Snapshot
 	TimeTracking
+	Goal
 )
 
 type Case int
@@ -25,6 +26,9 @@ const (
 	DeleteMetrics
 	TimeTrackingWithoutCategory
 	TimeTrackingWithCategory
+	CreateGoal
+	UpdateGoal
+	DeleteGoal
 )
 
 type FlowKey string
@@ -34,4 +38,5 @@ const (
 	CharacterFlowKey    FlowKey = "character"
 	TimeTrackingFlowKey FlowKey = "timetracking"
 	SnapshotFlowKey     FlowKey = "snapshot"
+	GoalFlowKey         FlowKey = "goal"
 )

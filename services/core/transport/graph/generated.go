@@ -42,6 +42,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Goal() GoalResolver
 	Mutation() MutationResolver
 	Profile() ProfileResolver
 	Query() QueryResolver
@@ -85,21 +86,39 @@ type ComplexityRoot struct {
 		Vision     func(childComplexity int) int
 	}
 
+	Checkbox struct {
+		ID    func(childComplexity int) int
+		Name  func(childComplexity int) int
+		Value func(childComplexity int) int
+	}
+
 	Fish struct {
 		ProfileID func(childComplexity int) int
 	}
 
 	Goal struct {
 		CharacterID func(childComplexity int) int
+		Checkboxes  func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
 		Description func(childComplexity int) int
-		EndDate     func(childComplexity int) int
+		EndTime     func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Metrics     func(childComplexity int) int
+		Name        func(childComplexity int) int
+		StartTime   func(childComplexity int) int
+		Status      func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+	}
+
+	GoalMetric struct {
+		CategoryID  func(childComplexity int) int
+		Condition   func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
-		StartDate   func(childComplexity int) int
-		Status      func(childComplexity int) int
-		Target      func(childComplexity int) int
-		UpdatedAt   func(childComplexity int) int
+		RangeValue  func(childComplexity int) int
+		TargetValue func(childComplexity int) int
+		Unit        func(childComplexity int) int
+		Value       func(childComplexity int) int
 	}
 
 	Metric struct {
@@ -112,10 +131,11 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		DeleteCharacter func(childComplexity int, id string) int
+		DeleteGoal      func(childComplexity int, id string) int
 		DeleteProfile   func(childComplexity int) int
 		UpdateProfile   func(childComplexity int, input entity.ProfileInput) int
 		UpsertCharacter func(childComplexity int, input entity.CharacterInput) int
-		UpsertGoal      func(childComplexity int, characterID string, input entity.GoalInput) int
+		UpsertGoal      func(childComplexity int, input entity.GoalInput) int
 	}
 
 	Profile struct {
@@ -141,6 +161,11 @@ type ComplexityRoot struct {
 		Templates          func(childComplexity int) int
 		__resolve__service func(childComplexity int) int
 		__resolve_entities func(childComplexity int, representations []map[string]interface{}) int
+	}
+
+	Range struct {
+		Max func(childComplexity int) int
+		Min func(childComplexity int) int
 	}
 
 	Template struct {
@@ -182,12 +207,17 @@ type ComplexityRoot struct {
 	}
 }
 
+type GoalResolver interface {
+	Metrics(ctx context.Context, obj *entity.Goal) ([]model.GoalMetric, error)
+	Checkboxes(ctx context.Context, obj *entity.Goal) ([]entity.Checkbox, error)
+}
 type MutationResolver interface {
 	UpdateProfile(ctx context.Context, input entity.ProfileInput) (*entity.Profile, error)
 	DeleteProfile(ctx context.Context) (*entity.Profile, error)
 	UpsertCharacter(ctx context.Context, input entity.CharacterInput) (*entity.Character, error)
 	DeleteCharacter(ctx context.Context, id string) (*entity.Character, error)
-	UpsertGoal(ctx context.Context, characterID string, input entity.GoalInput) (*entity.Goal, error)
+	UpsertGoal(ctx context.Context, input entity.GoalInput) (*entity.Goal, error)
+	DeleteGoal(ctx context.Context, id string) (*entity.Goal, error)
 }
 type ProfileResolver interface {
 	Characters(ctx context.Context, obj *entity.Profile) ([]entity.Character, error)
@@ -371,6 +401,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Character.Vision(childComplexity), true
 
+	case "Checkbox.id":
+		if e.complexity.Checkbox.ID == nil {
+			break
+		}
+
+		return e.complexity.Checkbox.ID(childComplexity), true
+
+	case "Checkbox.name":
+		if e.complexity.Checkbox.Name == nil {
+			break
+		}
+
+		return e.complexity.Checkbox.Name(childComplexity), true
+
+	case "Checkbox.value":
+		if e.complexity.Checkbox.Value == nil {
+			break
+		}
+
+		return e.complexity.Checkbox.Value(childComplexity), true
+
 	case "Fish.profileID":
 		if e.complexity.Fish.ProfileID == nil {
 			break
@@ -384,6 +435,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Goal.CharacterID(childComplexity), true
+
+	case "Goal.checkboxes":
+		if e.complexity.Goal.Checkboxes == nil {
+			break
+		}
+
+		return e.complexity.Goal.Checkboxes(childComplexity), true
 
 	case "Goal.createdAt":
 		if e.complexity.Goal.CreatedAt == nil {
@@ -399,12 +457,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Goal.Description(childComplexity), true
 
-	case "Goal.endDate":
-		if e.complexity.Goal.EndDate == nil {
+	case "Goal.endTime":
+		if e.complexity.Goal.EndTime == nil {
 			break
 		}
 
-		return e.complexity.Goal.EndDate(childComplexity), true
+		return e.complexity.Goal.EndTime(childComplexity), true
 
 	case "Goal.id":
 		if e.complexity.Goal.ID == nil {
@@ -413,6 +471,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Goal.ID(childComplexity), true
 
+	case "Goal.metrics":
+		if e.complexity.Goal.Metrics == nil {
+			break
+		}
+
+		return e.complexity.Goal.Metrics(childComplexity), true
+
 	case "Goal.name":
 		if e.complexity.Goal.Name == nil {
 			break
@@ -420,12 +485,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Goal.Name(childComplexity), true
 
-	case "Goal.startDate":
-		if e.complexity.Goal.StartDate == nil {
+	case "Goal.startTime":
+		if e.complexity.Goal.StartTime == nil {
 			break
 		}
 
-		return e.complexity.Goal.StartDate(childComplexity), true
+		return e.complexity.Goal.StartTime(childComplexity), true
 
 	case "Goal.status":
 		if e.complexity.Goal.Status == nil {
@@ -434,19 +499,68 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Goal.Status(childComplexity), true
 
-	case "Goal.target":
-		if e.complexity.Goal.Target == nil {
-			break
-		}
-
-		return e.complexity.Goal.Target(childComplexity), true
-
 	case "Goal.updatedAt":
 		if e.complexity.Goal.UpdatedAt == nil {
 			break
 		}
 
 		return e.complexity.Goal.UpdatedAt(childComplexity), true
+
+	case "GoalMetric.categoryID":
+		if e.complexity.GoalMetric.CategoryID == nil {
+			break
+		}
+
+		return e.complexity.GoalMetric.CategoryID(childComplexity), true
+
+	case "GoalMetric.condition":
+		if e.complexity.GoalMetric.Condition == nil {
+			break
+		}
+
+		return e.complexity.GoalMetric.Condition(childComplexity), true
+
+	case "GoalMetric.id":
+		if e.complexity.GoalMetric.ID == nil {
+			break
+		}
+
+		return e.complexity.GoalMetric.ID(childComplexity), true
+
+	case "GoalMetric.name":
+		if e.complexity.GoalMetric.Name == nil {
+			break
+		}
+
+		return e.complexity.GoalMetric.Name(childComplexity), true
+
+	case "GoalMetric.rangeValue":
+		if e.complexity.GoalMetric.RangeValue == nil {
+			break
+		}
+
+		return e.complexity.GoalMetric.RangeValue(childComplexity), true
+
+	case "GoalMetric.targetValue":
+		if e.complexity.GoalMetric.TargetValue == nil {
+			break
+		}
+
+		return e.complexity.GoalMetric.TargetValue(childComplexity), true
+
+	case "GoalMetric.unit":
+		if e.complexity.GoalMetric.Unit == nil {
+			break
+		}
+
+		return e.complexity.GoalMetric.Unit(childComplexity), true
+
+	case "GoalMetric.value":
+		if e.complexity.GoalMetric.Value == nil {
+			break
+		}
+
+		return e.complexity.GoalMetric.Value(childComplexity), true
 
 	case "Metric.categoryID":
 		if e.complexity.Metric.CategoryID == nil {
@@ -495,6 +609,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteCharacter(childComplexity, args["id"].(string)), true
 
+	case "Mutation.deleteGoal":
+		if e.complexity.Mutation.DeleteGoal == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteGoal_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteGoal(childComplexity, args["id"].(string)), true
+
 	case "Mutation.deleteProfile":
 		if e.complexity.Mutation.DeleteProfile == nil {
 			break
@@ -536,7 +662,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpsertGoal(childComplexity, args["characterID"].(string), args["input"].(entity.GoalInput)), true
+		return e.complexity.Mutation.UpsertGoal(childComplexity, args["input"].(entity.GoalInput)), true
 
 	case "Profile.autoSnapshot":
 		if e.complexity.Profile.AutoSnapshot == nil {
@@ -680,6 +806,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.__resolve_entities(childComplexity, args["representations"].([]map[string]interface{})), true
+
+	case "Range.max":
+		if e.complexity.Range.Max == nil {
+			break
+		}
+
+		return e.complexity.Range.Max(childComplexity), true
+
+	case "Range.min":
+		if e.complexity.Range.Min == nil {
+			break
+		}
+
+		return e.complexity.Range.Min(childComplexity), true
 
 	case "Template.categories":
 		if e.complexity.Template.Categories == nil {
@@ -832,12 +972,13 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCategoryInput,
 		ec.unmarshalInputCategoryStyleInput,
 		ec.unmarshalInputCharacterInput,
-		ec.unmarshalInputGoalCategoryInput,
+		ec.unmarshalInputCheckboxInput,
 		ec.unmarshalInputGoalInput,
 		ec.unmarshalInputGoalMetricInput,
 		ec.unmarshalInputGoalStatusFilter,
 		ec.unmarshalInputMetricInput,
 		ec.unmarshalInputProfileInput,
+		ec.unmarshalInputRangeInput,
 		ec.unmarshalInputVisionInput,
 	)
 	first := true
@@ -1039,6 +1180,21 @@ func (ec *executionContext) field_Mutation_deleteCharacter_args(ctx context.Cont
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteGoal_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_updateProfile_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1072,24 +1228,15 @@ func (ec *executionContext) field_Mutation_upsertCharacter_args(ctx context.Cont
 func (ec *executionContext) field_Mutation_upsertGoal_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["characterID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["characterID"] = arg0
-	var arg1 entity.GoalInput
+	var arg0 entity.GoalInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNGoalInput2tenkhoursᚋservicesᚋcoreᚋentityᚐGoalInput(ctx, tmp)
+		arg0, err = ec.unmarshalNGoalInput2tenkhoursᚋservicesᚋcoreᚋentityᚐGoalInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -2140,6 +2287,138 @@ func (ec *executionContext) fieldContext_Character_vision(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Checkbox_id(ctx context.Context, field graphql.CollectedField, obj *entity.Checkbox) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Checkbox_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Checkbox_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Checkbox",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Checkbox_name(ctx context.Context, field graphql.CollectedField, obj *entity.Checkbox) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Checkbox_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Checkbox_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Checkbox",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Checkbox_value(ctx context.Context, field graphql.CollectedField, obj *entity.Checkbox) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Checkbox_value(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Value, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Checkbox_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Checkbox",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Fish_profileID(ctx context.Context, field graphql.CollectedField, obj *model.Fish) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Fish_profileID(ctx, field)
 	if err != nil {
@@ -2448,8 +2727,8 @@ func (ec *executionContext) fieldContext_Goal_description(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Goal_startDate(ctx context.Context, field graphql.CollectedField, obj *entity.Goal) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Goal_startDate(ctx, field)
+func (ec *executionContext) _Goal_startTime(ctx context.Context, field graphql.CollectedField, obj *entity.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_startTime(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2462,7 +2741,7 @@ func (ec *executionContext) _Goal_startDate(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.StartDate, nil
+		return obj.StartTime, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2479,7 +2758,7 @@ func (ec *executionContext) _Goal_startDate(ctx context.Context, field graphql.C
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Goal_startDate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Goal_startTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Goal",
 		Field:      field,
@@ -2492,8 +2771,8 @@ func (ec *executionContext) fieldContext_Goal_startDate(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Goal_endDate(ctx context.Context, field graphql.CollectedField, obj *entity.Goal) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Goal_endDate(ctx, field)
+func (ec *executionContext) _Goal_endTime(ctx context.Context, field graphql.CollectedField, obj *entity.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_endTime(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2506,7 +2785,7 @@ func (ec *executionContext) _Goal_endDate(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.EndDate, nil
+		return obj.EndTime, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2523,7 +2802,7 @@ func (ec *executionContext) _Goal_endDate(ctx context.Context, field graphql.Col
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Goal_endDate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Goal_endTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Goal",
 		Field:      field,
@@ -2580,8 +2859,8 @@ func (ec *executionContext) fieldContext_Goal_status(_ context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Goal_target(ctx context.Context, field graphql.CollectedField, obj *entity.Goal) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Goal_target(ctx, field)
+func (ec *executionContext) _Goal_metrics(ctx context.Context, field graphql.CollectedField, obj *entity.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_metrics(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2594,7 +2873,165 @@ func (ec *executionContext) _Goal_target(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Target, nil
+		return ec.resolvers.Goal().Metrics(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.GoalMetric)
+	fc.Result = res
+	return ec.marshalNGoalMetric2ᚕtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐGoalMetricᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_metrics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GoalMetric_id(ctx, field)
+			case "categoryID":
+				return ec.fieldContext_GoalMetric_categoryID(ctx, field)
+			case "name":
+				return ec.fieldContext_GoalMetric_name(ctx, field)
+			case "value":
+				return ec.fieldContext_GoalMetric_value(ctx, field)
+			case "unit":
+				return ec.fieldContext_GoalMetric_unit(ctx, field)
+			case "condition":
+				return ec.fieldContext_GoalMetric_condition(ctx, field)
+			case "targetValue":
+				return ec.fieldContext_GoalMetric_targetValue(ctx, field)
+			case "rangeValue":
+				return ec.fieldContext_GoalMetric_rangeValue(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GoalMetric", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Goal_checkboxes(ctx context.Context, field graphql.CollectedField, obj *entity.Goal) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Goal_checkboxes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Goal().Checkboxes(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]entity.Checkbox)
+	fc.Result = res
+	return ec.marshalNCheckbox2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐCheckboxᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Goal_checkboxes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Goal",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Checkbox_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Checkbox_name(ctx, field)
+			case "value":
+				return ec.fieldContext_Checkbox_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Checkbox", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GoalMetric_id(ctx context.Context, field graphql.CollectedField, obj *model.GoalMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GoalMetric_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GoalMetric_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GoalMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GoalMetric_categoryID(ctx context.Context, field graphql.CollectedField, obj *model.GoalMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GoalMetric_categoryID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2603,29 +3040,283 @@ func (ec *executionContext) _Goal_target(ctx context.Context, field graphql.Coll
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]entity.Category)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOCategory2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐCategoryᚄ(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Goal_target(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GoalMetric_categoryID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Goal",
+		Object:     "GoalMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GoalMetric_name(ctx context.Context, field graphql.CollectedField, obj *model.GoalMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GoalMetric_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GoalMetric_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GoalMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GoalMetric_value(ctx context.Context, field graphql.CollectedField, obj *model.GoalMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GoalMetric_value(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Value, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GoalMetric_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GoalMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GoalMetric_unit(ctx context.Context, field graphql.CollectedField, obj *model.GoalMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GoalMetric_unit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Unit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GoalMetric_unit(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GoalMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GoalMetric_condition(ctx context.Context, field graphql.CollectedField, obj *model.GoalMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GoalMetric_condition(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Condition, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(entity.MetricCondition)
+	fc.Result = res
+	return ec.marshalNMetricCondition2tenkhoursᚋservicesᚋcoreᚋentityᚐMetricCondition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GoalMetric_condition(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GoalMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type MetricCondition does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GoalMetric_targetValue(ctx context.Context, field graphql.CollectedField, obj *model.GoalMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GoalMetric_targetValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TargetValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GoalMetric_targetValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GoalMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GoalMetric_rangeValue(ctx context.Context, field graphql.CollectedField, obj *model.GoalMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GoalMetric_rangeValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RangeValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*entity.Range)
+	fc.Result = res
+	return ec.marshalORange2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐRange(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GoalMetric_rangeValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GoalMetric",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Category_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Category_name(ctx, field)
-			case "description":
-				return ec.fieldContext_Category_description(ctx, field)
-			case "style":
-				return ec.fieldContext_Category_style(ctx, field)
+			case "min":
+				return ec.fieldContext_Range_min(ctx, field)
+			case "max":
+				return ec.fieldContext_Range_max(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Range", field.Name)
 		},
 	}
 	return fc, nil
@@ -3167,7 +3858,7 @@ func (ec *executionContext) _Mutation_upsertGoal(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpsertGoal(rctx, fc.Args["characterID"].(string), fc.Args["input"].(entity.GoalInput))
+		return ec.resolvers.Mutation().UpsertGoal(rctx, fc.Args["input"].(entity.GoalInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3204,14 +3895,16 @@ func (ec *executionContext) fieldContext_Mutation_upsertGoal(ctx context.Context
 				return ec.fieldContext_Goal_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Goal_description(ctx, field)
-			case "startDate":
-				return ec.fieldContext_Goal_startDate(ctx, field)
-			case "endDate":
-				return ec.fieldContext_Goal_endDate(ctx, field)
+			case "startTime":
+				return ec.fieldContext_Goal_startTime(ctx, field)
+			case "endTime":
+				return ec.fieldContext_Goal_endTime(ctx, field)
 			case "status":
 				return ec.fieldContext_Goal_status(ctx, field)
-			case "target":
-				return ec.fieldContext_Goal_target(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Goal_metrics(ctx, field)
+			case "checkboxes":
+				return ec.fieldContext_Goal_checkboxes(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Goal", field.Name)
 		},
@@ -3224,6 +3917,85 @@ func (ec *executionContext) fieldContext_Mutation_upsertGoal(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_upsertGoal_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteGoal(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteGoal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteGoal(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entity.Goal)
+	fc.Result = res
+	return ec.marshalNGoal2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐGoal(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteGoal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Goal_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Goal_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Goal_updatedAt(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Goal_characterID(ctx, field)
+			case "name":
+				return ec.fieldContext_Goal_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Goal_description(ctx, field)
+			case "startTime":
+				return ec.fieldContext_Goal_startTime(ctx, field)
+			case "endTime":
+				return ec.fieldContext_Goal_endTime(ctx, field)
+			case "status":
+				return ec.fieldContext_Goal_status(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Goal_metrics(ctx, field)
+			case "checkboxes":
+				return ec.fieldContext_Goal_checkboxes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Goal", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteGoal_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3561,9 +4333,9 @@ func (ec *executionContext) _Profile_currentCharacterID(ctx context.Context, fie
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOID2string(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Profile_currentCharacterID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4024,14 +4796,16 @@ func (ec *executionContext) fieldContext_Query_goals(ctx context.Context, field 
 				return ec.fieldContext_Goal_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Goal_description(ctx, field)
-			case "startDate":
-				return ec.fieldContext_Goal_startDate(ctx, field)
-			case "endDate":
-				return ec.fieldContext_Goal_endDate(ctx, field)
+			case "startTime":
+				return ec.fieldContext_Goal_startTime(ctx, field)
+			case "endTime":
+				return ec.fieldContext_Goal_endTime(ctx, field)
 			case "status":
 				return ec.fieldContext_Goal_status(ctx, field)
-			case "target":
-				return ec.fieldContext_Goal_target(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Goal_metrics(ctx, field)
+			case "checkboxes":
+				return ec.fieldContext_Goal_checkboxes(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Goal", field.Name)
 		},
@@ -4337,6 +5111,94 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Range_min(ctx context.Context, field graphql.CollectedField, obj *entity.Range) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Range_min(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Min, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Range_min(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Range",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Range_max(ctx context.Context, field graphql.CollectedField, obj *entity.Range) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Range_max(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Max, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Range_max(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Range",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7169,48 +8031,14 @@ func (ec *executionContext) unmarshalInputCharacterInput(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputGoalCategoryInput(ctx context.Context, obj interface{}) (entity.GoalCategoryInput, error) {
-	var it entity.GoalCategoryInput
+func (ec *executionContext) unmarshalInputCheckboxInput(ctx context.Context, obj interface{}) (entity.CheckboxInput, error) {
+	var it entity.CheckboxInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "metrics"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "id":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ID = data
-		case "metrics":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metrics"))
-			data, err := ec.unmarshalOGoalMetricInput2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐGoalMetricInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Metrics = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputGoalInput(ctx context.Context, obj interface{}) (entity.GoalInput, error) {
-	var it entity.GoalInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"id", "name", "description", "startDate", "endDate", "target"}
+	fieldsInOrder := [...]string{"id", "name", "value"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7231,6 +8059,54 @@ func (ec *executionContext) unmarshalInputGoalInput(ctx context.Context, obj int
 				return it, err
 			}
 			it.Name = data
+		case "value":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Value = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGoalInput(ctx context.Context, obj interface{}) (entity.GoalInput, error) {
+	var it entity.GoalInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "characterID", "name", "description", "startTime", "endTime", "metrics", "checkboxes"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "characterID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CharacterID = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
 		case "description":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -7238,27 +8114,34 @@ func (ec *executionContext) unmarshalInputGoalInput(ctx context.Context, obj int
 				return it, err
 			}
 			it.Description = data
-		case "startDate":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startDate"))
+		case "startTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
 			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.StartDate = data
-		case "endDate":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endDate"))
+			it.StartTime = data
+		case "endTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endTime"))
 			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.EndDate = data
-		case "target":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("target"))
-			data, err := ec.unmarshalOGoalCategoryInput2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐGoalCategoryInputᚄ(ctx, v)
+			it.EndTime = data
+		case "metrics":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metrics"))
+			data, err := ec.unmarshalOGoalMetricInput2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐGoalMetricInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Target = data
+			it.Metrics = data
+		case "checkboxes":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("checkboxes"))
+			data, err := ec.unmarshalOCheckboxInput2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐCheckboxInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Checkboxes = data
 		}
 	}
 
@@ -7272,7 +8155,7 @@ func (ec *executionContext) unmarshalInputGoalMetricInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "value"}
+	fieldsInOrder := [...]string{"id", "condition", "targetValue", "rangeValue"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7281,18 +8164,32 @@ func (ec *executionContext) unmarshalInputGoalMetricInput(ctx context.Context, o
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalOID2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.ID = data
-		case "value":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNFloat2float64(ctx, v)
+		case "condition":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("condition"))
+			data, err := ec.unmarshalNMetricCondition2tenkhoursᚋservicesᚋcoreᚋentityᚐMetricCondition(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Value = data
+			it.Condition = data
+		case "targetValue":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetValue"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetValue = data
+		case "rangeValue":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rangeValue"))
+			data, err := ec.unmarshalORangeInput2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐRangeInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RangeValue = data
 		}
 	}
 
@@ -7430,6 +8327,40 @@ func (ec *executionContext) unmarshalInputProfileInput(ctx context.Context, obj 
 				return it, err
 			}
 			it.AutoSnapshot = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRangeInput(ctx context.Context, obj interface{}) (entity.RangeInput, error) {
+	var it entity.RangeInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"min", "max"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "min":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("min"))
+			data, err := ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Min = data
+		case "max":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
+			data, err := ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Max = data
 		}
 	}
 
@@ -7732,6 +8663,55 @@ func (ec *executionContext) _Character(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
+var checkboxImplementors = []string{"Checkbox"}
+
+func (ec *executionContext) _Checkbox(ctx context.Context, sel ast.SelectionSet, obj *entity.Checkbox) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, checkboxImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Checkbox")
+		case "id":
+			out.Values[i] = ec._Checkbox_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Checkbox_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "value":
+			out.Values[i] = ec._Checkbox_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var fishImplementors = []string{"Fish", "_Entity"}
 
 func (ec *executionContext) _Fish(ctx context.Context, sel ast.SelectionSet, obj *model.Fish) graphql.Marshaler {
@@ -7785,50 +8765,185 @@ func (ec *executionContext) _Goal(ctx context.Context, sel ast.SelectionSet, obj
 		case "id":
 			out.Values[i] = ec._Goal_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
 			out.Values[i] = ec._Goal_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "updatedAt":
 			out.Values[i] = ec._Goal_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "characterID":
 			out.Values[i] = ec._Goal_characterID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._Goal_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "description":
 			out.Values[i] = ec._Goal_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "startDate":
-			out.Values[i] = ec._Goal_startDate(ctx, field, obj)
+		case "startTime":
+			out.Values[i] = ec._Goal_startTime(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "endDate":
-			out.Values[i] = ec._Goal_endDate(ctx, field, obj)
+		case "endTime":
+			out.Values[i] = ec._Goal_endTime(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "status":
 			out.Values[i] = ec._Goal_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "metrics":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Goal_metrics(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "checkboxes":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Goal_checkboxes(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var goalMetricImplementors = []string{"GoalMetric"}
+
+func (ec *executionContext) _GoalMetric(ctx context.Context, sel ast.SelectionSet, obj *model.GoalMetric) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, goalMetricImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GoalMetric")
+		case "id":
+			out.Values[i] = ec._GoalMetric_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "target":
-			out.Values[i] = ec._Goal_target(ctx, field, obj)
+		case "categoryID":
+			out.Values[i] = ec._GoalMetric_categoryID(ctx, field, obj)
+		case "name":
+			out.Values[i] = ec._GoalMetric_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "value":
+			out.Values[i] = ec._GoalMetric_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "unit":
+			out.Values[i] = ec._GoalMetric_unit(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "condition":
+			out.Values[i] = ec._GoalMetric_condition(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "targetValue":
+			out.Values[i] = ec._GoalMetric_targetValue(ctx, field, obj)
+		case "rangeValue":
+			out.Values[i] = ec._GoalMetric_rangeValue(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7958,6 +9073,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "upsertGoal":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_upsertGoal(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteGoal":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteGoal(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -8319,6 +9441,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var rangeImplementors = []string{"Range"}
+
+func (ec *executionContext) _Range(ctx context.Context, sel ast.SelectionSet, obj *entity.Range) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, rangeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Range")
+		case "min":
+			out.Values[i] = ec._Range_min(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "max":
+			out.Values[i] = ec._Range_max(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9148,6 +10314,59 @@ func (ec *executionContext) unmarshalNCharacterInput2tenkhoursᚋservicesᚋcore
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNCheckbox2tenkhoursᚋservicesᚋcoreᚋentityᚐCheckbox(ctx context.Context, sel ast.SelectionSet, v entity.Checkbox) graphql.Marshaler {
+	return ec._Checkbox(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCheckbox2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐCheckboxᚄ(ctx context.Context, sel ast.SelectionSet, v []entity.Checkbox) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNCheckbox2tenkhoursᚋservicesᚋcoreᚋentityᚐCheckbox(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNCheckboxInput2tenkhoursᚋservicesᚋcoreᚋentityᚐCheckboxInput(ctx context.Context, v interface{}) (entity.CheckboxInput, error) {
+	res, err := ec.unmarshalInputCheckboxInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNFieldSet2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -9250,11 +10469,6 @@ func (ec *executionContext) marshalNGoal2ᚖtenkhoursᚋservicesᚋcoreᚋentity
 	return ec._Goal(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNGoalCategoryInput2tenkhoursᚋservicesᚋcoreᚋentityᚐGoalCategoryInput(ctx context.Context, v interface{}) (entity.GoalCategoryInput, error) {
-	res, err := ec.unmarshalInputGoalCategoryInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNGoalFinishStatus2tenkhoursᚋservicesᚋcoreᚋentityᚐGoalFinishStatus(ctx context.Context, v interface{}) (entity.GoalFinishStatus, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := entity.GoalFinishStatus(tmp)
@@ -9274,6 +10488,54 @@ func (ec *executionContext) marshalNGoalFinishStatus2tenkhoursᚋservicesᚋcore
 func (ec *executionContext) unmarshalNGoalInput2tenkhoursᚋservicesᚋcoreᚋentityᚐGoalInput(ctx context.Context, v interface{}) (entity.GoalInput, error) {
 	res, err := ec.unmarshalInputGoalInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGoalMetric2tenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐGoalMetric(ctx context.Context, sel ast.SelectionSet, v model.GoalMetric) graphql.Marshaler {
+	return ec._GoalMetric(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGoalMetric2ᚕtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐGoalMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []model.GoalMetric) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNGoalMetric2tenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐGoalMetric(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNGoalMetricInput2tenkhoursᚋservicesᚋcoreᚋentityᚐGoalMetricInput(ctx context.Context, v interface{}) (entity.GoalMetricInput, error) {
@@ -9372,6 +10634,22 @@ func (ec *executionContext) marshalNMetric2ᚕtenkhoursᚋservicesᚋcoreᚋenti
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNMetricCondition2tenkhoursᚋservicesᚋcoreᚋentityᚐMetricCondition(ctx context.Context, v interface{}) (entity.MetricCondition, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := entity.MetricCondition(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNMetricCondition2tenkhoursᚋservicesᚋcoreᚋentityᚐMetricCondition(ctx context.Context, sel ast.SelectionSet, v entity.MetricCondition) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNMetricInput2tenkhoursᚋservicesᚋcoreᚋentityᚐMetricInput(ctx context.Context, v interface{}) (entity.MetricInput, error) {
@@ -10136,53 +11414,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalOCategory2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐCategoryᚄ(ctx context.Context, sel ast.SelectionSet, v []entity.Category) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNCategory2tenkhoursᚋservicesᚋcoreᚋentityᚐCategory(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
 func (ec *executionContext) unmarshalOCategoryInput2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐCategoryInputᚄ(ctx context.Context, v interface{}) ([]entity.CategoryInput, error) {
 	if v == nil {
 		return nil, nil
@@ -10203,7 +11434,7 @@ func (ec *executionContext) unmarshalOCategoryInput2ᚕtenkhoursᚋservicesᚋco
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOGoalCategoryInput2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐGoalCategoryInputᚄ(ctx context.Context, v interface{}) ([]entity.GoalCategoryInput, error) {
+func (ec *executionContext) unmarshalOCheckboxInput2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐCheckboxInputᚄ(ctx context.Context, v interface{}) ([]entity.CheckboxInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -10212,15 +11443,31 @@ func (ec *executionContext) unmarshalOGoalCategoryInput2ᚕtenkhoursᚋservices�
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]entity.GoalCategoryInput, len(vSlice))
+	res := make([]entity.CheckboxInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNGoalCategoryInput2tenkhoursᚋservicesᚋcoreᚋentityᚐGoalCategoryInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNCheckboxInput2tenkhoursᚋservicesᚋcoreᚋentityᚐCheckboxInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
 	}
 	return res, nil
+}
+
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalFloatContext(*v)
+	return graphql.WrapContextMarshaler(ctx, res)
 }
 
 func (ec *executionContext) unmarshalOGoalExpireStatus2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐGoalExpireStatus(ctx context.Context, v interface{}) (*entity.GoalExpireStatus, error) {
@@ -10329,6 +11576,21 @@ func (ec *executionContext) unmarshalOMetricInput2ᚕtenkhoursᚋservicesᚋcore
 		}
 	}
 	return res, nil
+}
+
+func (ec *executionContext) marshalORange2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐRange(ctx context.Context, sel ast.SelectionSet, v *entity.Range) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Range(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalORangeInput2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐRangeInput(ctx context.Context, v interface{}) (*entity.RangeInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputRangeInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

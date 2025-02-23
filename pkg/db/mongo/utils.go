@@ -3,6 +3,7 @@ package mongodb
 import (
 	"tenkhours/pkg/db/base"
 
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -13,6 +14,12 @@ func GenObjectID() string {
 func ToObjectID(id string) primitive.ObjectID {
 	oid, _ := primitive.ObjectIDFromHex(id)
 	return oid
+}
+
+func ToObjectIDs(ids []string) []primitive.ObjectID {
+	return lo.Map(ids, func(id string, _ int) primitive.ObjectID {
+		return ToObjectID(id)
+	})
 }
 
 func addMissingFields[M base.IBaseEntity](m M) {

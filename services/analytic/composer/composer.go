@@ -5,13 +5,14 @@ import (
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/services/analytic/business"
 	mongorepo "tenkhours/services/analytic/repo/mongo"
+	"tenkhours/services/analytic/repo/redis"
 	"tenkhours/services/analytic/repo/rpc"
 
 	"google.golang.org/grpc"
 )
 
 type Composer struct {
-	CapturedRecordRepo business.ICapturedRecordRepo
+	CapturedRecordRepo *mongorepo.CapturedRecordRepo
 	AnalyticBiz        business.IAnalyticBusiness
 	CoreClient         *rpc.CoreClient
 	CoreClientConn     *grpc.ClientConn
@@ -29,13 +30,14 @@ func GetComposer() *Composer {
 	redisClient := rdb.GetRedisClient()
 
 	// Repositories
-	capturedRecordRepo := mongorepo.NewCapturedRecordRepo(db, redisClient)
+	capturedRecordRepo := mongorepo.NewCapturedRecordRepo(db)
+	redisRepo := redis.NewRedisRepo(redisClient)
 
 	// RPC Clients
 	coreClient, conn := ComposeCoreClient()
 
 	// Business
-	analyticBiz := business.NewAnalyticBusiness(capturedRecordRepo, coreClient)
+	analyticBiz := business.NewAnalyticBusiness(capturedRecordRepo, coreClient, redisRepo)
 
 	return &Composer{
 		CapturedRecordRepo: capturedRecordRepo,

@@ -61,9 +61,22 @@ Please follow this guide: <https://www.npmjs.com/package/migrate-mongo>
 ```sh
 npm i -g migrate-mongo
 
-# migrate-mongo up
-# migrate-mongo down
-# migrate-mongo status
+# Manage migrations
+migrate-mongo up
+migrate-mongo down
+migrate-mongo status
+```
+
+## Mongo backup and restore
+
+Install the Database Tools: https://www.mongodb.com/docs/database-tools/installation
+
+```sh
+# Backup database
+make dump
+
+# Restore database
+make restore
 ```
 
 ## Start services, run unit tests and API tests

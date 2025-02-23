@@ -32,7 +32,7 @@ type CategoryStyle struct {
 
 type Metric struct {
 	ID         string  `json:"id,omitempty"         bson:"_id"`
-	CategoryID *string `json:"categoryID,omitempty" bson:"category_id"`
+	CategoryID *string `json:"categoryID,omitempty" bson:"category_id,omitempty"`
 	Name       string  `json:"name,omitempty"       bson:"name"`
 	Value      float64 `json:"value,omitempty"      bson:"value"`
 	Unit       string  `json:"unit,omitempty"       bson:"unit"`

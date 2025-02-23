@@ -41,7 +41,7 @@ func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 
 	metricInput := map[string]interface{}{
 		"name":  "Example name",
-		"value": 123.456,
+		"value": 2.0,
 		"unit":  "Example unit",
 	}
 
@@ -138,13 +138,20 @@ func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 		}
 
 		characterInput["id"] = gjson.Get(character, "id").Value()
-		characterInput["metrics"] = []interface{}{metricInput, metricInput, metricInput}
+		metricInputWithCategory := map[string]interface{}{
+			"categoryID": gjson.Get(character, "categories.0.id").Value(),
+			"name":       "Example name",
+			"value":      2.0,
+			"unit":       "Example unit",
+		}
+		characterInput["metrics"] = []interface{}{metricInputWithCategory, metricInput, metricInput}
 
 		assertion = assertion.
 			Equal("$.data.upsertCharacter.id", characterInput["id"]).
-			Equal("$.data.upsertCharacter.metrics[0].name", metricInput["name"]).
-			Equal("$.data.upsertCharacter.metrics[0].value", metricInput["value"]).
-			Equal("$.data.upsertCharacter.metrics[0].unit", metricInput["unit"])
+			Equal("$.data.upsertCharacter.metrics[0].categoryID", metricInputWithCategory["categoryID"]).
+			Equal("$.data.upsertCharacter.metrics[0].name", metricInputWithCategory["name"]).
+			Equal("$.data.upsertCharacter.metrics[0].value", metricInputWithCategory["value"]).
+			Equal("$.data.upsertCharacter.metrics[0].unit", metricInputWithCategory["unit"])
 
 		assertions = append(assertions,
 			jsonpath.Len("$.data.upsertCharacter.metrics", 3))
