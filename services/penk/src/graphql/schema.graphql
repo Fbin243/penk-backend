@@ -1,6 +1,6 @@
 type Query {
-  helloPenK: String!
   userContext: UserContext!
+  messages: [Message!]!
 }
 
 type UserContext {
@@ -14,5 +14,19 @@ type UserContext {
 
 type Preferences {
   tone: String!
+}
+
+type Message {
+  id: ID!
+  userID: ID!
+  type: MessageType!
+  content: String!
+  timestamp: String!
+}
+
+enum MessageType {
+  USER_MESSAGE
+  AI_MESSAGE
+  AI_ERROR
 }
 

@@ -3,24 +3,21 @@ import { gql } from "apollo-server";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
-import { UserContext } from "../database/mongodb";
-import { getRedisClient } from "../database/redis";
+import { UserContext } from "../db";
 import { Resolvers } from "./__generated__/resolvers-types";
 
 const typeDefs = gql(
   readFileSync(resolve(__dirname, "schema.graphql"), "utf8"),
 );
 
+const tempProfileId = "6735a19cc0e37098e0286d6b";
+
 const resolvers: Resolvers = {
   Query: {
-    helloPenK: async () => {
-      const redisClient = await getRedisClient();
-      await redisClient.set("mykey", "myvalue", { EX: 300 });
-      return "PenK";
+    messages: async () => {
+      return [];
     },
     userContext: async () => {
-      const tempProfileId = "6735a19cc0e37098e0286d6b";
-
       let userContext = await UserContext.findOne({
         profileId: tempProfileId,
       });

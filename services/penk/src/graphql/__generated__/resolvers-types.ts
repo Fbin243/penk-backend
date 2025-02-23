@@ -16,6 +16,21 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type Message = {
+  __typename?: 'Message';
+  content: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  timestamp: Scalars['String']['output'];
+  type: MessageType;
+  userID: Scalars['ID']['output'];
+};
+
+export enum MessageType {
+  AiError = 'AI_ERROR',
+  AiMessage = 'AI_MESSAGE',
+  UserMessage = 'USER_MESSAGE'
+}
+
 export type Preferences = {
   __typename?: 'Preferences';
   tone: Scalars['String']['output'];
@@ -23,7 +38,7 @@ export type Preferences = {
 
 export type Query = {
   __typename?: 'Query';
-  helloPenK: Scalars['String']['output'];
+  messages: Array<Message>;
   userContext: UserContext;
 };
 
@@ -111,6 +126,8 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  Message: ResolverTypeWrapper<Message>;
+  MessageType: MessageType;
   Preferences: ResolverTypeWrapper<Preferences>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
@@ -121,10 +138,20 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
   ID: Scalars['ID']['output'];
+  Message: Message;
   Preferences: Preferences;
   Query: {};
   String: Scalars['String']['output'];
   UserContext: UserContext;
+}>;
+
+export type MessageResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Message'] = ResolversParentTypes['Message']> = ResolversObject<{
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['MessageType'], ParentType, ContextType>;
+  userID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type PreferencesResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Preferences'] = ResolversParentTypes['Preferences']> = ResolversObject<{
@@ -133,7 +160,7 @@ export type PreferencesResolvers<ContextType = ResolverContext, ParentType exten
 }>;
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  helloPenK?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  messages?: Resolver<Array<ResolversTypes['Message']>, ParentType, ContextType>;
   userContext?: Resolver<ResolversTypes['UserContext'], ParentType, ContextType>;
 }>;
 
@@ -148,6 +175,7 @@ export type UserContextResolvers<ContextType = ResolverContext, ParentType exten
 }>;
 
 export type Resolvers<ContextType = ResolverContext> = ResolversObject<{
+  Message?: MessageResolvers<ContextType>;
   Preferences?: PreferencesResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   UserContext?: UserContextResolvers<ContextType>;
