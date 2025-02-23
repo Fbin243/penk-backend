@@ -11,8 +11,8 @@ type DFCapturedRecord struct {
 	TotalFocusedTime int    `dataframe:"total_focused_time"`
 }
 
-type DFCapturedRecordCustomMetric struct {
-	ID       string `dataframe:"id"`
-	MetricID string `dataframe:"metric_id"`
-	Time     int    `dataframe:"time"`
+type DFCapturedRecordCategory struct {
+	ID         string `dataframe:"id"`
+	CategoryID string `dataframe:"category_id"`
+	Time       int    `dataframe:"time"`
 }

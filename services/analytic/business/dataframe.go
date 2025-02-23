@@ -1,8 +1,6 @@
 package business
 
 import (
-	"encoding/json"
-	"fmt"
 	"math"
 	"time"
 
@@ -33,16 +31,16 @@ type AnalyticsProcessor struct {
 // ProcessCapturedRecords processes the captured records and returns the analytic results
 func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 	numberOfCapturedRecords := len(ap.CapturedRecords)
-	dfCaptureRecordCustomMetricsData := make([]entity.DFCapturedRecordCustomMetric, 0)
+	dfCaptureRecordCategoriesData := make([]entity.DFCapturedRecordCategory, 0)
 	dfCaptureRecordsData := lo.Map(ap.CapturedRecords, func(record entity.CapturedRecord, index int) entity.DFCapturedRecord {
 		recordDay := record.Timestamp.Day()
 		recordYear, recordWeek := record.Timestamp.ISOWeek()
 
-		for _, metric := range record.CustomMetrics {
-			dfCaptureRecordCustomMetricsData = append(dfCaptureRecordCustomMetricsData, entity.DFCapturedRecordCustomMetric{
-				ID:       record.ID,
-				MetricID: metric.ID,
-				Time:     int(metric.Time),
+		for _, category := range record.Categories {
+			dfCaptureRecordCategoriesData = append(dfCaptureRecordCategoriesData, entity.DFCapturedRecordCategory{
+				ID:         record.ID,
+				CategoryID: category.ID,
+				Time:       int(category.Time),
 			})
 		}
 
@@ -59,8 +57,8 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 	})
 
 	dfCaptureRecords := dataframe.LoadStructs(dfCaptureRecordsData)
-	dfCaptureRecordMetrics := dataframe.LoadStructs(dfCaptureRecordCustomMetricsData)
-	dfInnerJoin := dfCaptureRecords.InnerJoin(dfCaptureRecordMetrics, "id")
+	dfCaptureRecordCategories := dataframe.LoadStructs(dfCaptureRecordCategoriesData)
+	dfInnerJoin := dfCaptureRecords.InnerJoin(dfCaptureRecordCategories, "id")
 	// Print the dfInnerJoin to debug if needed
 	// jsonOutput, _ := json.MarshalIndent(dfInnerJoin.Records(), "", "  ")
 	// fmt.Println(string(jsonOutput))
@@ -72,7 +70,6 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 			return record.Timestamp.Format(time.DateOnly)
 		}))
 
-		fmt.Print(uniqTimeStampStrings)
 		totalFocusedDays := len(uniqTimeStampStrings)
 
 		// Total focused time
@@ -138,11 +135,11 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 				ap.AnalyticResults["distribution"].(map[string]interface{})[characterID] = distriRecords.Col("total_focused_time_SUM").Elem(i).Float()
 			}
 		} else {
-			distriRecords := dfInnerJoin.GroupBy("character_id", "metric_id").Aggregation([]dataframe.AggregationType{dataframe.Aggregation_SUM}, []string{"time"})
+			distriRecords := dfInnerJoin.GroupBy("character_id", "category_id").Aggregation([]dataframe.AggregationType{dataframe.Aggregation_SUM}, []string{"time"})
 			nonMetricTime := totalFocusedTime
 			// Calculate the percentage of the total focused time
 			for i := 0; i < distriRecords.Nrow(); i++ {
-				metricID := distriRecords.Col("metric_id").Elem(i).String()
+				metricID := distriRecords.Col("category_id").Elem(i).String()
 				metricTime := distriRecords.Col("time_SUM").Elem(i).Float()
 				ap.AnalyticResults["distribution"].(map[string]interface{})[metricID] = metricTime
 				nonMetricTime -= metricTime
@@ -170,16 +167,16 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]interface{} {
 				SetGroupByArray([]string{"profile_id"}).Aggregate()
 		} else {
 			dfa.SetDataframe(dfInnerJoin).SetSumField("time").
-				SetGroupByArray([]string{"character_id", "metric_id", "year", "month", "week", "day"}).Aggregate().
-				SetGroupByArray([]string{"character_id", "metric_id", "year", "month", "week"}).Aggregate().
-				SetGroupByArray([]string{"character_id", "metric_id", "year", "month"}).Aggregate().
-				SetGroupByArray([]string{"character_id", "metric_id", "year"}).Aggregate().
-				SetGroupByArray([]string{"character_id", "metric_id"}).Aggregate().
+				SetGroupByArray([]string{"character_id", "category_id", "year", "month", "week", "day"}).Aggregate().
+				SetGroupByArray([]string{"character_id", "category_id", "year", "month", "week"}).Aggregate().
+				SetGroupByArray([]string{"character_id", "category_id", "year", "month"}).Aggregate().
+				SetGroupByArray([]string{"character_id", "category_id", "year"}).Aggregate().
+				SetGroupByArray([]string{"character_id", "category_id"}).Aggregate().
 				SetGroupByArray([]string{"character_id"}).Aggregate()
 		}
 
-		jsonOutput, _ := json.MarshalIndent(ap.AnalyticResults, "", "  ")
-		fmt.Println(string(jsonOutput))
+		// jsonOutput, _ := json.MarshalIndent(ap.AnalyticResults, "", "  ")
+		// fmt.Println(string(jsonOutput))
 	}
 
 	// Process the captured records for the FREQUENCY section

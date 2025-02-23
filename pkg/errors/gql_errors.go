@@ -11,6 +11,7 @@ var (
 	ErrPermissionDenied = NewGQLError(ErrCodePermissionDenied, "permission denied")
 	ErrBadRequest       = NewGQLError(ErrCodeBadRequest, "bad request")
 	ErrMongoNotFound    = NewGQLError(ErrCodeMongoNotFound, "mongo not found")
+	ErrRedisNotFound    = NewGQLError(ErrCodeRedisNotFound, "redis not found")
 )
 
 func NewGQLError(code ErrorCode, msg any) *gqlerror.Error {

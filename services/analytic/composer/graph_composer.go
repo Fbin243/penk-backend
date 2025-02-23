@@ -48,7 +48,7 @@ func ComposeCronJobs() {
 					}
 
 					// Save the captured record to DB
-					err = GetComposer().CapturedRecordRepo.CreateCapturedRecord(context.Background(), &capturedRecord)
+					_, err = GetComposer().CapturedRecordRepo.CreateCapturedRecord(context.Background(), &capturedRecord)
 					if err != nil {
 						fmt.Println("Error saving captured record to DB: ", err)
 					}

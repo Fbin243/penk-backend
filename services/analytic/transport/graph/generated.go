@@ -49,7 +49,7 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	CapturedRecord struct {
-		CustomMetrics    func(childComplexity int) int
+		Categories       func(childComplexity int) int
 		ID               func(childComplexity int) int
 		Metadata         func(childComplexity int) int
 		TimeTrackings    func(childComplexity int) int
@@ -57,7 +57,7 @@ type ComplexityRoot struct {
 		TotalFocusedTime func(childComplexity int) int
 	}
 
-	CapturedRecordCustomMetric struct {
+	CapturedRecordCategory struct {
 		ID   func(childComplexity int) int
 		Time func(childComplexity int) int
 	}
@@ -68,10 +68,10 @@ type ComplexityRoot struct {
 	}
 
 	CapturedRecordTimeTracking struct {
-		CustomMetricID func(childComplexity int) int
-		EndTime        func(childComplexity int) int
-		StartTime      func(childComplexity int) int
-		Time           func(childComplexity int) int
+		CategoryID func(childComplexity int) int
+		EndTime    func(childComplexity int) int
+		StartTime  func(childComplexity int) int
+		Time       func(childComplexity int) int
 	}
 
 	Query struct {
@@ -108,11 +108,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	switch typeName + "." + field {
 
 	case "CapturedRecord.categories":
-		if e.complexity.CapturedRecord.CustomMetrics == nil {
+		if e.complexity.CapturedRecord.Categories == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecord.CustomMetrics(childComplexity), true
+		return e.complexity.CapturedRecord.Categories(childComplexity), true
 
 	case "CapturedRecord.id":
 		if e.complexity.CapturedRecord.ID == nil {
@@ -149,19 +149,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CapturedRecord.TotalFocusedTime(childComplexity), true
 
-	case "CapturedRecordCustomMetric.id":
-		if e.complexity.CapturedRecordCustomMetric.ID == nil {
+	case "CapturedRecordCategory.id":
+		if e.complexity.CapturedRecordCategory.ID == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecordCustomMetric.ID(childComplexity), true
+		return e.complexity.CapturedRecordCategory.ID(childComplexity), true
 
-	case "CapturedRecordCustomMetric.time":
-		if e.complexity.CapturedRecordCustomMetric.Time == nil {
+	case "CapturedRecordCategory.time":
+		if e.complexity.CapturedRecordCategory.Time == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecordCustomMetric.Time(childComplexity), true
+		return e.complexity.CapturedRecordCategory.Time(childComplexity), true
 
 	case "CapturedRecordMetadata.characterID":
 		if e.complexity.CapturedRecordMetadata.CharacterID == nil {
@@ -177,12 +177,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CapturedRecordMetadata.ProfileID(childComplexity), true
 
-	case "CapturedRecordTimeTracking.customMetricID":
-		if e.complexity.CapturedRecordTimeTracking.CustomMetricID == nil {
+	case "CapturedRecordTimeTracking.categoryID":
+		if e.complexity.CapturedRecordTimeTracking.CategoryID == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecordTimeTracking.CustomMetricID(childComplexity), true
+		return e.complexity.CapturedRecordTimeTracking.CategoryID(childComplexity), true
 
 	case "CapturedRecordTimeTracking.endTime":
 		if e.complexity.CapturedRecordTimeTracking.EndTime == nil {
@@ -627,8 +627,8 @@ func (ec *executionContext) fieldContext_CapturedRecord_totalFocusedTime(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _CapturedRecord_customMetrics(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecord) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_customMetrics(ctx, field)
+func (ec *executionContext) _CapturedRecord_categories(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecord) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CapturedRecord_categories(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -641,7 +641,7 @@ func (ec *executionContext) _CapturedRecord_customMetrics(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CustomMetrics, nil
+		return obj.Categories, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -650,12 +650,12 @@ func (ec *executionContext) _CapturedRecord_customMetrics(ctx context.Context, f
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]entity.CapturedRecordCustomMetric)
+	res := resTmp.([]entity.CapturedRecordCategory)
 	fc.Result = res
-	return ec.marshalOCapturedRecordCustomMetric2ᚕtenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordCustomMetricᚄ(ctx, field.Selections, res)
+	return ec.marshalOCapturedRecordCategory2ᚕtenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordCategoryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CapturedRecord_customMetrics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CapturedRecord_categories(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CapturedRecord",
 		Field:      field,
@@ -664,11 +664,11 @@ func (ec *executionContext) fieldContext_CapturedRecord_customMetrics(_ context.
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_CapturedRecordCustomMetric_id(ctx, field)
+				return ec.fieldContext_CapturedRecordCategory_id(ctx, field)
 			case "time":
-				return ec.fieldContext_CapturedRecordCustomMetric_time(ctx, field)
+				return ec.fieldContext_CapturedRecordCategory_time(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CapturedRecordCustomMetric", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CapturedRecordCategory", field.Name)
 		},
 	}
 	return fc, nil
@@ -710,8 +710,8 @@ func (ec *executionContext) fieldContext_CapturedRecord_timeTrackings(_ context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "customMetricID":
-				return ec.fieldContext_CapturedRecordTimeTracking_customMetricID(ctx, field)
+			case "categoryID":
+				return ec.fieldContext_CapturedRecordTimeTracking_categoryID(ctx, field)
 			case "time":
 				return ec.fieldContext_CapturedRecordTimeTracking_time(ctx, field)
 			case "startTime":
@@ -775,8 +775,8 @@ func (ec *executionContext) fieldContext_CapturedRecord_metadata(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _CapturedRecordCustomMetric_id(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordCustomMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecordCustomMetric_id(ctx, field)
+func (ec *executionContext) _CapturedRecordCategory_id(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordCategory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CapturedRecordCategory_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -806,9 +806,9 @@ func (ec *executionContext) _CapturedRecordCustomMetric_id(ctx context.Context, 
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CapturedRecordCustomMetric_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CapturedRecordCategory_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CapturedRecordCustomMetric",
+		Object:     "CapturedRecordCategory",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -819,8 +819,8 @@ func (ec *executionContext) fieldContext_CapturedRecordCustomMetric_id(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _CapturedRecordCustomMetric_time(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordCustomMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecordCustomMetric_time(ctx, field)
+func (ec *executionContext) _CapturedRecordCategory_time(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordCategory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CapturedRecordCategory_time(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -850,9 +850,9 @@ func (ec *executionContext) _CapturedRecordCustomMetric_time(ctx context.Context
 	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CapturedRecordCustomMetric_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CapturedRecordCategory_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CapturedRecordCustomMetric",
+		Object:     "CapturedRecordCategory",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -951,8 +951,8 @@ func (ec *executionContext) fieldContext_CapturedRecordMetadata_profileID(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _CapturedRecordTimeTracking_customMetricID(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecordTimeTracking_customMetricID(ctx, field)
+func (ec *executionContext) _CapturedRecordTimeTracking_categoryID(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CapturedRecordTimeTracking_categoryID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -965,24 +965,21 @@ func (ec *executionContext) _CapturedRecordTimeTracking_customMetricID(ctx conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CustomMetricID, nil
+		return obj.CategoryID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CapturedRecordTimeTracking_customMetricID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CapturedRecordTimeTracking_categoryID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CapturedRecordTimeTracking",
 		Field:      field,
@@ -3208,7 +3205,7 @@ func (ec *executionContext) _CapturedRecord(ctx context.Context, sel ast.Selecti
 				out.Invalids++
 			}
 		case "categories":
-			out.Values[i] = ec._CapturedRecord_customMetrics(ctx, field, obj)
+			out.Values[i] = ec._CapturedRecord_categories(ctx, field, obj)
 		case "timeTrackings":
 			out.Values[i] = ec._CapturedRecord_timeTrackings(ctx, field, obj)
 		case "metadata":
@@ -3239,24 +3236,24 @@ func (ec *executionContext) _CapturedRecord(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var capturedRecordCustomMetricImplementors = []string{"CapturedRecordCustomMetric"}
+var capturedRecordCategoryImplementors = []string{"CapturedRecordCategory"}
 
-func (ec *executionContext) _CapturedRecordCustomMetric(ctx context.Context, sel ast.SelectionSet, obj *entity.CapturedRecordCustomMetric) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, capturedRecordCustomMetricImplementors)
+func (ec *executionContext) _CapturedRecordCategory(ctx context.Context, sel ast.SelectionSet, obj *entity.CapturedRecordCategory) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, capturedRecordCategoryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("CapturedRecordCustomMetric")
+			out.Values[i] = graphql.MarshalString("CapturedRecordCategory")
 		case "id":
-			out.Values[i] = ec._CapturedRecordCustomMetric_id(ctx, field, obj)
+			out.Values[i] = ec._CapturedRecordCategory_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "time":
-			out.Values[i] = ec._CapturedRecordCustomMetric_time(ctx, field, obj)
+			out.Values[i] = ec._CapturedRecordCategory_time(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3338,11 +3335,8 @@ func (ec *executionContext) _CapturedRecordTimeTracking(ctx context.Context, sel
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CapturedRecordTimeTracking")
-		case "customMetricID":
-			out.Values[i] = ec._CapturedRecordTimeTracking_customMetricID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
+		case "categoryID":
+			out.Values[i] = ec._CapturedRecordTimeTracking_categoryID(ctx, field, obj)
 		case "time":
 			out.Values[i] = ec._CapturedRecordTimeTracking_time(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3929,8 +3923,8 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNCapturedRecordCustomMetric2tenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordCustomMetric(ctx context.Context, sel ast.SelectionSet, v entity.CapturedRecordCustomMetric) graphql.Marshaler {
-	return ec._CapturedRecordCustomMetric(ctx, sel, &v)
+func (ec *executionContext) marshalNCapturedRecordCategory2tenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordCategory(ctx context.Context, sel ast.SelectionSet, v entity.CapturedRecordCategory) graphql.Marshaler {
+	return ec._CapturedRecordCategory(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNCapturedRecordMetadata2tenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordMetadata(ctx context.Context, sel ast.SelectionSet, v entity.CapturedRecordMetadata) graphql.Marshaler {
@@ -4478,7 +4472,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalOCapturedRecordCustomMetric2ᚕtenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordCustomMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []entity.CapturedRecordCustomMetric) graphql.Marshaler {
+func (ec *executionContext) marshalOCapturedRecordCategory2ᚕtenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordCategoryᚄ(ctx context.Context, sel ast.SelectionSet, v []entity.CapturedRecordCategory) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -4505,7 +4499,7 @@ func (ec *executionContext) marshalOCapturedRecordCustomMetric2ᚕtenkhoursᚋse
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCapturedRecordCustomMetric2tenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordCustomMetric(ctx, sel, v[i])
+			ret[i] = ec.marshalNCapturedRecordCategory2tenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordCategory(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)

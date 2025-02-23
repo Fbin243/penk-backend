@@ -28,3 +28,8 @@ var MonthToIntMap = map[string]int{
 func ResetTimeToBeginningOfDay(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 }
+
+func ParseTime(timeStr string) time.Time {
+	time, _ := time.Parse(time.RFC3339, timeStr)
+	return time
+}

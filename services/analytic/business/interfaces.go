@@ -15,9 +15,12 @@ type IAnalyticBusiness interface {
 
 // Repository
 type ICapturedRecordRepo interface {
-	CreateCapturedRecord(ctx context.Context, capturedRecord *entity.CapturedRecord) error
 	GetCapturedRecords(ctx context.Context, filter entity.GetCapturedRecordFilter) ([]entity.CapturedRecord, error)
 	DeleteCapturedRecords(ctx context.Context, profileID string) error
+}
+
+type ICache interface {
+	GetCapturedRecords(ctx context.Context, filter entity.GetCapturedRecordFilter) ([]entity.CapturedRecord, error)
 }
 
 // RPC client
