@@ -29,15 +29,14 @@ func (p *Profile) CurrentCharacterID(id *string) {
 }
 
 type Character struct {
-	*mongodb.BaseEntity `                                  bson:",inline"`
-	ProfileOID          primitive.ObjectID `json:"profileID,omitempty"        bson:"profile_id"`
-	Name                string             `json:"name,omitempty"             bson:"name"`
-	Gender              bool               `json:"gender,omitempty"           bson:"gender"`
-	Tags                []string           `json:"tags,omitempty"             bson:"tags"`
-	TotalFocusedTime    int32              `json:"totalFocusedTime,omitempty" bson:"total_focused_time"`
-	Categories          []Category         `json:"categories,omitempty"       bson:"categories"`
-	Metrics             []Metric           `json:"metrics,omitempty"          bson:"metrics"`
-	Vision              Vision             `json:"vision,omitempty"           bson:"vision"`
+	*mongodb.BaseEntity `                            bson:",inline"`
+	ProfileOID          primitive.ObjectID `json:"profileID,omitempty"  bson:"profile_id"`
+	Name                string             `json:"name,omitempty"       bson:"name"`
+	Gender              bool               `json:"gender,omitempty"     bson:"gender"`
+	Tags                []string           `json:"tags,omitempty"       bson:"tags"`
+	Categories          []Category         `json:"categories,omitempty" bson:"categories"`
+	Metrics             []Metric           `json:"metrics,omitempty"    bson:"metrics"`
+	Vision              Vision             `json:"vision,omitempty"     bson:"vision"`
 }
 
 func (p *Character) ProfileID(id string) {
@@ -53,7 +52,6 @@ type Category struct {
 	OID         primitive.ObjectID `json:"id,omitempty"          bson:"_id"`
 	Name        string             `json:"name,omitempty"        bson:"name"`
 	Description string             `json:"description,omitempty" bson:"description"`
-	Time        int32              `json:"time,omitempty"        bson:"time"`
 	Style       CategoryStyle      `json:"style,omitempty"       bson:"style"`
 }
 

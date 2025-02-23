@@ -1,6 +1,11 @@
 SHELL := /bin/bash  # Use bash shell on Unix
 TENK_ENV ?= development
 GQLGEN_CMD = github.com/99designs/gqlgen
+ENV_FILE ?= .env.$(TENK_ENV)
+DB_URI=mongodb+srv://$(MONGO_USER):$(MONGO_PASSWORD)@$(MONGO_ADDRESS)/$(MONGO_DATABASE_NAME)
+
+# export .env file
+-include $(ENV_FILE)
 
 core:
 	@echo "Starting core service..."
@@ -117,4 +122,12 @@ api-test:
 	@echo "Running API tests..."
 	@go run cmd/main.go api-test -f profile,character,timetracking,goal
 
-.PHONY: core analytic timetracking notification test
+dump:
+	@echo "Dumping database $(DB_URI)"
+	@mongodump --uri=$(DB_URI)
+
+restore:
+	@echo "Restoring database $(DB_URI)"
+	@mongorestore --uri=$(DB_URI) dump/$(MONGO_DATABASE_NAME)
+
+.PHONY: core analytic timetracking notification test dump restore
