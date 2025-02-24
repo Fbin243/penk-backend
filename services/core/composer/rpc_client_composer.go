@@ -4,7 +4,8 @@ import (
 	"log"
 	"os"
 
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/analytic"
+	"tenkhours/proto/pb/currency"
 	"tenkhours/services/core/repo/rpc"
 
 	"google.golang.org/grpc"
@@ -23,7 +24,7 @@ func ComposeAnalyticClient() (*rpc.AnalyticClient, *grpc.ClientConn) {
 		log.Fatalf("did not connect: %v", err)
 	}
 
-	return rpc.NewAnalyticClient(pb.NewAnalyticClient(conn)), conn
+	return rpc.NewAnalyticClient(analytic.NewAnalyticClient(conn)), conn
 }
 
 func ComposeCurrencyClient() (*rpc.CurrencyClient, *grpc.ClientConn) {
@@ -38,5 +39,5 @@ func ComposeCurrencyClient() (*rpc.CurrencyClient, *grpc.ClientConn) {
 		log.Fatalf("did not connect: %v", err)
 	}
 
-	return rpc.NewCurrencyClient(pb.NewCurrencyClient(conn)), conn
+	return rpc.NewCurrencyClient(currency.NewCurrencyClient(conn)), conn
 }

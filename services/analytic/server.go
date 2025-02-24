@@ -7,7 +7,7 @@ import (
 
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/analytic"
 	"tenkhours/services/analytic/composer"
 	"tenkhours/services/analytic/transport/graph"
 
@@ -70,7 +70,7 @@ func main() {
 func startRPCServer() {
 	// Create the server for gRPC API
 	s := grpc.NewServer()
-	pb.RegisterAnalyticServer(s, composer.ComposeRPCHandler())
+	analytic.RegisterAnalyticServer(s, composer.ComposeRPCHandler())
 
 	port, found := os.LookupEnv("ANALYTIC_GRPC_PORT")
 	if !found {

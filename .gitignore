@@ -33,9 +33,6 @@ waitlist.*.json
 fish_config.csv
 exchange_config.csv
 
-# IDE
-.vscode
-
 # OS
 .DS_Store
 

@@ -11,8 +11,6 @@ import (
 	"tenkhours/services/core/entity"
 
 	rdb "tenkhours/pkg/db/redis"
-
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type ProfileBusiness struct {
@@ -116,9 +114,29 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 	return profile, nil
 }
 
-func (biz *ProfileBusiness) IntrospectProfile(ctx context.Context, firebaseProfile auth.FirebaseProfile) (*entity.Profile, error) {
+func (biz *ProfileBusiness) IntrospectToken(ctx context.Context, token string) (*rdb.AuthSession, error) {
+	firebaseProfile, err := auth.GetProfileByIDToken(token)
+	if err != nil {
+		return nil, fmt.Errorf("invalid token: %v", err)
+	}
+
+	authSession, err := biz.Cache.GetAuthSession(ctx, firebaseProfile.UID)
+	if err != nil && err != errors.ErrRedisNotFound {
+		return nil, err
+	}
+
+	// Cache hit, return the profile from redis
+	if authSession != nil {
+		return authSession, err
+	}
+
+	// Cache misss, create a new session from the profile in DB
 	profile, err := biz.ProfileRepo.GetProfileByFirebaseUID(ctx, firebaseProfile.UID)
-	if err == mongo.ErrNoDocuments {
+	if err != nil && err != errors.ErrMongoNotFound {
+		return nil, err
+	}
+
+	if profile == nil {
 		// profile not found, mean the new account
 		newProfile := entity.Profile{
 			BaseEntity:         &base.BaseEntity{},
@@ -141,12 +159,17 @@ func (biz *ProfileBusiness) IntrospectProfile(ctx context.Context, firebaseProfi
 		if err != nil {
 			return nil, err
 		}
+	}
 
-	} else if err != nil {
+	authSession = &rdb.AuthSession{
+		ProfileID: profile.ID,
+	}
+	err = biz.Cache.SetAuthSession(ctx, profile, authSession)
+	if err != nil {
 		return nil, err
 	}
 
-	return profile, nil
+	return authSession, nil
 }
 
 func (biz *ProfileBusiness) CheckPermission(ctx context.Context, profileID, characterID, categoryID *string) error {

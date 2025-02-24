@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: core.proto
+// source: core/core_service.proto
 
-package pb
+package core
 
 import (
 	context "context"
@@ -19,16 +19,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Core_IntrospectProfile_FullMethodName = "/pb.Core/IntrospectProfile"
-	Core_CheckPermission_FullMethodName   = "/pb.Core/CheckPermission"
+	Core_IntrospectToken_FullMethodName = "/core.Core/IntrospectToken"
+	Core_CheckPermission_FullMethodName = "/core.Core/CheckPermission"
+	Core_UpsertCharacter_FullMethodName = "/core.Core/UpsertCharacter"
 )
 
 // CoreClient is the client API for Core service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CoreClient interface {
-	IntrospectProfile(ctx context.Context, in *IntrospectReq, opts ...grpc.CallOption) (*IntrospectResp, error)
+	IntrospectToken(ctx context.Context, in *IntrospectReq, opts ...grpc.CallOption) (*IntrospectResp, error)
 	CheckPermission(ctx context.Context, in *CheckPermissionReq, opts ...grpc.CallOption) (*CheckPermissionResp, error)
+	// Penk Service
+	UpsertCharacter(ctx context.Context, in *CharacterInput, opts ...grpc.CallOption) (*Character, error)
 }
 
 type coreClient struct {
@@ -39,10 +42,10 @@ func NewCoreClient(cc grpc.ClientConnInterface) CoreClient {
 	return &coreClient{cc}
 }
 
-func (c *coreClient) IntrospectProfile(ctx context.Context, in *IntrospectReq, opts ...grpc.CallOption) (*IntrospectResp, error) {
+func (c *coreClient) IntrospectToken(ctx context.Context, in *IntrospectReq, opts ...grpc.CallOption) (*IntrospectResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(IntrospectResp)
-	err := c.cc.Invoke(ctx, Core_IntrospectProfile_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Core_IntrospectToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -59,12 +62,24 @@ func (c *coreClient) CheckPermission(ctx context.Context, in *CheckPermissionReq
 	return out, nil
 }
 
+func (c *coreClient) UpsertCharacter(ctx context.Context, in *CharacterInput, opts ...grpc.CallOption) (*Character, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Character)
+	err := c.cc.Invoke(ctx, Core_UpsertCharacter_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoreServer is the server API for Core service.
 // All implementations must embed UnimplementedCoreServer
 // for forward compatibility.
 type CoreServer interface {
-	IntrospectProfile(context.Context, *IntrospectReq) (*IntrospectResp, error)
+	IntrospectToken(context.Context, *IntrospectReq) (*IntrospectResp, error)
 	CheckPermission(context.Context, *CheckPermissionReq) (*CheckPermissionResp, error)
+	// Penk Service
+	UpsertCharacter(context.Context, *CharacterInput) (*Character, error)
 	mustEmbedUnimplementedCoreServer()
 }
 
@@ -75,11 +90,14 @@ type CoreServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCoreServer struct{}
 
-func (UnimplementedCoreServer) IntrospectProfile(context.Context, *IntrospectReq) (*IntrospectResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method IntrospectProfile not implemented")
+func (UnimplementedCoreServer) IntrospectToken(context.Context, *IntrospectReq) (*IntrospectResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IntrospectToken not implemented")
 }
 func (UnimplementedCoreServer) CheckPermission(context.Context, *CheckPermissionReq) (*CheckPermissionResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckPermission not implemented")
+}
+func (UnimplementedCoreServer) UpsertCharacter(context.Context, *CharacterInput) (*Character, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpsertCharacter not implemented")
 }
 func (UnimplementedCoreServer) mustEmbedUnimplementedCoreServer() {}
 func (UnimplementedCoreServer) testEmbeddedByValue()              {}
@@ -102,20 +120,20 @@ func RegisterCoreServer(s grpc.ServiceRegistrar, srv CoreServer) {
 	s.RegisterService(&Core_ServiceDesc, srv)
 }
 
-func _Core_IntrospectProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Core_IntrospectToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(IntrospectReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CoreServer).IntrospectProfile(ctx, in)
+		return srv.(CoreServer).IntrospectToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Core_IntrospectProfile_FullMethodName,
+		FullMethod: Core_IntrospectToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoreServer).IntrospectProfile(ctx, req.(*IntrospectReq))
+		return srv.(CoreServer).IntrospectToken(ctx, req.(*IntrospectReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -138,22 +156,44 @@ func _Core_CheckPermission_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Core_UpsertCharacter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CharacterInput)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).UpsertCharacter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_UpsertCharacter_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).UpsertCharacter(ctx, req.(*CharacterInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Core_ServiceDesc is the grpc.ServiceDesc for Core service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Core_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.Core",
+	ServiceName: "core.Core",
 	HandlerType: (*CoreServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "IntrospectProfile",
-			Handler:    _Core_IntrospectProfile_Handler,
+			MethodName: "IntrospectToken",
+			Handler:    _Core_IntrospectToken_Handler,
 		},
 		{
 			MethodName: "CheckPermission",
 			Handler:    _Core_CheckPermission_Handler,
 		},
+		{
+			MethodName: "UpsertCharacter",
+			Handler:    _Core_UpsertCharacter_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "core.proto",
+	Metadata: "core/core_service.proto",
 }

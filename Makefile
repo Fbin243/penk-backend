@@ -89,10 +89,10 @@ templates:
 # Protocol Buffers Compiler
 protoc:
 	@echo "Generating protobuf code..."
-	@find ./pkg/proto -name "*.proto" -exec \
-	protoc --proto_path=./pkg/proto \
-	--go_out=./pkg/proto/pb --go_opt=paths=source_relative \
-	--go-grpc_out=./pkg/proto/pb --go-grpc_opt=paths=source_relative \
+	@find ./proto -name "*.proto" -exec \
+	protoc --proto_path=./proto \
+	--go_out=./proto/pb --go_opt=paths=source_relative \
+	--go-grpc_out=./proto/pb --go-grpc_opt=paths=source_relative \
 	{} \;
 
 lint:

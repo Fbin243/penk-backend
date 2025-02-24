@@ -4,20 +4,20 @@ import (
 	"context"
 	"fmt"
 
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/analytic"
 )
 
 type AnalyticClient struct {
-	pb.AnalyticClient
+	analytic.AnalyticClient
 }
 
-func NewAnalyticClient(analyticClient pb.AnalyticClient) *AnalyticClient {
+func NewAnalyticClient(analyticClient analytic.AnalyticClient) *AnalyticClient {
 	return &AnalyticClient{AnalyticClient: analyticClient}
 }
 
 func (c *AnalyticClient) DeleteCapturedRecords(ctx context.Context, profileID string) error {
-	req := &pb.DeleteCapturedRecordsReq{
-		ProfileID: profileID,
+	req := &analytic.DeleteCapturedRecordsReq{
+		ProfileId: profileID,
 	}
 
 	res, err := c.AnalyticClient.DeleteCapturedRecords(ctx, req)

@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: analytic.proto
+// source: analytic/analytic_service.proto
 
-package pb
+package analytic
 
 import (
 	context "context"
@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Analytic_DeleteCapturedRecords_FullMethodName = "/pb.Analytic/DeleteCapturedRecords"
+	Analytic_DeleteCapturedRecords_FullMethodName = "/analytic.Analytic/DeleteCapturedRecords"
 )
 
 // AnalyticClient is the client API for Analytic service.
@@ -108,7 +108,7 @@ func _Analytic_DeleteCapturedRecords_Handler(srv interface{}, ctx context.Contex
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Analytic_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.Analytic",
+	ServiceName: "analytic.Analytic",
 	HandlerType: (*AnalyticServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -117,5 +117,5 @@ var Analytic_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "analytic.proto",
+	Metadata: "analytic/analytic_service.proto",
 }

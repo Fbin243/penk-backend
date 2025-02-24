@@ -7,7 +7,7 @@ import (
 
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/currency"
 	"tenkhours/services/currency/composer"
 	"tenkhours/services/currency/transport/graph"
 
@@ -70,7 +70,7 @@ func main() {
 func startRPCServer() {
 	// Create the server for gRPC API
 	s := grpc.NewServer()
-	pb.RegisterCurrencyServer(s, composer.ComposeRPCHandler())
+	currency.RegisterCurrencyServer(s, composer.ComposeRPCHandler())
 
 	port, found := os.LookupEnv("CURRENCY_GRPC_PORT")
 	if !found {

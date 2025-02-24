@@ -1,13 +1,11 @@
 package rpc
 
-import (
-	"tenkhours/pkg/pb"
-)
+import "tenkhours/proto/pb/core"
 
 type CoreClient struct {
-	pb.CoreClient
+	core.CoreClient
 }
 
-func NewCoreClient(coreClient pb.CoreClient) *CoreClient {
+func NewCoreClient(coreClient core.CoreClient) *CoreClient {
 	return &CoreClient{CoreClient: coreClient}
 }

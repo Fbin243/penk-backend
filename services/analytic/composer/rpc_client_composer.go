@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/core"
 	"tenkhours/services/analytic/repo/rpc"
 
 	"google.golang.org/grpc"
@@ -23,5 +23,5 @@ func ComposeCoreClient() (*rpc.CoreClient, *grpc.ClientConn) {
 		log.Fatalf("did not connect: %v", err)
 	}
 
-	return rpc.NewCoreClient(pb.NewCoreClient(conn)), conn
+	return rpc.NewCoreClient(core.NewCoreClient(conn)), conn
 }

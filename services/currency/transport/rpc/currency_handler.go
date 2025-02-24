@@ -3,13 +3,13 @@ package rpc
 import (
 	"context"
 
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/currency"
 	"tenkhours/services/currency/business"
 	"tenkhours/services/currency/entity"
 )
 
 type CurrencyHandler struct {
-	pb.UnimplementedCurrencyServer
+	currency.UnimplementedCurrencyServer
 	currencyBusiness business.ICurrencyBusiness
 }
 
@@ -19,10 +19,10 @@ func NewCurrencyHandler(currencyBiz business.ICurrencyBusiness) *CurrencyHandler
 	}
 }
 
-func (h *CurrencyHandler) CreateFish(ctx context.Context, req *pb.CreateFishReq) (*pb.CreateFishResp, error) {
-	res := &pb.CreateFishResp{Success: false}
+func (h *CurrencyHandler) CreateFish(ctx context.Context, req *currency.CreateFishReq) (*currency.CreateFishResp, error) {
+	res := &currency.CreateFishResp{Success: false}
 
-	_, err := h.currencyBusiness.CreateFish(ctx, req.ProfileID)
+	_, err := h.currencyBusiness.CreateFish(ctx, req.ProfileId)
 	if err != nil {
 		return res, err
 	}
@@ -31,23 +31,23 @@ func (h *CurrencyHandler) CreateFish(ctx context.Context, req *pb.CreateFishReq)
 	return res, nil
 }
 
-func (hdl *CurrencyHandler) CatchFish(ctx context.Context, req *pb.CatchFishReq) (*pb.CatchFishResp, error) {
-	res := &pb.CatchFishResp{FishType: pb.CatchFishResp_None, Number: 0}
+func (hdl *CurrencyHandler) CatchFish(ctx context.Context, req *currency.CatchFishReq) (*currency.CatchFishResp, error) {
+	res := &currency.CatchFishResp{FishType: currency.CatchFishResp_None, Number: 0}
 
 	catchFishResult, err := hdl.currencyBusiness.CatchFish(ctx)
 	if err != nil {
 		return res, err
 	}
 
-	res.FishType = pb.CatchFishResp_FishType(pb.CatchFishResp_FishType_value[string(catchFishResult.FishType)])
+	res.FishType = currency.CatchFishResp_FishType(currency.CatchFishResp_FishType_value[string(catchFishResult.FishType)])
 	res.Number = catchFishResult.Number
 	return res, nil
 }
 
-func (hdl *CurrencyHandler) UpdateFish(ctx context.Context, req *pb.UpdateFishReq) (*pb.UpdateFishResp, error) {
-	res := &pb.UpdateFishResp{FishID: ""}
+func (hdl *CurrencyHandler) UpdateFish(ctx context.Context, req *currency.UpdateFishReq) (*currency.UpdateFishResp, error) {
+	res := &currency.UpdateFishResp{FishId: ""}
 	fish, err := hdl.currencyBusiness.UpdateFish(ctx, &entity.Fish{
-		ProfileID: req.ProfileID,
+		ProfileID: req.ProfileId,
 		Gold:      req.Gold,
 		Normal:    req.Normal,
 	})
@@ -55,6 +55,6 @@ func (hdl *CurrencyHandler) UpdateFish(ctx context.Context, req *pb.UpdateFishRe
 		return res, err
 	}
 
-	res.FishID = fish.ID
+	res.FishId = fish.ID
 	return res, nil
 }

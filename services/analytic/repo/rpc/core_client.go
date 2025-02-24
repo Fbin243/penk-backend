@@ -3,22 +3,22 @@ package rpc
 import (
 	"context"
 
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/core"
 )
 
 type CoreClient struct {
-	pb.CoreClient
+	core.CoreClient
 }
 
-func NewCoreClient(coreClient pb.CoreClient) *CoreClient {
+func NewCoreClient(coreClient core.CoreClient) *CoreClient {
 	return &CoreClient{CoreClient: coreClient}
 }
 
 func (c *CoreClient) CheckPermission(ctx context.Context, profileID, characterID, categoryID *string) (bool, error) {
-	req := &pb.CheckPermissionReq{
-		ProfileID:   profileID,
-		CharacterID: characterID,
-		CategoryID:  categoryID,
+	req := &core.CheckPermissionReq{
+		ProfileId:   profileID,
+		CharacterId: characterID,
+		CategoryId:  categoryID,
 	}
 
 	res, err := c.CoreClient.CheckPermission(context.TODO(), req)

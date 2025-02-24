@@ -11,8 +11,8 @@ import (
 )
 
 // CreateTimeTracking is the resolver for the createTimeTracking field.
-func (r *mutationResolver) CreateTimeTracking(ctx context.Context, characterID string, customMetricID *string, startTime time.Time) (*entity.TimeTracking, error) {
-	return r.TimeTrackingBusiness.CreateTimeTracking(ctx, characterID, customMetricID, startTime)
+func (r *mutationResolver) CreateTimeTracking(ctx context.Context, characterID string, categoryID *string, startTime time.Time) (*entity.TimeTracking, error) {
+	return r.TimeTrackingBusiness.CreateTimeTracking(ctx, characterID, categoryID, startTime)
 }
 
 // UpdateTimeTracking is the resolver for the updateTimeTracking field.

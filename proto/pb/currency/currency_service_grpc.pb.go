@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: currency.proto
+// source: currency/currency_service.proto
 
-package pb
+package currency
 
 import (
 	context "context"
@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Currency_CreateFish_FullMethodName = "/pb.Currency/CreateFish"
-	Currency_UpdateFish_FullMethodName = "/pb.Currency/UpdateFish"
-	Currency_CatchFish_FullMethodName  = "/pb.Currency/CatchFish"
+	Currency_CreateFish_FullMethodName = "/currency.Currency/CreateFish"
+	Currency_UpdateFish_FullMethodName = "/currency.Currency/UpdateFish"
+	Currency_CatchFish_FullMethodName  = "/currency.Currency/CatchFish"
 )
 
 // CurrencyClient is the client API for Currency service.
@@ -176,7 +176,7 @@ func _Currency_CatchFish_Handler(srv interface{}, ctx context.Context, dec func(
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Currency_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.Currency",
+	ServiceName: "currency.Currency",
 	HandlerType: (*CurrencyServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -193,5 +193,5 @@ var Currency_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "currency.proto",
+	Metadata: "currency/currency_service.proto",
 }
