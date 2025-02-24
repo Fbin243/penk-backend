@@ -4,9 +4,9 @@ import { readFileSync } from "fs";
 import { resolve } from "path";
 
 import { MessageType, Resolvers } from "../__generated__/types";
-import { MessageModel } from "../db";
+import { MessageModel } from "../db/mongo";
+import { getMessages, getUserContext } from "../db/utils";
 import { chat } from "../openai";
-import { getMessages, getUserContext } from "./utils";
 
 const typeDefs = gql(
   readFileSync(resolve(__dirname, "schema.graphql"), "utf8"),
@@ -36,8 +36,12 @@ const resolvers: Resolvers = {
   Mutation: {
     chat: async (_, args, context) => {
       const tempProfileId = getTempProfileByTokenId(context.token);
-      const userContext = await getUserContext(tempProfileId);
-      const messages = await getMessages(tempProfileId);
+
+      const [userContext, messages] = await Promise.all([
+        getUserContext(tempProfileId),
+        getMessages(tempProfileId),
+      ]);
+
       const botMessage = await chat({
         userContext,
         userData: {
@@ -80,13 +84,13 @@ const resolvers: Resolvers = {
 
       await MessageModel.insertMany([
         {
-          profileId: tempProfileId,
+          profile_id: tempProfileId,
           type: MessageType.UserMessage,
           content: args.content,
           timestamp: new Date(),
         },
         {
-          profileId: tempProfileId,
+          profile_id: tempProfileId,
           type: MessageType.AiMessage,
           content: botMessage.content,
           timestamp: new Date(botMessage.timestamp),

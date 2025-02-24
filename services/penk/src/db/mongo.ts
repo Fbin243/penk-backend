@@ -6,12 +6,10 @@ const conn = mongoose.createConnection(
   process.env.MONGO_CONNECTION_STRING || "",
 );
 
-conn.useDb("");
-
 const Schema = mongoose.Schema;
 
 const UserContextSchema = new Schema({
-  profileId: {
+  profile_id: {
     type: Schema.Types.ObjectId,
     ref: "profiles",
     required: true,
@@ -29,7 +27,7 @@ export const UserContextModel = conn.model("user_contexts", UserContextSchema);
 
 const MessageSchema = new Schema(
   {
-    profileId: {
+    profile_id: {
       type: Schema.Types.ObjectId,
       ref: "profiles",
       required: true,
@@ -56,5 +54,7 @@ const MessageSchema = new Schema(
     versionKey: false,
   },
 );
+
+MessageSchema.index({ timestamp: 1 }, { expireAfterSeconds: 60 * 60 * 24 });
 
 export const MessageModel = conn.model("penk_messages", MessageSchema);
