@@ -115,7 +115,7 @@ func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, charact
 	}
 
 	if categoryID != nil {
-		timeTracking.CategoryID = *categoryID
+		timeTracking.CategoryID = categoryID
 	}
 
 	err = biz.cache.CreateTimeTracking(ctx, authSession.ProfileID, timeTracking)

@@ -33,7 +33,7 @@ type TimeTrackingServiceClient interface {
 	GetCurrentTimeTracking(ctx context.Context, in *common.EmptyReq, opts ...grpc.CallOption) (*TimeTracking, error)
 	GetTotalCurrentTimeTracking(ctx context.Context, in *TotalTimeTrackingRequest, opts ...grpc.CallOption) (*TotalTimeTrackingResponse, error)
 	CreateTimeTracking(ctx context.Context, in *CreateTimeTrackingRequest, opts ...grpc.CallOption) (*TimeTracking, error)
-	UpdateTimeTracking(ctx context.Context, in *common.EmptyResp, opts ...grpc.CallOption) (*TimeTrackingWithFish, error)
+	UpdateTimeTracking(ctx context.Context, in *common.EmptyReq, opts ...grpc.CallOption) (*TimeTrackingWithFish, error)
 }
 
 type timeTrackingServiceClient struct {
@@ -74,7 +74,7 @@ func (c *timeTrackingServiceClient) CreateTimeTracking(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *timeTrackingServiceClient) UpdateTimeTracking(ctx context.Context, in *common.EmptyResp, opts ...grpc.CallOption) (*TimeTrackingWithFish, error) {
+func (c *timeTrackingServiceClient) UpdateTimeTracking(ctx context.Context, in *common.EmptyReq, opts ...grpc.CallOption) (*TimeTrackingWithFish, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TimeTrackingWithFish)
 	err := c.cc.Invoke(ctx, TimeTrackingService_UpdateTimeTracking_FullMethodName, in, out, cOpts...)
@@ -91,7 +91,7 @@ type TimeTrackingServiceServer interface {
 	GetCurrentTimeTracking(context.Context, *common.EmptyReq) (*TimeTracking, error)
 	GetTotalCurrentTimeTracking(context.Context, *TotalTimeTrackingRequest) (*TotalTimeTrackingResponse, error)
 	CreateTimeTracking(context.Context, *CreateTimeTrackingRequest) (*TimeTracking, error)
-	UpdateTimeTracking(context.Context, *common.EmptyResp) (*TimeTrackingWithFish, error)
+	UpdateTimeTracking(context.Context, *common.EmptyReq) (*TimeTrackingWithFish, error)
 	mustEmbedUnimplementedTimeTrackingServiceServer()
 }
 
@@ -111,7 +111,7 @@ func (UnimplementedTimeTrackingServiceServer) GetTotalCurrentTimeTracking(contex
 func (UnimplementedTimeTrackingServiceServer) CreateTimeTracking(context.Context, *CreateTimeTrackingRequest) (*TimeTracking, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTimeTracking not implemented")
 }
-func (UnimplementedTimeTrackingServiceServer) UpdateTimeTracking(context.Context, *common.EmptyResp) (*TimeTrackingWithFish, error) {
+func (UnimplementedTimeTrackingServiceServer) UpdateTimeTracking(context.Context, *common.EmptyReq) (*TimeTrackingWithFish, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTimeTracking not implemented")
 }
 func (UnimplementedTimeTrackingServiceServer) mustEmbedUnimplementedTimeTrackingServiceServer() {}
@@ -190,7 +190,7 @@ func _TimeTrackingService_CreateTimeTracking_Handler(srv interface{}, ctx contex
 }
 
 func _TimeTrackingService_UpdateTimeTracking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(common.EmptyResp)
+	in := new(common.EmptyReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -202,7 +202,7 @@ func _TimeTrackingService_UpdateTimeTracking_Handler(srv interface{}, ctx contex
 		FullMethod: TimeTrackingService_UpdateTimeTracking_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TimeTrackingServiceServer).UpdateTimeTracking(ctx, req.(*common.EmptyResp))
+		return srv.(TimeTrackingServiceServer).UpdateTimeTracking(ctx, req.(*common.EmptyReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

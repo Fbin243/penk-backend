@@ -95,6 +95,14 @@ protoc:
 	--go-grpc_out=./proto/pb --go-grpc_opt=paths=source_relative \
 	{} \;
 
+protolint:
+	@echo "Running protolint..."
+	@protolint lint ./proto
+
+protolint-fix:
+	@echo "Running protolint with fix..."
+	@protolint lint --fix ./proto
+
 lint:
 	@echo "Running linters..."
 	@for module in $(shell find . -name 'go.mod' -exec dirname {} \;); do \

@@ -13,11 +13,11 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type authClient struct {
+type AuthClient struct {
 	core.CoreClient
 }
 
-func ComposeAuthClient() (*authClient, *grpc.ClientConn) {
+func ComposeAuthClient() (*AuthClient, *grpc.ClientConn) {
 	port, found := os.LookupEnv("CORE_GRPC_PORT")
 	if !found {
 		port = "50051"
@@ -29,10 +29,10 @@ func ComposeAuthClient() (*authClient, *grpc.ClientConn) {
 		log.Fatalf("did not connect: %v", err)
 	}
 
-	return &authClient{CoreClient: core.NewCoreClient(conn)}, conn
+	return &AuthClient{CoreClient: core.NewCoreClient(conn)}, conn
 }
 
-func (ac *authClient) IntrospectToken(ctx context.Context, token string) (*rdb.AuthSession, error) {
+func (ac *AuthClient) IntrospectToken(ctx context.Context, token string) (*rdb.AuthSession, error) {
 	req := &core.IntrospectReq{
 		Token: token,
 	}

@@ -2,6 +2,7 @@ package composer
 
 import (
 	rdb "tenkhours/pkg/db/redis"
+	"tenkhours/services/timetracking/business"
 	redisrepo "tenkhours/services/timetracking/repo/redis"
 	"tenkhours/services/timetracking/repo/rpc"
 
@@ -9,11 +10,12 @@ import (
 )
 
 type Composer struct {
-	redisRepo      *redisrepo.RedisRepo
-	coreClient     *rpc.CoreClient
-	currencyClient *rpc.CurrencyClient
-	coreConn       *grpc.ClientConn
-	currencyConn   *grpc.ClientConn
+	redisRepo       *redisrepo.RedisRepo
+	coreClient      *rpc.CoreClient
+	currencyClient  *rpc.CurrencyClient
+	coreConn        *grpc.ClientConn
+	currencyConn    *grpc.ClientConn
+	timetrackingBiz business.ITimeTrackingBusiness
 }
 
 var composer *Composer
@@ -27,13 +29,15 @@ func GetComposer() *Composer {
 	redisRepo := redisrepo.NewRedisRepo(redisClient)
 	coreClient, coreConn := ComposeCoreClient()
 	currencyClient, currencyConn := ComposeCurrencyClient()
+	timetrackingBiz := business.NewTimeTrackingsBusiness(coreClient, currencyClient, redisRepo)
 
 	return &Composer{
-		redisRepo:      redisRepo,
-		coreClient:     coreClient,
-		currencyClient: currencyClient,
-		coreConn:       coreConn,
-		currencyConn:   currencyConn,
+		redisRepo:       redisRepo,
+		coreClient:      coreClient,
+		currencyClient:  currencyClient,
+		coreConn:        coreConn,
+		currencyConn:    currencyConn,
+		timetrackingBiz: timetrackingBiz,
 	}
 }
 

@@ -58,7 +58,7 @@ func main() {
 	defer composer.GetComposer().AnalyticConn.Close()
 
 	// Start RPC server
-	go startRPCServer()
+	go startRPCServer(authClient)
 
 	port, found := os.LookupEnv("CORE_PORT")
 	if !found {
@@ -68,9 +68,10 @@ func main() {
 	app.Run(":" + port)
 }
 
-func startRPCServer() {
+func startRPCServer(authClient *middlewares.AuthClient) {
 	// Create the server for gRPC API
-	s := grpc.NewServer()
+	authInterceptor := middlewares.NewAuthInterceptor(authClient)
+	s := grpc.NewServer(grpc.UnaryInterceptor(authInterceptor.UnaryInterceptor))
 	core.RegisterCoreServer(s, composer.ComposeRPCHandler())
 
 	port, found := os.LookupEnv("CORE_GRPC_PORT")

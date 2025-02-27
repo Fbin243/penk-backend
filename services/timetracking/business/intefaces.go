@@ -2,11 +2,17 @@ package business
 
 import (
 	"context"
+	"time"
 
 	"tenkhours/services/timetracking/entity"
 )
 
-type ITimeTrackingBusiness interface{}
+type ITimeTrackingBusiness interface {
+	GetCurrentTimeTracking(ctx context.Context) (*entity.TimeTracking, error)
+	GetTotalCurrentTimeTracking(ctx context.Context, characterID string, timestamp time.Time) (int, error)
+	CreateTimeTracking(ctx context.Context, characterID string, categoryID *string, startTime time.Time) (*entity.TimeTracking, error)
+	UpdateTimeTracking(ctx context.Context) (*entity.TimeTracking, *entity.Fish, error)
+}
 
 type ICache interface {
 	GetCurrentTimeTracking(ctx context.Context, profileID string) (*entity.TimeTracking, error)

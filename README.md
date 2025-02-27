@@ -94,3 +94,25 @@ make unit-test
 # Run api tests
 make api-test
 ```
+
+## Linters with golangci-lint and protolint
+
+- Install [golangci-lint](https://golangci-lint.run/welcome/install/) for linting the Golang source code based on the rules defined in `.golangci.yml`
+
+```sh
+# Run golangci-lint to check issues for all .go files
+make lint
+
+# Run golangci-lint and automatically fix if possible
+make lint-fix
+```
+
+- Install [protolint](https://github.com/yoheimuta/protolint) for linting Protocol Buffer (.proto) files to ensure they follow best practices.
+
+```sh
+# Run protolint to check issues for all .proto files
+make protolint
+
+# Run protolint and automatically fix if possible
+make protolint-fix
+```

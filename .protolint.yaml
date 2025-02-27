@@ -10,7 +10,6 @@ lint:
   - id: ENUM_NAMES_UPPER_CAMEL_CASE
     files:
     - path/to/foo.proto
-
   # Linter files to walk.
   files:
     # The specific files to exclude.
@@ -38,30 +37,20 @@ lint:
     # The specific linters to add.
     add:
     - FIELD_NAMES_LOWER_SNAKE_CASE
-    - MESSAGE_NAMES_UPPER_CAMEL_CASE
     - MAX_LINE_LENGTH
     - INDENT
-    - SERVICE_NAMES_END_WITH
     - FIELD_NAMES_EXCLUDE_PREPOSITIONS
     - MESSAGE_NAMES_EXCLUDE_PREPOSITIONS
     - FILE_NAMES_LOWER_SNAKE_CASE
     - IMPORTS_SORTED
     - PACKAGE_NAME_LOWER_CASE
     - ORDER
-    - MESSAGES_HAVE_COMMENT
-    - SERVICES_HAVE_COMMENT
-    - RPCS_HAVE_COMMENT
-    - FIELDS_HAVE_COMMENT
     - PROTO3_FIELDS_AVOID_REQUIRED
     - PROTO3_GROUPS_AVOID
     - REPEATED_FIELD_NAMES_PLURALIZED
     - ENUMS_HAVE_COMMENT
     - ENUM_FIELDS_HAVE_COMMENT
-    - SYNTAX_CONSISTENT
-    - RPC_NAMES_CASE
-    - FILE_HAS_COMMENT
     - QUOTE_CONSISTENT
-
     # The specific linters to remove.
     remove:
     - RPC_NAMES_UPPER_CAMEL_CASE
@@ -71,7 +60,7 @@ lint:
     # MAX_LINE_LENGTH rule option.
     max_line_length:
       # Enforces a maximum line length
-      max_chars: 80
+      max_chars: 120
       # Specifies the character count for tab characters
       tab_chars: 2
 

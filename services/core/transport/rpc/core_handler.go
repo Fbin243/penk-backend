@@ -9,21 +9,21 @@ import (
 
 type CoreHandler struct {
 	core.UnimplementedCoreServer
-	profilesBusiness   business.IProfileBusiness
-	charactersBusiness business.ICharacterBusiness
+	profileBiz   business.IProfileBusiness
+	characterBiz business.ICharacterBusiness
 }
 
 func NewCoreHandler(profilesBusiness business.IProfileBusiness, charactersBusiness business.ICharacterBusiness) *CoreHandler {
 	return &CoreHandler{
-		profilesBusiness:   profilesBusiness,
-		charactersBusiness: charactersBusiness,
+		profileBiz:   profilesBusiness,
+		characterBiz: charactersBusiness,
 	}
 }
 
 func (hdl *CoreHandler) IntrospectToken(ctx context.Context, req *core.IntrospectReq) (*core.IntrospectResp, error) {
 	resp := &core.IntrospectResp{Success: false}
 
-	authSession, err := hdl.profilesBusiness.IntrospectToken(ctx, req.Token)
+	authSession, err := hdl.profileBiz.IntrospectToken(ctx, req.Token)
 	if err != nil {
 		return resp, err
 	}
@@ -37,7 +37,7 @@ func (hdl *CoreHandler) IntrospectToken(ctx context.Context, req *core.Introspec
 func (hdl *CoreHandler) CheckPermission(ctx context.Context, req *core.CheckPermissionReq) (*core.CheckPermissionResp, error) {
 	resp := &core.CheckPermissionResp{Authorized: false}
 
-	err := hdl.profilesBusiness.CheckPermission(ctx, req.ProfileId, req.CharacterId, req.CategoryId)
+	err := hdl.profileBiz.CheckPermission(ctx, req.ProfileId, req.CharacterId, req.CategoryId)
 	if err != nil {
 		return resp, err
 	}

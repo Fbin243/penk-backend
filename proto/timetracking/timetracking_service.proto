@@ -11,5 +11,5 @@ service TimeTrackingService {
   rpc GetCurrentTimeTracking (common.EmptyReq) returns (TimeTracking);
   rpc GetTotalCurrentTimeTracking (TotalTimeTrackingRequest) returns (TotalTimeTrackingResponse);
   rpc CreateTimeTracking (CreateTimeTrackingRequest) returns (TimeTracking);
-  rpc UpdateTimeTracking (common.EmptyResp) returns (TimeTrackingWithFish);
+  rpc UpdateTimeTracking (common.EmptyReq) returns (TimeTrackingWithFish);
 }

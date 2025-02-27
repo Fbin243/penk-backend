@@ -8,6 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/validator/v10 v10.22.1
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/jinzhu/copier v0.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/samber/lo v1.49.1
 	github.com/stretchr/testify v1.10.0
