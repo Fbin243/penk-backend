@@ -31,7 +31,7 @@ module.exports = {
             return {
               ...propRest,
               category_id: metric._id,
-              value: propType === "STRING" ? (parseFloat(property.value) || 0) : property.value,
+              value: parseFloat(property.value) || 0,
             }
           }) || []);
 

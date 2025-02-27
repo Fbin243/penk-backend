@@ -1,7 +1,5 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-- ../../pkg/graphql/enums/error_code.graphql
-- ../../pkg/graphql/enums/time.graphql
 - graph/gql/*.graphql
 
 # Where should the generated server code go?

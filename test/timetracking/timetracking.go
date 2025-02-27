@@ -37,11 +37,11 @@ func (s CreateTimeTrackingStage) Exec(ctx *context.Context) error {
 
 	switch s.Case {
 	case common.TimeTrackingWithoutCategory:
-		assertion = assertion.Equal("$.data.createTimeTracking.customMetricID", nil)
+		assertion = assertion.Equal("$.data.createTimeTracking.categoryID", nil)
 
 	case common.TimeTrackingWithCategory:
 		// Track with the first metric
-		assertion = assertion.Equal("$.data.createTimeTracking.customMetricID", gjson.Get(character, "categories.0.id").Value())
+		assertion = assertion.Equal("$.data.createTimeTracking.categoryID", gjson.Get(character, "categories.0.id").Value())
 	}
 
 	if s.ExpectError {
@@ -52,6 +52,42 @@ func (s CreateTimeTrackingStage) Exec(ctx *context.Context) error {
 		&common.QueryParams{
 			Query:     CreateTimeTrackingQuery,
 			Variables: variables,
+			Assertion: []common.Assertion{assertion.End()},
+		})
+}
+
+type GetCurrentTimeTrackingStage struct {
+	common.Metadata
+	common.Case
+	CharacterKey common.ContextKey
+}
+
+func (s GetCurrentTimeTrackingStage) Exec(ctx *context.Context) error {
+	log.Println("--> Stage: ", s.Describe)
+	character, ok := (*ctx).Value(s.CharacterKey).(string)
+	if !ok {
+		return common.ErrNotFoundInContext("CharacterKey")
+	}
+
+	assertion := jsonpath.Chain().NotPresent("$.errors")
+	if s.Case == common.CurrentTimeTrackingExist {
+		assertion.
+			NotEqual("$.data.currentTimeTracking.id", nil).
+			Equal("$.data.currentTimeTracking.characterID", gjson.Get(character, "id").Value()).
+			Equal("$.data.currentTimeTracking.categoryID", gjson.Get(character, "categories.0.id").Value()).
+			NotEqual("$.data.currentTimeTracking.startTime", nil).
+			Equal("$.data.currentTimeTracking.endTime", nil)
+	} else {
+		assertion.Equal("$.data.currentTimeTracking", nil)
+	}
+
+	if s.ExpectError {
+		assertion = jsonpath.Chain().Present("$.errors")
+	}
+
+	return common.QueryGraphQL(ctx,
+		&common.QueryParams{
+			Query:     GetCurrentTimeTrackingQuery,
 			Assertion: []common.Assertion{assertion.End()},
 		})
 }
@@ -84,16 +120,16 @@ func (s UpdateTimeTracking) Exec(ctx *context.Context) error {
 
 	switch s.Case {
 	case common.TimeTrackingWithoutCategory:
-		assertion = assertion.Equal("$.data.updateTimeTracking.timeTracking.customMetricID", nil).
-			Present("$.data.updateTimeTracking.timeTracking.gold").
-			Present("$.data.updateTimeTracking.timeTracking.normal")
+		assertion = assertion.Equal("$.data.updateTimeTracking.timeTracking.categoryID", nil).
+			NotEqual("$.data.updateTimeTracking.gold", nil).
+			NotEqual("$.data.updateTimeTracking.normal", nil)
 
 	case common.TimeTrackingWithCategory:
-		// Track with the first metric
+		// Track with the first category
 		assertion = assertion.
-			Equal("$.data.createTimeTracking.timeTracking.customMetricID", gjson.Get(character, "categories.0.id").Value()).
-			Present("$.data.updateTimeTracking.timeTracking.gold").
-			Present("$.data.updateTimeTracking.timeTracking.normal")
+			Equal("$.data.updateTimeTracking.timeTracking.categoryID", gjson.Get(character, "categories.0.id").Value()).
+			NotEqual("$.data.updateTimeTracking.gold", nil).
+			NotEqual("$.data.updateTimeTracking.normal", nil)
 	}
 
 	if s.ExpectError {

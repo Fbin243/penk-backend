@@ -3,6 +3,9 @@
 package model
 
 import (
+	"fmt"
+	"io"
+	"strconv"
 	"tenkhours/services/core/entity"
 )
 
@@ -35,4 +38,116 @@ type Mutation struct {
 }
 
 type Query struct {
+}
+
+type Month string
+
+const (
+	MonthJanuary   Month = "January"
+	MonthFebruary  Month = "February"
+	MonthMarch     Month = "March"
+	MonthApril     Month = "April"
+	MonthMay       Month = "May"
+	MonthJune      Month = "June"
+	MonthJuly      Month = "July"
+	MonthAugust    Month = "August"
+	MonthSeptember Month = "September"
+	MonthOctober   Month = "October"
+	MonthNovember  Month = "November"
+	MonthDecember  Month = "December"
+)
+
+var AllMonth = []Month{
+	MonthJanuary,
+	MonthFebruary,
+	MonthMarch,
+	MonthApril,
+	MonthMay,
+	MonthJune,
+	MonthJuly,
+	MonthAugust,
+	MonthSeptember,
+	MonthOctober,
+	MonthNovember,
+	MonthDecember,
+}
+
+func (e Month) IsValid() bool {
+	switch e {
+	case MonthJanuary, MonthFebruary, MonthMarch, MonthApril, MonthMay, MonthJune, MonthJuly, MonthAugust, MonthSeptember, MonthOctober, MonthNovember, MonthDecember:
+		return true
+	}
+	return false
+}
+
+func (e Month) String() string {
+	return string(e)
+}
+
+func (e *Month) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Month(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Month", str)
+	}
+	return nil
+}
+
+func (e Month) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type Weekday string
+
+const (
+	WeekdaySunday    Weekday = "Sunday"
+	WeekdayMonday    Weekday = "Monday"
+	WeekdayTuesday   Weekday = "Tuesday"
+	WeekdayWednesday Weekday = "Wednesday"
+	WeekdayThursday  Weekday = "Thursday"
+	WeekdayFriday    Weekday = "Friday"
+	WeekdaySaturday  Weekday = "Saturday"
+)
+
+var AllWeekday = []Weekday{
+	WeekdaySunday,
+	WeekdayMonday,
+	WeekdayTuesday,
+	WeekdayWednesday,
+	WeekdayThursday,
+	WeekdayFriday,
+	WeekdaySaturday,
+}
+
+func (e Weekday) IsValid() bool {
+	switch e {
+	case WeekdaySunday, WeekdayMonday, WeekdayTuesday, WeekdayWednesday, WeekdayThursday, WeekdayFriday, WeekdaySaturday:
+		return true
+	}
+	return false
+}
+
+func (e Weekday) String() string {
+	return string(e)
+}
+
+func (e *Weekday) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Weekday(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Weekday", str)
+	}
+	return nil
+}
+
+func (e Weekday) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

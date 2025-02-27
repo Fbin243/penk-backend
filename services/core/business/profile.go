@@ -59,9 +59,6 @@ func (biz *ProfileBusiness) UpdateProfile(ctx context.Context, input entity.Prof
 	if input.CurrentCharacterID != nil {
 		profile.CurrentCharacterID = input.CurrentCharacterID
 	}
-	if input.AutoSnapshot != nil {
-		profile.AutoSnapshot = *input.AutoSnapshot
-	}
 
 	profile.UpdatedAt = utils.Now()
 
@@ -106,10 +103,10 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 	}
 
 	// Delete user profile in Firebase
-	err = auth.DeleteProfileOnFirebase(profile.FirebaseUID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to delete user profile in Firebase: %v", err)
-	}
+	// err = auth.DeleteProfileOnFirebase(profile.FirebaseUID)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to delete user profile in Firebase: %v", err)
+	// }
 
 	return profile, nil
 }
@@ -139,13 +136,11 @@ func (biz *ProfileBusiness) IntrospectToken(ctx context.Context, token string) (
 	if profile == nil {
 		// profile not found, mean the new account
 		newProfile := entity.Profile{
-			BaseEntity:         &base.BaseEntity{},
-			Name:               firebaseProfile.Name,
-			Email:              firebaseProfile.Email,
-			FirebaseUID:        firebaseProfile.UID,
-			ImageURL:           firebaseProfile.Picture,
-			AutoSnapshot:       true,
-			AvailableSnapshots: utils.DefaultSnapshotsNumber,
+			BaseEntity:  &base.BaseEntity{},
+			Name:        firebaseProfile.Name,
+			Email:       firebaseProfile.Email,
+			FirebaseUID: firebaseProfile.UID,
+			ImageURL:    firebaseProfile.Picture,
 		}
 
 		// Create new profile for the new user in DB

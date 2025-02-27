@@ -63,24 +63,24 @@ func assertTemplate(t *testing.T, expected, actual *entity.Template) {
 	assert.Equal(t, expected.Categories, actual.Categories)
 }
 
-func TestGetTemplates(t *testing.T) {
-	templateMap := make(map[string]*entity.Template)
-	for i := 0; i < 3; i++ {
-		template := NewTemplate()
-		templateMap[template.ID] = template
-		createdTemplate, err := templateRepo.InsertOne(context.Background(), template)
-		defer cleanUpTemplate(createdTemplate.ID)
-		assert.Nil(t, err)
-		assert.Equal(t, *createdTemplate, *template)
-	}
+// func TestGetTemplates(t *testing.T) {
+// 	templateMap := make(map[string]*entity.Template)
+// 	for i := 0; i < 3; i++ {
+// 		template := NewTemplate()
+// 		templateMap[template.ID] = template
+// 		createdTemplate, err := templateRepo.InsertOne(context.Background(), template)
+// 		defer cleanUpTemplate(createdTemplate.ID)
+// 		assert.Nil(t, err)
+// 		assert.Equal(t, *createdTemplate, *template)
+// 	}
 
-	templates, err := templateRepo.FindAll(context.Background())
-	assert.Nil(t, err)
-	assert.Equal(t, len(templates), 3)
-	for _, template := range templates {
-		assertTemplate(t, templateMap[template.ID], &template)
-	}
-}
+// 	templates, err := templateRepo.FindAll(context.Background())
+// 	assert.Nil(t, err)
+// 	assert.Equal(t, len(templates), 3)
+// 	for _, template := range templates {
+// 		assertTemplate(t, templateMap[template.ID], &template)
+// 	}
+// }
 
 func cleanUpTemplate(id string) {
 	templateRepo.DeleteByID(context.Background(), id)

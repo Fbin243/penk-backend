@@ -6,8 +6,9 @@ package graph
 
 import (
 	"context"
-	"tenkhours/services/timetracking/entity"
 	"time"
+
+	"tenkhours/services/timetracking/entity"
 )
 
 // CreateTimeTracking is the resolver for the createTimeTracking field.
@@ -22,10 +23,17 @@ func (r *mutationResolver) UpdateTimeTracking(ctx context.Context) (*entity.Time
 		return nil, err
 	}
 
+	normal := 0
+	gold := 0
+	if fishData != nil {
+		normal = int(fishData.Normal)
+		gold = int(fishData.Gold)
+	}
+
 	return &entity.TimeTrackingWithFish{
 		TimeTracking: timeTracking,
-		Normal:       int(fishData.Normal),
-		Gold:         int(fishData.Gold),
+		Normal:       normal,
+		Gold:         gold,
 	}, nil
 }
 
@@ -45,5 +53,7 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)

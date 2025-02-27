@@ -10,8 +10,6 @@ type Profile {
   imageURL: String!
   currentCharacterID: ID
   characters: [Character!]!
-  availableSnapshots: Int!
-  autoSnapshot: Boolean!
   fish: Fish!
 }
 
@@ -37,9 +35,4 @@ input ProfileInput {
   ID of the character currently being chosen by the user.
   """
   currentCharacterID: ID
-
-  """
-  Whether the user has enabled auto snapshot, default is true
-  """
-  autoSnapshot: Boolean
 }

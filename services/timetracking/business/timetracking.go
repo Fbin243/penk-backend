@@ -39,7 +39,12 @@ func (biz *TimeTrackingBusiness) GetCurrentTimeTracking(ctx context.Context) (*e
 		return nil, errors.ErrUnauthorized
 	}
 
-	return biz.cache.GetCurrentTimeTracking(ctx, authSession.ProfileID)
+	currentTimeTrack, err := biz.cache.GetCurrentTimeTracking(ctx, authSession.ProfileID)
+	if err == errors.ErrRedisNotFound {
+		return nil, nil
+	}
+
+	return currentTimeTrack, err
 }
 
 func (biz *TimeTrackingBusiness) GetTotalCurrentTimeTracking(ctx context.Context, characterID string, timestamp time.Time) (int, error) {
@@ -134,8 +139,11 @@ func (biz *TimeTrackingBusiness) UpdateTimeTracking(ctx context.Context) (*entit
 
 	// Get the time tracking from Redis
 	timeTracking, err := biz.cache.GetCurrentTimeTracking(ctx, authSession.ProfileID)
+	if err == errors.ErrRedisNotFound {
+		return nil, nil, nil
+	}
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get current time tracking: %v", err)
+		return nil, nil, err
 	}
 
 	err = biz.cache.DeleteCurrentTimeTracking(ctx, authSession.ProfileID)

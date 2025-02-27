@@ -139,8 +139,6 @@ type ComplexityRoot struct {
 	}
 
 	Profile struct {
-		AutoSnapshot       func(childComplexity int) int
-		AvailableSnapshots func(childComplexity int) int
 		Characters         func(childComplexity int) int
 		CreatedAt          func(childComplexity int) int
 		CurrentCharacterID func(childComplexity int) int
@@ -221,7 +219,6 @@ type MutationResolver interface {
 }
 type ProfileResolver interface {
 	Characters(ctx context.Context, obj *entity.Profile) ([]entity.Character, error)
-
 	Fish(ctx context.Context, obj *entity.Profile) (*model.Fish, error)
 }
 type QueryResolver interface {
@@ -664,20 +661,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpsertGoal(childComplexity, args["input"].(entity.GoalInput)), true
 
-	case "Profile.autoSnapshot":
-		if e.complexity.Profile.AutoSnapshot == nil {
-			break
-		}
-
-		return e.complexity.Profile.AutoSnapshot(childComplexity), true
-
-	case "Profile.availableSnapshots":
-		if e.complexity.Profile.AvailableSnapshots == nil {
-			break
-		}
-
-		return e.complexity.Profile.AvailableSnapshots(childComplexity), true
-
 	case "Profile.characters":
 		if e.complexity.Profile.Characters == nil {
 			break
@@ -1076,7 +1059,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "gql/character.graphql" "gql/goal.graphql" "gql/profile.graphql" "gql/schema.graphql" "gql/setting.graphql" "gql/template.graphql"
+//go:embed "gql/character.graphql" "gql/error_code.graphql" "gql/goal.graphql" "gql/profile.graphql" "gql/schema.graphql" "gql/setting.graphql" "gql/template.graphql" "gql/time.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -1089,11 +1072,13 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "gql/character.graphql", Input: sourceData("gql/character.graphql"), BuiltIn: false},
+	{Name: "gql/error_code.graphql", Input: sourceData("gql/error_code.graphql"), BuiltIn: false},
 	{Name: "gql/goal.graphql", Input: sourceData("gql/goal.graphql"), BuiltIn: false},
 	{Name: "gql/profile.graphql", Input: sourceData("gql/profile.graphql"), BuiltIn: false},
 	{Name: "gql/schema.graphql", Input: sourceData("gql/schema.graphql"), BuiltIn: false},
 	{Name: "gql/setting.graphql", Input: sourceData("gql/setting.graphql"), BuiltIn: false},
 	{Name: "gql/template.graphql", Input: sourceData("gql/template.graphql"), BuiltIn: false},
+	{Name: "gql/time.graphql", Input: sourceData("gql/time.graphql"), BuiltIn: false},
 	{Name: "../federation/directives.graphql", Input: `
 	directive @authenticated on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM
 	directive @composeDirective(name: String!) repeatable on SCHEMA
@@ -3596,10 +3581,6 @@ func (ec *executionContext) fieldContext_Mutation_updateProfile(ctx context.Cont
 				return ec.fieldContext_Profile_currentCharacterID(ctx, field)
 			case "characters":
 				return ec.fieldContext_Profile_characters(ctx, field)
-			case "availableSnapshots":
-				return ec.fieldContext_Profile_availableSnapshots(ctx, field)
-			case "autoSnapshot":
-				return ec.fieldContext_Profile_autoSnapshot(ctx, field)
 			case "fish":
 				return ec.fieldContext_Profile_fish(ctx, field)
 			}
@@ -3677,10 +3658,6 @@ func (ec *executionContext) fieldContext_Mutation_deleteProfile(_ context.Contex
 				return ec.fieldContext_Profile_currentCharacterID(ctx, field)
 			case "characters":
 				return ec.fieldContext_Profile_characters(ctx, field)
-			case "availableSnapshots":
-				return ec.fieldContext_Profile_availableSnapshots(ctx, field)
-			case "autoSnapshot":
-				return ec.fieldContext_Profile_autoSnapshot(ctx, field)
 			case "fish":
 				return ec.fieldContext_Profile_fish(ctx, field)
 			}
@@ -4417,94 +4394,6 @@ func (ec *executionContext) fieldContext_Profile_characters(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_availableSnapshots(ctx context.Context, field graphql.CollectedField, obj *entity.Profile) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Profile_availableSnapshots(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.AvailableSnapshots, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int32)
-	fc.Result = res
-	return ec.marshalNInt2int32(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Profile_availableSnapshots(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Profile",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Profile_autoSnapshot(ctx context.Context, field graphql.CollectedField, obj *entity.Profile) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Profile_autoSnapshot(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.AutoSnapshot, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Profile_autoSnapshot(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Profile",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Profile_fish(ctx context.Context, field graphql.CollectedField, obj *entity.Profile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Profile_fish(ctx, field)
 	if err != nil {
@@ -4676,10 +4565,6 @@ func (ec *executionContext) fieldContext_Query_profile(_ context.Context, field 
 				return ec.fieldContext_Profile_currentCharacterID(ctx, field)
 			case "characters":
 				return ec.fieldContext_Profile_characters(ctx, field)
-			case "availableSnapshots":
-				return ec.fieldContext_Profile_availableSnapshots(ctx, field)
-			case "autoSnapshot":
-				return ec.fieldContext_Profile_autoSnapshot(ctx, field)
 			case "fish":
 				return ec.fieldContext_Profile_fish(ctx, field)
 			}
@@ -8292,7 +8177,7 @@ func (ec *executionContext) unmarshalInputProfileInput(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "imageURL", "currentCharacterID", "autoSnapshot"}
+	fieldsInOrder := [...]string{"name", "imageURL", "currentCharacterID"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8320,13 +8205,6 @@ func (ec *executionContext) unmarshalInputProfileInput(ctx context.Context, obj 
 				return it, err
 			}
 			it.CurrentCharacterID = data
-		case "autoSnapshot":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("autoSnapshot"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.AutoSnapshot = data
 		}
 	}
 
@@ -9191,16 +9069,6 @@ func (ec *executionContext) _Profile(ctx context.Context, sel ast.SelectionSet, 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "availableSnapshots":
-			out.Values[i] = ec._Profile_availableSnapshots(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "autoSnapshot":
-			out.Values[i] = ec._Profile_autoSnapshot(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "fish":
 			field := field
 
@@ -10565,21 +10433,6 @@ func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}
 
 func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
 	res := graphql.MarshalInt(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v interface{}) (int32, error) {
-	res, err := graphql.UnmarshalInt32(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.SelectionSet, v int32) graphql.Marshaler {
-	res := graphql.MarshalInt32(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

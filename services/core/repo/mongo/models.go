@@ -18,8 +18,6 @@ type Profile struct {
 	FirebaseUID         string              `json:"firebaseUID,omitempty"        bson:"firebase_uid"`
 	ImageURL            string              `json:"imageURL,omitempty"           bson:"image_url"`
 	CurrentCharacterOID *primitive.ObjectID `json:"currentCharacterID,omitempty" bson:"current_character_id,omitempty"`
-	AvailableSnapshots  int32               `json:"availableSnapshots,omitempty" bson:"available_snapshots"`
-	AutoSnapshot        bool                `json:"autoSnapshot,omitempty"       bson:"auto_snapshot"`
 }
 
 func (p *Profile) CurrentCharacterID(id *string) {

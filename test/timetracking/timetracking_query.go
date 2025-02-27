@@ -1,5 +1,16 @@
 package timetracking
 
+var GetCurrentTimeTrackingQuery = `
+query CurrentTimeTracking {
+    currentTimeTracking {
+        id
+        characterID
+        categoryID
+        startTime
+        endTime
+    }
+}`
+
 var CreateTimeTrackingQuery = `
 	mutation CreateTimeTracking ($characterID: ID!, $categoryID: ID, $startTime: Time!) {
 		createTimeTracking(characterID: $characterID, startTime: $startTime, categoryID: $categoryID) {
