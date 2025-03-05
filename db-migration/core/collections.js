@@ -4,4 +4,5 @@ module.exports = {
     Goal: "goals",
     Template: "templates",
     TemplateCategory: "template_categories",
+    Snapshot: "snapshots",
 }

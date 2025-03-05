@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"tenkhours/pkg/db/base"
+	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/services/core/entity"
 
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func NewTemplate() *entity.Template {
@@ -35,13 +35,13 @@ func NewTemplate() *entity.Template {
 
 	return &entity.Template{
 		BaseEntity: &base.BaseEntity{
-			ID:        primitive.NewObjectID().Hex(),
+			ID:        mongodb.GenObjectID(),
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		},
 		Name:        "example template",
 		Description: "example description",
-		TopicID:     primitive.NewObjectID().Hex(),
+		TopicID:     mongodb.GenObjectID(),
 		Style: entity.TemplateStyle{
 			Color: "#000000",
 			Icon:  "example",

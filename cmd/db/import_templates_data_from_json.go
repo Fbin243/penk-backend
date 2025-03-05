@@ -12,8 +12,6 @@ import (
 	mongodb "tenkhours/pkg/db/mongo"
 
 	mongorepo "tenkhours/services/core/repo/mongo"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Style struct {
@@ -94,7 +92,7 @@ func mapToRepoTemplate(t Template) entity.Template {
 		BaseEntity:  &base.BaseEntity{},
 		Name:        t.Name,
 		Description: t.Description,
-		TopicID:     primitive.NewObjectID().Hex(),
+		TopicID:     mongodb.GenObjectID(),
 		Style: entity.TemplateStyle{
 			Color: t.Color,
 			Icon:  t.Emoji,

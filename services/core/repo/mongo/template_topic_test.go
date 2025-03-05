@@ -6,16 +6,16 @@ import (
 	"time"
 
 	"tenkhours/pkg/db/base"
+	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/services/core/entity"
 
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func NewTemplateTopic() *entity.TemplateTopic {
 	return &entity.TemplateTopic{
 		BaseEntity: &base.BaseEntity{
-			ID:        primitive.NewObjectID().Hex(),
+			ID:        mongodb.GenObjectID(),
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		},

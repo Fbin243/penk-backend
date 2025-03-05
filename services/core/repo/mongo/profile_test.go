@@ -11,13 +11,12 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func NewProfile() *entity.Profile {
 	return &entity.Profile{
 		BaseEntity: &base.BaseEntity{
-			ID:        primitive.NewObjectID().Hex(),
+			ID:        mongodb.GenObjectID(),
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		},

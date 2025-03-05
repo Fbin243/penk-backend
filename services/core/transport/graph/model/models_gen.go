@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"tenkhours/services/core/entity"
 )
 
 type AppSettings struct {
@@ -23,21 +22,15 @@ type Fish struct {
 
 func (Fish) IsEntity() {}
 
-type GoalMetric struct {
-	ID          string                 `json:"id"`
-	CategoryID  *string                `json:"categoryID,omitempty"`
-	Name        string                 `json:"name"`
-	Value       float64                `json:"value"`
-	Unit        string                 `json:"unit"`
-	Condition   entity.MetricCondition `json:"condition"`
-	TargetValue *float64               `json:"targetValue,omitempty"`
-	RangeValue  *entity.Range          `json:"rangeValue,omitempty"`
-}
-
 type Mutation struct {
 }
 
 type Query struct {
+}
+
+type VisionInput struct {
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
 }
 
 type Month string

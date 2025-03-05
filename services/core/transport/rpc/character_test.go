@@ -25,11 +25,10 @@ var category = entity.Category{
 }
 
 var metric = entity.Metric{
-	ID:         mongodb.GenObjectID(),
-	CategoryID: &category.ID,
-	Name:       "Example name",
-	Value:      1.0,
-	Unit:       "unit",
+	ID:    mongodb.GenObjectID(),
+	Name:  "Example name",
+	Value: 1.0,
+	Unit:  "unit",
 }
 
 var entityCharacter = &entity.Character{
@@ -47,10 +46,6 @@ var entityCharacter = &entity.Character{
 	},
 	Metrics: []entity.Metric{
 		metric, metric, metric,
-	},
-	Vision: entity.Vision{
-		Name:        "Example name",
-		Description: "Example desc",
 	},
 }
 
@@ -72,11 +67,10 @@ func TestMapCharacter(t *testing.T) {
 	})
 	rpcCharacterMetrics := lo.Map(rpcCharacter.Metrics, func(m *core.Metric, _ int) entity.Metric {
 		return entity.Metric{
-			ID:         m.Id,
-			CategoryID: m.CategoryId,
-			Name:       m.Name,
-			Value:      float64(m.Value),
-			Unit:       m.Unit,
+			ID:    m.Id,
+			Name:  m.Name,
+			Value: float64(m.Value),
+			Unit:  m.Unit,
 		}
 	})
 
@@ -89,8 +83,6 @@ func TestMapCharacter(t *testing.T) {
 	assert.Equal(t, entityCharacter.Gender, rpcCharacter.Gender)
 	assert.Equal(t, entityCharacter.Categories, rpcCharacterCategories)
 	assert.Equal(t, entityCharacter.Metrics, rpcCharacterMetrics)
-	assert.Equal(t, entityCharacter.Vision.Name, rpcCharacter.Vision.Name)
-	assert.Equal(t, entityCharacter.Vision.Description, *rpcCharacter.Vision.Description)
 }
 
 var rpcCategoryInput = &core.CategoryInput{
@@ -101,14 +93,16 @@ var rpcCategoryInput = &core.CategoryInput{
 		Color: "red",
 		Icon:  "icon.png",
 	},
+	Metrics: []*core.MetricInput{
+		rpcMetricInput, rpcMetricInput, rpcMetricInput,
+	},
 }
 
 var rpcMetricInput = &core.MetricInput{
-	Id:         lo.ToPtr(mongodb.GenObjectID()),
-	CategoryId: lo.ToPtr(mongodb.GenObjectID()),
-	Name:       "Example name",
-	Value:      1.0,
-	Unit:       "unit",
+	Id:    lo.ToPtr(mongodb.GenObjectID()),
+	Name:  "Example name",
+	Value: 1.0,
+	Unit:  "unit",
 }
 
 var rpcCharacterInput = &core.CharacterInput{
@@ -122,10 +116,6 @@ var rpcCharacterInput = &core.CharacterInput{
 	Metrics: []*core.MetricInput{
 		rpcMetricInput, rpcMetricInput, rpcMetricInput,
 	},
-	Vision: &core.VisionInput{
-		Name:        "Example name",
-		Description: lo.ToPtr("Example desc"),
-	},
 }
 
 func TestMapCharacterInput(t *testing.T) {
@@ -136,8 +126,6 @@ func TestMapCharacterInput(t *testing.T) {
 	assert.Equal(t, entityCharacterInput.Name, rpcCharacterInput.Name)
 	assert.Equal(t, entityCharacterInput.Tags, rpcCharacterInput.Tags)
 	assert.Equal(t, entityCharacterInput.Gender, rpcCharacterInput.Gender)
-	assert.Equal(t, entityCharacterInput.Vision.Name, rpcCharacterInput.Vision.Name)
-	assert.Equal(t, entityCharacterInput.Vision.Description, rpcCharacterInput.Vision.Description)
 	assert.Len(t, entityCharacterInput.Categories, len(rpcCharacterInput.Categories))
 	assert.Len(t, entityCharacterInput.Metrics, len(rpcCharacterInput.Metrics))
 	assert.Equal(t, entityCharacterInput.Categories[0].ID, rpcCharacterInput.Categories[0].Id)
@@ -146,7 +134,6 @@ func TestMapCharacterInput(t *testing.T) {
 	assert.Equal(t, entityCharacterInput.Categories[0].Style.Color, rpcCharacterInput.Categories[0].Style.Color)
 	assert.Equal(t, entityCharacterInput.Categories[0].Style.Icon, rpcCharacterInput.Categories[0].Style.Icon)
 	assert.Equal(t, entityCharacterInput.Metrics[0].ID, rpcCharacterInput.Metrics[0].Id)
-	assert.Equal(t, entityCharacterInput.Metrics[0].CategoryID, rpcCharacterInput.Metrics[0].CategoryId)
 	assert.Equal(t, entityCharacterInput.Metrics[0].Name, rpcCharacterInput.Metrics[0].Name)
 	assert.Equal(t, entityCharacterInput.Metrics[0].Value, float64(rpcCharacterInput.Metrics[0].Value))
 	assert.Equal(t, entityCharacterInput.Metrics[0].Unit, rpcCharacterInput.Metrics[0].Unit)

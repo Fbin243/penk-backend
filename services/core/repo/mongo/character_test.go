@@ -6,39 +6,48 @@ import (
 	"time"
 
 	"tenkhours/pkg/db/base"
+	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/services/core/entity"
 
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+var metric = entity.Metric{
+	ID:    mongodb.GenObjectID(),
+	Name:  "Example name",
+	Value: 1.0,
+	Unit:  "unit",
+}
+
 var category = entity.Category{
-	ID:          primitive.NewObjectID().Hex(),
+	ID:          mongodb.GenObjectID(),
 	Name:        "Example name",
 	Description: "Example desc",
 	Style: entity.CategoryStyle{
 		Color: "red",
 		Icon:  "icon.png",
 	},
+	Metrics: []entity.Metric{
+		metric, metric, metric,
+	},
 }
 
 func NewCharacter() *entity.Character {
 	return &entity.Character{
 		BaseEntity: &base.BaseEntity{
-			ID:        primitive.NewObjectID().Hex(),
+			ID:        mongodb.GenObjectID(),
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		},
-		ProfileID: primitive.NewObjectID().Hex(),
+		ProfileID: mongodb.GenObjectID(),
 		Name:      "Example",
 		Tags:      []string{"#tag1", "#tag2"},
 		Gender:    false,
 		Categories: []entity.Category{
 			category, category, category,
 		},
-		Vision: entity.Vision{
-			Name:        "Example name",
-			Description: "Example desc",
+		Metrics: []entity.Metric{
+			metric, metric,
 		},
 	}
 }
@@ -50,7 +59,7 @@ func assertCharacter(t *testing.T, expected, actual *entity.Character) {
 	assert.Equal(t, expected.Tags, actual.Tags)
 	assert.Equal(t, expected.Gender, actual.Gender)
 	assert.Equal(t, expected.Categories, actual.Categories)
-	assert.Equal(t, expected.Vision, actual.Vision)
+	assert.Equal(t, expected.Metrics, actual.Metrics)
 }
 
 func TestCreateNewCharacter(t *testing.T) {
@@ -119,6 +128,12 @@ func TestUpdateCharacter(t *testing.T) {
 	character.Name = updateInput["name"].(string)
 	character.Gender = updateInput["gender"].(bool)
 	character.Tags = updateInput["tags"].([]string)
+	character.Categories = []entity.Category{
+		category, category,
+	}
+	character.Metrics = []entity.Metric{
+		metric, metric, metric,
+	}
 
 	updatedCharacter, err := characterRepo.UpdateByID(context.Background(), character.ID, character)
 	assert.Nil(t, err)

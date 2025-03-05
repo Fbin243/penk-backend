@@ -77,6 +77,9 @@ make dump
 
 # Restore database
 make restore
+
+# Restore specific collection
+make restore-col COL=<colection-name>
 ```
 
 ## Start services, run unit tests and API tests

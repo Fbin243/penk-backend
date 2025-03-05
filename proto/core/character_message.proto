@@ -10,16 +10,10 @@ message Character {
   int64 updated_at = 3;
   string profile_id = 4;
   string name = 5;
-  bool gender = 6; // true = Male, false = Female
+  bool gender = 6;
   repeated string tags = 7;
   repeated Category categories = 8;
   repeated Metric metrics = 9;
-  optional Vision vision = 10;
-}
-
-message Vision {
-  string name = 1;
-  optional string description = 2;
 }
 
 message Category {
@@ -27,6 +21,7 @@ message Category {
   string name = 2;
   string description = 3;
   CategoryStyle style = 4;
+  repeated Metric metrics = 5;
 }
 
 message CategoryStyle {
@@ -36,7 +31,6 @@ message CategoryStyle {
 
 message Metric {
   string id = 1;
-  optional string category_id = 2;
   string name = 3;
   float value = 4;
   string unit = 5;
@@ -50,7 +44,6 @@ message CharacterInput {
   repeated string tags = 4;
   repeated CategoryInput categories = 5;
   repeated MetricInput metrics = 6;
-  optional VisionInput vision = 7;
 }
 
 message CategoryInput {
@@ -58,6 +51,7 @@ message CategoryInput {
   string name = 2;
   optional string description = 3;
   CategoryStyleInput style = 4;
+  repeated MetricInput metrics = 5;
 }
 
 message CategoryStyleInput {
@@ -67,13 +61,7 @@ message CategoryStyleInput {
 
 message MetricInput {
   optional string id = 1;
-  optional string category_id = 2;
   string name = 3;
   float value = 4;
   string unit = 5;
-}
-
-message VisionInput {
-  string name = 1;
-  optional string description = 2;
 }

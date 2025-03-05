@@ -8,12 +8,6 @@ type Character {
   tags: [String!]!
   categories: [Category!]!
   metrics: [Metric!]!
-  vision: Vision
-}
-
-type Vision {
-  name: String!
-  description: String
 }
 
 type Category {
@@ -21,6 +15,7 @@ type Category {
   name: String!
   description: String!
   style: CategoryStyle!
+  metrics: [Metric!]!
 }
 
 type CategoryStyle {
@@ -30,7 +25,6 @@ type CategoryStyle {
 
 type Metric {
   id: ID!
-  categoryID: ID
   name: String!
   value: Float!
   unit: String!
@@ -99,6 +93,11 @@ input CategoryInput {
   Visual style of the metric displayed on screen.
   """
   style: CategoryStyleInput!
+
+  """
+  List of metrics for the category.
+  """
+  metrics: [MetricInput!]
 }
 
 """
@@ -124,11 +123,6 @@ input MetricInput {
   ID of the metric. If not provided, a new metric will be created.
   """
   id: ID
-
-  """
-  ID of category including the metric
-  """
-  categoryID: ID
 
   """
   Name of the metric.

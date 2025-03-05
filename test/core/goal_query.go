@@ -12,9 +12,29 @@ query Goals($characterID: ID!) {
         startTime
         endTime
         status
+        categories {
+            id
+            name
+            description
+            style {
+                color
+                icon
+            }
+            metrics {
+                id
+                name
+                value
+                unit
+                condition
+                targetValue
+                rangeValue {
+                    min
+                    max
+                }
+            }
+        }
         metrics {
             id
-            categoryID
             name
             value
             unit
@@ -45,9 +65,29 @@ mutation UpsertGoal($input: GoalInput!) {
         startTime
         endTime
         status
+        categories {
+            id
+            name
+            description
+            style {
+                color
+                icon
+            }
+            metrics {
+                id
+                name
+                value
+                unit
+                condition
+                targetValue
+                rangeValue {
+                    min
+                    max
+                }
+            }
+        }
         metrics {
             id
-            categoryID
             name
             value
             unit
@@ -78,9 +118,29 @@ mutation DeleteGoal($id: ID!) {
         startTime
         endTime
         status
+        categories {
+            id
+            name
+            description
+            style {
+                color
+                icon
+            }
+            metrics {
+                id
+                name
+                value
+                unit
+                condition
+                targetValue
+                rangeValue {
+                    min
+                    max
+                }
+            }
+        }
         metrics {
             id
-            categoryID
             name
             value
             unit

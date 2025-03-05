@@ -21,11 +21,6 @@ type CharacterBusiness struct {
 	GoalRepo      IGoalRepo
 }
 
-type (
-	CategoryMap map[string]MetricMap
-	MetricMap   map[string]entity.Metric
-)
-
 func NewCharacterBusiness(characterRepo ICharacterRepo, profileRepo IProfileRepo, goalRepo IGoalRepo) *CharacterBusiness {
 	return &CharacterBusiness{
 		CharacterRepo: characterRepo,
@@ -69,8 +64,6 @@ func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.
 	}
 
 	var character *entity.Character
-	metricsMap := map[string]entity.Metric{}
-
 	if input.ID == nil {
 		// Insert new character
 		charactersCount, err := biz.CharacterRepo.CountCharactersByProfileID(ctx, authSession.ProfileID)
@@ -107,16 +100,6 @@ func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.
 		character.Tags = input.Tags
 	}
 
-	if input.Vision != nil {
-		character.Vision = entity.Vision{
-			Name: input.Vision.Name,
-		}
-
-		if input.Vision.Description != nil {
-			character.Vision.Description = *input.Vision.Description
-		}
-	}
-
 	if input.Categories != nil {
 		err = biz.upsertCategoriesInCharacter(ctx, character, input.Categories)
 		if err != nil {
@@ -125,17 +108,27 @@ func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.
 	}
 
 	if input.Metrics != nil {
-		for _, metric := range character.Metrics {
-			metricsMap[metric.ID] = metric
-		}
-
-		err = biz.upsertMetricsInCharacter(ctx, upsertMetricsInCharacterInput{
+		err = biz.upsertMetrics(ctx, upsertMetricsInput{
 			character:    character,
-			metricsMap:   metricsMap,
 			metricInputs: input.Metrics,
 		})
 		if err != nil {
 			return nil, err
+		}
+	}
+
+	// Update the character's goals
+	if input.Metrics != nil ||
+		input.Categories != nil {
+		// Create a map of metrics for easy access
+		metricsMap := map[string]entity.Metric{}
+		for _, category := range character.Categories {
+			for _, metric := range category.Metrics {
+				metricsMap[metric.ID] = metric
+			}
+		}
+		for _, metric := range character.Metrics {
+			metricsMap[metric.ID] = metric
 		}
 
 		// Find all unfinished and unexpired goals of the character
@@ -182,59 +175,45 @@ func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.
 	return character, nil
 }
 
-func (biz *CharacterBusiness) upsertCategoriesInCharacter(_ context.Context, character *entity.Character, categoryInputs []entity.CategoryInput) error {
-	categories := []entity.Category{}
-	categoriesMap := map[string]entity.Category{}
-	for _, category := range character.Categories {
-		categoriesMap[category.ID] = category
-	}
-
+func (biz *CharacterBusiness) upsertCategoriesInCharacter(ctx context.Context, character *entity.Character, categoryInputs []entity.CategoryInput) error {
 	if len(categoryInputs) > int(utils.LimitedCategoryNumber) {
 		return errors.NewGQLError(errors.ErrCodeLimitCategory, nil)
 	}
 
+	categories := []entity.Category{}
 	for _, categoryInput := range categoryInputs {
-		if categoryInput.ID == nil {
-			// Insert new category
-			category := entity.Category{
-				ID:   mongodb.GenObjectID(),
-				Name: categoryInput.Name,
-			}
-
-			if categoryInput.Description != nil {
-				category.Description = *categoryInput.Description
-			}
-
-			if categoryInput.Style != nil {
-				category.Style = entity.CategoryStyle{
-					Color: categoryInput.Style.Color,
-					Icon:  categoryInput.Style.Icon,
-				}
-			}
-
-			categories = append(categories, category)
-		} else {
-			// Update old category
-			if _, ok := categoriesMap[*categoryInput.ID]; !ok {
-				return errors.ErrBadRequest
-			}
-
-			oldCategory := categoriesMap[*categoryInput.ID]
-			oldCategory.Name = categoryInput.Name
-
-			if categoryInput.Description != nil {
-				oldCategory.Description = *categoryInput.Description
-			}
-
-			if categoryInput.Style != nil {
-				oldCategory.Style = entity.CategoryStyle{
-					Color: categoryInput.Style.Color,
-					Icon:  categoryInput.Style.Icon,
-				}
-			}
-
-			categories = append(categories, oldCategory)
+		category := entity.Category{
+			Name: categoryInput.Name,
 		}
+
+		if categoryInput.ID == nil {
+			category.ID = mongodb.GenObjectID()
+		} else {
+			category.ID = *categoryInput.ID
+		}
+
+		if categoryInput.Description != nil {
+			category.Description = *categoryInput.Description
+		}
+
+		if categoryInput.Style != nil {
+			category.Style = entity.CategoryStyle{
+				Color: categoryInput.Style.Color,
+				Icon:  categoryInput.Style.Icon,
+			}
+		}
+
+		if categoryInput.Metrics != nil {
+			err := biz.upsertMetrics(ctx, upsertMetricsInput{
+				category:     &category,
+				metricInputs: categoryInput.Metrics,
+			})
+			if err != nil {
+				return err
+			}
+		}
+
+		categories = append(categories, category)
 	}
 
 	character.Categories = categories
@@ -242,47 +221,40 @@ func (biz *CharacterBusiness) upsertCategoriesInCharacter(_ context.Context, cha
 	return nil
 }
 
-type upsertMetricsInCharacterInput struct {
+type upsertMetricsInput struct {
 	character    *entity.Character
-	metricsMap   map[string]entity.Metric
+	category     *entity.Category
 	metricInputs []entity.MetricInput
 }
 
-func (biz *CharacterBusiness) upsertMetricsInCharacter(_ context.Context, input upsertMetricsInCharacterInput) error {
-	metrics := []entity.Metric{}
+func (biz *CharacterBusiness) upsertMetrics(_ context.Context, input upsertMetricsInput) error {
 	if len(input.metricInputs) > int(utils.LimitedMetricNumber) {
 		return errors.NewGQLError(errors.ErrCodeLimitMetric, nil)
 	}
 
+	metrics := []entity.Metric{}
 	for _, metricInput := range input.metricInputs {
-		if metricInput.ID == nil {
-			// Insert new metric
-			metric := entity.Metric{
-				ID:         mongodb.GenObjectID(),
-				CategoryID: metricInput.CategoryID,
-				Name:       metricInput.Name,
-				Value:      metricInput.Value,
-				Unit:       metricInput.Unit,
-			}
-
-			metrics = append(metrics, metric)
-		} else {
-			// Update old metric
-			if _, ok := input.metricsMap[*metricInput.ID]; !ok {
-				return errors.ErrBadRequest
-			}
-
-			oldMetric := input.metricsMap[*metricInput.ID]
-			oldMetric.CategoryID = metricInput.CategoryID
-			oldMetric.Name = metricInput.Name
-			oldMetric.Unit = metricInput.Unit
-			oldMetric.Value = metricInput.Value
-
-			metrics = append(metrics, oldMetric)
+		metric := entity.Metric{
+			Name:  metricInput.Name,
+			Value: metricInput.Value,
+			Unit:  metricInput.Unit,
 		}
+
+		if metricInput.ID == nil {
+			metric.ID = mongodb.GenObjectID()
+		} else {
+			metric.ID = *metricInput.ID
+		}
+
+		metrics = append(metrics, metric)
 	}
 
-	input.character.Metrics = metrics
+	if input.character != nil {
+		input.character.Metrics = metrics
+	}
+	if input.category != nil {
+		input.category.Metrics = metrics
+	}
 
 	return nil
 }

@@ -131,11 +131,15 @@ api-test:
 	@go run cmd/main.go api-test -f profile,character,timetracking,goal
 
 dump:
-	@echo "Dumping database $(DB_URI)"
+	@echo "Dumping database [$(DB_URI)]"
 	@mongodump --uri=$(DB_URI)
 
 restore:
-	@echo "Restoring database $(DB_URI)"
-	@mongorestore --uri=$(DB_URI) dump/$(MONGO_DATABASE_NAME)
+	@echo "Restoring database [$(DB_URI)]"
+	@mongorestore --uri=$(DB_URI) dump/$(MONGO_DATABASE_NAME) --drop
+
+restore-col:
+	@echo "Restoring specific collection [$(COL)] in database [$(DB_URI)]"
+	@mongorestore --uri=$(DB_URI) --db $(MONGO_DATABASE_NAME) --collection $(COL)  dump/$(MONGO_DATABASE_NAME)/$(COL).bson --drop
 
 .PHONY: core analytic timetracking notification test dump restore

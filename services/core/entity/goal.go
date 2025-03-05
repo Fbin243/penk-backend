@@ -35,12 +35,18 @@ type Goal struct {
 }
 
 type GoalTarget struct {
-	Metrics    []GoalTargetMetric `json:"metrics"    bson:"metrics"`
-	Checkboxes []Checkbox         `json:"checkboxes" bson:"checkboxes"`
+	Categories []GoalCategory `json:"categories" bson:"categories"`
+	Metrics    []GoalMetric   `json:"metrics"    bson:"metrics"`
+	Checkboxes []Checkbox     `json:"checkboxes" bson:"checkboxes"`
 }
 
-type GoalTargetMetric struct {
-	ID          string          `json:"id"          bson:"id"`
+type GoalCategory struct {
+	*Category `               bson:",inline"`
+	Metrics   []GoalMetric `json:"metrics" bson:"metrics"`
+}
+
+type GoalMetric struct {
+	*Metric     `                   bson:",inline"`
 	Condition   MetricCondition `json:"condition"   bson:"condition"`
 	TargetValue *float64        `json:"targetValue" bson:"target_value"`
 	RangeValue  *Range          `json:"rangeValue"  bson:"range_value"`
@@ -57,7 +63,7 @@ type Checkbox struct {
 	Value bool   `json:"value" bson:"value"`
 }
 
-func (m *GoalTargetMetric) Evaluate(currentMetric Metric) bool {
+func (m *GoalMetric) Evaluate(currentMetric Metric) bool {
 	switch m.Condition {
 	case MetricConditionEqual:
 		return currentMetric.Value == *m.TargetValue
@@ -77,6 +83,15 @@ func (m *GoalTargetMetric) Evaluate(currentMetric Metric) bool {
 }
 
 func (g *Goal) UpdateStatus(metricMap map[string]Metric) {
+	for _, category := range g.Target.Categories {
+		for _, targetMetric := range category.Metrics {
+			currentMetric := metricMap[targetMetric.ID]
+			if !targetMetric.Evaluate(currentMetric) {
+				return
+			}
+		}
+	}
+
 	for _, targetMetric := range g.Target.Metrics {
 		currentMetric := metricMap[targetMetric.ID]
 		if !targetMetric.Evaluate(currentMetric) {

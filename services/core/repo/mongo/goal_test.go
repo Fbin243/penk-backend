@@ -26,19 +26,31 @@ var goal = &entity.Goal{
 	EndTime:     time.Now(),
 	Status:      entity.GoalFinishStatusUnfinished,
 	Target: entity.GoalTarget{
-		Metrics:    []entity.GoalTargetMetric{targetMetric, rangeMetric, targetMetric},
+		Categories: []entity.GoalCategory{targetCategory, targetCategory, targetCategory},
+		Metrics:    []entity.GoalMetric{targetMetric, rangeMetric, targetMetric},
 		Checkboxes: []entity.Checkbox{checkbox, checkbox, checkbox},
 	},
 }
 
-var targetMetric = entity.GoalTargetMetric{
-	ID:          mongodb.GenObjectID(),
+var targetCategory = entity.GoalCategory{
+	Category: &entity.Category{
+		ID: mongodb.GenObjectID(),
+	},
+	Metrics: []entity.GoalMetric{targetMetric, rangeMetric, targetMetric},
+}
+
+var targetMetric = entity.GoalMetric{
+	Metric: &entity.Metric{
+		ID: mongodb.GenObjectID(),
+	},
 	Condition:   entity.MetricConditionGreaterThan,
 	TargetValue: lo.ToPtr(10.0),
 }
 
-var rangeMetric = entity.GoalTargetMetric{
-	ID:         mongodb.GenObjectID(),
+var rangeMetric = entity.GoalMetric{
+	Metric: &entity.Metric{
+		ID: mongodb.GenObjectID(),
+	},
 	Condition:  entity.MetricConditionInRange,
 	RangeValue: &entity.Range{Min: 0, Max: 10},
 }

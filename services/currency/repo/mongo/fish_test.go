@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"tenkhours/pkg/db/base"
+	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/services/currency/entity"
 
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type fishInputType struct {
@@ -18,7 +18,7 @@ type fishInputType struct {
 }
 
 var fishInput = &fishInputType{
-	ProfileID: primitive.NewObjectID().Hex(),
+	ProfileID: mongodb.GenObjectID(),
 	Gold:      10,
 	Normal:    5,
 }

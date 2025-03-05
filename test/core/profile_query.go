@@ -25,10 +25,15 @@ query {
                     color
                     icon
                 }
+                metrics {
+                     id
+                    name
+                    unit
+                    value
+                }
             }
             metrics {
                 id
-                categoryID
                 name
                 unit
                 value
