@@ -25,7 +25,7 @@ func main() {
 	}
 
 	if godotenv.Load(".env."+env) != nil {
-		log.Fatal("Error loading .env." + env + " file")
+		log.Printf("Error loading .env." + env + " file")
 	}
 
 	app := gin.Default()
@@ -61,7 +61,7 @@ func main() {
 
 	port, found := os.LookupEnv("ANALYTIC_PORT")
 	if !found {
-		port = "8083"
+		port = "8082"
 	}
 
 	app.Run(":" + port)

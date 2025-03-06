@@ -69,7 +69,7 @@ migrate-mongo status
 
 ## Mongo backup and restore
 
-Install the Database Tools: https://www.mongodb.com/docs/database-tools/installation
+Install the Database Tools: <https://www.mongodb.com/docs/database-tools/installation>
 
 ```sh
 # Backup database
@@ -118,4 +118,24 @@ make protolint
 
 # Run protolint and automatically fix if possible
 make protolint-fix
+```
+
+## Docker
+
+```sh
+# Build docker images from Dockerfile
+# Run containers with docker compose
+make up
+
+# Stop containers
+make down
+
+# Stop containers and remove images
+make down-rmi
+
+# Clean up unused images, containers, volumes, and networks
+make clean
+
+# Capture logs of containers
+make logs
 ```

@@ -18,8 +18,13 @@ func ComposeCoreClient() (*rpc.CoreClient, *grpc.ClientConn) {
 		port = "50051"
 	}
 
+	host, found := os.LookupEnv("CORE_GRPC_HOST")
+	if !found {
+		host = "localhost"
+	}
+
 	opts := grpc.WithTransportCredentials(insecure.NewCredentials())
-	conn, err := grpc.NewClient("localhost"+":"+port, opts)
+	conn, err := grpc.NewClient(host+":"+port, opts)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -33,8 +38,13 @@ func ComposeCurrencyClient() (*rpc.CurrencyClient, *grpc.ClientConn) {
 		port = "50055"
 	}
 
+	host, found := os.LookupEnv("CURRENCY_GRPC_HOST")
+	if !found {
+		host = "localhost"
+	}
+
 	opts := grpc.WithTransportCredentials(insecure.NewCredentials())
-	conn, err := grpc.NewClient("localhost"+":"+port, opts)
+	conn, err := grpc.NewClient(host+":"+port, opts)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

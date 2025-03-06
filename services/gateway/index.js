@@ -1,13 +1,14 @@
 const { ApolloServer } = require("apollo-server");
 const { ApolloGateway, IntrospectAndCompose, RemoteGraphQLDataSource } = require("@apollo/gateway");
 const fetch = require("node-fetch");
+require("dotenv").config();
 
 const subgraphs = [
-  { name: "core", url: "http://localhost:8080/graphql" },
-  { name: "timetracking", url: "http://localhost:8082/graphql" },
-  { name: "analytic", url: "http://localhost:8083/graphql" },
-  { name: "notification", url: "http://localhost:8084/graphql" },
-  { name: "currency", url: "http://localhost:8085/graphql" },
+  { name: "core", url: process.env.CORE_URL || "http://localhost:8080/graphql" },
+  { name: "analytic", url: process.env.ANALYTIC_URL || "http://localhost:8082/graphql" },
+  { name: "timetracking", url: process.env.TIMETRACKING_URL || "http://localhost:8083/graphql" },
+  { name: "notification", url: process.env.NOTIFICATION_URL || "http://localhost:8084/graphql" },
+  { name: "currency", url: process.env.CURRENCY_URL || "http://localhost:8085/graphql" },
 ];
 
 async function startGateway() {

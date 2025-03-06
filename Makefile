@@ -48,10 +48,7 @@ else
 endif
 
 gateway:
-	@echo "Checking if all services are ready..."
-
-	@echo "All services are ready, starting gateway..."
-	cd services/gateway && npm run start
+	@cd services/gateway && npm run dev
 
 dev:
 	mkdir -p tmp
@@ -142,4 +139,21 @@ restore-col:
 	@echo "Restoring specific collection [$(COL)] in database [$(DB_URI)]"
 	@mongorestore --uri=$(DB_URI) --db $(MONGO_DATABASE_NAME) --collection $(COL)  dump/$(MONGO_DATABASE_NAME)/$(COL).bson --drop
 
-.PHONY: core analytic timetracking notification test dump restore
+# Docker ----------------------------------------------------------------------
+up: 
+	@COMPOSE_BAKE=true docker compose -f docker-compose.dev.yml up -d
+
+down: 
+	@docker compose -f docker-compose.dev.yml down
+
+down-rmi: 
+	@docker compose -f docker-compose.dev.yml down --rmi all
+
+logs:
+	@docker compose -f docker-compose.dev.yml logs -f
+
+prune:
+	@docker system prune -af
+# ------------------------------------------------------------------------------
+	
+.PHONY: core analytic timetracking notification test dump restore up down logs prune

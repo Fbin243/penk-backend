@@ -1,0 +1,37 @@
+# Specific to .dockerignore
+.git/
+Dockerfile
+contrib/
+.gitignore
+
+# Temporary files
+*~
+*#
+.#*
+
+# Vendors
+node_modules/
+
+# Binaries for programs and plugins
+dist/
+gin-bin
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Environment files
+.env.*
+
+# Config files
+firebase-admin.*.json
+waitlist.*.json
+fish_config.csv
+exchange_config.csv
