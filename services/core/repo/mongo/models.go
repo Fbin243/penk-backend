@@ -18,8 +18,6 @@ type Profile struct {
 	FirebaseUID         string              `json:"firebaseUID,omitempty"        bson:"firebase_uid"`
 	ImageURL            string              `json:"imageURL,omitempty"           bson:"image_url"`
 	CurrentCharacterOID *primitive.ObjectID `json:"currentCharacterID,omitempty" bson:"current_character_id,omitempty"`
-	AvailableSnapshots  int32               `json:"availableSnapshots,omitempty" bson:"available_snapshots"`
-	AutoSnapshot        bool                `json:"autoSnapshot,omitempty"       bson:"auto_snapshot"`
 }
 
 func (p *Profile) CurrentCharacterID(id *string) {
@@ -29,32 +27,25 @@ func (p *Profile) CurrentCharacterID(id *string) {
 }
 
 type Character struct {
-	*mongodb.BaseEntity `                                  bson:",inline"`
-	ProfileOID          primitive.ObjectID `json:"profileID,omitempty"        bson:"profile_id"`
-	Name                string             `json:"name,omitempty"             bson:"name"`
-	Gender              bool               `json:"gender,omitempty"           bson:"gender"`
-	Tags                []string           `json:"tags,omitempty"             bson:"tags"`
-	TotalFocusedTime    int32              `json:"totalFocusedTime,omitempty" bson:"total_focused_time"`
-	Categories          []Category         `json:"categories,omitempty"       bson:"categories"`
-	Metrics             []Metric           `json:"metrics,omitempty"          bson:"metrics"`
-	Vision              Vision             `json:"vision,omitempty"           bson:"vision"`
+	*mongodb.BaseEntity `                            bson:",inline"`
+	ProfileOID          primitive.ObjectID `json:"profileID,omitempty"  bson:"profile_id"`
+	Name                string             `json:"name,omitempty"       bson:"name"`
+	Gender              bool               `json:"gender,omitempty"     bson:"gender"`
+	Tags                []string           `json:"tags,omitempty"       bson:"tags"`
+	Categories          []Category         `json:"categories,omitempty" bson:"categories"`
+	Metrics             []Metric           `json:"metrics,omitempty"    bson:"metrics"`
 }
 
 func (p *Character) ProfileID(id string) {
 	p.ProfileOID = mongodb.ToObjectID(id)
 }
 
-type Vision struct {
-	Name        string `json:"name,omitempty"        bson:"name"`
-	Description string `json:"description,omitempty" bson:"description"`
-}
-
 type Category struct {
 	OID         primitive.ObjectID `json:"id,omitempty"          bson:"_id"`
 	Name        string             `json:"name,omitempty"        bson:"name"`
 	Description string             `json:"description,omitempty" bson:"description"`
-	Time        int32              `json:"time,omitempty"        bson:"time"`
 	Style       CategoryStyle      `json:"style,omitempty"       bson:"style"`
+	Metrics     []Metric           `json:"metrics,omitempty"     bson:"metrics"`
 }
 
 func (m *Category) ID(id string) {
@@ -67,21 +58,14 @@ type CategoryStyle struct {
 }
 
 type Metric struct {
-	OID         primitive.ObjectID  `json:"id,omitempty"          bson:"_id"`
-	CategoryOID *primitive.ObjectID `json:"category_id,omitempty" bson:"category_id,omitempty"`
-	Name        string              `json:"name,omitempty"        bson:"name"`
-	Value       float64             `json:"value,omitempty"       bson:"value"`
-	Unit        string              `json:"unit,omitempty"        bson:"unit"`
+	OID   primitive.ObjectID `json:"id,omitempty"    bson:"_id"`
+	Name  string             `json:"name,omitempty"  bson:"name"`
+	Value float64            `json:"value,omitempty" bson:"value"`
+	Unit  string             `json:"unit,omitempty"  bson:"unit"`
 }
 
 func (m *Metric) ID(id string) {
 	m.OID = mongodb.ToObjectID(id)
-}
-
-func (m *Metric) CategoryID(id *string) {
-	if id != nil {
-		m.CategoryOID = lo.ToPtr(mongodb.ToObjectID(*id))
-	}
 }
 
 type Goal struct {
@@ -92,11 +76,7 @@ type Goal struct {
 	StartTime           time.Time               `json:"startTime"   bson:"start_time"`
 	EndTime             time.Time               `json:"endTime"     bson:"end_time"`
 	Status              entity.GoalFinishStatus `json:"status"      bson:"status"`
-	// Snapshot            struct {
-	// 	Categories []Category `json:"categories"  bson:"categories,omitempty"`
-	// 	Metrics    []Metric   `json:"metrics"     bson:"metrics,omitempty"`
-	// } `json:"snapshot" bson:"snapshot,omitempty"`
-	Target GoalTarget `json:"target" bson:"target"`
+	Target              GoalTarget              `json:"target"      bson:"target"`
 }
 
 func (g *Goal) CharacterID(id string) {
@@ -104,19 +84,21 @@ func (g *Goal) CharacterID(id string) {
 }
 
 type GoalTarget struct {
-	Metrics    []GoalTargetMetric `json:"metrics"    bson:"metrics"`
-	Checkboxes []Checkbox         `json:"checkboxes" bson:"checkboxes"`
+	Categories []GoalCategory `json:"categories" bson:"categories"`
+	Metrics    []GoalMetric   `json:"metrics"    bson:"metrics"`
+	Checkboxes []Checkbox     `json:"checkboxes" bson:"checkboxes"`
 }
 
-type GoalTargetMetric struct {
-	OID         primitive.ObjectID     `json:"id"          bson:"id"`
+type GoalCategory struct {
+	*Category `               bson:",inline"`
+	Metrics   []GoalMetric `json:"metrics" bson:"metrics"`
+}
+
+type GoalMetric struct {
+	*Metric     `                   bson:",inline"`
 	Condition   entity.MetricCondition `json:"condition"   bson:"condition"`
 	TargetValue *float64               `json:"targetValue" bson:"target_value,omitempty"`
 	RangeValue  *entity.Range          `json:"rangeValue"  bson:"range_value,omitempty"`
-}
-
-func (m *GoalTargetMetric) ID(id string) {
-	m.OID = mongodb.ToObjectID(id)
 }
 
 type Checkbox struct {

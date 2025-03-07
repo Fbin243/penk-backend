@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/core"
 	"tenkhours/services/analytic/repo/rpc"
 
 	"google.golang.org/grpc"
@@ -17,11 +17,16 @@ func ComposeCoreClient() (*rpc.CoreClient, *grpc.ClientConn) {
 		port = "50051"
 	}
 
+	host, found := os.LookupEnv("CORE_GRPC_HOST")
+	if !found {
+		host = "localhost"
+	}
+
 	opts := grpc.WithTransportCredentials(insecure.NewCredentials())
-	conn, err := grpc.NewClient("localhost"+":"+port, opts)
+	conn, err := grpc.NewClient(host+":"+port, opts)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 
-	return rpc.NewCoreClient(pb.NewCoreClient(conn)), conn
+	return rpc.NewCoreClient(core.NewCoreClient(conn)), conn
 }

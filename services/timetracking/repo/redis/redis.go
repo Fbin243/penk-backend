@@ -43,7 +43,7 @@ func (r *RedisRepo) GetCurrentTimeTracking(ctx context.Context, profileID string
 	// Get the current time tracking from Redis
 	currentTimetrackingJSON, err := r.Get(ctx, rdb.GetTimeTrackingKey(profileID)).Result()
 	if err == redis.Nil {
-		return nil, errors.NewGQLError(errors.ErrCodeRedisNotFound, err)
+		return nil, errors.ErrRedisNotFound
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to get time tracking from redis: %v", err)
 	}
@@ -100,7 +100,7 @@ func (r *RedisRepo) UpsertTimeTrackingInCapturedRecord(ctx context.Context, prof
 				ProfileID:   profileID,
 			},
 			TimeTrackings: []entity.CapturedRecordTimeTracking{},
-			CustomMetrics: []entity.CapturedRecordCustomMetric{},
+			Categories:    []entity.CapturedRecordCategory{},
 		}
 	} else if err != nil {
 		return fmt.Errorf("failed to get captured record from redis: %v", err)
@@ -116,27 +116,27 @@ func (r *RedisRepo) UpsertTimeTrackingInCapturedRecord(ctx context.Context, prof
 
 	// Add the time tracking to the captured record
 	capturedRecord.TimeTrackings = append(capturedRecord.TimeTrackings, entity.CapturedRecordTimeTracking{
-		CustomMetricID: timeTracking.CategoryID,
-		Time:           duration,
-		StartTime:      timeTracking.StartTime,
-		EndTime:        timeTracking.EndTime,
+		CategoryID: timeTracking.CategoryID,
+		Time:       duration,
+		StartTime:  timeTracking.StartTime,
+		EndTime:    timeTracking.EndTime,
 	})
 
-	if timeTracking.CategoryID != "" {
+	if timeTracking.CategoryID != nil {
 		// Check if this custom metric already exists in the captured record
 		found := false
-		for j, capturedCustomMetric := range capturedRecord.CustomMetrics {
+		for j, capturedCustomMetric := range capturedRecord.Categories {
 			// If it exists, add the time to it
-			if capturedCustomMetric.ID == timeTracking.CategoryID {
-				capturedRecord.CustomMetrics[j].Time += int32(duration)
+			if capturedCustomMetric.ID == *timeTracking.CategoryID {
+				capturedRecord.Categories[j].Time += int32(duration)
 				found = true
 			}
 		}
 
 		// If it doesn't exist, create a new one
 		if !found {
-			capturedRecord.CustomMetrics = append(capturedRecord.CustomMetrics, entity.CapturedRecordCustomMetric{
-				ID:   timeTracking.CategoryID,
+			capturedRecord.Categories = append(capturedRecord.Categories, entity.CapturedRecordCategory{
+				ID:   *timeTracking.CategoryID,
 				Time: int32(duration),
 			})
 		}

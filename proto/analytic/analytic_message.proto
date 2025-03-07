@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package analytic;
+
+option go_package = "tenkhours/proto/pb/analytic";
+
+message DeleteCapturedRecordsReq {
+  string profile_id = 1;
+}
+
+message DeleteCapturedRecordsResp {
+  bool success = 1;
+}

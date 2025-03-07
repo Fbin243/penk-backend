@@ -18,10 +18,15 @@ mutation UpsertCharacter($input: CharacterInput!) {
                 color
                 icon
             }
+            metrics {
+                id
+                name
+                value
+                unit
+            }
         }
         metrics {
             id
-            categoryID
             name
             value
             unit

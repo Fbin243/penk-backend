@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 
-	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/test/common"
 
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
@@ -24,25 +23,25 @@ func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 		return common.ErrNotFoundInContext("Profile")
 	}
 
-	characterInput := map[string]interface{}{
-		"name":   "Character name",
-		"gender": false,
-		"tags":   []interface{}{"#Tag1", "#Tag2"},
+	metricInput := map[string]interface{}{
+		"name":  "Metric name",
+		"value": 2.0,
+		"unit":  "Metric unit",
 	}
 
 	categoryInput := map[string]interface{}{
-		"name":        "Example name",
-		"description": "Example desc",
+		"name":        "Category name",
+		"description": "Category desc",
 		"style": map[string]interface{}{
 			"color": "#000000",
 			"icon":  "icon.png",
 		},
 	}
 
-	metricInput := map[string]interface{}{
-		"name":  "Example name",
-		"value": 2.0,
-		"unit":  "Example unit",
+	characterInput := map[string]interface{}{
+		"name":   "Character name",
+		"gender": false,
+		"tags":   []interface{}{"#Tag1", "#Tag2"},
 	}
 
 	assertion := jsonpath.Chain().NotPresent("$.errors")
@@ -55,7 +54,8 @@ func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 			Equal("$.data.upsertCharacter.gender", characterInput["gender"]).
 			Equal("$.data.upsertCharacter.tags", characterInput["tags"]).
 			Equal("$.data.upsertCharacter.profileID", gjson.Get(profile, "id").Value()).
-			Equal("$.data.upsertCharacter.categories", []interface{}{})
+			Equal("$.data.upsertCharacter.categories", []interface{}{}).
+			Equal("$.data.upsertCharacter.metrics", []interface{}{})
 
 	case common.UpdateCharacter:
 		character, ok := (*ctx).Value(s.CharacterKey).(string)
@@ -99,8 +99,8 @@ func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 		characterInput["id"] = gjson.Get(character, "id").Value()
 		updateCategoryInput := map[string]interface{}{
 			"id":          gjson.Get(character, "categories.0.id").Value(),
-			"name":        "Update name",
-			"description": "Update description",
+			"name":        "Update category name",
+			"description": "Update category description",
 			"style": map[string]interface{}{
 				"color": "#FFFFFF",
 				"icon":  "update_icon.png",
@@ -138,22 +138,31 @@ func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 		}
 
 		characterInput["id"] = gjson.Get(character, "id").Value()
-		metricInputWithCategory := map[string]interface{}{
-			"categoryID": gjson.Get(character, "categories.0.id").Value(),
-			"name":       "Example name",
-			"value":      2.0,
-			"unit":       "Example unit",
+		categoryInputWithMetrics := map[string]interface{}{
+			"id":          gjson.Get(character, "categories.0.id").Value(),
+			"name":        "Example name",
+			"description": "Example desc",
+			"style": map[string]interface{}{
+				"color": "#000000",
+				"icon":  "icon.png",
+			},
+			"metrics": []interface{}{metricInput, metricInput, metricInput},
 		}
-		characterInput["metrics"] = []interface{}{metricInputWithCategory, metricInput, metricInput}
+		characterInput["categories"] = []interface{}{categoryInputWithMetrics, categoryInput, categoryInput}
+		characterInput["metrics"] = []interface{}{metricInput, metricInput, metricInput}
 
 		assertion = assertion.
 			Equal("$.data.upsertCharacter.id", characterInput["id"]).
-			Equal("$.data.upsertCharacter.metrics[0].categoryID", metricInputWithCategory["categoryID"]).
-			Equal("$.data.upsertCharacter.metrics[0].name", metricInputWithCategory["name"]).
-			Equal("$.data.upsertCharacter.metrics[0].value", metricInputWithCategory["value"]).
-			Equal("$.data.upsertCharacter.metrics[0].unit", metricInputWithCategory["unit"])
+			Equal("$.data.upsertCharacter.categories[0].id", categoryInputWithMetrics["id"]).
+			Equal("$.data.upsertCharacter.categories[0].metrics[0].name", metricInput["name"]).
+			Equal("$.data.upsertCharacter.categories[0].metrics[0].value", metricInput["value"]).
+			Equal("$.data.upsertCharacter.categories[0].metrics[0].unit", metricInput["unit"]).
+			Equal("$.data.upsertCharacter.metrics[0].name", metricInput["name"]).
+			Equal("$.data.upsertCharacter.metrics[0].value", metricInput["value"]).
+			Equal("$.data.upsertCharacter.metrics[0].unit", metricInput["unit"])
 
 		assertions = append(assertions,
+			jsonpath.Len("$.data.upsertCharacter.categories[0].metrics", 3),
 			jsonpath.Len("$.data.upsertCharacter.metrics", 3))
 
 	case common.UpdateMetrics:
@@ -164,22 +173,39 @@ func (s UpsertCharacterStage) Exec(ctx *context.Context) error {
 
 		characterInput["id"] = gjson.Get(character, "id").Value()
 		updateMetricInput := map[string]interface{}{
-			"id":         gjson.Get(character, "metrics.0.id").Value(),
-			"categoryID": mongodb.GenObjectID(),
-			"name":       "Update name",
-			"value":      789.0,
-			"unit":       "Update unit",
+			"id":    gjson.Get(character, "metrics.0.id").Value(),
+			"name":  "Update metric name",
+			"value": 789.0,
+			"unit":  "Update metric unit",
 		}
 
+		categoryInputWithUpdateMetrics := map[string]interface{}{
+			"id":          gjson.Get(character, "categories.0.id").Value(),
+			"name":        "Category name",
+			"description": "Category desc",
+			"style": map[string]interface{}{
+				"color": "#000000",
+				"icon":  "icon.png",
+			},
+			"metrics": []interface{}{updateMetricInput, metricInput, metricInput},
+		}
+
+		characterInput["categories"] = []interface{}{categoryInputWithUpdateMetrics, categoryInput, categoryInput}
 		characterInput["metrics"] = []interface{}{updateMetricInput, metricInput, metricInput}
 
 		assertion = assertion.
 			Equal("$.data.upsertCharacter.id", characterInput["id"]).
+			Equal("$.data.upsertCharacter.categories[0].id", categoryInputWithUpdateMetrics["id"]).
+			Equal("$.data.upsertCharacter.categories[0].metrics[0].name", updateMetricInput["name"]).
+			Equal("$.data.upsertCharacter.categories[0].metrics[0].value", updateMetricInput["value"]).
+			Equal("$.data.upsertCharacter.categories[0].metrics[0].unit", updateMetricInput["unit"]).
 			Equal("$.data.upsertCharacter.metrics[0].id", updateMetricInput["id"]).
 			Equal("$.data.upsertCharacter.metrics[0].name", updateMetricInput["name"]).
 			Equal("$.data.upsertCharacter.metrics[0].value", updateMetricInput["value"]).
 			Equal("$.data.upsertCharacter.metrics[0].unit", updateMetricInput["unit"])
-		assertions = append(assertions, jsonpath.Len("$.data.upsertCharacter.metrics", 3))
+		assertions = append(assertions,
+			jsonpath.Len("$.data.upsertCharacter.categories[0].metrics", 3),
+			jsonpath.Len("$.data.upsertCharacter.metrics", 3))
 
 	case common.DeleteMetrics:
 		character, ok := (*ctx).Value(s.CharacterKey).(string)

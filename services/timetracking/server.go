@@ -2,10 +2,12 @@ package main
 
 import (
 	"log"
+	"net"
 	"os"
 
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
+	"tenkhours/proto/pb/timetracking"
 	"tenkhours/services/timetracking/composer"
 	"tenkhours/services/timetracking/transport/graph"
 
@@ -13,6 +15,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -22,7 +25,7 @@ func main() {
 	}
 
 	if godotenv.Load(".env."+env) != nil {
-		log.Fatal("Error loading .env." + env + " file")
+		log.Printf("Error loading .env." + env + " file")
 	}
 
 	app := gin.Default()
@@ -53,10 +56,34 @@ func main() {
 
 	defer composer.GetComposer().Close()
 
+	// Start RPC server
+	go startRPCServer(authClient)
+
 	port, found := os.LookupEnv("TIME_TRACKING_PORT")
 	if !found {
-		port = "8082"
+		port = "8083"
 	}
 
 	app.Run(":" + port)
+}
+
+func startRPCServer(authClient *middlewares.AuthClient) {
+	// Create the server for gRPC API
+	authInterceptor := middlewares.NewAuthInterceptor(authClient)
+	s := grpc.NewServer(grpc.UnaryInterceptor(authInterceptor.UnaryInterceptor))
+	timetracking.RegisterTimeTrackingServiceServer(s, composer.ComposeRPCHandler())
+
+	port, found := os.LookupEnv("TIMETRACKING_GRPC_PORT")
+	if !found {
+		port = "50053"
+	}
+
+	lis, err := net.Listen("tcp", ":"+port)
+	if err != nil {
+		log.Fatalf("Failed to listen: %v", err)
+	}
+
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
 }

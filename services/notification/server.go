@@ -22,7 +22,7 @@ func main() {
 	}
 
 	if err := godotenv.Load(".env." + env); err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+		log.Printf("Error loading .env file: %v", err)
 	}
 
 	app := gin.Default()

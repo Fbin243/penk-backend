@@ -3,8 +3,6 @@ package core
 var ProfileQuery = `
 query { 
 	profile {
-        autoSnapshot
-        availableSnapshots
         createdAt
         currentCharacterID
         email
@@ -27,10 +25,15 @@ query {
                     color
                     icon
                 }
+                metrics {
+                     id
+                    name
+                    unit
+                    value
+                }
             }
             metrics {
                 id
-                categoryID
                 name
                 unit
                 value
@@ -42,8 +45,6 @@ query {
 var UpdateProfileQuery = `
 mutation UpdateProfile($input: ProfileInput!) {
 	updateProfile(input: $input) {
-		autoSnapshot
-		availableSnapshots
 		createdAt
 		currentCharacterID
 		email
@@ -66,7 +67,5 @@ mutation DeleteProfile {
         firebaseUID
         imageURL
         currentCharacterID
-        availableSnapshots
-        autoSnapshot
     }
 }`

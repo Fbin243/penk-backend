@@ -4,20 +4,20 @@ import (
 	"context"
 	"fmt"
 
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/currency"
 )
 
 type CurrencyClient struct {
-	pb.CurrencyClient
+	currency.CurrencyClient
 }
 
-func NewCurrencyClient(currencyClient pb.CurrencyClient) *CurrencyClient {
+func NewCurrencyClient(currencyClient currency.CurrencyClient) *CurrencyClient {
 	return &CurrencyClient{CurrencyClient: currencyClient}
 }
 
 func (c *CurrencyClient) CreateFish(ctx context.Context, profileID string) error {
-	req := &pb.CreateFishReq{
-		ProfileID: profileID,
+	req := &currency.CreateFishReq{
+		ProfileId: profileID,
 	}
 
 	res, err := c.CurrencyClient.CreateFish(ctx, req)

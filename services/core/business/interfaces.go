@@ -3,9 +3,10 @@ package business
 import (
 	"context"
 
-	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
 	"tenkhours/services/core/entity"
+
+	rdb "tenkhours/pkg/db/redis"
 )
 
 // Business
@@ -13,7 +14,7 @@ type IProfileBusiness interface {
 	GetProfile(ctx context.Context) (*entity.Profile, error)
 	UpdateProfile(ctx context.Context, input entity.ProfileInput) (*entity.Profile, error)
 	DeleteProfile(ctx context.Context) (*entity.Profile, error)
-	IntrospectProfile(ctx context.Context, firebaseProfile auth.FirebaseProfile) (*entity.Profile, error)
+	IntrospectToken(ctx context.Context, token string) (*rdb.AuthSession, error)
 	CheckPermission(ctx context.Context, profileID, characterID, categoryID *string) error
 }
 
@@ -38,6 +39,7 @@ type ITemplateBusiness interface {
 // Repository
 type IProfileRepo interface {
 	base.IBaseRepo[entity.Profile]
+	ProfileExists(ctx context.Context, firebaseUID string) (bool, error)
 	GetProfileByFirebaseUID(ctx context.Context, firebaseUID string) (*entity.Profile, error)
 	DeleteProfileByFirebaseUID(ctx context.Context, firebaseUID string) error
 }
@@ -68,6 +70,8 @@ type ITemplateCategoryRepo interface {
 }
 
 type ICache interface {
+	GetAuthSession(ctx context.Context, firebaseUID string) (*rdb.AuthSession, error)
+	SetAuthSession(ctx context.Context, profile *entity.Profile, session *rdb.AuthSession) error
 	DeleteProfileData(ctx context.Context, profile *entity.Profile) error
 }
 

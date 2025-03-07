@@ -7,7 +7,7 @@ import (
 
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/core"
 	"tenkhours/services/core/composer"
 	"tenkhours/services/core/transport/graph"
 
@@ -25,7 +25,7 @@ func main() {
 	}
 
 	if godotenv.Load(".env."+env) != nil {
-		log.Fatal("Error loading .env." + env + " file")
+		log.Printf("Error loading .env." + env + " file")
 	}
 
 	app := gin.Default()
@@ -58,7 +58,7 @@ func main() {
 	defer composer.GetComposer().AnalyticConn.Close()
 
 	// Start RPC server
-	go startRPCServer()
+	go startRPCServer(authClient)
 
 	port, found := os.LookupEnv("CORE_PORT")
 	if !found {
@@ -68,10 +68,11 @@ func main() {
 	app.Run(":" + port)
 }
 
-func startRPCServer() {
+func startRPCServer(authClient *middlewares.AuthClient) {
 	// Create the server for gRPC API
-	s := grpc.NewServer()
-	pb.RegisterCoreServer(s, composer.ComposeRPCHandler())
+	authInterceptor := middlewares.NewAuthInterceptor(authClient)
+	s := grpc.NewServer(grpc.UnaryInterceptor(authInterceptor.UnaryInterceptor))
+	core.RegisterCoreServer(s, composer.ComposeRPCHandler())
 
 	port, found := os.LookupEnv("CORE_GRPC_PORT")
 	if !found {

@@ -3,12 +3,12 @@ package validations_test
 import (
 	"testing"
 
+	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/services/core/entity"
 	"tenkhours/services/core/transport/graph/validations"
 
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestValidateProfile(t *testing.T) {
@@ -24,7 +24,7 @@ func TestValidateProfile(t *testing.T) {
 			profile: entity.ProfileInput{
 				Name:               "John Doe",
 				ImageURL:           "http://example.com/image.png",
-				CurrentCharacterID: lo.ToPtr(primitive.NewObjectID().Hex()),
+				CurrentCharacterID: lo.ToPtr(mongodb.GenObjectID()),
 			},
 			hasError: false,
 		},
@@ -33,7 +33,7 @@ func TestValidateProfile(t *testing.T) {
 			profile: entity.ProfileInput{
 				Name:               "",
 				ImageURL:           "http://example.com/image.png",
-				CurrentCharacterID: lo.ToPtr(primitive.NewObjectID().Hex()),
+				CurrentCharacterID: lo.ToPtr(mongodb.GenObjectID()),
 			},
 			hasError: true,
 		},
@@ -42,7 +42,7 @@ func TestValidateProfile(t *testing.T) {
 			profile: entity.ProfileInput{
 				Name:               "This is a very long name that exceeds the maximum allowed length of fifty characters. This is a very long name that exceeds the maximum allowed length of fifty characters.",
 				ImageURL:           "http://example.com/image.png",
-				CurrentCharacterID: lo.ToPtr(primitive.NewObjectID().Hex()),
+				CurrentCharacterID: lo.ToPtr(mongodb.GenObjectID()),
 			},
 			hasError: true,
 		},

@@ -10,7 +10,6 @@ type Character struct {
 	Tags             []string   `json:"tags,omitempty"       bson:"tags"`
 	Categories       []Category `json:"categories,omitempty" bson:"categories"`
 	Metrics          []Metric   `json:"metrics,omitempty"    bson:"metrics"`
-	Vision           Vision     `json:"vision,omitempty"     bson:"vision"`
 }
 
 type Vision struct {
@@ -23,6 +22,7 @@ type Category struct {
 	Name        string        `json:"name,omitempty"        bson:"name"`
 	Description string        `json:"description,omitempty" bson:"description"`
 	Style       CategoryStyle `json:"style,omitempty"       bson:"style"`
+	Metrics     []Metric      `json:"metrics,omitempty"     bson:"metrics"`
 }
 
 type CategoryStyle struct {
@@ -31,9 +31,13 @@ type CategoryStyle struct {
 }
 
 type Metric struct {
-	ID         string  `json:"id,omitempty"         bson:"_id"`
-	CategoryID *string `json:"categoryID,omitempty" bson:"category_id,omitempty"`
-	Name       string  `json:"name,omitempty"       bson:"name"`
-	Value      float64 `json:"value,omitempty"      bson:"value"`
-	Unit       string  `json:"unit,omitempty"       bson:"unit"`
+	ID    string  `json:"id,omitempty"    bson:"_id"`
+	Name  string  `json:"name,omitempty"  bson:"name"`
+	Value float64 `json:"value,omitempty" bson:"value"`
+	Unit  string  `json:"unit,omitempty"  bson:"unit"`
+}
+
+type CharacterMap struct {
+	CategoryMap map[string]Category
+	MetricMap   map[string]Metric
 }

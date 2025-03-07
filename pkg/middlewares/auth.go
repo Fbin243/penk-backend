@@ -11,7 +11,7 @@ import (
 )
 
 // Check if the request has a valid Authorization header with a Bearer token.
-func RequireAuth(ac *authClient) func(c *gin.Context) {
+func RequireAuth(ac *AuthClient) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		reqCtx := c.Request.Context()
 		authKey := c.Request.Header.Get("Authorization")

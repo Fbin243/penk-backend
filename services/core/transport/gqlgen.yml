@@ -1,7 +1,5 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-- ../../pkg/graphql/enums/error_code.graphql
-- ../../pkg/graphql/enums/time.graphql
 - graph/gql/*.graphql
 
 # Where should the generated server code go?
@@ -109,10 +107,6 @@ models:
     model: tenkhours/services/core/entity.CategoryStyle
   CategoryStyleInput:
     model: tenkhours/services/core/entity.CategoryStyleInput
-  Vision:
-    model: tenkhours/services/core/entity.Vision
-  VisionInput:
-    model: tenkhours/services/core/entity.VisionInput
   Goal:
     model: tenkhours/services/core/entity.Goal
   Checkbox:
@@ -121,6 +115,10 @@ models:
     model: tenkhours/services/core/entity.MetricCondition
   Range:
     model: tenkhours/services/core/entity.Range
+  GoalCategory:
+    model: tenkhours/services/core/entity.GoalCategory
+  GoalMetric: 
+    model: tenkhours/services/core/entity.GoalMetric
   GoalFinishStatus:
     model: tenkhours/services/core/entity.GoalFinishStatus
   GoalExpireStatus:
@@ -129,6 +127,8 @@ models:
     model: tenkhours/services/core/entity.GoalStatusFilter
   GoalInput:
     model: tenkhours/services/core/entity.GoalInput
+  GoalCategoryInput:
+    model: tenkhours/services/core/entity.GoalCategoryInput
   GoalMetricInput:
     model: tenkhours/services/core/entity.GoalMetricInput
   CheckboxInput:

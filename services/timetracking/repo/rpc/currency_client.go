@@ -5,21 +5,21 @@ import (
 	"fmt"
 	"log"
 
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/currency"
 	"tenkhours/services/timetracking/entity"
 )
 
 type CurrencyClient struct {
-	currencyClient pb.CurrencyClient
+	currencyClient currency.CurrencyClient
 }
 
-func NewCurrencyClient(currencyClient pb.CurrencyClient) *CurrencyClient {
+func NewCurrencyClient(currencyClient currency.CurrencyClient) *CurrencyClient {
 	return &CurrencyClient{currencyClient: currencyClient}
 }
 
 func (c *CurrencyClient) CatchFish(ctx context.Context) (*entity.CatchFishResult, error) {
 	log.Print("Send request to Currency to catch fish ...")
-	req := &pb.CatchFishReq{}
+	req := &currency.CatchFishReq{}
 
 	res, err := c.currencyClient.CatchFish(ctx, req)
 	if err != nil {
@@ -35,8 +35,8 @@ func (c *CurrencyClient) CatchFish(ctx context.Context) (*entity.CatchFishResult
 }
 
 func (c *CurrencyClient) UpdateFish(ctx context.Context, fish *entity.Fish) error {
-	req := &pb.UpdateFishReq{
-		ProfileID: fish.ProfileID,
+	req := &currency.UpdateFishReq{
+		ProfileId: fish.ProfileID,
 		Gold:      fish.Gold,
 		Normal:    fish.Normal,
 	}

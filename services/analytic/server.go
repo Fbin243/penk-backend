@@ -7,7 +7,7 @@ import (
 
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/analytic"
 	"tenkhours/services/analytic/composer"
 	"tenkhours/services/analytic/transport/graph"
 
@@ -25,7 +25,7 @@ func main() {
 	}
 
 	if godotenv.Load(".env."+env) != nil {
-		log.Fatal("Error loading .env." + env + " file")
+		log.Printf("Error loading .env." + env + " file")
 	}
 
 	app := gin.Default()
@@ -61,7 +61,7 @@ func main() {
 
 	port, found := os.LookupEnv("ANALYTIC_PORT")
 	if !found {
-		port = "8083"
+		port = "8082"
 	}
 
 	app.Run(":" + port)
@@ -70,7 +70,7 @@ func main() {
 func startRPCServer() {
 	// Create the server for gRPC API
 	s := grpc.NewServer()
-	pb.RegisterAnalyticServer(s, composer.ComposeRPCHandler())
+	analytic.RegisterAnalyticServer(s, composer.ComposeRPCHandler())
 
 	port, found := os.LookupEnv("ANALYTIC_GRPC_PORT")
 	if !found {

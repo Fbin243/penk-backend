@@ -50,7 +50,7 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		CreateTimeTracking func(childComplexity int, characterID string, customMetricID *string, startTime time.Time) int
+		CreateTimeTracking func(childComplexity int, characterID string, categoryID *string, startTime time.Time) int
 		UpdateTimeTracking func(childComplexity int) int
 	}
 
@@ -61,11 +61,11 @@ type ComplexityRoot struct {
 	}
 
 	TimeTracking struct {
-		CharacterID    func(childComplexity int) int
-		CustomMetricID func(childComplexity int) int
-		EndTime        func(childComplexity int) int
-		ID             func(childComplexity int) int
-		StartTime      func(childComplexity int) int
+		CategoryID  func(childComplexity int) int
+		CharacterID func(childComplexity int) int
+		EndTime     func(childComplexity int) int
+		ID          func(childComplexity int) int
+		StartTime   func(childComplexity int) int
 	}
 
 	TimeTrackingWithFish struct {
@@ -80,7 +80,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateTimeTracking(ctx context.Context, characterID string, customMetricID *string, startTime time.Time) (*entity.TimeTracking, error)
+	CreateTimeTracking(ctx context.Context, characterID string, categoryID *string, startTime time.Time) (*entity.TimeTracking, error)
 	UpdateTimeTracking(ctx context.Context) (*entity.TimeTrackingWithFish, error)
 }
 type QueryResolver interface {
@@ -117,7 +117,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateTimeTracking(childComplexity, args["characterID"].(string), args["customMetricID"].(*string), args["startTime"].(time.Time)), true
+		return e.complexity.Mutation.CreateTimeTracking(childComplexity, args["characterID"].(string), args["categoryID"].(*string), args["startTime"].(time.Time)), true
 
 	case "Mutation.updateTimeTracking":
 		if e.complexity.Mutation.UpdateTimeTracking == nil {
@@ -152,19 +152,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.__resolve__service(childComplexity), true
 
+	case "TimeTracking.categoryID":
+		if e.complexity.TimeTracking.CategoryID == nil {
+			break
+		}
+
+		return e.complexity.TimeTracking.CategoryID(childComplexity), true
+
 	case "TimeTracking.characterID":
 		if e.complexity.TimeTracking.CharacterID == nil {
 			break
 		}
 
 		return e.complexity.TimeTracking.CharacterID(childComplexity), true
-
-	case "TimeTracking.customMetricID":
-		if e.complexity.TimeTracking.CustomMetricID == nil {
-			break
-		}
-
-		return e.complexity.TimeTracking.CustomMetricID(childComplexity), true
 
 	case "TimeTracking.endTime":
 		if e.complexity.TimeTracking.EndTime == nil {
@@ -411,14 +411,14 @@ func (ec *executionContext) field_Mutation_createTimeTracking_args(ctx context.C
 	}
 	args["characterID"] = arg0
 	var arg1 *string
-	if tmp, ok := rawArgs["customMetricID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("customMetricID"))
+	if tmp, ok := rawArgs["categoryID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryID"))
 		arg1, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["customMetricID"] = arg1
+	args["categoryID"] = arg1
 	var arg2 time.Time
 	if tmp, ok := rawArgs["startTime"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
@@ -522,7 +522,7 @@ func (ec *executionContext) _Mutation_createTimeTracking(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateTimeTracking(rctx, fc.Args["characterID"].(string), fc.Args["customMetricID"].(*string), fc.Args["startTime"].(time.Time))
+		return ec.resolvers.Mutation().CreateTimeTracking(rctx, fc.Args["characterID"].(string), fc.Args["categoryID"].(*string), fc.Args["startTime"].(time.Time))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -551,8 +551,8 @@ func (ec *executionContext) fieldContext_Mutation_createTimeTracking(ctx context
 				return ec.fieldContext_TimeTracking_id(ctx, field)
 			case "characterID":
 				return ec.fieldContext_TimeTracking_characterID(ctx, field)
-			case "customMetricID":
-				return ec.fieldContext_TimeTracking_customMetricID(ctx, field)
+			case "categoryID":
+				return ec.fieldContext_TimeTracking_categoryID(ctx, field)
 			case "startTime":
 				return ec.fieldContext_TimeTracking_startTime(ctx, field)
 			case "endTime":
@@ -667,8 +667,8 @@ func (ec *executionContext) fieldContext_Query_currentTimeTracking(_ context.Con
 				return ec.fieldContext_TimeTracking_id(ctx, field)
 			case "characterID":
 				return ec.fieldContext_TimeTracking_characterID(ctx, field)
-			case "customMetricID":
-				return ec.fieldContext_TimeTracking_customMetricID(ctx, field)
+			case "categoryID":
+				return ec.fieldContext_TimeTracking_categoryID(ctx, field)
 			case "startTime":
 				return ec.fieldContext_TimeTracking_startTime(ctx, field)
 			case "endTime":
@@ -1000,8 +1000,8 @@ func (ec *executionContext) fieldContext_TimeTracking_characterID(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _TimeTracking_customMetricID(ctx context.Context, field graphql.CollectedField, obj *entity.TimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TimeTracking_customMetricID(ctx, field)
+func (ec *executionContext) _TimeTracking_categoryID(ctx context.Context, field graphql.CollectedField, obj *entity.TimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTracking_categoryID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1023,12 +1023,12 @@ func (ec *executionContext) _TimeTracking_customMetricID(ctx context.Context, fi
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOID2string(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TimeTracking_customMetricID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TimeTracking_categoryID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TimeTracking",
 		Field:      field,
@@ -1169,8 +1169,8 @@ func (ec *executionContext) fieldContext_TimeTrackingWithFish_timeTracking(_ con
 				return ec.fieldContext_TimeTracking_id(ctx, field)
 			case "characterID":
 				return ec.fieldContext_TimeTracking_characterID(ctx, field)
-			case "customMetricID":
-				return ec.fieldContext_TimeTracking_customMetricID(ctx, field)
+			case "categoryID":
+				return ec.fieldContext_TimeTracking_categoryID(ctx, field)
 			case "startTime":
 				return ec.fieldContext_TimeTracking_startTime(ctx, field)
 			case "endTime":
@@ -3282,8 +3282,8 @@ func (ec *executionContext) _TimeTracking(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "customMetricID":
-			out.Values[i] = ec._TimeTracking_customMetricID(ctx, field, obj)
+		case "categoryID":
+			out.Values[i] = ec._TimeTracking_categoryID(ctx, field, obj)
 		case "startTime":
 			out.Values[i] = ec._TimeTracking_startTime(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4281,16 +4281,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	res := graphql.MarshalBoolean(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
 	return res
 }
 

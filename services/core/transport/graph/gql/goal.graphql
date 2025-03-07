@@ -8,13 +8,21 @@ type Goal {
   startTime: Time!
   endTime: Time!
   status: GoalFinishStatus!
+  categories: [GoalCategory!]!
   metrics: [GoalMetric!]!
   checkboxes: [Checkbox!]!
 }
 
+type GoalCategory {
+  id: ID!
+  name: String!
+  description: String!
+  style: CategoryStyle!
+  metrics: [GoalMetric!]!
+}
+
 type GoalMetric {
   id: ID!
-  categoryID: ID
   name: String!
   value: Float!
   unit: String!
@@ -42,12 +50,18 @@ input GoalInput {
   description: String
   startTime: Time!
   endTime: Time!
+  categories: [GoalCategoryInput!]
   metrics: [GoalMetricInput!]
   checkboxes: [CheckboxInput!]
 }
 
+input GoalCategoryInput {
+  id: ID!
+  metrics: [GoalMetricInput!]
+}
+
 input GoalMetricInput {
-  id: ID
+  id: ID!
   condition: MetricCondition!
   targetValue: Float
   rangeValue: RangeInput

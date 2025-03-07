@@ -16,12 +16,7 @@
 tmp/
 
 # Dependency directories (remove the comment below to include it)
-vendor/
 node_modules/
-
-# Go workspace file
-go.work
-go.work.sum
 
 # env file
 .env.development
@@ -32,9 +27,6 @@ firebase-admin.*.json
 waitlist.*.json
 fish_config.csv
 exchange_config.csv
-
-# IDE
-.vscode
 
 # OS
 .DS_Store

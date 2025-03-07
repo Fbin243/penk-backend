@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package core;
+
+option go_package = "tenkhours/proto/pb/core";
+
+message IntrospectReq {   
+  string token = 1;
+}
+
+message IntrospectResp {
+  bool success = 1;
+  string profile_id = 2;
+}
+
+message CheckPermissionReq {
+  optional string profile_id = 2;
+  optional string character_id = 3;
+  optional string category_id = 4;
+}
+
+message CheckPermissionResp {
+  bool authorized = 1;
+}

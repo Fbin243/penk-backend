@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 
-	"tenkhours/pkg/utils"
 	"tenkhours/test/common"
 
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
@@ -26,8 +25,6 @@ func (s UpsertProfileStage) Exec(ctx *context.Context) error {
 		assertion = assertion.
 			NotEqual("$.data.profile.id", "").
 			NotEqual("$.data.profile.firebaseUID", "").
-			Equal("$.data.profile.availableSnapshots", float64(utils.DefaultSnapshotsNumber)).
-			Equal("$.data.profile.autoSnapshot", true).
 			Equal("$.data.profile.characters", []interface{}{}).
 			Equal("$.data.profile.currentCharacterID", nil)
 
@@ -36,7 +33,6 @@ func (s UpsertProfileStage) Exec(ctx *context.Context) error {
 			"name":               "Profile name",
 			"imageURL":           "https://image.com",
 			"currentCharacterID": "675d4ce886be5c6dd755542f",
-			"autoSnapshot":       false,
 		}
 
 		variables["input"] = profileInput
@@ -45,8 +41,7 @@ func (s UpsertProfileStage) Exec(ctx *context.Context) error {
 			NotEqual("$.data.updateProfile.id", "").
 			Equal("$.data.updateProfile.name", profileInput["name"]).
 			Equal("$.data.updateProfile.imageURL", profileInput["imageURL"]).
-			Equal("$.data.updateProfile.currentCharacterID", profileInput["currentCharacterID"]).
-			Equal("$.data.updateProfile.autoSnapshot", profileInput["autoSnapshot"])
+			Equal("$.data.updateProfile.currentCharacterID", profileInput["currentCharacterID"])
 	}
 
 	if s.ExpectError {

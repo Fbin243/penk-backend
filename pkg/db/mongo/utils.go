@@ -24,7 +24,7 @@ func ToObjectIDs(ids []string) []primitive.ObjectID {
 
 func addMissingFields[M base.IBaseEntity](m M) {
 	if m.GetID() == "" {
-		m.SetID(primitive.NewObjectID().Hex())
+		m.SetID(GenObjectID())
 	}
 	if m.GetCreatedAt().IsZero() {
 		m.SetCreatedAtByNow()

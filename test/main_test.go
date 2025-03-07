@@ -13,7 +13,6 @@ import (
 	"tenkhours/test/flows"
 
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestUserFlow(t *testing.T) {
@@ -59,9 +58,8 @@ func TestUserFlow(t *testing.T) {
 	for _, flowKey := range flowKeys {
 		err := pineline.Pineline(flowsMap[common.FlowKey(flowKey)]...)(&ctx)
 		if err != nil {
-			common.LogResponse()
+			t.Fatalf("Failed to run the flow %v\n", flowKey)
+			break
 		}
-
-		assert.Empty(t, err)
 	}
 }

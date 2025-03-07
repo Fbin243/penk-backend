@@ -7,44 +7,16 @@ package graph
 import (
 	"context"
 	"tenkhours/services/core/entity"
-	"tenkhours/services/core/transport/graph/model"
 )
 
+// Categories is the resolver for the categories field.
+func (r *goalResolver) Categories(ctx context.Context, obj *entity.Goal) ([]entity.GoalCategory, error) {
+	return obj.Target.Categories, nil
+}
+
 // Metrics is the resolver for the metrics field.
-func (r *goalResolver) Metrics(ctx context.Context, obj *entity.Goal) ([]model.GoalMetric, error) {
-	character, err := r.CharacterRepo.FindByID(ctx, obj.CharacterID)
-	if err != nil {
-		return nil, err
-	}
-
-	metricMap := map[string]entity.Metric{}
-	for _, metric := range character.Metrics {
-		metricMap[metric.ID] = metric
-	}
-
-	metrics := []model.GoalMetric{}
-	for _, targetMetric := range obj.Target.Metrics {
-		metric := metricMap[targetMetric.ID]
-		goalMetric := model.GoalMetric{
-			ID:         metric.ID,
-			CategoryID: metric.CategoryID,
-			Name:       metric.Name,
-			Value:      metric.Value,
-			Unit:       metric.Unit,
-			Condition:  targetMetric.Condition,
-		}
-
-		switch targetMetric.Condition {
-		case entity.MetricConditionInRange:
-			goalMetric.RangeValue = targetMetric.RangeValue
-		default:
-			goalMetric.TargetValue = targetMetric.TargetValue
-		}
-
-		metrics = append(metrics, goalMetric)
-	}
-
-	return metrics, nil
+func (r *goalResolver) Metrics(ctx context.Context, obj *entity.Goal) ([]entity.GoalMetric, error) {
+	return obj.Target.Metrics, nil
 }
 
 // Checkboxes is the resolver for the checkboxes field.

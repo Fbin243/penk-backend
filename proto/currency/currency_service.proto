@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package currency;
+
+import "currency/currency_message.proto";
+
+option go_package = "tenkhours/proto/pb/currency";
+
+service Currency {
+  rpc CreateFish(CreateFishReq) returns (CreateFishResp) {}
+  rpc UpdateFish(UpdateFishReq) returns (UpdateFishResp) {}
+  rpc CatchFish(CatchFishReq) returns (CatchFishResp) {}
+}

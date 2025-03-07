@@ -6,7 +6,6 @@ DB_URI=mongodb+srv://$(MONGO_USER):$(MONGO_PASSWORD)@$(MONGO_ADDRESS)/$(MONGO_DA
 
 # export .env file
 -include $(ENV_FILE)
-export
 
 core:
 	@echo "Starting core service..."
@@ -53,10 +52,7 @@ penk:
 	cd services/penk && npm run start
 
 gateway:
-	@echo "Checking if all services are ready..."
-
-	@echo "All services are ready, starting gateway..."
-	cd services/gateway && npm run start
+	@cd services/gateway && npm run dev
 
 dev:
 	mkdir -p tmp
@@ -94,11 +90,19 @@ templates:
 # Protocol Buffers Compiler
 protoc:
 	@echo "Generating protobuf code..."
-	@find ./pkg/proto -name "*.proto" -exec \
-	protoc --proto_path=./pkg/proto \
-	--go_out=./pkg/proto/pb --go_opt=paths=source_relative \
-	--go-grpc_out=./pkg/proto/pb --go-grpc_opt=paths=source_relative \
+	@find ./proto -name "*.proto" -exec \
+	protoc --proto_path=./proto \
+	--go_out=./proto/pb --go_opt=paths=source_relative \
+	--go-grpc_out=./proto/pb --go-grpc_opt=paths=source_relative \
 	{} \;
+
+protolint:
+	@echo "Running protolint..."
+	@protolint lint ./proto
+
+protolint-fix:
+	@echo "Running protolint with fix..."
+	@protolint lint --fix ./proto
 
 lint:
 	@echo "Running linters..."
@@ -128,11 +132,32 @@ api-test:
 	@go run cmd/main.go api-test -f profile,character,timetracking,goal
 
 dump:
-	@echo "Dumping database $(DB_URI)"
+	@echo "Dumping database [$(DB_URI)]"
 	@mongodump --uri=$(DB_URI)
 
 restore:
-	@echo "Restoring database $(DB_URI)"
-	@mongorestore --uri=$(DB_URI) dump/$(MONGO_DATABASE_NAME)
+	@echo "Restoring database [$(DB_URI)]"
+	@mongorestore --uri=$(DB_URI) dump/$(MONGO_DATABASE_NAME) --drop
 
-.PHONY: core analytic timetracking notification test dump restore
+restore-col:
+	@echo "Restoring specific collection [$(COL)] in database [$(DB_URI)]"
+	@mongorestore --uri=$(DB_URI) --db $(MONGO_DATABASE_NAME) --collection $(COL)  dump/$(MONGO_DATABASE_NAME)/$(COL).bson --drop
+
+# Docker ----------------------------------------------------------------------
+up: 
+	@COMPOSE_BAKE=true docker compose -f docker-compose.dev.yml up -d
+
+down: 
+	@docker compose -f docker-compose.dev.yml down
+
+down-rmi: 
+	@docker compose -f docker-compose.dev.yml down --rmi all
+
+logs:
+	@docker compose -f docker-compose.dev.yml logs -f
+
+prune:
+	@docker system prune -af
+# ------------------------------------------------------------------------------
+	
+.PHONY: core analytic timetracking notification test dump restore up down logs prune

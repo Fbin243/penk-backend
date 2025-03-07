@@ -29,6 +29,7 @@ const (
 	CreateGoal
 	UpdateGoal
 	DeleteGoal
+	CurrentTimeTrackingExist
 )
 
 type FlowKey string

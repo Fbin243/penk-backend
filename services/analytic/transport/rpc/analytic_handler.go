@@ -3,12 +3,12 @@ package rpc
 import (
 	"context"
 
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/analytic"
 	"tenkhours/services/analytic/business"
 )
 
 type AnalyticHandler struct {
-	pb.UnimplementedAnalyticServer
+	analytic.UnimplementedAnalyticServer
 	analyticBusiness business.IAnalyticBusiness
 }
 
@@ -18,10 +18,10 @@ func NewAnalyticHandler(analyticBiz business.IAnalyticBusiness) *AnalyticHandler
 	}
 }
 
-func (hdl *AnalyticHandler) DeleteCapturedRecords(ctx context.Context, req *pb.DeleteCapturedRecordsReq) (*pb.DeleteCapturedRecordsResp, error) {
-	res := &pb.DeleteCapturedRecordsResp{Success: false}
+func (hdl *AnalyticHandler) DeleteCapturedRecords(ctx context.Context, req *analytic.DeleteCapturedRecordsReq) (*analytic.DeleteCapturedRecordsResp, error) {
+	res := &analytic.DeleteCapturedRecordsResp{Success: false}
 
-	err := hdl.analyticBusiness.DeleteCapturedRecords(ctx, req.ProfileID)
+	err := hdl.analyticBusiness.DeleteCapturedRecords(ctx, req.ProfileId)
 	if err != nil {
 		return res, err
 	}

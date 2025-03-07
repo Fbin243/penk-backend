@@ -75,9 +75,7 @@ func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
 	result := response.End()
 
 	jsonResponse = ReadResponseJson(result.Response)
-	LogResponse()
-
-	return nil
+	return LogResponse()
 }
 
 type SaveToContextStage struct {

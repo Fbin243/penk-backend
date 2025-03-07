@@ -69,7 +69,7 @@ migrate-mongo status
 
 ## Mongo backup and restore
 
-Install the Database Tools: https://www.mongodb.com/docs/database-tools/installation
+Install the Database Tools: <https://www.mongodb.com/docs/database-tools/installation>
 
 ```sh
 # Backup database
@@ -77,6 +77,9 @@ make dump
 
 # Restore database
 make restore
+
+# Restore specific collection
+make restore-col COL=<colection-name>
 ```
 
 ## Start services, run unit tests and API tests
@@ -96,4 +99,46 @@ make unit-test
 
 # Run api tests
 make api-test
+```
+
+## Linters with golangci-lint and protolint
+
+- Install [golangci-lint](https://golangci-lint.run/welcome/install/) for linting the Golang source code based on the rules defined in `.golangci.yml`
+
+```sh
+# Run golangci-lint to check issues for all .go files
+make lint
+
+# Run golangci-lint and automatically fix if possible
+make lint-fix
+```
+
+- Install [protolint](https://github.com/yoheimuta/protolint) for linting Protocol Buffer (.proto) files to ensure they follow best practices.
+
+```sh
+# Run protolint to check issues for all .proto files
+make protolint
+
+# Run protolint and automatically fix if possible
+make protolint-fix
+```
+
+## Docker
+
+```sh
+# Build docker images from Dockerfile
+# Run containers with docker compose
+make up
+
+# Stop containers
+make down
+
+# Stop containers and remove images
+make down-rmi
+
+# Clean up unused images, containers, volumes, and networks
+make clean
+
+# Capture logs of containers
+make logs
 ```
