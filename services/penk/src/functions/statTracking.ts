@@ -1,23 +1,46 @@
+import { Metadata } from "@grpc/grpc-js";
 import { FunctionDefinition } from "openai/resources";
 
-import { PenKFunction, TimeTracking, TimeTrackingWithFish } from "./types";
+import { timeTrackingClient } from "../utils/grpc";
+import { TimeTracking, TimeTrackingWithFish } from "../utils/types";
+import { PenKFunction } from "./types";
 
-const localTimeTrackings: TimeTracking[] = [];
+export const createTimeTracking = async (
+  props: {
+    characterId: string;
+    categoryId?: string;
+  },
+  metadata: Metadata,
+): Promise<TimeTracking> => {
+  return new Promise<TimeTracking>((resolve, reject) => {
+    timeTrackingClient.CreateTimeTracking(
+      {
+        characterId: props.characterId,
+        categoryId: props.categoryId,
+        startTime: Date.now() / 1000,
+      },
+      metadata,
+      (err, data) => {
+        if (err) {
+          reject(err);
+          return;
+        }
 
-export const createTimeTracking = async (props: {
-  characterId: string;
-  categoryId?: string;
-}): Promise<TimeTracking> => {
-  const testTimeTracking = {
-    id: "tt123",
-    startTime: new Date().toISOString(),
-    characterId: props.characterId,
-    categoryId: props.categoryId,
-  };
-
-  localTimeTrackings.push(testTimeTracking);
-
-  return testTimeTracking;
+        if (data) {
+          const timeTracking: TimeTracking = {
+            id: data.id,
+            characterId: data.characterId,
+            categoryId: data.categoryId,
+            startTime: data.startTime,
+            endTime: data.endTime,
+          };
+          resolve(timeTracking);
+        } else {
+          reject(new Error("Time tracking data not found"));
+        }
+      },
+    );
+  });
 };
 
 export const openaiCreateTimeTracking: FunctionDefinition = {
@@ -42,21 +65,33 @@ export const openaiCreateTimeTracking: FunctionDefinition = {
   },
 };
 
-export const updateTimeTracking =
-  async (props: {}): Promise<TimeTrackingWithFish> => {
-    localTimeTrackings[0].endTime = new Date().toISOString();
+export const updateTimeTracking = async (
+  props: object,
+  metadata: Metadata,
+): Promise<TimeTrackingWithFish> => {
+  return new Promise<TimeTrackingWithFish>((resolve, reject) => {
+    timeTrackingClient.UpdateTimeTracking(props, metadata, (err, data) => {
+      if (err) {
+        reject(err);
+        return;
+      }
 
-    return {
-      timeTracking: localTimeTrackings[0],
-      normal: 10,
-      gold: 0,
-    };
-  };
+      if (data && data.timeTracking) {
+        resolve({
+          timeTracking: data.timeTracking,
+          normal: data.normal,
+          gold: data.gold,
+        });
+      } else {
+        reject(new Error("Time tracking data not found"));
+      }
+    });
+  });
+};
 
 export const openaiUpdateTimeTracking: FunctionDefinition = {
   name: PenKFunction.updateTimeTracking,
-  description:
-    "End the current focus session. Return session data, normal fish, gold fish.",
+  description: "End the current focus session. Return session data, normal fish, gold fish.",
   strict: true,
   parameters: {
     type: "object",

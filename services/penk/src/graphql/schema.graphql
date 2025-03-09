@@ -31,4 +31,3 @@ enum MessageType {
   AI_MESSAGE
   AI_ERROR
 }
-

@@ -3,26 +3,22 @@ import { gql } from "apollo-server";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
-import { MessageType, Resolvers } from "../__generated__/types";
-import { MessageModel } from "../db/mongo";
-import { getMessages, getUserContext } from "../db/utils";
 import { chat } from "../openai";
+import { MessageModel } from "../utils/db/mongo";
+import { getMessages, getUserContext, getUserData } from "../utils/db/utils";
+import { MessageType, Profile, Resolvers } from "../utils/types";
 
-const typeDefs = gql(
-  readFileSync(resolve(__dirname, "schema.graphql"), "utf8"),
-);
+export interface ResolverContext {
+  token: string;
+  profile?: Profile;
+}
 
-const getTempProfileByTokenId = (token: string) => {
-  const tempProfileId = "6735a19cc0e37098e0286d6b";
-  return tempProfileId;
-};
+const typeDefs = gql(readFileSync(resolve(__dirname, "schema.graphql"), "utf8"));
 
 const resolvers: Resolvers = {
   Query: {
     messages: async (_, __, context) => {
-      const messages = await getMessages(
-        getTempProfileByTokenId(context.token),
-      );
+      const messages = await getMessages(context.profile.id);
       return messages.map((m) => ({
         content: m.content,
         timestamp: m.timestamp.toISOString(),
@@ -30,67 +26,35 @@ const resolvers: Resolvers = {
       }));
     },
     userContext: async (_, __, context) => {
-      return await getUserContext(getTempProfileByTokenId(context.token));
+      return await getUserContext(context.profile.id);
     },
   },
   Mutation: {
     chat: async (_, args, context) => {
-      const tempProfileId = getTempProfileByTokenId(context.token);
-
-      const [userContext, messages] = await Promise.all([
-        getUserContext(tempProfileId),
-        getMessages(tempProfileId),
+      const [userData, messages] = await Promise.all([
+        getUserData(context.profile.id),
+        getMessages(context.profile.id),
       ]);
 
       const botMessage = await chat({
-        userContext,
-        userData: {
-          id: tempProfileId,
-          name: "Test User",
-          currentCharacterId: "test-char-1",
-          characters: [
-            {
-              id: "test-char-1",
-              name: "Test Char 1",
-              categories: [
-                {
-                  id: "ct1",
-                  name: "books",
-                },
-                {
-                  id: "ct2",
-                  name: "music",
-                },
-              ],
-            },
-            {
-              id: "test-char-2",
-              name: "Test Char 2",
-              categories: [
-                {
-                  id: "ct3",
-                  name: "coding",
-                },
-              ],
-            },
-          ],
-        },
+        userData: JSON.stringify(userData),
         history: messages.map((m) => ({
           role: m.type === MessageType.UserMessage ? "user" : "assistant",
           content: m.content,
         })),
         content: args.content,
+        jwt: context.token,
       });
 
       await MessageModel.insertMany([
         {
-          profile_id: tempProfileId,
+          profile_id: context.profile.id,
           type: MessageType.UserMessage,
           content: args.content,
           timestamp: new Date(),
         },
         {
-          profile_id: tempProfileId,
+          profile_id: context.profile.id,
           type: MessageType.AiMessage,
           content: botMessage.content,
           timestamp: new Date(botMessage.timestamp),

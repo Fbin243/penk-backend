@@ -1,15 +1,10 @@
+import { Metadata } from "@grpc/grpc-js";
 import { readFileSync } from "fs";
 import OpenAI from "openai";
-import {
-  ChatCompletionMessageParam,
-  ChatCompletionTool,
-} from "openai/resources";
+import { ChatCompletionMessageParam, ChatCompletionTool } from "openai/resources";
 
-import { Message, MessageType, UserContext } from "../__generated__/types";
-import {
-  openaiCreateTimeTracking,
-  openaiUpdateTimeTracking,
-} from "../functions/statTracking";
+import { openaiCreateTimeTracking, openaiUpdateTimeTracking } from "../functions/statTracking";
+import { Message, MessageType } from "../utils/types";
 import { handleToolCalls } from "./utils";
 
 const openai = new OpenAI({
@@ -23,7 +18,7 @@ const chatCompletionConfig = {
   max_completion_tokens: 1024,
 };
 
-const instructions = readFileSync("./src/openai/instructions.md", "utf8");
+const instructions = readFileSync("instructions.md", "utf8");
 
 const tools: ChatCompletionTool[] = [
   { type: "function", function: openaiCreateTimeTracking },
@@ -31,14 +26,17 @@ const tools: ChatCompletionTool[] = [
 ];
 
 export const chat = async (props: {
-  userContext: UserContext;
   userData: unknown;
   history: ChatCompletionMessageParam[];
   content: string;
+  jwt: string;
 }): Promise<Message> => {
+  const metadata = new Metadata();
+  metadata.add("service-name", "penk");
+  metadata.add("authorization", `Bearer ${props.jwt}`);
+
   let messages: ChatCompletionMessageParam[] = [
     { role: "system", content: instructions },
-    { role: "user", content: JSON.stringify(props.userContext) },
     { role: "user", content: JSON.stringify(props.userData) },
     ...props.history,
     { role: "user", content: props.content },
@@ -55,6 +53,7 @@ export const chat = async (props: {
   if (completion.choices[0].message.tool_calls) {
     const toolCallMessages = await handleToolCalls(
       completion.choices[0].message.tool_calls,
+      metadata,
     );
     messages = [...messages, ...toolCallMessages];
 
