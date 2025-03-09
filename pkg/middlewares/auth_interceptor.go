@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"context"
+	"strings"
 
 	"tenkhours/pkg/auth"
 
@@ -39,7 +40,7 @@ func (a *authInterceptor) UnaryInterceptor(
 		return nil, errors.New("missing authorization token")
 	}
 
-	token := authHeaders[0]
+	token := strings.Replace(authHeaders[0], "Bearer ", "", 1)
 	authSession, err := a.authClient.IntrospectToken(ctx, token)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to introspect token")
