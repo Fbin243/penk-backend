@@ -16,7 +16,7 @@ const server = new ApolloServer({
 
     let profile: Profile | undefined = undefined;
 
-    if (token !== "") {
+    if (token) {
       const decodedToken = await decodeFirebaseJwt(token);
       if (!decodedToken?.email) throw new Error("invalid jwt");
       const mongoProfile = await getProfileByEmail(decodedToken.email);

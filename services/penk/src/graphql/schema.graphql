@@ -8,8 +8,6 @@ type Mutation {
 }
 
 type UserContext {
-  id: ID!
-  profileID: ID!
   timezone: String!
   locale: String!
   preferences: Preferences!
@@ -29,5 +27,4 @@ type Message {
 enum MessageType {
   USER_MESSAGE
   AI_MESSAGE
-  AI_ERROR
 }

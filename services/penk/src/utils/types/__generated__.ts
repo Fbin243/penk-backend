@@ -25,7 +25,6 @@ export type Message = {
 };
 
 export enum MessageType {
-  AiError = 'AI_ERROR',
   AiMessage = 'AI_MESSAGE',
   UserMessage = 'USER_MESSAGE'
 }
@@ -54,10 +53,8 @@ export type Query = {
 export type UserContext = {
   __typename?: 'UserContext';
   context: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
   locale: Scalars['String']['output'];
   preferences: Preferences;
-  profileID: Scalars['ID']['output'];
   timezone: Scalars['String']['output'];
 };
 
@@ -134,7 +131,6 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
-  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Message: ResolverTypeWrapper<Message>;
   MessageType: MessageType;
   Mutation: ResolverTypeWrapper<{}>;
@@ -147,7 +143,6 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
-  ID: Scalars['ID']['output'];
   Message: Message;
   Mutation: {};
   Preferences: Preferences;
@@ -179,10 +174,8 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
 
 export type UserContextResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UserContext'] = ResolversParentTypes['UserContext']> = ResolversObject<{
   context?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   preferences?: Resolver<ResolversTypes['Preferences'], ParentType, ContextType>;
-  profileID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

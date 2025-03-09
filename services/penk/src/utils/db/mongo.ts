@@ -49,7 +49,7 @@ const MessageSchema = new Schema(
     type: {
       type: String,
       required: true,
-      enum: [MessageType.UserMessage, MessageType.AiMessage, MessageType.AiError],
+      enum: [MessageType.UserMessage, MessageType.AiMessage],
     },
   },
   {

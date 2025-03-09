@@ -2,6 +2,36 @@ import mongoose from "mongoose";
 
 import { MessageModel, ProfileModel, UserContextModel } from "./mongo";
 
+const convertObjectIdsToStrings = (result: object): object => {
+  const convertedResult = {};
+
+  for (const key in result) {
+    if (Object.prototype.hasOwnProperty.call(result, key)) {
+      const value = result[key];
+
+      if (Array.isArray(value)) {
+        // Handle arrays recursively
+        convertedResult[key] = value.map((item) => convertObjectIdsToStrings(item));
+      } else if (
+        typeof value === "object" &&
+        value !== null &&
+        value.constructor.name === "ObjectId"
+      ) {
+        // Check for ObjectId and convert to string
+        convertedResult[key] = value.toString();
+      } else if (typeof value === "object" && value !== null) {
+        // handle nested objects recursively
+        convertedResult[key] = convertObjectIdsToStrings(value);
+      } else {
+        // Keep other values as they are
+        convertedResult[key] = value;
+      }
+    }
+  }
+
+  return convertedResult;
+};
+
 export const getProfileByEmail = async (email: string) => {
   const profile = await ProfileModel.findOne({
     email,
@@ -27,8 +57,6 @@ export const getUserContext = async (profileId: string) => {
   }
 
   return {
-    id: userContext._id.toString(),
-    profileID: userContext.profile_id.toString(),
     timezone: userContext.timezone,
     locale: userContext.locale,
     context: userContext.context || "",
@@ -39,19 +67,17 @@ export const getUserContext = async (profileId: string) => {
 };
 
 export const getUserData = async (profileId: string) => {
-  const userData = await UserContextModel.aggregate([
-    { $match: { profile_id: new mongoose.Types.ObjectId(profileId) } },
-    { $project: { _id: 0, profile_id: 1 } },
+  const userContext = await getUserContext(profileId);
+
+  const aggregatedData = await ProfileModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(profileId) } },
     {
-      $lookup: {
-        from: "profiles",
-        localField: "profile_id",
-        foreignField: "_id",
-        as: "profile",
-        pipeline: [{ $project: { current_character_id: 1 } }],
+      $project: {
+        _id: 0,
+        profile_id: "$_id",
+        current_character_id: 1,
       },
     },
-    { $unwind: "$profile" },
     {
       $lookup: {
         from: "characters",
@@ -123,8 +149,10 @@ export const getUserData = async (profileId: string) => {
     },
   ]);
 
-  // console.log("--> user data");
-  // console.dir(userData, { depth: null, colors: true });
+  const userData = { ...convertObjectIdsToStrings(aggregatedData[0]), context: userContext };
+
+  console.log("--> user data");
+  console.dir(userData, { depth: null, colors: true });
 
   return userData;
 };
