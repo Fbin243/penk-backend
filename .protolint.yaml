@@ -46,8 +46,6 @@ lint:
     - PROTO3_FIELDS_AVOID_REQUIRED
     - PROTO3_GROUPS_AVOID
     - REPEATED_FIELD_NAMES_PLURALIZED
-    - ENUMS_HAVE_COMMENT
-    - ENUM_FIELDS_HAVE_COMMENT
     - QUOTE_CONSISTENT
     # The specific linters to remove.
     remove:

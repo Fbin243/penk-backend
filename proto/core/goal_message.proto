@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package core;
+
+import "core/character_message.proto";
+
+option go_package = "tenkhours/proto/pb/core";
+
+message Goal {
+  string id = 1;
+  int64 created_at = 2;
+  int64 updated_at = 3;
+  string character_id = 4;
+  string name = 5;
+  string description = 6;
+  int64 start_time = 7;
+  int64 end_time = 8;
+  GoalFinishStatus status = 9;
+  repeated GoalCategory categories = 10;
+  repeated GoalMetric metrics = 11;
+  repeated Checkbox checkboxes = 12;
+}
+
+message GoalCategory {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  CategoryStyle style = 4;
+  repeated GoalMetric metrics = 5;
+}
+
+message GoalMetric {
+  string id = 1;
+  string name = 2;
+  double value = 3;
+  string unit = 4;
+  MetricCondition condition = 5;
+  optional double target_value = 6;
+  optional Range range_value = 7;
+}
+
+message Range {
+  double min = 1;
+  double max = 2;
+}
+
+message Checkbox {
+  string id = 1;
+  string name = 2;
+  bool value = 3;
+}
+
+// Input Messages
+message GoalInput {
+  optional string id = 1;
+  string character_id = 2;
+  string name = 3;
+  optional string description = 4;
+  int64 start_time = 5;
+  int64 end_time = 6;
+  repeated GoalCategoryInput categories = 7;
+  repeated GoalMetricInput metrics = 8;
+  repeated CheckboxInput checkboxes = 9;
+}
+
+message GoalCategoryInput {
+  string id = 1;
+  repeated GoalMetricInput metrics = 2;
+}
+
+message GoalMetricInput {
+  string id = 1;
+  MetricCondition condition = 2;
+  optional double target_value = 3;
+  optional RangeInput range_value = 4;
+}
+
+message RangeInput {
+  double min = 1;
+  double max = 2;
+}
+
+message CheckboxInput {
+  optional string id = 1;
+  string name = 2;
+  bool value = 3;
+}
+
+message GoalStatusFilter {
+  optional GoalFinishStatus finish_status = 1;
+  optional GoalExpireStatus expire_status = 2;
+}
+
+// Enums
+enum MetricCondition {
+  lt = 0;
+  lte = 1;
+  eq = 2;
+  gte = 3;
+  gt = 4;
+  ir = 5;
+}
+
+enum GoalFinishStatus {
+  Unfinished = 0;
+  Finished = 1;
+}
+
+enum GoalExpireStatus {
+  Expired = 0;
+  Unexpired = 1;
+}

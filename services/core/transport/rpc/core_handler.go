@@ -11,12 +11,14 @@ type CoreHandler struct {
 	core.UnimplementedCoreServer
 	profileBiz   business.IProfileBusiness
 	characterBiz business.ICharacterBusiness
+	goalBiz      business.IGoalBusiness
 }
 
-func NewCoreHandler(profilesBusiness business.IProfileBusiness, charactersBusiness business.ICharacterBusiness) *CoreHandler {
+func NewCoreHandler(profilesBusiness business.IProfileBusiness, charactersBusiness business.ICharacterBusiness, goalBiz business.IGoalBusiness) *CoreHandler {
 	return &CoreHandler{
 		profileBiz:   profilesBusiness,
 		characterBiz: charactersBusiness,
+		goalBiz:      goalBiz,
 	}
 }
 
