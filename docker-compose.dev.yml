@@ -1,6 +1,6 @@
 x-common-config: &common-config
   env_file:
-    - .env.development
+    - .env.test
   networks:
     - tenk_network
 
@@ -9,6 +9,8 @@ x-common-variables: &common-env
   CORE_GRPC_HOST: core
   ANALYTIC_GRPC_HOST: analytic
   CURRENCY_GRPC_HOST: currency
+  NOTIFICATION_GRPC_HOST: notification
+  TIME_TRACKING_GRPC_HOST: timetracking
 
 x-common-heatlhcheck: &common-healthcheck
   start_period: 3s
@@ -81,6 +83,7 @@ services:
       - 50054:50054
     volumes:
       - ./waitlist.development.json:/tenk-backend/waitlist.development.json
+      - ./firebase-admin.development.json:/tenk-backend/firebase-admin.development.json
     healthcheck:
       <<: *common-healthcheck
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8084/health"]

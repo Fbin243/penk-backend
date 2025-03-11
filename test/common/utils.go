@@ -19,5 +19,6 @@ var (
 		Timeout: time.Second * 20,
 		Jar:     cookieJar,
 	}
-	IdToken string
+	IdToken  string
+	DeviceId string
 )

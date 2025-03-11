@@ -38,7 +38,8 @@ async function startGateway() {
       return new RemoteGraphQLDataSource({
         url,
         willSendRequest({ request, context }) {
-          request.http.headers.set("Authorization", context.token);
+          request.http.headers.append("Authorization", context.token);
+          request.http.headers.append("X-Device-Id", context.deviceId);
         },
       });
     },
@@ -50,6 +51,7 @@ async function startGateway() {
     context: ({ req }) => {
       return {
         token: req.headers.authorization,
+        deviceId: req.headers["x-device-id"],
       };
     },
     subscriptions: false,

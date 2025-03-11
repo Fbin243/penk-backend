@@ -111,7 +111,7 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 	return profile, nil
 }
 
-func (biz *ProfileBusiness) IntrospectToken(ctx context.Context, token string) (*rdb.AuthSession, error) {
+func (biz *ProfileBusiness) IntrospectToken(ctx context.Context, token, deviceID string) (*rdb.AuthSession, error) {
 	firebaseProfile, err := auth.GetProfileByIDToken(token)
 	if err != nil {
 		return nil, fmt.Errorf("invalid token: %v", err)
@@ -158,6 +158,7 @@ func (biz *ProfileBusiness) IntrospectToken(ctx context.Context, token string) (
 
 	authSession = &rdb.AuthSession{
 		ProfileID: profile.ID,
+		DeviceID:  deviceID,
 	}
 	err = biz.Cache.SetAuthSession(ctx, profile, authSession)
 	if err != nil {

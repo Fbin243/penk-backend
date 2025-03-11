@@ -6,14 +6,21 @@ import (
 	"log"
 	"os"
 
+	"firebase.google.com/go/messaging"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
 )
 
-type NotificationBusiness struct{}
+type NotificationBusiness struct {
+	MessagingClient  *messaging.Client
+	DevicesTokenRepo IDeviceTokenRepo
+}
 
-func NewNotificationBusiness() *NotificationBusiness {
-	return &NotificationBusiness{}
+func NewNotificationBusiness(messagingClient *messaging.Client, devicesTokenRepo IDeviceTokenRepo) *NotificationBusiness {
+	return &NotificationBusiness{
+		MessagingClient:  messagingClient,
+		DevicesTokenRepo: devicesTokenRepo,
+	}
 }
 
 func (n *NotificationBusiness) AddEmailToWaitlist(ctx context.Context, email string) error {

@@ -15,11 +15,12 @@ func RequireAuth(ac *AuthClient) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		reqCtx := c.Request.Context()
 		authKey := c.Request.Header.Get("Authorization")
+		deviceID := c.Request.Header.Get("X-Device-Id")
 		if strings.HasPrefix(authKey, "Bearer ") {
 			idToken := strings.Replace(authKey, "Bearer ", "", 1)
 
 			// Instropect the token to get or make an auth session
-			authSession, err := ac.IntrospectToken(reqCtx, idToken)
+			authSession, err := ac.IntrospectToken(reqCtx, idToken, deviceID)
 			if err != nil {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 				return

@@ -7,7 +7,7 @@ import (
 
 func ComposeGraphQLResolver() *graph.Resolver {
 	composer := GetComposer()
-	timetrackingsBiz := business.NewTimeTrackingsBusiness(composer.coreClient, composer.currencyClient, composer.redisRepo)
+	timetrackingsBiz := business.NewTimeTrackingsBusiness(composer.coreClient, composer.currencyClient, composer.notificationClient, composer.redisRepo)
 
 	return &graph.Resolver{
 		TimeTrackingBusiness: timetrackingsBiz,

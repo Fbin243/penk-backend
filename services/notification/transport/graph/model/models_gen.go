@@ -7,3 +7,17 @@ type Mutation struct {
 
 type Query struct {
 }
+
+type Token struct {
+	ID        string `json:"id"`
+	DeviceID  string `json:"deviceID"`
+	Platform  string `json:"platform"`
+	CreatedAt string `json:"createdAt"`
+	Token     string `json:"token"`
+}
+
+type DevicesToken struct {
+	ID        string   `json:"id"`
+	ProfileID string   `json:"profileID"`
+	Tokens    []*Token `json:"tokens,omitempty"`
+}

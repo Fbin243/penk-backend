@@ -2,10 +2,11 @@ package main
 
 import (
 	"log"
-	"net/http"
+	"net"
 	"os"
 
 	"tenkhours/pkg/errors"
+	"tenkhours/proto/pb/notification"
 	"tenkhours/services/notification/composer"
 	"tenkhours/services/notification/transport/graph"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -29,7 +31,7 @@ func main() {
 
 	app.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
-		AllowHeaders:    []string{"Content-Type", "Authorization"},
+		AllowHeaders:    []string{"Content-Type", "Authorization", "X-Device-Id"},
 	}))
 
 	app.GET("/health", func(c *gin.Context) {
@@ -44,16 +46,35 @@ func main() {
 	}))
 	srv.SetErrorPresenter(errors.DefaultPresenter)
 	app.POST("/graphql", func(c *gin.Context) {
-		log.Println("Received request on /graphql")
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 
-	port := os.Getenv("NOTIFICATION_PORT")
-	if port == "" {
+	// Start RPC server
+	go startRPCServer()
+
+	port, found := os.LookupEnv("NOTIFICATION_PORT")
+	if !found {
 		port = "8084"
 	}
 
-	if err := app.Run(":" + port); err != nil && err != http.ErrServerClosed {
-		log.Fatal(err)
+	app.Run(":" + port)
+}
+
+func startRPCServer() {
+	port, found := os.LookupEnv("NOTIFICATION_GRPC_PORT")
+	if !found {
+		port = "50054"
+	}
+
+	lis, err := net.Listen("tcp", ":"+port)
+	if err != nil {
+		log.Fatalf("Can not create gRPC: %v", err)
+	}
+
+	s := grpc.NewServer()
+	notification.RegisterNotificationServer(s, composer.ComposeRPCHandler())
+
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("error running gRPC server: %v", err)
 	}
 }

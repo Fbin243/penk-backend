@@ -25,13 +25,14 @@ func NewCoreHandler(profilesBusiness business.IProfileBusiness, charactersBusine
 func (hdl *CoreHandler) IntrospectToken(ctx context.Context, req *core.IntrospectReq) (*core.IntrospectResp, error) {
 	resp := &core.IntrospectResp{Success: false}
 
-	authSession, err := hdl.profileBiz.IntrospectToken(ctx, req.Token)
+	authSession, err := hdl.profileBiz.IntrospectToken(ctx, req.Token, req.DeviceId)
 	if err != nil {
 		return resp, err
 	}
 
 	resp.Success = true
 	resp.ProfileId = authSession.ProfileID
+	resp.DeviceId = authSession.DeviceID
 
 	return resp, nil
 }

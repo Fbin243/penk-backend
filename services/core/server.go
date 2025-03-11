@@ -31,7 +31,7 @@ func main() {
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
-		AllowHeaders:    []string{"Content-Type", "Authorization"},
+		AllowHeaders:    []string{"Content-Type", "Authorization", "X-Device-Id"},
 	}))
 
 	app.GET("/health", func(c *gin.Context) {
