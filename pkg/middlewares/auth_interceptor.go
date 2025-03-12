@@ -41,7 +41,8 @@ func (a *authInterceptor) UnaryInterceptor(
 	}
 
 	token := strings.Replace(authHeaders[0], "Bearer ", "", 1)
-	authSession, err := a.authClient.IntrospectToken(ctx, token)
+	// TODO: @Fbin243 refactor auth later
+	authSession, err := a.authClient.IntrospectToken(ctx, token, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to introspect token")
 	}

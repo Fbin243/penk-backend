@@ -1,8 +1,15 @@
 package composer
 
-import "tenkhours/services/notification/business"
+import (
+	mongodb "tenkhours/pkg/db/mongo"
+	"tenkhours/services/notification/business"
+	mongorepo "tenkhours/services/notification/repo/mongo"
+
+	"tenkhours/pkg/auth"
+)
 
 type Composer struct {
+	DeviceTokenRepo business.IDeviceTokenRepo
 	NotificationBiz business.INotificationBusiness
 }
 
@@ -13,7 +20,19 @@ func GetComposer() *Composer {
 		return composer
 	}
 
+	// Database
+	db := mongodb.GetDBManager().DB
+
+	// Repository
+	devicesTokenRepo := mongorepo.NewDevicesTokenRepo(db)
+
+	// Business
+	firebaseManager := auth.GetFirebaseManager()
+
+	notiBiz := business.NewNotificationBusiness(firebaseManager.MessagingClient, devicesTokenRepo)
+
 	return &Composer{
-		NotificationBiz: business.NewNotificationBusiness(),
+		DeviceTokenRepo: devicesTokenRepo,
+		NotificationBiz: notiBiz,
 	}
 }

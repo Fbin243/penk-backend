@@ -16,12 +16,11 @@ var (
 	ProfilesCollection        = "profiles"
 	CharactersCollection      = "characters"
 	GoalsCollection           = "goals"
-	TimeTrackingsCollection   = "time_trackings"
-	SnapshotsCollection       = "snapshots"
 	CapturedRecordsCollection = "captured_records"
 	FishCollection            = "fish"
 	TemplatesCollection       = "templates"
 	TemplateTopicsCollection  = "template_topics"
+	DevicesTokensCollection   = "devices_tokens"
 	FindOneAndUpdateOptions   = options.FindOneAndUpdate().SetReturnDocument(options.After)
 )
 
@@ -73,16 +72,6 @@ func InitDBManagerFromEnv() *DatabaseManager {
 	}
 
 	db := client.Database(mongoDatabase)
-
-	// TODO: Create time series collection for snapshots (Temporarily)
-	db.CreateCollection(ctx, SnapshotsCollection,
-		options.CreateCollection().
-			SetTimeSeriesOptions(
-				options.TimeSeries().
-					SetTimeField("timestamp").
-					SetMetaField("metadata"),
-			),
-	)
 
 	db.CreateCollection(ctx, CapturedRecordsCollection,
 		options.CreateCollection().

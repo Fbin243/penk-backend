@@ -33,3 +33,6 @@ exchange_config.csv
 
 # Database
 dump
+
+# Observability
+.data/

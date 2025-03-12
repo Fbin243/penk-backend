@@ -22,13 +22,15 @@ import (
 type TimeTrackingBusiness struct {
 	coreClient     ICoreClient
 	currencyClient ICurrencyClient
+	notiClient     INotificationClient
 	cache          ICache
 }
 
-func NewTimeTrackingsBusiness(coreClient ICoreClient, currencyClient ICurrencyClient, cache ICache) *TimeTrackingBusiness {
+func NewTimeTrackingsBusiness(coreClient ICoreClient, currencyClient ICurrencyClient, notiClient INotificationClient, cache ICache) *TimeTrackingBusiness {
 	return &TimeTrackingBusiness{
 		coreClient:     coreClient,
 		currencyClient: currencyClient,
+		notiClient:     notiClient,
 		cache:          cache,
 	}
 }
@@ -128,6 +130,19 @@ func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, charact
 		return nil, fmt.Errorf("failed to create time tracking: %v", err)
 	}
 
+	req := &entity.SendNotiReq{
+		ProfileID: authSession.ProfileID,
+		DeviceID:  authSession.DeviceID,
+		Title:     "New Notification",
+		Body:      "Start tracking!",
+	}
+	_, err = biz.notiClient.SendNotification(ctx, req)
+	if err != nil {
+		log.Printf("Failed to send notification: %v", err)
+	} else {
+		fmt.Println("Message sent successfully")
+	}
+
 	return timeTracking, nil
 }
 
@@ -199,6 +214,19 @@ func (biz *TimeTrackingBusiness) UpdateTimeTracking(ctx context.Context) (*entit
 	err = biz.currencyClient.UpdateFish(ctx, updatedFish)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to update fish %v", err)
+	}
+
+	req := &entity.SendNotiReq{
+		ProfileID: authSession.ProfileID,
+		DeviceID:  authSession.DeviceID,
+		Title:     "New Notification",
+		Body:      "Finish trackingg!",
+	}
+	_, err = biz.notiClient.SendNotification(ctx, req)
+	if err != nil {
+		log.Printf("Failed to send notification: %v", err)
+	} else {
+		fmt.Println("Message sent successfully")
 	}
 
 	return timeTracking, updatedFish, nil

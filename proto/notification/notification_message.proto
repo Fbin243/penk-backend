@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package notification;
+
+option go_package = "tenkhours/proto/pb/notification";
+
+message SendPushNotificationReq {
+  string profile_id = 1;
+  string device_id = 2; 
+  string title = 3;
+  string body = 4;
+}
+
+message SendPushNotificationResp {
+  bool success = 1;
+}

@@ -63,7 +63,10 @@ func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
 	response := apitest.New().
 		EnableNetworking(cli).
 		Post(q.Url).
-		Header("Authorization", "Bearer "+IdToken).
+		Headers(map[string]string{
+			"Authorization": "Bearer " + IdToken,
+			"X-Device-Id":   DeviceId,
+		}).
 		GraphQLQuery(q.Query, q.Variables).
 		Expect(testingT).
 		Status(http.StatusOK)

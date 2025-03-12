@@ -14,7 +14,7 @@ type IProfileBusiness interface {
 	GetProfile(ctx context.Context) (*entity.Profile, error)
 	UpdateProfile(ctx context.Context, input entity.ProfileInput) (*entity.Profile, error)
 	DeleteProfile(ctx context.Context) (*entity.Profile, error)
-	IntrospectToken(ctx context.Context, token string) (*rdb.AuthSession, error)
+	IntrospectToken(ctx context.Context, token, deviceID string) (*rdb.AuthSession, error)
 	CheckPermission(ctx context.Context, profileID, characterID, categoryID *string) error
 }
 

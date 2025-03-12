@@ -33,3 +33,7 @@ func ParseTime(timeStr string) time.Time {
 	time, _ := time.Parse(time.RFC3339, timeStr)
 	return time
 }
+
+func UnixToTime(timestamp int64) time.Time {
+	return time.Unix(timestamp, 0)
+}

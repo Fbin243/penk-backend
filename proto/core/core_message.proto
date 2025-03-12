@@ -6,11 +6,13 @@ option go_package = "tenkhours/proto/pb/core";
 
 message IntrospectReq {   
   string token = 1;
+  string device_id = 2;
 }
 
 message IntrospectResp {
   bool success = 1;
   string profile_id = 2;
+  string device_id = 3;
 }
 
 message CheckPermissionReq {

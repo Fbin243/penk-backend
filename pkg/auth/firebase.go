@@ -7,33 +7,41 @@ import (
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
+	"firebase.google.com/go/messaging"
 	"google.golang.org/api/option"
 )
 
 type FirebaseManager struct {
-	Client *auth.Client
-	App    *firebase.App
+	Client          *auth.Client
+	MessagingClient *messaging.Client
+	App             *firebase.App
 }
 
 var firebaseManager *FirebaseManager
 
 func GetFirebaseManager() *FirebaseManager {
 	if firebaseManager == nil {
-		firebaseManager = &FirebaseManager{}
 		opt := option.WithCredentialsFile(os.Getenv("FIREBASE_ADMIN"))
 		app, err := firebase.NewApp(context.Background(), nil, opt)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		firebaseManager.App = app
-
 		client, err := app.Auth(context.Background())
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		firebaseManager.Client = client
+		messagingClient, err := app.Messaging(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		firebaseManager = &FirebaseManager{
+			Client:          client,
+			App:             app,
+			MessagingClient: messagingClient,
+		}
 	}
 
 	return firebaseManager

@@ -11,25 +11,28 @@ type CoreHandler struct {
 	core.UnimplementedCoreServer
 	profileBiz   business.IProfileBusiness
 	characterBiz business.ICharacterBusiness
+	goalBiz      business.IGoalBusiness
 }
 
-func NewCoreHandler(profilesBusiness business.IProfileBusiness, charactersBusiness business.ICharacterBusiness) *CoreHandler {
+func NewCoreHandler(profilesBusiness business.IProfileBusiness, charactersBusiness business.ICharacterBusiness, goalBiz business.IGoalBusiness) *CoreHandler {
 	return &CoreHandler{
 		profileBiz:   profilesBusiness,
 		characterBiz: charactersBusiness,
+		goalBiz:      goalBiz,
 	}
 }
 
 func (hdl *CoreHandler) IntrospectToken(ctx context.Context, req *core.IntrospectReq) (*core.IntrospectResp, error) {
 	resp := &core.IntrospectResp{Success: false}
 
-	authSession, err := hdl.profileBiz.IntrospectToken(ctx, req.Token)
+	authSession, err := hdl.profileBiz.IntrospectToken(ctx, req.Token, req.DeviceId)
 	if err != nil {
 		return resp, err
 	}
 
 	resp.Success = true
 	resp.ProfileId = authSession.ProfileID
+	resp.DeviceId = authSession.DeviceID
 
 	return resp, nil
 }

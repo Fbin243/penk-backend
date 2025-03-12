@@ -37,11 +37,12 @@ func ComposeAuthClient() (*AuthClient, *grpc.ClientConn) {
 	return &AuthClient{CoreClient: core.NewCoreClient(conn)}, conn
 }
 
-func (ac *AuthClient) IntrospectToken(ctx context.Context, token string) (*rdb.AuthSession, error) {
+func (ac *AuthClient) IntrospectToken(ctx context.Context, token, deviceID string) (*rdb.AuthSession, error) {
 	req := &core.IntrospectReq{
-		Token: token,
+		Token:    token,
+		DeviceId: deviceID,
 	}
-
+	// TODO: @Fbin243 refactor auth later
 	res, err := ac.CoreClient.IntrospectToken(ctx, req)
 	if err != nil {
 		return nil, err
@@ -53,5 +54,6 @@ func (ac *AuthClient) IntrospectToken(ctx context.Context, token string) (*rdb.A
 
 	return &rdb.AuthSession{
 		ProfileID: res.ProfileId,
+		DeviceID:  res.DeviceId,
 	}, nil
 }

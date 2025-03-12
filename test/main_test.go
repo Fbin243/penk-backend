@@ -25,6 +25,7 @@ func TestUserFlow(t *testing.T) {
 
 	log.Println("--> TOKEN: ", token)
 	common.IdToken = token
+	common.DeviceId = "test-device-id"
 	cleanUp := func(ctx *context.Context) {
 		// Clean up the profile and related data
 		err := common.QueryGraphQL(ctx,

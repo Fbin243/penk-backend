@@ -30,3 +30,7 @@ type ICurrencyClient interface {
 	CatchFish(ctx context.Context) (*entity.CatchFishResult, error)
 	UpdateFish(ctx context.Context, fish *entity.Fish) error
 }
+
+type INotificationClient interface {
+	SendNotification(ctx context.Context, req *entity.SendNotiReq) (bool, error)
+}

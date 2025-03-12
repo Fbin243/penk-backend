@@ -10,12 +10,14 @@ import (
 )
 
 type Composer struct {
-	redisRepo       *redisrepo.RedisRepo
-	coreClient      *rpc.CoreClient
-	currencyClient  *rpc.CurrencyClient
-	coreConn        *grpc.ClientConn
-	currencyConn    *grpc.ClientConn
-	timetrackingBiz business.ITimeTrackingBusiness
+	redisRepo          *redisrepo.RedisRepo
+	coreClient         *rpc.CoreClient
+	notificationClient *rpc.NotificationClient
+	currencyClient     *rpc.CurrencyClient
+	coreConn           *grpc.ClientConn
+	notificationConn   *grpc.ClientConn
+	currencyConn       *grpc.ClientConn
+	timetrackingBiz    *business.TimeTrackingBusiness
 }
 
 var composer *Composer
@@ -28,20 +30,24 @@ func GetComposer() *Composer {
 	redisClient := rdb.GetRedisClient()
 	redisRepo := redisrepo.NewRedisRepo(redisClient)
 	coreClient, coreConn := ComposeCoreClient()
+	notiClient, notiConn := ComposeNotificationClient()
 	currencyClient, currencyConn := ComposeCurrencyClient()
-	timetrackingBiz := business.NewTimeTrackingsBusiness(coreClient, currencyClient, redisRepo)
+	timetrackingBiz := business.NewTimeTrackingsBusiness(coreClient, currencyClient, notiClient, redisRepo)
 
 	return &Composer{
-		redisRepo:       redisRepo,
-		coreClient:      coreClient,
-		currencyClient:  currencyClient,
-		coreConn:        coreConn,
-		currencyConn:    currencyConn,
-		timetrackingBiz: timetrackingBiz,
+		redisRepo:          redisRepo,
+		coreClient:         coreClient,
+		notificationClient: notiClient,
+		currencyClient:     currencyClient,
+		coreConn:           coreConn,
+		notificationConn:   notiConn,
+		currencyConn:       currencyConn,
+		timetrackingBiz:    timetrackingBiz,
 	}
 }
 
 func (c *Composer) Close() {
 	c.coreConn.Close()
 	c.currencyConn.Close()
+	c.notificationConn.Close()
 }

@@ -22,6 +22,7 @@ const (
 	Core_IntrospectToken_FullMethodName = "/core.Core/IntrospectToken"
 	Core_CheckPermission_FullMethodName = "/core.Core/CheckPermission"
 	Core_UpsertCharacter_FullMethodName = "/core.Core/UpsertCharacter"
+	Core_UpsertGoal_FullMethodName      = "/core.Core/UpsertGoal"
 )
 
 // CoreClient is the client API for Core service.
@@ -32,6 +33,7 @@ type CoreClient interface {
 	CheckPermission(ctx context.Context, in *CheckPermissionReq, opts ...grpc.CallOption) (*CheckPermissionResp, error)
 	// Penk Service
 	UpsertCharacter(ctx context.Context, in *CharacterInput, opts ...grpc.CallOption) (*Character, error)
+	UpsertGoal(ctx context.Context, in *GoalInput, opts ...grpc.CallOption) (*Goal, error)
 }
 
 type coreClient struct {
@@ -72,6 +74,16 @@ func (c *coreClient) UpsertCharacter(ctx context.Context, in *CharacterInput, op
 	return out, nil
 }
 
+func (c *coreClient) UpsertGoal(ctx context.Context, in *GoalInput, opts ...grpc.CallOption) (*Goal, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Goal)
+	err := c.cc.Invoke(ctx, Core_UpsertGoal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoreServer is the server API for Core service.
 // All implementations must embed UnimplementedCoreServer
 // for forward compatibility.
@@ -80,6 +92,7 @@ type CoreServer interface {
 	CheckPermission(context.Context, *CheckPermissionReq) (*CheckPermissionResp, error)
 	// Penk Service
 	UpsertCharacter(context.Context, *CharacterInput) (*Character, error)
+	UpsertGoal(context.Context, *GoalInput) (*Goal, error)
 	mustEmbedUnimplementedCoreServer()
 }
 
@@ -98,6 +111,9 @@ func (UnimplementedCoreServer) CheckPermission(context.Context, *CheckPermission
 }
 func (UnimplementedCoreServer) UpsertCharacter(context.Context, *CharacterInput) (*Character, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertCharacter not implemented")
+}
+func (UnimplementedCoreServer) UpsertGoal(context.Context, *GoalInput) (*Goal, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpsertGoal not implemented")
 }
 func (UnimplementedCoreServer) mustEmbedUnimplementedCoreServer() {}
 func (UnimplementedCoreServer) testEmbeddedByValue()              {}
@@ -174,6 +190,24 @@ func _Core_UpsertCharacter_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Core_UpsertGoal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GoalInput)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).UpsertGoal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_UpsertGoal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).UpsertGoal(ctx, req.(*GoalInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Core_ServiceDesc is the grpc.ServiceDesc for Core service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -192,6 +226,10 @@ var Core_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpsertCharacter",
 			Handler:    _Core_UpsertCharacter_Handler,
+		},
+		{
+			MethodName: "UpsertGoal",
+			Handler:    _Core_UpsertGoal_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
