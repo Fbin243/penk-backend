@@ -36,23 +36,25 @@ const resolvers: Resolvers = {
         getMessages(context.profile.id),
       ]);
 
+      const userMessage = {
+        profile_id: context.profile.id,
+        type: MessageType.UserMessage,
+        content: args.content,
+        timestamp: new Date(),
+      };
+
       const botMessage = await chat({
         userData: JSON.stringify(userData),
         history: messages.map((m) => ({
           role: m.type === MessageType.UserMessage ? "user" : "assistant",
           content: m.content,
         })),
-        content: args.content,
+        content: userMessage.content,
         jwt: context.token,
       });
 
       await MessageModel.insertMany([
-        {
-          profile_id: context.profile.id,
-          type: MessageType.UserMessage,
-          content: args.content,
-          timestamp: new Date(),
-        },
+        userMessage,
         {
           profile_id: context.profile.id,
           type: MessageType.AiMessage,

@@ -93,6 +93,7 @@ export const getUserData = async (profileId: string) => {
                   input: "$categories",
                   as: "category",
                   in: {
+                    _id: "$$category._id",
                     name: "$$category.name",
                     description: "$$category.description",
                     metrics: {
@@ -151,8 +152,9 @@ export const getUserData = async (profileId: string) => {
 
   const userData = { ...convertObjectIdsToStrings(aggregatedData[0]), context: userContext };
 
-  console.log("--> user data");
+  console.log("[User Data]");
   console.dir(userData, { depth: null, colors: true });
+  console.log();
 
   return userData;
 };

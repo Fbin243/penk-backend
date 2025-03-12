@@ -46,18 +46,20 @@ export const createTimeTracking = async (
 export const openaiCreateTimeTracking: FunctionDefinition = {
   name: PenKFunction.createTimeTracking,
   description:
-    "Create a focus session for a character on a specific category or no categories. A category must belong to the character.",
+    "Create a focus session for a character on a specific category id or no category ids. A category id must belong to the character.",
   strict: true,
   parameters: {
     type: "object",
     properties: {
       characterId: {
         type: ["string", "null"],
-        description: "if no characters inferred, use the current character id",
+        description:
+          "If no characters inferred, use the current character id. Access this prop via `character._id`.",
       },
       categoryId: {
         type: ["string", "null"],
-        description: "if no categories inferred, use null",
+        description:
+          "If no category id is inferred, use null. Access this prop via `character.categories[index]._id`.",
       },
     },
     required: ["characterId", "categoryId"],
