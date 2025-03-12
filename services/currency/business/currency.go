@@ -60,8 +60,8 @@ func (biz *CurrencyBusiness) UpdateFish(ctx context.Context, fish *entity.Fish) 
 		return nil, fmt.Errorf("failed to get fish - err2: %v", err)
 	}
 
-	currentFish.Gold = fish.Gold
-	currentFish.Normal = fish.Normal
+	currentFish.Gold += fish.Gold
+	currentFish.Normal += fish.Normal
 
 	updatedFish, err := biz.FishRepo.UpdateFishByProfileID(ctx, fish.ProfileID, currentFish)
 	if err != nil {
