@@ -47,9 +47,8 @@ func (hdl *CoreHandler) UpsertGoal(ctx context.Context, req *core.GoalInput) (*c
 	resp.UpdatedAt = goal.UpdatedAt.Unix()
 	resp.StartTime = goal.StartTime.Unix()
 	resp.EndTime = goal.EndTime.Unix()
-	copier.Copy(&resp.Categories, &goal.Target.Categories)
-	copier.Copy(&resp.Metrics, &goal.Target.Metrics)
-	copier.Copy(&resp.Checkboxes, &goal.Target.Checkboxes)
+	copier.Copy(&resp.Metrics, &goal.Metrics)
+	copier.Copy(&resp.Checkboxes, &goal.Checkboxes)
 
 	return resp, nil
 }

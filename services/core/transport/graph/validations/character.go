@@ -30,16 +30,16 @@ func ValidateCharacterInput(characterInput entity.CharacterInput) error {
 	return nil
 }
 
-func ValidateCategoryInput(customMetricInput entity.CategoryInput) error {
-	if err := GetValidator().Struct(customMetricInput); err != nil {
+func ValidateCategoryInput(categoryInput entity.CategoryInput) error {
+	if err := GetValidator().Struct(categoryInput); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func ValidateMetricInput(metricPropertyInput entity.MetricInput) error {
-	if err := GetValidator().Struct(metricPropertyInput); err != nil {
+func ValidateMetricInput(metricInput entity.MetricInput) error {
+	if err := GetValidator().Struct(metricInput); err != nil {
 		return err
 	}
 

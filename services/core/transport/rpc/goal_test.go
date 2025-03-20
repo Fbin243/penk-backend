@@ -22,32 +22,12 @@ var goalCheckbox = entity.Checkbox{
 }
 
 var goalMetric = entity.GoalMetric{
-	Metric: &entity.Metric{
-		ID:    mongodb.GenObjectID(),
-		Name:  "Metric name",
-		Value: 100,
-		Unit:  "Metric unit",
-	},
+	ID:          mongodb.GenObjectID(),
 	Condition:   entity.MetricConditionEqual,
 	TargetValue: lo.ToPtr(100.0),
 	RangeValue: &entity.Range{
 		Min: 200,
 		Max: 300,
-	},
-}
-
-var goalCategory = entity.GoalCategory{
-	Category: &entity.Category{
-		ID:          mongodb.GenObjectID(),
-		Name:        "Category name",
-		Description: "Category desc",
-		Style: entity.CategoryStyle{
-			Color: "#000000",
-			Icon:  "icon.png",
-		},
-	},
-	Metrics: []entity.GoalMetric{
-		goalMetric, goalMetric,
 	},
 }
 
@@ -62,17 +42,12 @@ var goal = entity.Goal{
 	Description: "Goal desc",
 	StartTime:   utils.Now(),
 	EndTime:     utils.Now(),
-	Status:      entity.GoalFinishStatusFinished,
-	Target: entity.GoalTarget{
-		Categories: []entity.GoalCategory{
-			goalCategory, goalCategory,
-		},
-		Metrics: []entity.GoalMetric{
-			goalMetric, goalMetric,
-		},
-		Checkboxes: []entity.Checkbox{
-			goalCheckbox, goalCheckbox,
-		},
+	Status:      entity.GoalStatusPlanned,
+	Metrics: []entity.GoalMetric{
+		goalMetric, goalMetric,
+	},
+	Checkboxes: []entity.Checkbox{
+		goalCheckbox, goalCheckbox,
 	},
 }
 
@@ -85,9 +60,8 @@ func TestMapGoal(t *testing.T) {
 	rpcGoal.UpdatedAt = goal.UpdatedAt.Unix()
 	rpcGoal.StartTime = goal.StartTime.Unix()
 	rpcGoal.EndTime = goal.EndTime.Unix()
-	copier.Copy(&rpcGoal.Categories, &goal.Target.Categories)
-	copier.Copy(&rpcGoal.Metrics, &goal.Target.Metrics)
-	copier.Copy(&rpcGoal.Checkboxes, &goal.Target.Checkboxes)
+	copier.Copy(&rpcGoal.Metrics, &goal.Metrics)
+	copier.Copy(&rpcGoal.Checkboxes, &goal.Checkboxes)
 
 	assert.Equal(t, goal.ID, rpcGoal.Id)
 	assert.Equal(t, goal.CharacterID, rpcGoal.CharacterId)
@@ -98,33 +72,20 @@ func TestMapGoal(t *testing.T) {
 	assert.Equal(t, goal.EndTime.Unix(), rpcGoal.EndTime)
 	assert.Equal(t, goal.CreatedAt.Unix(), rpcGoal.CreatedAt)
 	assert.Equal(t, goal.UpdatedAt.Unix(), rpcGoal.UpdatedAt)
-	for i, expectedCategory := range goal.Target.Categories {
-		assertCategory(t, expectedCategory, rpcGoal.Categories[i])
-	}
-	for i, expectedMetric := range goal.Target.Metrics {
+	for i, expectedMetric := range goal.Metrics {
 		assertMetric(t, expectedMetric, rpcGoal.Metrics[i])
 	}
-	for i, expectedCheckbox := range goal.Target.Checkboxes {
+	for i, expectedCheckbox := range goal.Checkboxes {
 		assertCheckbox(t, expectedCheckbox, rpcGoal.Checkboxes[i])
-	}
-}
-
-func assertCategory(t *testing.T, expected entity.GoalCategory, actual *core.GoalCategory) {
-	assert.Equal(t, expected.ID, actual.Id)
-	assert.Equal(t, expected.Name, actual.Name)
-	assert.Equal(t, expected.Description, actual.Description)
-	assert.Equal(t, expected.Style.Color, actual.Style.Color)
-	assert.Equal(t, expected.Style.Icon, actual.Style.Icon)
-	for i, expectedMetric := range expected.Metrics {
-		assertMetric(t, expectedMetric, actual.Metrics[i])
 	}
 }
 
 func assertMetric(t *testing.T, expected entity.GoalMetric, actual *core.GoalMetric) {
 	assert.Equal(t, expected.ID, actual.Id)
-	assert.Equal(t, expected.Name, actual.Name)
-	assert.Equal(t, expected.Value, float64(actual.Value))
-	assert.Equal(t, expected.Unit, actual.Unit)
+	assert.Equal(t, string(expected.Condition), actual.Condition.String())
+	assert.Equal(t, *expected.TargetValue, *actual.TargetValue)
+	assert.Equal(t, expected.RangeValue.Min, actual.RangeValue.Min)
+	assert.Equal(t, expected.RangeValue.Max, actual.RangeValue.Max)
 }
 
 func assertCheckbox(t *testing.T, expected entity.Checkbox, actual *core.Checkbox) {
@@ -202,21 +163,11 @@ func TestMapGoalInput(t *testing.T) {
 	assert.Equal(t, rpcGoalInput.StartTime, goalInput.StartTime.Unix())
 	assert.Equal(t, rpcGoalInput.EndTime, goalInput.EndTime.Unix())
 
-	for i, expectedCategory := range rpcGoalInput.Categories {
-		assertCategoryInput(t, expectedCategory, goalInput.Categories[i])
-	}
 	for i, expectedMetric := range rpcGoalInput.Metrics {
 		assertMetricInput(t, expectedMetric, goalInput.Metrics[i])
 	}
 	for i, expectedCheckbox := range rpcGoalInput.Checkboxes {
 		assertCheckboxInput(t, expectedCheckbox, goalInput.Checkboxes[i])
-	}
-}
-
-func assertCategoryInput(t *testing.T, expected *core.GoalCategoryInput, actual entity.GoalCategoryInput) {
-	assert.Equal(t, expected.Id, actual.ID)
-	for i, expectedMetric := range expected.Metrics {
-		assertMetricInput(t, expectedMetric, actual.Metrics[i])
 	}
 }
 

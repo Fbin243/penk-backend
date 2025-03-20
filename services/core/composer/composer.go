@@ -14,7 +14,6 @@ type Composer struct {
 	ProfileBiz    business.IProfileBusiness
 	CharacaterBiz business.ICharacterBusiness
 	GoalBiz       business.IGoalBusiness
-	TemplateBiz   business.ITemplateBusiness
 	CharacterRepo business.ICharacterRepo
 	CurrencyConn  *grpc.ClientConn
 	AnalyticConn  *grpc.ClientConn
@@ -35,9 +34,9 @@ func GetComposer() *Composer {
 	profileRepo := mongorepo.NewProfileRepo(mongodb)
 	characterRepo := mongorepo.NewCharacterRepo(mongodb)
 	goalRepo := mongorepo.NewGoalRepo(mongodb)
-	templateRepo := mongorepo.NewTemplateRepo(mongodb)
-	templateTopicRepo := mongorepo.NewTemplateTopicRepo(mongodb)
 	redisRepo := redisrepo.NewRedisRepo(redisClient)
+	categoryRepo := mongorepo.NewCategoryRepo(mongodb)
+	metricRepo := mongorepo.NewMetricRepo(mongodb)
 
 	// RPC Clients
 	currencyClient, currencyConn := ComposeCurrencyClient()
@@ -46,14 +45,12 @@ func GetComposer() *Composer {
 	// Business
 	profileBiz := business.NewProfileBusiness(profileRepo, characterRepo, currencyClient, analyticClient, redisRepo)
 	characterBiz := business.NewCharacterBusiness(characterRepo, profileRepo, goalRepo)
-	goalBiz := business.NewGoalBusiness(goalRepo, characterRepo)
-	templateBiz := business.NewTemplateBusiness(templateRepo, templateTopicRepo)
+	goalBiz := business.NewGoalBusiness(goalRepo, characterRepo, categoryRepo, metricRepo)
 
 	return &Composer{
 		ProfileBiz:    profileBiz,
 		CharacaterBiz: characterBiz,
 		GoalBiz:       goalBiz,
-		TemplateBiz:   templateBiz,
 		CharacterRepo: characterRepo,
 		CurrencyConn:  currencyConn,
 		AnalyticConn:  analyticConn,

@@ -24,40 +24,52 @@ var goal = &entity.Goal{
 	Description: "example description",
 	StartTime:   time.Now(),
 	EndTime:     time.Now(),
-	Status:      entity.GoalFinishStatusUnfinished,
-	Target: entity.GoalTarget{
-		Categories: []entity.GoalCategory{targetCategory, targetCategory, targetCategory},
-		Metrics:    []entity.GoalMetric{targetMetric, rangeMetric, targetMetric},
-		Checkboxes: []entity.Checkbox{checkbox, checkbox, checkbox},
+	Status:      entity.GoalStatusPlanned,
+	Metrics:     []entity.GoalMetric{targetMetric, rangeMetric, targetMetric},
+	Checkboxes:  []entity.Checkbox{checkbox, checkbox, checkbox},
+}
+
+var targetCategory = entity.Category{
+	BaseEntity: &base.BaseEntity{
+		ID:        mongodb.GenObjectID(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	},
+	Name:        "Category name",
+	Description: "Category description",
+	Style: entity.CategoryStyle{
+		Color: "red",
+		Icon:  "icon.png",
 	},
 }
 
-var targetCategory = entity.GoalCategory{
-	Category: &entity.Category{
-		ID: mongodb.GenObjectID(),
+var metricInfo = &entity.Metric{
+	BaseEntity: &base.BaseEntity{
+		ID:        mongodb.GenObjectID(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	},
-	Metrics: []entity.GoalMetric{targetMetric, rangeMetric, targetMetric},
+	CategoryID: &targetCategory.ID,
+	Name:       "Metric name",
+	Value:      1.0,
+	Unit:       "Metric unit",
 }
 
 var targetMetric = entity.GoalMetric{
-	Metric: &entity.Metric{
-		ID: mongodb.GenObjectID(),
-	},
+	ID:          mongodb.GenObjectID(),
 	Condition:   entity.MetricConditionGreaterThan,
 	TargetValue: lo.ToPtr(10.0),
 }
 
 var rangeMetric = entity.GoalMetric{
-	Metric: &entity.Metric{
-		ID: mongodb.GenObjectID(),
-	},
+	ID:         mongodb.GenObjectID(),
 	Condition:  entity.MetricConditionInRange,
 	RangeValue: &entity.Range{Min: 0, Max: 10},
 }
 
 var checkbox = entity.Checkbox{
 	ID:    mongodb.GenObjectID(),
-	Name:  "example checkbox",
+	Name:  "Checkbox name",
 	Value: false,
 }
 

@@ -1,0 +1,17 @@
+
+type Metric {
+  id: ID!
+  categoryID: ID!
+  category: Category!
+  name: String!
+  value: Float!
+  unit: String!
+}
+
+input MetricInput {
+  id: ID
+  categoryID: ID
+  name: String!
+  value: Float!
+  unit: String!
+}

@@ -2,8 +2,9 @@ type Query {
   characters: [Character!]!
   profile: Profile!
   appSettings: AppSettings!
-  goals(characterID: ID!, status: GoalStatusFilter): [Goal!]!
-  templates: [Template!]!
+  goals(characterID: ID!, status: GoalStatus): [Goal!]!
+  metrics(characterID: ID!): [Metric!]!
+  categories(categoryID: ID!): [Category!]!
 }
 
 type Mutation {
@@ -13,4 +14,6 @@ type Mutation {
   deleteCharacter(id: ID!): Character!
   upsertGoal(input: GoalInput!): Goal!
   deleteGoal(id: ID!): Goal!
+  upsertMetric(input: MetricInput!): Metric!
+  upsertCategory(input: CategoryInput!): Category!
 }

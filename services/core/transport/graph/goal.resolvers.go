@@ -6,25 +6,16 @@ package graph
 
 import (
 	"context"
+
 	"tenkhours/services/core/entity"
 )
 
-// Categories is the resolver for the categories field.
-func (r *goalResolver) Categories(ctx context.Context, obj *entity.Goal) ([]entity.GoalCategory, error) {
-	return obj.Target.Categories, nil
+// Metric is the resolver for the metric field.
+func (r *goalMetricResolver) Metric(ctx context.Context, obj *entity.GoalMetric) (*entity.Metric, error) {
+	return r.MetricRepo.FindByID(ctx, obj.ID)
 }
 
-// Metrics is the resolver for the metrics field.
-func (r *goalResolver) Metrics(ctx context.Context, obj *entity.Goal) ([]entity.GoalMetric, error) {
-	return obj.Target.Metrics, nil
-}
+// GoalMetric returns GoalMetricResolver implementation.
+func (r *Resolver) GoalMetric() GoalMetricResolver { return &goalMetricResolver{r} }
 
-// Checkboxes is the resolver for the checkboxes field.
-func (r *goalResolver) Checkboxes(ctx context.Context, obj *entity.Goal) ([]entity.Checkbox, error) {
-	return obj.Target.Checkboxes, nil
-}
-
-// Goal returns GoalResolver implementation.
-func (r *Resolver) Goal() GoalResolver { return &goalResolver{r} }
-
-type goalResolver struct{ *Resolver }
+type goalMetricResolver struct{ *Resolver }

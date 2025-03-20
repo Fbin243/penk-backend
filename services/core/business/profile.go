@@ -16,6 +16,7 @@ import (
 type ProfileBusiness struct {
 	ProfileRepo    IProfileRepo
 	CharacterRepo  ICharacterRepo
+	CategoryRepo   ICategoryRepo
 	CurrencyClient ICurrencyClient
 	AnalyticClient IAnalyticClient
 	Cache          ICache
@@ -169,34 +170,15 @@ func (biz *ProfileBusiness) IntrospectToken(ctx context.Context, token, deviceID
 }
 
 func (biz *ProfileBusiness) CheckPermission(ctx context.Context, profileID, characterID, categoryID *string) error {
-	if profileID != nil && characterID != nil {
-		character, err := biz.CharacterRepo.FindByID(ctx, *characterID)
+	err := biz.CharacterRepo.ValidateCharacter(ctx, *profileID, *characterID)
+	if err != nil {
+		return err
+	}
+
+	if categoryID != nil {
+		err := biz.CategoryRepo.ValidateCategory(ctx, *characterID, *categoryID)
 		if err != nil {
 			return err
-		}
-
-		profile := entity.Profile{
-			BaseEntity: &base.BaseEntity{
-				ID: *profileID,
-			},
-		}
-
-		if ok, _ := auth.CheckPermission(profile, character, "write"); !ok {
-			return errors.ErrPermissionDenied
-		}
-
-		if categoryID != nil {
-			found := false
-			for _, category := range character.Categories {
-				if category.ID == *categoryID {
-					found = true
-					break
-				}
-			}
-
-			if !found {
-				return errors.ErrPermissionDenied
-			}
 		}
 	}
 

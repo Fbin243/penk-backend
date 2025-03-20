@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 	"tenkhours/services/core/transport/graph/model"
@@ -57,6 +58,24 @@ func (r *mutationResolver) DeleteGoal(ctx context.Context, id string) (*entity.G
 	return r.GoalBusiness.DeleteGoal(ctx, id)
 }
 
+// UpsertMetric is the resolver for the upsertMetric field.
+func (r *mutationResolver) UpsertMetric(ctx context.Context, input entity.MetricInput) (*entity.Metric, error) {
+	if err := validations.ValidateMetricInput(input); err != nil {
+		return nil, err
+	}
+
+	return r.MetricBusiness.UpsertMetric(ctx, input)
+}
+
+// UpsertCategory is the resolver for the upsertCategory field.
+func (r *mutationResolver) UpsertCategory(ctx context.Context, input entity.CategoryInput) (*entity.Category, error) {
+	if err := validations.ValidateCategoryInput(input); err != nil {
+		return nil, err
+	}
+
+	return r.CategoryBusiness.UpsertCategory(ctx, input)
+}
+
 // Characters is the resolver for the characters field.
 func (r *queryResolver) Characters(ctx context.Context) ([]entity.Character, error) {
 	return r.CharacterBusiness.GetCharactersByProfileID(ctx)
@@ -79,13 +98,18 @@ func (r *queryResolver) AppSettings(ctx context.Context) (*model.AppSettings, er
 }
 
 // Goals is the resolver for the goals field.
-func (r *queryResolver) Goals(ctx context.Context, characterID string, status *entity.GoalStatusFilter) ([]entity.Goal, error) {
+func (r *queryResolver) Goals(ctx context.Context, characterID string, status *entity.GoalStatus) ([]entity.Goal, error) {
 	return r.GoalBusiness.GetGoals(ctx, characterID, status)
 }
 
-// Templates is the resolver for the templates field.
-func (r *queryResolver) Templates(ctx context.Context) ([]entity.Template, error) {
-	return r.TemplateBusiness.GetTemplates(ctx)
+// Metrics is the resolver for the metrics field.
+func (r *queryResolver) Metrics(ctx context.Context, characterID string) ([]entity.Metric, error) {
+	return r.MetricBusiness.GetMetrics(ctx, characterID)
+}
+
+// Categories is the resolver for the categories field.
+func (r *queryResolver) Categories(ctx context.Context, categoryID string) ([]entity.Category, error) {
+	return r.CategoryBusiness.GetCategories(ctx, categoryID)
 }
 
 // Mutation returns MutationResolver implementation.
@@ -94,5 +118,7 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)

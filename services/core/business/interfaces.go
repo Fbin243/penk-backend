@@ -26,14 +26,19 @@ type ICharacterBusiness interface {
 }
 
 type IGoalBusiness interface {
-	GetGoals(ctx context.Context, characterID string, status *entity.GoalStatusFilter) ([]entity.Goal, error)
+	GetGoals(ctx context.Context, characterID string, status *entity.GoalStatus) ([]entity.Goal, error)
 	UpsertGoal(ctx context.Context, input entity.GoalInput) (*entity.Goal, error)
 	DeleteGoal(ctx context.Context, id string) (*entity.Goal, error)
 }
 
-type ITemplateBusiness interface {
-	GetTemplates(ctx context.Context) ([]entity.Template, error)
-	GetTemplateCategory(ctx context.Context, id string) (*entity.TemplateTopic, error)
+type IMetricBusiness interface {
+	GetMetrics(ctx context.Context, characterID string) ([]entity.Metric, error)
+	UpsertMetric(ctx context.Context, input entity.MetricInput) (*entity.Metric, error)
+}
+
+type ICategoryBusiness interface {
+	GetCategories(ctx context.Context, characterID string) ([]entity.Category, error)
+	UpsertCategory(ctx context.Context, input entity.CategoryInput) (*entity.Category, error)
 }
 
 // Repository
@@ -54,19 +59,24 @@ type ICharacterRepo interface {
 	ValidateCharacter(ctx context.Context, profileID, characterID string) error
 }
 
+type ICategoryRepo interface {
+	base.IBaseRepo[entity.Category]
+	ValidateCategory(ctx context.Context, characterID, categoryID string) error
+	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Category, error)
+}
+
+type IMetricRepo interface {
+	base.IBaseRepo[entity.Metric]
+	ValidateMetric(ctx context.Context, characterID, metricID string) error
+	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Metric, error)
+}
+
 type IGoalRepo interface {
 	base.IBaseRepo[entity.Goal]
-	GetGoalsByCharacterID(ctx context.Context, characterID string, status *entity.GoalStatusFilter) ([]entity.Goal, error)
+	GetGoalsByCharacterID(ctx context.Context, characterID string, status *entity.GoalStatus) ([]entity.Goal, error)
 	ValidateGoal(ctx context.Context, profileID, goalID string) error
-	UpdateStatusOfGoals(ctx context.Context, goalIDs []string, status entity.GoalFinishStatus) error
-}
-
-type ITemplateRepo interface {
-	base.IBaseRepo[entity.Template]
-}
-
-type ITemplateCategoryRepo interface {
-	base.IBaseRepo[entity.TemplateTopic]
+	UpdateStatusOfGoals(ctx context.Context, goalIDs []string, status entity.GoalStatus) error
+	SyncGoalStatus(ctx context.Context, characterID string) error
 }
 
 type ICache interface {

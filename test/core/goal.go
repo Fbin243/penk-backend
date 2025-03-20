@@ -104,7 +104,7 @@ func (s UpsertGoal) Exec(ctx *context.Context) error {
 			NotEqual("$.data.upsertGoal.checkboxes[1].id", nil).
 			Equal("$.data.upsertGoal.checkboxes[1].name", checkbox2["name"]).
 			Equal("$.data.upsertGoal.checkboxes[1].value", checkbox2["value"]).
-			Equal("$.data.upsertGoal.status", string(entity.GoalFinishStatusUnfinished))
+			Equal("$.data.upsertGoal.status", string(entity.GoalStatusPlanned))
 		assertions = append(assertions,
 			jsonpath.Len("$.data.upsertGoal.categories", 1),
 			jsonpath.Len("$.data.upsertGoal.categories[0].metrics", 1),
@@ -183,7 +183,7 @@ func (s UpsertGoal) Exec(ctx *context.Context) error {
 			Present("$.data.upsertGoal.checkboxes[0].id").
 			Equal("$.data.upsertGoal.checkboxes[0].name", checkbox1["name"]).
 			Equal("$.data.upsertGoal.checkboxes[0].value", checkbox1["value"]).
-			Equal("$.data.upsertGoal.status", string(entity.GoalFinishStatusFinished))
+			Equal("$.data.upsertGoal.status", string(entity.GoalStatusCompleted))
 		assertions = append(assertions,
 			jsonpath.Len("$.data.upsertGoal.categories", 1),
 			jsonpath.Len("$.data.upsertGoal.categories[0].metrics", 1),
