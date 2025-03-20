@@ -1,6 +1,6 @@
 x-common-config: &common-config
   env_file:
-    - .env.test
+    - .env.development
   networks:
     - tenk_network
 
