@@ -4,7 +4,7 @@ import OpenAI from "openai";
 import { ChatCompletionMessageParam, ChatCompletionTool } from "openai/resources";
 
 import { openaiCreateTimeTracking, openaiUpdateTimeTracking } from "../functions/statTracking";
-import { Message, MessageType } from "../utils/types";
+import { FunctionCall, FunctionCallType, Message, MessageType } from "../utils/types";
 import { handleToolCalls } from "./utils";
 
 const openai = new OpenAI({
@@ -55,6 +55,21 @@ export const chat = async (props: {
       completion.choices[0].message.tool_calls,
       metadata,
     );
+
+    const functionCalls: FunctionCall[] = [];
+    toolCallMessages.forEach((tcm) => {
+      const tcName = completion.choices[0].message.tool_calls?.find(
+        (tc) => tc.id === tcm.tool_call_id,
+      )?.function.name;
+
+      if (!tcName) return;
+
+      functionCalls.push({
+        type: tcName as unknown as FunctionCallType,
+        result: `${tcm.content}`,
+      });
+    });
+
     messages = [...messages, ...toolCallMessages];
 
     const completion2 = await openai.chat.completions.create({
@@ -68,12 +83,14 @@ export const chat = async (props: {
       content: completion2.choices[0].message.content || "",
       timestamp: new Date().toISOString(),
       type: MessageType.AiMessage,
+      functionCalls,
     };
   } else {
     return {
       content: completion.choices[0].message.content || "",
       timestamp: new Date().toISOString(),
       type: MessageType.AiMessage,
+      functionCalls: [],
     };
   }
 };

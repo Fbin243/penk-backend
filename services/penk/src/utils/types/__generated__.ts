@@ -17,9 +17,21 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type FunctionCall = {
+  __typename?: 'FunctionCall';
+  result: Scalars['String']['output'];
+  type: FunctionCallType;
+};
+
+export enum FunctionCallType {
+  CreateTimeTracking = 'CREATE_TIME_TRACKING',
+  UpdateTimeTracking = 'UPDATE_TIME_TRACKING'
+}
+
 export type Message = {
   __typename?: 'Message';
   content: Scalars['String']['output'];
+  functionCalls: Array<FunctionCall>;
   timestamp: Scalars['String']['output'];
   type: MessageType;
 };
@@ -131,6 +143,8 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  FunctionCall: ResolverTypeWrapper<FunctionCall>;
+  FunctionCallType: FunctionCallType;
   Message: ResolverTypeWrapper<Message>;
   MessageType: MessageType;
   Mutation: ResolverTypeWrapper<{}>;
@@ -143,6 +157,7 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
+  FunctionCall: FunctionCall;
   Message: Message;
   Mutation: {};
   Preferences: Preferences;
@@ -151,8 +166,15 @@ export type ResolversParentTypes = ResolversObject<{
   UserContext: UserContext;
 }>;
 
+export type FunctionCallResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FunctionCall'] = ResolversParentTypes['FunctionCall']> = ResolversObject<{
+  result?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['FunctionCallType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MessageResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Message'] = ResolversParentTypes['Message']> = ResolversObject<{
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  functionCalls?: Resolver<Array<ResolversTypes['FunctionCall']>, ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['MessageType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -181,6 +203,7 @@ export type UserContextResolvers<ContextType = ResolverContext, ParentType exten
 }>;
 
 export type Resolvers<ContextType = ResolverContext> = ResolversObject<{
+  FunctionCall?: FunctionCallResolvers<ContextType>;
   Message?: MessageResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Preferences?: PreferencesResolvers<ContextType>;

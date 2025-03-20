@@ -22,6 +22,17 @@ type Message {
   type: MessageType!
   content: String!
   timestamp: String!
+  functionCalls: [FunctionCall!]!
+}
+
+type FunctionCall {
+  type: FunctionCallType!
+  result: String!
+}
+
+enum FunctionCallType {
+  CREATE_TIME_TRACKING
+  UPDATE_TIME_TRACKING
 }
 
 enum MessageType {

@@ -1,13 +1,13 @@
 import { Metadata } from "@grpc/grpc-js";
-import { ChatCompletionMessageParam, ChatCompletionMessageToolCall } from "openai/resources";
+import { ChatCompletionMessageToolCall, ChatCompletionToolMessageParam } from "openai/resources";
 
 import { openaiPenKMap } from "../functions";
 
 export const handleToolCalls = async (
   toolCalls: ChatCompletionMessageToolCall[],
   metadata: Metadata,
-): Promise<ChatCompletionMessageParam[]> => {
-  const messages: ChatCompletionMessageParam[] = [];
+): Promise<ChatCompletionToolMessageParam[]> => {
+  const messages: ChatCompletionToolMessageParam[] = [];
 
   try {
     const toolCallPromises = toolCalls.map(async (toolCall) => {
@@ -30,7 +30,7 @@ export const handleToolCalls = async (
         );
         return {
           toolCallId: toolCall.id,
-          result: "Error processing tool call",
+          result: `Error processing tool call: ${error}`,
         };
       }
     });

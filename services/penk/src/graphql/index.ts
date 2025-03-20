@@ -23,6 +23,7 @@ const resolvers: Resolvers = {
         content: m.content,
         timestamp: m.timestamp.toISOString(),
         type: m.type,
+        functionCalls: m.functionCalls,
       }));
     },
     userContext: async (_, __, context) => {
@@ -60,6 +61,7 @@ const resolvers: Resolvers = {
           type: MessageType.AiMessage,
           content: botMessage.content,
           timestamp: new Date(botMessage.timestamp),
+          functionCalls: botMessage.functionCalls,
         },
       ]);
 

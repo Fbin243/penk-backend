@@ -152,9 +152,9 @@ export const getUserData = async (profileId: string) => {
 
   const userData = { ...convertObjectIdsToStrings(aggregatedData[0]), context: userContext };
 
-  console.log("[User Data]");
-  console.dir(userData, { depth: null, colors: true });
-  console.log();
+  // console.log("[User Data]");
+  // console.dir(userData, { depth: null, colors: true });
+  // console.log();
 
   return userData;
 };

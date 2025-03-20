@@ -2,8 +2,7 @@ import { Metadata } from "@grpc/grpc-js";
 import { FunctionDefinition } from "openai/resources";
 
 import { timeTrackingClient } from "../utils/grpc";
-import { TimeTracking, TimeTrackingWithFish } from "../utils/types";
-import { PenKFunction } from "./types";
+import { FunctionCallType, TimeTracking, TimeTrackingWithFish } from "../utils/types";
 
 export const createTimeTracking = async (
   props: {
@@ -44,7 +43,7 @@ export const createTimeTracking = async (
 };
 
 export const openaiCreateTimeTracking: FunctionDefinition = {
-  name: PenKFunction.createTimeTracking,
+  name: FunctionCallType.CreateTimeTracking,
   description:
     "Create a focus session for a character on a specific category id or no category ids. A category id must belong to the character.",
   strict: true,
@@ -92,7 +91,7 @@ export const updateTimeTracking = async (
 };
 
 export const openaiUpdateTimeTracking: FunctionDefinition = {
-  name: PenKFunction.updateTimeTracking,
+  name: FunctionCallType.UpdateTimeTracking,
   description: "End the current focus session. Return session data, normal fish, gold fish.",
   strict: true,
   parameters: {
