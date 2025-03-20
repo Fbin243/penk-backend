@@ -78,11 +78,6 @@ token:
 	@echo "Getting new JWT token..."
 	@go run cmd/main.go jwt -u $(UID)
 
-# Import templates from json file to db
-templates:
-	@echo "Importing templates from file..."
-	@go run cmd/main.go import-templates
-
 # Protocol Buffers Compiler
 protoc:
 	@echo "Generating protobuf code..."

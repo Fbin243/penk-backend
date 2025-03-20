@@ -15,6 +15,8 @@ import (
 var (
 	ProfilesCollection        = "profiles"
 	CharactersCollection      = "characters"
+	CategoriesCollection      = "categories"
+	MetricsCollection         = "metrics"
 	GoalsCollection           = "goals"
 	CapturedRecordsCollection = "captured_records"
 	FishCollection            = "fish"

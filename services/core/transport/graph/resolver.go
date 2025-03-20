@@ -13,6 +13,10 @@ type Resolver struct {
 	ProfileBusiness   business.IProfileBusiness
 	CharacterBusiness business.ICharacterBusiness
 	GoalBusiness      business.IGoalBusiness
-	TemplateBusiness  business.ITemplateBusiness
+	MetricBusiness    business.IMetricBusiness
+	CategoryBusiness  business.ICategoryBusiness
 	CharacterRepo     business.ICharacterRepo
+	GoalRepo          business.IGoalRepo
+	MetricRepo        business.IMetricRepo
+	CategoryRepo      business.ICategoryRepo
 }

@@ -1,0 +1,24 @@
+
+type Category {
+  id: ID!
+  name: String!
+  description: String!
+  style: CategoryStyle!
+}
+
+type CategoryStyle {
+  color: String!
+  icon: String!
+}
+
+input CategoryInput {
+  id: ID
+  name: String!
+  description: String
+  style: CategoryStyleInput!
+}
+
+input CategoryStyleInput {
+  color: String!
+  icon: String!
+}

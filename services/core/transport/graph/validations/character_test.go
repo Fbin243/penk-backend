@@ -33,43 +33,6 @@ func TestValidateCharacterInput(t *testing.T) {
 			character: entity.CharacterInput{Name: "This is a very long name that exceeds the maximum allowed length of fifty characters. This is a very long name that exceeds the maximum allowed length of fifty characters."},
 			hasError:  true,
 		},
-		{
-			name: "invalid tags",
-			character: entity.CharacterInput{
-				Name: "Category",
-				Tags: []string{"#tag_too_longggggggggg"},
-			},
-			hasError: true,
-		},
-		{
-			name: "invalid categories",
-			character: entity.CharacterInput{
-				Name: "Category",
-				Categories: []entity.CategoryInput{
-					{
-						Name: "Category",
-						Style: lo.ToPtr(entity.CategoryStyleInput{
-							Color: "ff0000",
-						}),
-					},
-				},
-			},
-			hasError: true,
-		},
-		{
-			name: "invalid metrics",
-			character: entity.CharacterInput{
-				Name: "Category",
-				Metrics: []entity.MetricInput{
-					{
-						Name:  "Category",
-						Value: 10,
-						Unit:  "Unit too longgggggggggggggggggggggggggggggggggggggg",
-					},
-				},
-			},
-			hasError: true,
-		},
 	}
 
 	for _, tc := range tests {

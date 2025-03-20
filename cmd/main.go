@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"tenkhours/cmd/auth"
-	"tenkhours/cmd/db"
 	"tenkhours/cmd/gql"
 	"tenkhours/cmd/test"
 	"tenkhours/cmd/time"
@@ -28,7 +27,6 @@ func main() {
 			&auth.GetJWTTokenCommand,
 			&test.TestAPICommand,
 			&time.GetTheCurrentTime,
-			&db.ImportTemplatesDataFromJSON,
 		},
 		Before: func(ctx *cli.Context) error {
 			if godotenv.Load(".env.test") != nil {

@@ -8,46 +8,36 @@ import (
 	mongodb "tenkhours/pkg/db/mongo"
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
-
-	"github.com/samber/lo"
 )
 
 type GoalBusiness struct {
-	GoalRepo      IGoalRepo
-	CharacterRepo ICharacterRepo
+	goalRepo      IGoalRepo
+	characterRepo ICharacterRepo
+	categoryRepo  ICategoryRepo
+	metricRepo    IMetricRepo
 }
 
-func NewGoalBusiness(goalRepo IGoalRepo, characterRepo ICharacterRepo) *GoalBusiness {
-	return &GoalBusiness{goalRepo, characterRepo}
+func NewGoalBusiness(goalRepo IGoalRepo, characterRepo ICharacterRepo, categoryRepo ICategoryRepo, metricRepo IMetricRepo) *GoalBusiness {
+	return &GoalBusiness{goalRepo, characterRepo, categoryRepo, metricRepo}
 }
 
-func (biz *GoalBusiness) GetGoals(ctx context.Context, characterID string, status *entity.GoalStatusFilter) ([]entity.Goal, error) {
+func (biz *GoalBusiness) GetGoals(ctx context.Context, characterID string, status *entity.GoalStatus) ([]entity.Goal, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
 	}
 
-	err := biz.CharacterRepo.ValidateCharacter(ctx, authSession.ProfileID, characterID)
+	err := biz.characterRepo.ValidateCharacter(ctx, authSession.ProfileID, characterID)
 	if err != nil {
 		return nil, err
 	}
 
-	goals, err := biz.GoalRepo.GetGoalsByCharacterID(ctx, characterID, status)
+	goals, err := biz.goalRepo.GetGoalsByCharacterID(ctx, characterID, status)
 	if err != nil {
 		return nil, err
 	}
-
-	characterMap, err := biz.getCharacterMap(ctx, characterID)
-	if err != nil {
-		return nil, err
-	}
-
-	lo.ForEach(goals, func(goal entity.Goal, _ int) {
-		if goal.Status == entity.GoalFinishStatusUnfinished {
-			biz.populateGoal(ctx, &goal, characterMap)
-		}
-	})
 
 	return goals, nil
 }
@@ -58,20 +48,15 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput)
 		return nil, errors.ErrUnauthorized
 	}
 
-	err := biz.CharacterRepo.ValidateCharacter(ctx, authSession.ProfileID, input.CharacterID)
+	err := biz.characterRepo.ValidateCharacter(ctx, authSession.ProfileID, input.CharacterID)
 	if err != nil {
 		return nil, err
 	}
 
 	var goal *entity.Goal
-	characterMap, err := biz.getCharacterMap(ctx, input.CharacterID)
-	if err != nil {
-		return nil, err
-	}
-
 	if input.ID != nil {
 		// Update existing goal
-		goal, err = biz.GoalRepo.FindByID(ctx, *input.ID)
+		goal, err = biz.goalRepo.FindByID(ctx, *input.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -79,16 +64,12 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput)
 		if goal.CharacterID != input.CharacterID {
 			return nil, errors.ErrPermissionDenied
 		}
-
-		if goal.Status == entity.GoalFinishStatusFinished {
-			return nil, errors.NewGQLError(errors.ErrCodeGoalAlreadyFinished, nil)
-		}
 	} else {
 		// Create new goal
 		goal = &entity.Goal{
 			BaseEntity:  &base.BaseEntity{},
 			CharacterID: input.CharacterID,
-			Status:      entity.GoalFinishStatusUnfinished,
+			Status:      entity.GoalStatusPlanned,
 		}
 	}
 
@@ -99,18 +80,12 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput)
 		goal.Description = *input.Description
 	}
 
-	if input.Categories != nil {
-		err := biz.upsertGoalCategories(ctx, goal, input.Categories)
-		if err != nil {
-			return nil, err
-		}
+	if input.Status != nil {
+		goal.Status = *input.Status
 	}
 
 	if input.Metrics != nil {
-		err := biz.upsertGoalMetrics(ctx, upsertGoalMetricsParam{
-			goal:         goal,
-			metricInputs: input.Metrics,
-		})
+		err := biz.upsertGoalMetrics(ctx, goal, input.Metrics)
 		if err != nil {
 			return nil, err
 		}
@@ -123,23 +98,28 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput)
 		}
 	}
 
-	if input.Categories != nil ||
-		input.Metrics != nil ||
+	if input.Metrics != nil ||
 		input.Checkboxes != nil {
-		goal.UpdateStatus(characterMap.MetricMap)
-	}
+		// Get currrent metrics
+		metrics, err := biz.metricRepo.FindByCharacterID(ctx, goal.CharacterID)
+		if err != nil {
+			return nil, err
+		}
 
-	if goal.Status == entity.GoalFinishStatusFinished {
-		biz.populateGoal(ctx, goal, characterMap)
+		metricMap := map[string]entity.Metric{}
+		for _, metric := range metrics {
+			metricMap[metric.ID] = metric
+		}
+		goal.UpdateStatus(metricMap)
 	}
 
 	if input.ID != nil {
-		goal, err = biz.GoalRepo.UpdateByID(ctx, *input.ID, goal)
+		goal, err = biz.goalRepo.UpdateByID(ctx, *input.ID, goal)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		goal, err = biz.GoalRepo.InsertOne(ctx, goal)
+		goal, err = biz.goalRepo.InsertOne(ctx, goal)
 		if err != nil {
 			return nil, err
 		}
@@ -148,47 +128,11 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput)
 	return goal, nil
 }
 
-func (biz *GoalBusiness) upsertGoalCategories(ctx context.Context, goal *entity.Goal, categoryInputs []entity.GoalCategoryInput) error {
-	categories := []entity.GoalCategory{}
-	for _, categoryInput := range categoryInputs {
-		category := entity.GoalCategory{
-			Category: &entity.Category{
-				ID: categoryInput.ID,
-			},
-		}
-
-		if categoryInput.Metrics != nil {
-			err := biz.upsertGoalMetrics(ctx,
-				upsertGoalMetricsParam{
-					category:     &category,
-					metricInputs: categoryInput.Metrics,
-				})
-			if err != nil {
-				return err
-			}
-		}
-
-		categories = append(categories, category)
-	}
-
-	goal.Target.Categories = categories
-
-	return nil
-}
-
-type upsertGoalMetricsParam struct {
-	goal         *entity.Goal
-	category     *entity.GoalCategory
-	metricInputs []entity.GoalMetricInput
-}
-
-func (biz *GoalBusiness) upsertGoalMetrics(_ context.Context, param upsertGoalMetricsParam) error {
+func (biz *GoalBusiness) upsertGoalMetrics(_ context.Context, goal *entity.Goal, metricInputs []entity.GoalMetricInput) error {
 	metrics := []entity.GoalMetric{}
-	for _, metricInput := range param.metricInputs {
+	for _, metricInput := range metricInputs {
 		metric := entity.GoalMetric{
-			Metric: &entity.Metric{
-				ID: metricInput.ID,
-			},
+			ID:        metricInput.ID,
 			Condition: metricInput.Condition,
 		}
 
@@ -205,20 +149,21 @@ func (biz *GoalBusiness) upsertGoalMetrics(_ context.Context, param upsertGoalMe
 		metrics = append(metrics, metric)
 	}
 
-	if param.goal != nil {
-		param.goal.Target.Metrics = metrics
-	}
-	if param.category != nil {
-		param.category.Metrics = metrics
+	if goal != nil {
+		goal.Metrics = metrics
 	}
 
 	return nil
 }
 
 func (biz *GoalBusiness) upsertCheckboxesInGoal(_ context.Context, goal *entity.Goal, checkboxInputs []entity.CheckboxInput) error {
+	if len(checkboxInputs) > utils.LimitedCheckboxNumber {
+		return errors.NewGQLError(errors.ErrCodeLimitCheckbox, "Too many checkboxes")
+	}
+
 	checkboxes := []entity.Checkbox{}
 	checkboxMap := map[string]entity.Checkbox{}
-	for _, checkbox := range goal.Target.Checkboxes {
+	for _, checkbox := range goal.Checkboxes {
 		checkboxMap[checkbox.ID] = checkbox
 	}
 
@@ -243,7 +188,7 @@ func (biz *GoalBusiness) upsertCheckboxesInGoal(_ context.Context, goal *entity.
 		checkboxes = append(checkboxes, checkbox)
 	}
 
-	goal.Target.Checkboxes = checkboxes
+	goal.Checkboxes = checkboxes
 
 	return nil
 }
@@ -254,61 +199,15 @@ func (biz *GoalBusiness) DeleteGoal(ctx context.Context, goalID string) (*entity
 		return nil, errors.ErrUnauthorized
 	}
 
-	err := biz.GoalRepo.ValidateGoal(ctx, authSession.ProfileID, goalID)
+	err := biz.goalRepo.ValidateGoal(ctx, authSession.ProfileID, goalID)
 	if err != nil {
 		return nil, err
 	}
 
-	goal, err := biz.GoalRepo.DeleteByID(ctx, goalID)
+	goal, err := biz.goalRepo.DeleteByID(ctx, goalID)
 	if err != nil {
 		return nil, err
 	}
 
 	return goal, nil
-}
-
-func (biz *GoalBusiness) getCharacterMap(ctx context.Context, characterID string) (entity.CharacterMap, error) {
-	characterMap := entity.CharacterMap{
-		CategoryMap: map[string]entity.Category{},
-		MetricMap:   map[string]entity.Metric{},
-	}
-	character, err := biz.CharacterRepo.FindByID(ctx, characterID)
-	if err != nil {
-		return characterMap, err
-	}
-
-	for _, category := range character.Categories {
-		characterMap.CategoryMap[category.ID] = category
-		for _, metric := range category.Metrics {
-			characterMap.MetricMap[metric.ID] = metric
-		}
-	}
-	for _, metric := range character.Metrics {
-		characterMap.MetricMap[metric.ID] = metric
-	}
-
-	return characterMap, nil
-}
-
-func (biz *GoalBusiness) populateGoal(_ context.Context, goal *entity.Goal, characterMap entity.CharacterMap) {
-	goal.Target.Categories = lo.Map(goal.Target.Categories,
-		func(category entity.GoalCategory, _ int) entity.GoalCategory {
-			category.Category = lo.ToPtr(characterMap.CategoryMap[category.ID])
-
-			category.Metrics = lo.Map(category.Metrics,
-				func(metric entity.GoalMetric, _ int) entity.GoalMetric {
-					metric.Metric = lo.ToPtr(characterMap.MetricMap[metric.ID])
-					return metric
-				})
-
-			return category
-		})
-
-	goal.Target.Metrics = lo.Map(goal.Target.Metrics,
-		func(metric entity.GoalMetric, _ int) entity.GoalMetric {
-			metric.Metric = lo.ToPtr(characterMap.MetricMap[metric.ID])
-			return metric
-		})
-
-	return
 }

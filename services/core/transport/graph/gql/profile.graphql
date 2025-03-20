@@ -17,22 +17,8 @@ type Fish @key(fields: "profileID", resolvable: false) {
   profileID: ID!
 }
 
-"""
-Input type for creating or updating a user profile.
-"""
 input ProfileInput {
-  """
-  The name of the user.
-  """
   name: String!
-
-  """
-  URL of the user's image.
-  """
   imageURL: String!
-
-  """
-  ID of the character currently being chosen by the user.
-  """
   currentCharacterID: ID
 }

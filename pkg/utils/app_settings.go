@@ -2,8 +2,9 @@ package utils
 
 const (
 	LimitedCharacterNumber = 10
-	LimitedCategoryNumber  = 50
+	LimitedCategoryNumber  = 100
 	LimitedMetricNumber    = 100
+	LimitedCheckboxNumber  = 100
 	DefaultSnapshotsNumber = 7
 	MinDurationTime        = 0
 	MaxDurationTime        = 4 * 60 * 60

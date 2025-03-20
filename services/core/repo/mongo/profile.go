@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"tenkhours/services/core/entity"
+	mongorepo "tenkhours/services/core/repo/mongo/model"
 
 	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/pkg/errors"
@@ -16,7 +17,7 @@ import (
 )
 
 type ProfileRepo struct {
-	*mongodb.BaseRepo[entity.Profile, Profile]
+	*mongodb.BaseRepo[entity.Profile, mongorepo.Profile]
 }
 
 func NewProfileRepo(db *mongo.Database) *ProfileRepo {
@@ -37,7 +38,7 @@ func NewProfileRepo(db *mongo.Database) *ProfileRepo {
 	}
 
 	return &ProfileRepo{
-		mongodb.NewBaseRepo(profilesCollection, &mongodb.Mapper[entity.Profile, Profile]{}),
+		mongodb.NewBaseRepo(profilesCollection, &mongodb.Mapper[entity.Profile, mongorepo.Profile]{}),
 	}
 }
 

@@ -3,20 +3,15 @@ package entity
 import "time"
 
 type GoalInput struct {
-	ID          *string             `json:"id,omitempty"`
-	CharacterID string              `json:"characterID"`
-	Name        string              `json:"name"                  validate:"min=1,max=50"`
-	Description *string             `json:"description,omitempty" validate:"omitempty,max=255"`
-	StartTime   time.Time           `json:"startTime"`
-	EndTime     time.Time           `json:"endTime"`
-	Categories  []GoalCategoryInput `json:"categories"`
-	Metrics     []GoalMetricInput   `json:"metrics"`
-	Checkboxes  []CheckboxInput     `json:"checkboxes"`
-}
-
-type GoalCategoryInput struct {
-	ID      string            `json:"id,omitempty"`
-	Metrics []GoalMetricInput `json:"metrics"`
+	ID          *string           `json:"id,omitempty"`
+	CharacterID string            `json:"characterID"`
+	Name        string            `json:"name"                  validate:"min=1,max=50"`
+	Description *string           `json:"description,omitempty" validate:"omitempty,max=255"`
+	StartTime   time.Time         `json:"startTime"`
+	EndTime     time.Time         `json:"endTime"`
+	Status      *GoalStatus       `json:"status"`
+	Metrics     []GoalMetricInput `json:"metrics"`
+	Checkboxes  []CheckboxInput   `json:"checkboxes"`
 }
 
 type GoalMetricInput struct {
