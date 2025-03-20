@@ -158,6 +158,12 @@ logs:
 
 prune:
 	@docker system prune -af
+
+elk-up:
+	@docker compose -f elk/docker-compose.dev.yml --env-file .env.development up -d
+
+elk-down:
+	@docker compose -f elk/docker-compose.dev.yml --env-file .env.development down
 # ------------------------------------------------------------------------------
 	
 .PHONY: core analytic timetracking notification test dump restore up down logs prune
