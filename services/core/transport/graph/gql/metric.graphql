@@ -1,8 +1,8 @@
 
 type Metric {
   id: ID!
-  categoryID: ID!
-  category: Category!
+  categoryID: ID
+  category: Category
   name: String!
   value: Float!
   unit: String!

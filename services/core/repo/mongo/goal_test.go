@@ -29,32 +29,6 @@ var goal = &entity.Goal{
 	Checkboxes:  []entity.Checkbox{checkbox, checkbox, checkbox},
 }
 
-var targetCategory = entity.Category{
-	BaseEntity: &base.BaseEntity{
-		ID:        mongodb.GenObjectID(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	},
-	Name:        "Category name",
-	Description: "Category description",
-	Style: entity.CategoryStyle{
-		Color: "red",
-		Icon:  "icon.png",
-	},
-}
-
-var metricInfo = &entity.Metric{
-	BaseEntity: &base.BaseEntity{
-		ID:        mongodb.GenObjectID(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	},
-	CategoryID: &targetCategory.ID,
-	Name:       "Metric name",
-	Value:      1.0,
-	Unit:       "Metric unit",
-}
-
 var targetMetric = entity.GoalMetric{
 	ID:          mongodb.GenObjectID(),
 	Condition:   entity.MetricConditionGreaterThan,
@@ -81,7 +55,7 @@ func TestCreateNewGoal(t *testing.T) {
 }
 
 func TestGetGoalsByCharacterID(t *testing.T) {
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		goal.ID = mongodb.GenObjectID()
 		_, err := goalRepo.InsertOne(context.Background(), goal)
 		defer cleanUpGoal(t, goal.ID)

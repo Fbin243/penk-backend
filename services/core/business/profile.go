@@ -11,12 +11,16 @@ import (
 	"tenkhours/services/core/entity"
 
 	rdb "tenkhours/pkg/db/redis"
+
+	"github.com/samber/lo"
 )
 
 type ProfileBusiness struct {
 	ProfileRepo    IProfileRepo
 	CharacterRepo  ICharacterRepo
 	CategoryRepo   ICategoryRepo
+	MetricRepo     IMetricRepo
+	GoalRepo       IGoalRepo
 	CurrencyClient ICurrencyClient
 	AnalyticClient IAnalyticClient
 	Cache          ICache
@@ -79,35 +83,67 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 	}
 
 	var profile *entity.Profile
-	// Delete all characters in database
-	err := biz.CharacterRepo.DeleteCharactersByProfileID(ctx, authSession.ProfileID)
+	// Find all characters of profile
+	characters, err := biz.CharacterRepo.GetCharactersByProfileID(ctx, authSession.ProfileID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete characters: %v", err)
+		return nil, err
+	}
+
+	// Delete all metrics | habits | tasks | categories | goals of all characters
+	characterIDs := lo.Map(characters, func(c entity.Character, _ int) string {
+		return c.ID
+	})
+
+	err = biz.MetricRepo.DeleteByCharacterIDs(ctx, characterIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	err = biz.CategoryRepo.DeleteByCharacterIDs(ctx, characterIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	err = biz.GoalRepo.DeleteByCharacterIDs(ctx, characterIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	// Delete all characters in database
+	err = biz.CharacterRepo.DeleteCharactersByProfileID(ctx, authSession.ProfileID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Delete fish of profile
+	err = biz.CurrencyClient.DeleteFish(ctx, authSession.ProfileID)
+	if err != nil {
+		return nil, err
 	}
 
 	// Delete the profile in database
 	profile, err = biz.ProfileRepo.DeleteByID(ctx, authSession.ProfileID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete user profile: %v", err)
+		return nil, err
 	}
 
 	// Delete all captured records
 	err = biz.AnalyticClient.DeleteCapturedRecords(ctx, authSession.ProfileID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete captured records: %v", err)
+		return nil, err
 	}
 
 	// Delete profile data from cache
 	err = biz.Cache.DeleteProfileData(ctx, profile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete profile data from cache: %v", err)
+		return nil, err
 	}
 
 	// Delete user profile in Firebase
-	// err = auth.DeleteProfileOnFirebase(profile.FirebaseUID)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to delete user profile in Firebase: %v", err)
-	// }
+	err = auth.DeleteProfileOnFirebase(profile.FirebaseUID)
+	if err != nil {
+		return nil, err
+	}
 
 	return profile, nil
 }
@@ -170,13 +206,13 @@ func (biz *ProfileBusiness) IntrospectToken(ctx context.Context, token, deviceID
 }
 
 func (biz *ProfileBusiness) CheckPermission(ctx context.Context, profileID, characterID, categoryID *string) error {
-	err := biz.CharacterRepo.ValidateCharacter(ctx, *profileID, *characterID)
+	err := biz.CharacterRepo.Exist(ctx, *profileID, *characterID)
 	if err != nil {
 		return err
 	}
 
 	if categoryID != nil {
-		err := biz.CategoryRepo.ValidateCategory(ctx, *characterID, *categoryID)
+		err := biz.CategoryRepo.Exist(ctx, *characterID, *categoryID)
 		if err != nil {
 			return err
 		}

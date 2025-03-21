@@ -93,7 +93,7 @@ func (r *CharacterRepo) DeleteCharactersByProfileID(ctx context.Context, profile
 	return err
 }
 
-func (r *CharacterRepo) ValidateCharacter(ctx context.Context, profileID, characterID string) error {
+func (r *CharacterRepo) Exist(ctx context.Context, profileID, characterID string) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 

@@ -8,5 +8,5 @@ type Profile struct {
 	Email              string  `json:"email,omitempty"              bson:"email"`
 	FirebaseUID        string  `json:"firebaseUID,omitempty"        bson:"firebase_uid"`
 	ImageURL           string  `json:"imageURL,omitempty"           bson:"image_url"`
-	CurrentCharacterID *string `json:"currentCharacterID,omitempty" bson:"current_character_id,omitempty"`
+	CurrentCharacterID *string `json:"currentCharacterID,omitempty" bson:"current_character_id"`
 }

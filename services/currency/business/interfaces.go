@@ -12,9 +12,7 @@ type ICurrencyBusiness interface {
 	CreateFish(ctx context.Context, profileID string) (*entity.Fish, error)
 	CatchFish(ctx context.Context) (*entity.CatchFishResult, error)
 	UpdateFish(ctx context.Context, fish *entity.Fish) (*entity.Fish, error)
-	BuyMetrics(ctx context.Context, fishType entity.FishType, characterID string) (bool, error)
-	BuySnapshots(ctx context.Context, fishType entity.FishType) (bool, error)
-	BuyCharacters(ctx context.Context, fishType entity.FishType) (bool, error)
+	DeleteFish(ctx context.Context, profileID string) (*entity.Fish, error)
 }
 
 type IFishRepo interface {

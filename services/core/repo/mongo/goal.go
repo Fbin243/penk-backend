@@ -125,3 +125,19 @@ func (r *GoalRepo) SyncGoalStatus(ctx context.Context, characterID string) error
 
 	return err
 }
+
+func (r *GoalRepo) DeleteByCharacterID(ctx context.Context, characterID string) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	_, err := r.DeleteMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
+	return err
+}
+
+func (r *GoalRepo) DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	_, err := r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
+	return err
+}

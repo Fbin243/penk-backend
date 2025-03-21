@@ -33,3 +33,11 @@ message CatchFishResp {
     Gold = 2;
   }
 }
+
+message DeleteFishReq {
+  string profile_id = 1;
+}
+
+message DeleteFishResp {
+  bool success = 1;
+}

@@ -4,7 +4,7 @@ type Query {
   appSettings: AppSettings!
   goals(characterID: ID!, status: GoalStatus): [Goal!]!
   metrics(characterID: ID!): [Metric!]!
-  categories(categoryID: ID!): [Category!]!
+  categories(characterID: ID!): [Category!]!
 }
 
 type Mutation {
@@ -15,5 +15,7 @@ type Mutation {
   upsertGoal(input: GoalInput!): Goal!
   deleteGoal(id: ID!): Goal!
   upsertMetric(input: MetricInput!): Metric!
+  deleteMetric(id: ID!): Metric!
   upsertCategory(input: CategoryInput!): Category!
+  deleteCategory(id: ID!): Category!
 }

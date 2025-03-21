@@ -7,37 +7,10 @@ import (
 
 	"tenkhours/pkg/db/base"
 	mongodb "tenkhours/pkg/db/mongo"
-	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 
 	"github.com/stretchr/testify/assert"
 )
-
-var category = entity.Category{
-	BaseEntity: &base.BaseEntity{
-		ID:        mongodb.GenObjectID(),
-		CreatedAt: utils.Now(),
-		UpdatedAt: utils.Now(),
-	},
-	Name:        "Example name",
-	Description: "Example desc",
-	Style: entity.CategoryStyle{
-		Color: "red",
-		Icon:  "icon.png",
-	},
-}
-
-var metric = entity.Metric{
-	BaseEntity: &base.BaseEntity{
-		ID:        mongodb.GenObjectID(),
-		CreatedAt: utils.Now(),
-		UpdatedAt: utils.Now(),
-	},
-	CategoryID: &category.ID,
-	Name:       "Example name",
-	Value:      1.0,
-	Unit:       "unit",
-}
 
 func NewCharacter() *entity.Character {
 	return &entity.Character{
@@ -89,24 +62,24 @@ func TestGetCharactersByProfileID(t *testing.T) {
 	assertCharacter(t, character, &characters[0])
 }
 
-// func TestGetAllCharacters(t *testing.T) {
-// 	characterMap := map[string]*entity.Character{}
-// 	for i := 0; i < 3; i++ {
-// 		character := NewCharacter()
-// 		characterMap[character.ID] = character
-// 		createdCharacter, err := characterRepo.InsertOne(context.Background(), character)
-// 		defer cleanUpCharacter(createdCharacter.ID)
-// 		assert.Nil(t, err)
-// 	}
+func TestGetAllCharacters(t *testing.T) {
+	characterMap := map[string]*entity.Character{}
+	for range 3 {
+		character := NewCharacter()
+		characterMap[character.ID] = character
+		createdCharacter, err := characterRepo.InsertOne(context.Background(), character)
+		defer cleanUpCharacter(createdCharacter.ID)
+		assert.Nil(t, err)
+	}
 
-// 	retrievedCharacters, err := characterRepo.GetAllCharacters(context.Background())
-// 	assert.Nil(t, err)
+	retrievedCharacters, err := characterRepo.GetAllCharacters(context.Background())
+	assert.Nil(t, err)
 
-// 	assert.Equal(t, 3, len(retrievedCharacters))
-// 	for i := 0; i < 3; i++ {
-// 		assertCharacter(t, characterMap[retrievedCharacters[i].ID], &retrievedCharacters[i])
-// 	}
-// }
+	assert.Equal(t, 3, len(retrievedCharacters))
+	for i := 0; i < 3; i++ {
+		assertCharacter(t, characterMap[retrievedCharacters[i].ID], &retrievedCharacters[i])
+	}
+}
 
 func TestUpdateCharacter(t *testing.T) {
 	character := NewCharacter()

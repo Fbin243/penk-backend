@@ -8,6 +8,7 @@ enum ErrorCode {
     LIMIT_CHARACTER
     LIMIT_CATEGORY
     LIMIT_METRIC
+    LIMIT_CHECKBOX
     GOAL_ALREADY_FINISHED
     GOAL_ALREADY_EXPIRED
     # Time tracking errors

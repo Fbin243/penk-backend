@@ -29,7 +29,7 @@ func (biz *GoalBusiness) GetGoals(ctx context.Context, characterID string, statu
 		return nil, errors.ErrUnauthorized
 	}
 
-	err := biz.characterRepo.ValidateCharacter(ctx, authSession.ProfileID, characterID)
+	err := biz.characterRepo.Exist(ctx, authSession.ProfileID, characterID)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput)
 		return nil, errors.ErrUnauthorized
 	}
 
-	err := biz.characterRepo.ValidateCharacter(ctx, authSession.ProfileID, input.CharacterID)
+	err := biz.characterRepo.Exist(ctx, authSession.ProfileID, input.CharacterID)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func (biz *GoalBusiness) upsertGoalMetrics(_ context.Context, goal *entity.Goal,
 
 func (biz *GoalBusiness) upsertCheckboxesInGoal(_ context.Context, goal *entity.Goal, checkboxInputs []entity.CheckboxInput) error {
 	if len(checkboxInputs) > utils.LimitedCheckboxNumber {
-		return errors.NewGQLError(errors.ErrCodeLimitCheckbox, "Too many checkboxes")
+		return errors.ErrLimitCheckbox
 	}
 
 	checkboxes := []entity.Checkbox{}

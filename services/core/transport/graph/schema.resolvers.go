@@ -67,6 +67,11 @@ func (r *mutationResolver) UpsertMetric(ctx context.Context, input entity.Metric
 	return r.MetricBusiness.UpsertMetric(ctx, input)
 }
 
+// DeleteMetric is the resolver for the deleteMetric field.
+func (r *mutationResolver) DeleteMetric(ctx context.Context, id string) (*entity.Metric, error) {
+	return r.MetricBusiness.DeleteMetric(ctx, id)
+}
+
 // UpsertCategory is the resolver for the upsertCategory field.
 func (r *mutationResolver) UpsertCategory(ctx context.Context, input entity.CategoryInput) (*entity.Category, error) {
 	if err := validations.ValidateCategoryInput(input); err != nil {
@@ -74,6 +79,11 @@ func (r *mutationResolver) UpsertCategory(ctx context.Context, input entity.Cate
 	}
 
 	return r.CategoryBusiness.UpsertCategory(ctx, input)
+}
+
+// DeleteCategory is the resolver for the deleteCategory field.
+func (r *mutationResolver) DeleteCategory(ctx context.Context, id string) (*entity.Category, error) {
+	return r.CategoryBusiness.DeleteCategory(ctx, id)
 }
 
 // Characters is the resolver for the characters field.
@@ -108,8 +118,8 @@ func (r *queryResolver) Metrics(ctx context.Context, characterID string) ([]enti
 }
 
 // Categories is the resolver for the categories field.
-func (r *queryResolver) Categories(ctx context.Context, categoryID string) ([]entity.Category, error) {
-	return r.CategoryBusiness.GetCategories(ctx, categoryID)
+func (r *queryResolver) Categories(ctx context.Context, characterID string) ([]entity.Category, error) {
+	return r.CategoryBusiness.GetCategories(ctx, characterID)
 }
 
 // Mutation returns MutationResolver implementation.
