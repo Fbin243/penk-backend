@@ -58,3 +58,15 @@ func (hdl *CurrencyHandler) UpdateFish(ctx context.Context, req *currency.Update
 	res.FishId = fish.ID
 	return res, nil
 }
+
+func (hdl *CurrencyHandler) DeleteFish(ctx context.Context, req *currency.DeleteFishReq) (*currency.DeleteFishResp, error) {
+	res := &currency.DeleteFishResp{Success: false}
+
+	_, err := hdl.currencyBusiness.DeleteFish(ctx, req.ProfileId)
+	if err != nil {
+		return res, err
+	}
+
+	res.Success = true
+	return res, nil
+}

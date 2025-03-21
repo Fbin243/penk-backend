@@ -349,6 +349,94 @@ func (x *CatchFishResp) GetNumber() int32 {
 	return 0
 }
 
+type DeleteFishReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProfileId     string                 `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteFishReq) Reset() {
+	*x = DeleteFishReq{}
+	mi := &file_currency_currency_message_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteFishReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteFishReq) ProtoMessage() {}
+
+func (x *DeleteFishReq) ProtoReflect() protoreflect.Message {
+	mi := &file_currency_currency_message_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteFishReq.ProtoReflect.Descriptor instead.
+func (*DeleteFishReq) Descriptor() ([]byte, []int) {
+	return file_currency_currency_message_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *DeleteFishReq) GetProfileId() string {
+	if x != nil {
+		return x.ProfileId
+	}
+	return ""
+}
+
+type DeleteFishResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteFishResp) Reset() {
+	*x = DeleteFishResp{}
+	mi := &file_currency_currency_message_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteFishResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteFishResp) ProtoMessage() {}
+
+func (x *DeleteFishResp) ProtoReflect() protoreflect.Message {
+	mi := &file_currency_currency_message_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteFishResp.ProtoReflect.Descriptor instead.
+func (*DeleteFishResp) Descriptor() ([]byte, []int) {
+	return file_currency_currency_message_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *DeleteFishResp) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 var File_currency_currency_message_proto protoreflect.FileDescriptor
 
 var file_currency_currency_message_proto_rawDesc = []byte{
@@ -379,9 +467,15 @@ var file_currency_currency_message_proto_rawDesc = []byte{
 	0x06, 0x6e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x22, 0x2a, 0x0a, 0x08, 0x46, 0x69, 0x73, 0x68, 0x54,
 	0x79, 0x70, 0x65, 0x12, 0x08, 0x0a, 0x04, 0x4e, 0x6f, 0x6e, 0x65, 0x10, 0x00, 0x12, 0x0a, 0x0a,
 	0x06, 0x4e, 0x6f, 0x72, 0x6d, 0x61, 0x6c, 0x10, 0x01, 0x12, 0x08, 0x0a, 0x04, 0x47, 0x6f, 0x6c,
-	0x64, 0x10, 0x02, 0x42, 0x1d, 0x5a, 0x1b, 0x74, 0x65, 0x6e, 0x6b, 0x68, 0x6f, 0x75, 0x72, 0x73,
-	0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x70, 0x62, 0x2f, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e,
-	0x63, 0x79, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x64, 0x10, 0x02, 0x22, 0x2e, 0x0a, 0x0d, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x46, 0x69, 0x73,
+	0x68, 0x52, 0x65, 0x71, 0x12, 0x1d, 0x0a, 0x0a, 0x70, 0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65, 0x5f,
+	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x70, 0x72, 0x6f, 0x66, 0x69, 0x6c,
+	0x65, 0x49, 0x64, 0x22, 0x2a, 0x0a, 0x0e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x46, 0x69, 0x73,
+	0x68, 0x52, 0x65, 0x73, 0x70, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x42,
+	0x1d, 0x5a, 0x1b, 0x74, 0x65, 0x6e, 0x6b, 0x68, 0x6f, 0x75, 0x72, 0x73, 0x2f, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x2f, 0x70, 0x62, 0x2f, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x63, 0x79, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -397,7 +491,7 @@ func file_currency_currency_message_proto_rawDescGZIP() []byte {
 }
 
 var file_currency_currency_message_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_currency_currency_message_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_currency_currency_message_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_currency_currency_message_proto_goTypes = []any{
 	(CatchFishResp_FishType)(0), // 0: currency.CatchFishResp.FishType
 	(*CreateFishReq)(nil),       // 1: currency.CreateFishReq
@@ -406,6 +500,8 @@ var file_currency_currency_message_proto_goTypes = []any{
 	(*UpdateFishResp)(nil),      // 4: currency.UpdateFishResp
 	(*CatchFishReq)(nil),        // 5: currency.CatchFishReq
 	(*CatchFishResp)(nil),       // 6: currency.CatchFishResp
+	(*DeleteFishReq)(nil),       // 7: currency.DeleteFishReq
+	(*DeleteFishResp)(nil),      // 8: currency.DeleteFishResp
 }
 var file_currency_currency_message_proto_depIdxs = []int32{
 	0, // 0: currency.CatchFishResp.fish_type:type_name -> currency.CatchFishResp.FishType
@@ -427,7 +523,7 @@ func file_currency_currency_message_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_currency_currency_message_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

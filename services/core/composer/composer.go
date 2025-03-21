@@ -14,7 +14,11 @@ type Composer struct {
 	ProfileBiz    business.IProfileBusiness
 	CharacaterBiz business.ICharacterBusiness
 	GoalBiz       business.IGoalBusiness
+	CategoryBiz   business.ICategoryBusiness
+	MetricBiz     business.IMetricBusiness
 	CharacterRepo business.ICharacterRepo
+	CategoryRepo  business.ICategoryRepo
+	MetricRepo    business.IMetricRepo
 	CurrencyConn  *grpc.ClientConn
 	AnalyticConn  *grpc.ClientConn
 }
@@ -44,14 +48,20 @@ func GetComposer() *Composer {
 
 	// Business
 	profileBiz := business.NewProfileBusiness(profileRepo, characterRepo, currencyClient, analyticClient, redisRepo)
-	characterBiz := business.NewCharacterBusiness(characterRepo, profileRepo, goalRepo)
+	characterBiz := business.NewCharacterBusiness(characterRepo, profileRepo, goalRepo, metricRepo, categoryRepo)
 	goalBiz := business.NewGoalBusiness(goalRepo, characterRepo, categoryRepo, metricRepo)
+	catgoryBiz := business.NewCategoryBusiness(categoryRepo, characterRepo, metricRepo)
+	metricBiz := business.NewMetricBusiness(metricRepo, characterRepo, categoryRepo)
 
 	return &Composer{
 		ProfileBiz:    profileBiz,
 		CharacaterBiz: characterBiz,
 		GoalBiz:       goalBiz,
+		CategoryBiz:   catgoryBiz,
+		MetricBiz:     metricBiz,
 		CharacterRepo: characterRepo,
+		CategoryRepo:  categoryRepo,
+		MetricRepo:    metricRepo,
 		CurrencyConn:  currencyConn,
 		AnalyticConn:  analyticConn,
 	}

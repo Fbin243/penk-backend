@@ -40,7 +40,7 @@ func assertProfile(t *testing.T, expected, actual *entity.Profile) {
 func TestCreateNewProfile(t *testing.T) {
 	profile := NewProfile()
 	createdProfile, err := profileRepo.InsertOne(context.Background(), profile)
-	defer cleanUpProfile(createdProfile.ID)
+	defer cleanUpProfile(t, createdProfile.ID)
 
 	assert.Nil(t, err)
 	assertProfile(t, profile, createdProfile)
@@ -49,7 +49,7 @@ func TestCreateNewProfile(t *testing.T) {
 func TestCreateSameProfile(t *testing.T) {
 	profile := NewProfile()
 	_, err := profileRepo.InsertOne(context.Background(), profile)
-	defer cleanUpProfile(profile.ID)
+	defer cleanUpProfile(t, profile.ID)
 	assert.Nil(t, err)
 
 	_, err = profileRepo.InsertOne(context.Background(), profile)
@@ -59,7 +59,7 @@ func TestCreateSameProfile(t *testing.T) {
 func TestGetProfileByFirebaseUID(t *testing.T) {
 	profile := NewProfile()
 	_, err := profileRepo.InsertOne(context.Background(), profile)
-	defer cleanUpProfile(profile.ID)
+	defer cleanUpProfile(t, profile.ID)
 	assert.Nil(t, err)
 
 	queriedProfile, err := profileRepo.GetProfileByFirebaseUID(context.Background(), profile.FirebaseUID)
@@ -70,7 +70,7 @@ func TestGetProfileByFirebaseUID(t *testing.T) {
 func TestUpdateProfile(t *testing.T) {
 	profile := NewProfile()
 	_, err := profileRepo.InsertOne(context.Background(), profile)
-	defer cleanUpProfile(profile.ID)
+	defer cleanUpProfile(t, profile.ID)
 	assert.Nil(t, err)
 
 	updateInput := map[string]any{
@@ -88,10 +88,8 @@ func TestUpdateProfile(t *testing.T) {
 	assertProfile(t, profile, updatedProfile)
 }
 
-func cleanUpProfile(id string) {
+func cleanUpProfile(t *testing.T, id string) {
 	// Delete profile from database
 	_, err := profileRepo.DeleteByID(context.Background(), id)
-	if err != nil {
-		panic(err)
-	}
+	assert.Nil(t, err)
 }

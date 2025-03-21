@@ -19,7 +19,6 @@ type IProfileBusiness interface {
 }
 
 type ICharacterBusiness interface {
-	GetCharacterByID(ctx context.Context, id string) (*entity.Character, error)
 	GetCharactersByProfileID(ctx context.Context) ([]entity.Character, error)
 	UpsertCharacter(ctx context.Context, input entity.CharacterInput) (*entity.Character, error)
 	DeleteCharacter(ctx context.Context, id string) (*entity.Character, error)
@@ -34,11 +33,13 @@ type IGoalBusiness interface {
 type IMetricBusiness interface {
 	GetMetrics(ctx context.Context, characterID string) ([]entity.Metric, error)
 	UpsertMetric(ctx context.Context, input entity.MetricInput) (*entity.Metric, error)
+	DeleteMetric(ctx context.Context, id string) (*entity.Metric, error)
 }
 
 type ICategoryBusiness interface {
 	GetCategories(ctx context.Context, characterID string) ([]entity.Category, error)
 	UpsertCategory(ctx context.Context, input entity.CategoryInput) (*entity.Category, error)
+	DeleteCategory(ctx context.Context, id string) (*entity.Category, error)
 }
 
 // Repository
@@ -56,19 +57,26 @@ type ICharacterRepo interface {
 	GetAllCharacters(ctx context.Context) ([]entity.Character, error)
 	DeleteCharacter(ctx context.Context, id string) (*entity.Character, error)
 	DeleteCharactersByProfileID(ctx context.Context, profileID string) error
-	ValidateCharacter(ctx context.Context, profileID, characterID string) error
+	Exist(ctx context.Context, characterID, categoryID string) error
 }
 
 type ICategoryRepo interface {
 	base.IBaseRepo[entity.Category]
-	ValidateCategory(ctx context.Context, characterID, categoryID string) error
+	CountByCharacterID(ctx context.Context, characterID string) (int64, error)
+	Exist(ctx context.Context, characterID, categoryID string) error
 	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Category, error)
+	DeleteByCharacterID(ctx context.Context, characterID string) error
+	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
 }
 
 type IMetricRepo interface {
 	base.IBaseRepo[entity.Metric]
-	ValidateMetric(ctx context.Context, characterID, metricID string) error
+	CountByCharacterID(ctx context.Context, characterID string) (int64, error)
+	Exist(ctx context.Context, characterID, categoryID string) error
 	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Metric, error)
+	UnassignCategory(ctx context.Context, categoryID string) error
+	DeleteByCharacterID(ctx context.Context, characterID string) error
+	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
 }
 
 type IGoalRepo interface {
@@ -77,6 +85,8 @@ type IGoalRepo interface {
 	ValidateGoal(ctx context.Context, profileID, goalID string) error
 	UpdateStatusOfGoals(ctx context.Context, goalIDs []string, status entity.GoalStatus) error
 	SyncGoalStatus(ctx context.Context, characterID string) error
+	DeleteByCharacterID(ctx context.Context, characterID string) error
+	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
 }
 
 type ICache interface {
@@ -88,6 +98,7 @@ type ICache interface {
 // RPCs
 type ICurrencyClient interface {
 	CreateFish(ctx context.Context, profileID string) error
+	DeleteFish(ctx context.Context, profileID string) error
 }
 
 type IAnalyticClient interface {

@@ -6,6 +6,7 @@ import (
 	"tenkhours/pkg/auth"
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 )
 
@@ -25,7 +26,7 @@ func (b *MetricBusiness) GetMetrics(ctx context.Context, characterID string) ([]
 		return nil, errors.ErrUnauthorized
 	}
 
-	err := b.characterRepo.ValidateCharacter(ctx, authSession.ProfileID, characterID)
+	err := b.characterRepo.Exist(ctx, authSession.ProfileID, characterID)
 	if err != nil {
 		return nil, err
 	}
@@ -39,25 +40,28 @@ func (b *MetricBusiness) UpsertMetric(ctx context.Context, metricInput entity.Me
 		return nil, errors.ErrUnauthorized
 	}
 
-	err := b.characterRepo.ValidateCharacter(ctx, authSession.ProfileID, metricInput.CharacterID)
+	err := b.characterRepo.Exist(ctx, authSession.ProfileID, metricInput.CharacterID)
 	if err != nil {
 		return nil, err
 	}
 
-	metric := &entity.Metric{}
-	if metricInput.ID != nil {
-		err := b.metricRepo.ValidateMetric(ctx, metricInput.CharacterID, *metricInput.ID)
+	if metricInput.CategoryID != nil {
+		err = b.cateRepo.Exist(ctx, metricInput.CharacterID, *metricInput.CategoryID)
 		if err != nil {
 			return nil, err
 		}
+	}
 
-		if metricInput.CategoryID != nil {
-			err = b.cateRepo.ValidateCategory(ctx, metricInput.CharacterID, *metricInput.CategoryID)
-			if err != nil {
-				return nil, err
-			}
+	metric := &entity.Metric{}
+	if metricInput.ID == nil {
+		count, err := b.metricRepo.CountByCharacterID(ctx, metricInput.CharacterID)
+		if err != nil {
+			return nil, err
 		}
-
+		if count >= utils.LimitedMetricNumber {
+			return nil, errors.ErrLimitMetric
+		}
+	} else {
 		metric, err = b.metricRepo.FindByID(ctx, *metricInput.ID)
 		if err != nil {
 			return nil, err
@@ -77,4 +81,23 @@ func (b *MetricBusiness) UpsertMetric(ctx context.Context, metricInput entity.Me
 	}
 
 	return b.metricRepo.InsertOne(ctx, metric)
+}
+
+func (b *MetricBusiness) DeleteMetric(ctx context.Context, metricID string) (*entity.Metric, error) {
+	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
+	if !ok {
+		return nil, errors.ErrUnauthorized
+	}
+
+	metric, err := b.metricRepo.FindByID(ctx, metricID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = b.characterRepo.Exist(ctx, authSession.ProfileID, metric.CharacterID)
+	if err != nil {
+		return nil, err
+	}
+
+	return b.metricRepo.DeleteByID(ctx, metricID)
 }

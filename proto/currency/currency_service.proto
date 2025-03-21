@@ -10,4 +10,5 @@ service Currency {
   rpc CreateFish(CreateFishReq) returns (CreateFishResp) {}
   rpc UpdateFish(UpdateFishReq) returns (UpdateFishResp) {}
   rpc CatchFish(CatchFishReq) returns (CatchFishResp) {}
+  rpc DeleteFish(DeleteFishReq) returns (DeleteFishResp) {}
 }

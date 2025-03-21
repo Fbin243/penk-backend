@@ -14,7 +14,7 @@ type Goal {
 
 type GoalMetric {
   id: ID!
-  metric: Metric
+  metric: Metric!
   condition: MetricCondition!
   targetValue: Float
   rangeValue: Range

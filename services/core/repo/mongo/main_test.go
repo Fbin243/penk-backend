@@ -22,6 +22,8 @@ var (
 	profileRepo   business.IProfileRepo
 	characterRepo business.ICharacterRepo
 	goalRepo      business.IGoalRepo
+	metricRepo    *mongorepo.MetricRepo
+	categoryRepo  business.ICategoryRepo
 )
 
 func TestMain(m *testing.M) {
@@ -34,6 +36,8 @@ func TestMain(m *testing.M) {
 	profileRepo = mongorepo.NewProfileRepo(testdb)
 	characterRepo = mongorepo.NewCharacterRepo(testdb)
 	goalRepo = mongorepo.NewGoalRepo(testdb)
+	metricRepo = mongorepo.NewMetricRepo(testdb)
+	categoryRepo = mongorepo.NewCategoryRepo(testdb)
 
 	code := m.Run()
 

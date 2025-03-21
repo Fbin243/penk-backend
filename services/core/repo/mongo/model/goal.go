@@ -18,7 +18,6 @@ type Goal struct {
 	StartTime           time.Time          `json:"startTime"   bson:"start_time"`
 	EndTime             time.Time          `json:"endTime"     bson:"end_time"`
 	Status              entity.GoalStatus  `json:"status"      bson:"status"`
-	Categories          []Category         `json:"categories"  bson:"categories"`
 	Metrics             []GoalMetric       `json:"metrics"     bson:"metrics"`
 	Checkboxes          []Checkbox         `json:"checkboxes"  bson:"checkboxes"`
 }
@@ -28,8 +27,12 @@ func (g *Goal) CharacterID(id string) {
 }
 
 type GoalMetric struct {
-	*Metric     `                   bson:",inline"`
+	OID         primitive.ObjectID     `json:"id"          bson:"id"`
 	Condition   entity.MetricCondition `json:"condition"   bson:"condition"`
-	TargetValue *float64               `json:"targetValue" bson:"target_value,omitempty"`
-	RangeValue  *entity.Range          `json:"rangeValue"  bson:"range_value,omitempty"`
+	TargetValue *float64               `json:"targetValue" bson:"target_value"`
+	RangeValue  *entity.Range          `json:"rangeValue"  bson:"range_value"`
+}
+
+func (m *GoalMetric) ID(id string) {
+	m.OID = mongodb.ToObjectID(id)
 }

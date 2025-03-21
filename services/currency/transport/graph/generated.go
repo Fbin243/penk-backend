@@ -41,7 +41,6 @@ type Config struct {
 
 type ResolverRoot interface {
 	Entity() EntityResolver
-	Mutation() MutationResolver
 }
 
 type DirectiveRoot struct {
@@ -59,12 +58,6 @@ type ComplexityRoot struct {
 		ProfileID func(childComplexity int) int
 	}
 
-	Mutation struct {
-		BuyCharacters func(childComplexity int, fishType entity.FishType) int
-		BuyMetrics    func(childComplexity int, fishType entity.FishType, characterID string) int
-		BuySnapshots  func(childComplexity int, fishType entity.FishType) int
-	}
-
 	Query struct {
 		__resolve__service func(childComplexity int) int
 		__resolve_entities func(childComplexity int, representations []map[string]interface{}) int
@@ -77,11 +70,6 @@ type ComplexityRoot struct {
 
 type EntityResolver interface {
 	FindFishByProfileID(ctx context.Context, profileID string) (*entity.Fish, error)
-}
-type MutationResolver interface {
-	BuyMetrics(ctx context.Context, fishType entity.FishType, characterID string) (bool, error)
-	BuySnapshots(ctx context.Context, fishType entity.FishType) (bool, error)
-	BuyCharacters(ctx context.Context, fishType entity.FishType) (bool, error)
 }
 
 type executableSchema struct {
@@ -142,42 +130,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Fish.ProfileID(childComplexity), true
-
-	case "Mutation.buyCharacters":
-		if e.complexity.Mutation.BuyCharacters == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_buyCharacters_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.BuyCharacters(childComplexity, args["fishType"].(entity.FishType)), true
-
-	case "Mutation.buyMetrics":
-		if e.complexity.Mutation.BuyMetrics == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_buyMetrics_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.BuyMetrics(childComplexity, args["fishType"].(entity.FishType), args["characterID"].(string)), true
-
-	case "Mutation.buySnapshots":
-		if e.complexity.Mutation.BuySnapshots == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_buySnapshots_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.BuySnapshots(childComplexity, args["fishType"].(entity.FishType)), true
 
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
@@ -246,21 +198,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 
 			return &response
 		}
-	case ast.Mutation:
-		return func(ctx context.Context) *graphql.Response {
-			if !first {
-				return nil
-			}
-			first = false
-			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
-			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
-			var buf bytes.Buffer
-			data.MarshalGQL(&buf)
-
-			return &graphql.Response{
-				Data: buf.Bytes(),
-			}
-		}
 
 	default:
 		return graphql.OneShot(graphql.ErrorResponse(ctx, "unsupported GraphQL operation"))
@@ -308,7 +245,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "gql/fish.graphql" "gql/schema.graphql"
+//go:embed "gql/fish.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -321,7 +258,6 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "gql/fish.graphql", Input: sourceData("gql/fish.graphql"), BuiltIn: false},
-	{Name: "gql/schema.graphql", Input: sourceData("gql/schema.graphql"), BuiltIn: false},
 	{Name: "../federation/directives.graphql", Input: `
 	directive @authenticated on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM
 	directive @composeDirective(name: String!) repeatable on SCHEMA
@@ -411,60 +347,6 @@ func (ec *executionContext) field_Entity_findFishByProfileID_args(ctx context.Co
 		}
 	}
 	args["profileID"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_buyCharacters_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 entity.FishType
-	if tmp, ok := rawArgs["fishType"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fishType"))
-		arg0, err = ec.unmarshalNFishType2tenkhoursᚋservicesᚋcurrencyᚋentityᚐFishType(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["fishType"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_buyMetrics_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 entity.FishType
-	if tmp, ok := rawArgs["fishType"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fishType"))
-		arg0, err = ec.unmarshalNFishType2tenkhoursᚋservicesᚋcurrencyᚋentityᚐFishType(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["fishType"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["characterID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-		arg1, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["characterID"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_buySnapshots_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 entity.FishType
-	if tmp, ok := rawArgs["fishType"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fishType"))
-		arg0, err = ec.unmarshalNFishType2tenkhoursᚋservicesᚋcurrencyᚋentityᚐFishType(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["fishType"] = arg0
 	return args, nil
 }
 
@@ -767,171 +649,6 @@ func (ec *executionContext) fieldContext_Fish_normal(_ context.Context, field gr
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
 		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_buyMetrics(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_buyMetrics(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().BuyMetrics(rctx, fc.Args["fishType"].(entity.FishType), fc.Args["characterID"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_buyMetrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_buyMetrics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_buySnapshots(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_buySnapshots(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().BuySnapshots(rctx, fc.Args["fishType"].(entity.FishType))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_buySnapshots(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_buySnapshots_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_buyCharacters(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_buyCharacters(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().BuyCharacters(rctx, fc.Args["fishType"].(entity.FishType))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_buyCharacters(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_buyCharacters_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -3118,69 +2835,6 @@ func (ec *executionContext) _Fish(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
-var mutationImplementors = []string{"Mutation"}
-
-func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, mutationImplementors)
-	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
-		Object: "Mutation",
-	})
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		innerCtx := graphql.WithRootFieldContext(ctx, &graphql.RootFieldContext{
-			Object: field.Name,
-			Field:  field,
-		})
-
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Mutation")
-		case "buyMetrics":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_buyMetrics(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "buySnapshots":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_buySnapshots(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "buyCharacters":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_buyCharacters(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -3679,22 +3333,6 @@ func (ec *executionContext) marshalNFish2ᚖtenkhoursᚋservicesᚋcurrencyᚋen
 		return graphql.Null
 	}
 	return ec._Fish(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNFishType2tenkhoursᚋservicesᚋcurrencyᚋentityᚐFishType(ctx context.Context, v interface{}) (entity.FishType, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := entity.FishType(tmp)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNFishType2tenkhoursᚋservicesᚋcurrencyᚋentityᚐFishType(ctx context.Context, sel ast.SelectionSet, v entity.FishType) graphql.Marshaler {
-	res := graphql.MarshalString(string(v))
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {

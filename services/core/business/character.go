@@ -18,23 +18,14 @@ type CharacterBusiness struct {
 	CharacterRepo ICharacterRepo
 	ProfileRepo   IProfileRepo
 	GoalRepo      IGoalRepo
+	MetricRepo    IMetricRepo
+	CategoryRepo  ICategoryRepo
 }
 
-func NewCharacterBusiness(characterRepo ICharacterRepo, profileRepo IProfileRepo, goalRepo IGoalRepo) *CharacterBusiness {
+func NewCharacterBusiness(characterRepo ICharacterRepo, profileRepo IProfileRepo, goalRepo IGoalRepo, metricRepo IMetricRepo, cateRepo ICategoryRepo) *CharacterBusiness {
 	return &CharacterBusiness{
-		CharacterRepo: characterRepo,
-		ProfileRepo:   profileRepo,
-		GoalRepo:      goalRepo,
+		characterRepo, profileRepo, goalRepo, metricRepo, cateRepo,
 	}
-}
-
-func (biz *CharacterBusiness) GetCharacterByID(ctx context.Context, id string) (*entity.Character, error) {
-	character, err := biz.CharacterRepo.FindByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return character, nil
 }
 
 func (biz *CharacterBusiness) GetCharactersByProfileID(ctx context.Context) ([]entity.Character, error) {
@@ -71,7 +62,7 @@ func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.
 		}
 
 		if charactersCount >= int64(utils.LimitedCharacterNumber) {
-			return nil, errors.NewGQLError(errors.ErrCodeLimitCharacter, nil)
+			return nil, errors.ErrLimitCharacter
 		}
 
 		character = &entity.Character{
@@ -79,14 +70,14 @@ func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.
 			ProfileID:  profile.ID,
 		}
 	} else {
-		// Update existing character
-		character, err = biz.CharacterRepo.FindByID(ctx, *input.ID)
+		err := biz.CharacterRepo.Exist(ctx, authSession.ProfileID, *input.ID)
 		if err != nil {
 			return nil, err
 		}
 
-		if ok, _ := auth.CheckPermission(profile, character, "write"); !ok {
-			return nil, errors.ErrPermissionDenied
+		character, err = biz.CharacterRepo.FindByID(ctx, *input.ID)
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -119,25 +110,31 @@ func (biz *CharacterBusiness) DeleteCharacter(ctx context.Context, id string) (*
 		return nil, errors.ErrUnauthorized
 	}
 
-	character, err := biz.CharacterRepo.FindByID(ctx, id)
+	err := biz.CharacterRepo.Exist(ctx, authSession.ProfileID, id)
 	if err != nil {
 		return nil, err
 	}
 
-	profile := &entity.Profile{
-		BaseEntity: &base.BaseEntity{
-			ID: authSession.ProfileID,
-		},
-	}
-
-	if ok, _ := auth.CheckPermission(profile, character, "write"); !ok {
-		return nil, errors.ErrPermissionDenied
-	}
-
-	deletedCharacter, err := biz.CharacterRepo.DeleteCharacter(ctx, id)
+	// Delete all metrics | habits | tasks | categories | goals of the character
+	err = biz.MetricRepo.DeleteByCharacterID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	return deletedCharacter, nil
+	err = biz.CategoryRepo.DeleteByCharacterID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = biz.GoalRepo.DeleteByCharacterID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	character, err := biz.CharacterRepo.DeleteCharacter(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return character, nil
 }

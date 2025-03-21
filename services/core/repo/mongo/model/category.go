@@ -3,22 +3,19 @@ package mongorepo
 import (
 	mongodb "tenkhours/pkg/db/mongo"
 
-	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Category struct {
 	*mongodb.BaseEntity `                             bson:",inline"`
-	CharacterOID        *primitive.ObjectID `json:"characterID,omitempty" bson:"character_id"`
-	Name                string              `json:"name,omitempty"        bson:"name"`
-	Description         string              `json:"description,omitempty" bson:"description"`
-	Style               CategoryStyle       `json:"style,omitempty"       bson:"style"`
+	CharacterOID        primitive.ObjectID `json:"characterID,omitempty" bson:"character_id"`
+	Name                string             `json:"name,omitempty"        bson:"name"`
+	Description         string             `json:"description,omitempty" bson:"description"`
+	Style               CategoryStyle      `json:"style,omitempty"       bson:"style"`
 }
 
-func (c *Category) CharacterID(id *string) {
-	if id != nil {
-		c.CharacterOID = lo.ToPtr(mongodb.ToObjectID(*id))
-	}
+func (c *Category) CharacterID(id string) {
+	c.CharacterOID = mongodb.ToObjectID(id)
 }
 
 type CategoryStyle struct {

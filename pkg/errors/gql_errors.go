@@ -12,6 +12,10 @@ var (
 	ErrBadRequest       = NewGQLError(ErrCodeBadRequest, "bad request")
 	ErrMongoNotFound    = NewGQLError(ErrCodeMongoNotFound, "mongo not found")
 	ErrRedisNotFound    = NewGQLError(ErrCodeRedisNotFound, "redis not found")
+	ErrLimitMetric      = NewGQLError(ErrCodeLimitMetric, "over limit metric")
+	ErrLimitCheckbox    = NewGQLError(ErrCodeLimitCheckbox, "over limit checkbox")
+	ErrLimitCharacter   = NewGQLError(ErrCodeLimitCharacter, "over limit character")
+	ErrLimitCategory    = NewGQLError(ErrCodeLimitCategory, "over limit category")
 )
 
 func NewGQLError(code ErrorCode, msg any) *gqlerror.Error {
