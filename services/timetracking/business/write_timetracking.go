@@ -9,80 +9,14 @@ import (
 	"time"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db/base"
+	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/timetracking/entity"
 
-	mongodb "tenkhours/pkg/db/mongo"
-	rdb "tenkhours/pkg/db/redis"
-
 	"github.com/samber/lo"
 )
-
-type TimeTrackingBusiness struct {
-	coreClient     ICoreClient
-	currencyClient ICurrencyClient
-	notiClient     INotificationClient
-	cache          ICache
-}
-
-func NewTimeTrackingsBusiness(coreClient ICoreClient, currencyClient ICurrencyClient, notiClient INotificationClient, cache ICache) *TimeTrackingBusiness {
-	return &TimeTrackingBusiness{
-		coreClient:     coreClient,
-		currencyClient: currencyClient,
-		notiClient:     notiClient,
-		cache:          cache,
-	}
-}
-
-func (biz *TimeTrackingBusiness) GetCurrentTimeTracking(ctx context.Context) (*entity.TimeTracking, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
-	}
-
-	currentTimeTrack, err := biz.cache.GetCurrentTimeTracking(ctx, authSession.ProfileID)
-	if err == errors.ErrRedisNotFound {
-		return nil, nil
-	}
-
-	return currentTimeTrack, err
-}
-
-func (biz *TimeTrackingBusiness) GetTotalCurrentTimeTracking(ctx context.Context, characterID string, timestamp time.Time) (int, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return 0, errors.ErrUnauthorized
-	}
-
-	// Check permissions
-	authorized, err := biz.coreClient.CheckPermission(ctx, lo.ToPtr(authSession.ProfileID), lo.ToPtr(characterID), nil)
-	if !authorized || err != nil {
-		return 0, errors.ErrPermissionDenied
-	}
-
-	capturedRecord, err := biz.cache.GetCurrentCapturedRecord(ctx, authSession.ProfileID, characterID)
-	if errors.HasCode(err, errors.ErrCodeRedisNotFound) {
-		return 0, nil
-	}
-	if err != nil {
-		return 0, fmt.Errorf("failed to get current captured record: %v", err)
-	}
-
-	// Get the timetracking from the timestamp to now
-	totalTime := 0
-	for _, timeTracking := range capturedRecord.TimeTrackings {
-		if timestamp.After(timeTracking.StartTime) && timestamp.Before(timeTracking.EndTime) {
-			// Case 1: The timestamp after the startTime and before the endTime
-			totalTime += int(timeTracking.EndTime.Sub(timestamp).Seconds())
-		} else if timestamp.Before(timeTracking.StartTime) {
-			// Case 2: The timestamp before the startTime
-			totalTime += int(timeTracking.Time)
-		}
-	}
-
-	return totalTime, nil
-}
 
 func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, characterID string, categoryID *string, startTime time.Time) (*entity.TimeTracking, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
@@ -116,7 +50,7 @@ func (biz *TimeTrackingBusiness) CreateTimeTracking(ctx context.Context, charact
 
 	// Create a new time tracking
 	timeTracking := &entity.TimeTracking{
-		ID:          mongodb.GenObjectID(),
+		BaseEntity:  &base.BaseEntity{},
 		CharacterID: characterID,
 		StartTime:   startTime,
 	}
@@ -180,11 +114,9 @@ func (biz *TimeTrackingBusiness) UpdateTimeTracking(ctx context.Context) (*entit
 	}
 
 	timeTracking.EndTime = timeTracking.StartTime.Add(time.Duration(duration) * time.Second)
-
-	// Upsert the time tracking in captured record
-	err = biz.cache.UpsertTimeTrackingInCapturedRecord(ctx, authSession.ProfileID, timeTracking, duration)
+	timeTracking, err = biz.timetrackingRepo.InsertOne(ctx, timeTracking)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to upsert time tracking in captured record: %v", err)
+		return nil, nil, err
 	}
 
 	// Calculate the number of catches
@@ -197,7 +129,7 @@ func (biz *TimeTrackingBusiness) UpdateTimeTracking(ctx context.Context) (*entit
 		Normal:    0,
 	}
 
-	for i := 0; i < numCatches; i++ {
+	for range numCatches {
 		catchResult, err := biz.currencyClient.CatchFish(ctx)
 		if err != nil {
 			return nil, nil, err

@@ -1,6 +1,6 @@
 type Query {
-  analyticResults(
-    characterID: ID
+  statAnalytic(
+    characterID: ID!
     """
     Start time in RFC3339Nano format.
     """

@@ -101,6 +101,11 @@ type ICurrencyClient interface {
 	DeleteFish(ctx context.Context, profileID string) error
 }
 
-type IAnalyticClient interface {
-	DeleteCapturedRecords(ctx context.Context, profileID string) error
+// TODO: Allow Core service fetch data from Timetracking repo
+type ITimeTrackingRepo interface {
+	GetTotalTimeByCategoryID(ctx context.Context, categoryID string) (int, error)
+	GetTotalTimeByCharacterID(ctx context.Context, characterID string) (int, error)
+	UnassignCategory(ctx context.Context, categoryID string) error
+	DeleteByCharacterID(ctx context.Context, characterID string) error
+	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
 }

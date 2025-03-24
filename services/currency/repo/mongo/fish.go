@@ -20,6 +20,7 @@ func NewFishRepo(db *mongo.Database) *FishRepo {
 	return &FishRepo{mongodb.NewBaseRepo(
 		db.Collection(mongodb.FishCollection),
 		&mongodb.Mapper[entity.Fish, Fish]{},
+		true,
 	)}
 }
 

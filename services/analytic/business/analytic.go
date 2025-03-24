@@ -15,37 +15,33 @@ import (
 )
 
 type analyticBusiness struct {
-	capturedRecordRepo ICapturedRecordRepo
-	coreClient         ICoreClient
-	cache              ICache
+	coreClient       ICoreClient
+	timetrackingRepo ITimeTrackingRepo
 }
 
-func NewAnalyticBusiness(capturedRepo ICapturedRecordRepo, coreClient ICoreClient, cache ICache) *analyticBusiness {
+func NewAnalyticBusiness(coreClient ICoreClient, timetrackingRepo ITimeTrackingRepo) *analyticBusiness {
 	return &analyticBusiness{
-		capturedRecordRepo: capturedRepo,
-		coreClient:         coreClient,
-		cache:              cache,
+		coreClient:       coreClient,
+		timetrackingRepo: timetrackingRepo,
 	}
 }
 
 // Get analytic results from the captured records from the database
-func (biz *analyticBusiness) GetAnalyticResults(ctx context.Context, characterID *string, startTime, endTime *time.Time, analyticSections []entity.AnalyticSection) (map[string]interface{}, error) {
+func (biz *analyticBusiness) GetStatAnalytic(ctx context.Context, characterID string, startTime, endTime *time.Time, analyticSections []entity.AnalyticSection) (map[string]interface{}, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
 	}
 
 	capturedRecordFilter := entity.GetCapturedRecordFilter{
-		ProfileID:   authSession.ProfileID,
+		// ProfileID:   authSession.ProfileID,
 		CharacterID: characterID,
 		EndTime:     time.Now(),
 	}
 
-	if characterID != nil {
-		authorized, err := biz.coreClient.CheckPermission(ctx, lo.ToPtr(authSession.ProfileID), characterID, nil)
-		if !authorized || err != nil {
-			return nil, errors.ErrPermissionDenied
-		}
+	authorized, err := biz.coreClient.CheckPermission(ctx, lo.ToPtr(authSession.ProfileID), lo.ToPtr(characterID), nil)
+	if !authorized || err != nil {
+		return nil, errors.ErrPermissionDenied
 	}
 
 	if startTime != nil {
@@ -56,31 +52,19 @@ func (biz *analyticBusiness) GetAnalyticResults(ctx context.Context, characterID
 		capturedRecordFilter.EndTime = utils.ResetTimeToBeginningOfDay(*endTime)
 	}
 
-	// Get captured records from db
-	capturedRecords, err := biz.capturedRecordRepo.GetCapturedRecords(ctx, capturedRecordFilter)
+	capturedRecords, err := biz.timetrackingRepo.AggregateDailyCapturedRecord(ctx, capturedRecordFilter)
 	if err != nil {
-		return nil, err
-	}
-
-	// Get captured records from cache
-	cacheCapturedRecords, err := biz.cache.GetCapturedRecords(ctx, capturedRecordFilter)
-	if err != nil && err != errors.ErrRedisNotFound {
 		return nil, err
 	}
 
 	analyticsProcessor := &AnalyticsProcessor{
 		AnalyticSections: analyticSections,
-		ProfileID:        authSession.ProfileID,
 		CharacterID:      characterID,
-		CapturedRecords:  append(capturedRecords, cacheCapturedRecords...),
-		AnalyticResults:  make(map[string]interface{}),
+		AnalyticResults:  make(map[string]any),
+		CapturedRecords:  capturedRecords,
 		StartTime:        capturedRecordFilter.StartTime,
 		EndTime:          capturedRecordFilter.EndTime,
 	}
 
 	return analyticsProcessor.ProcessCapturedRecords(), nil
-}
-
-func (biz *analyticBusiness) DeleteCapturedRecords(ctx context.Context, profileID string) error {
-	return biz.capturedRecordRepo.DeleteCapturedRecords(ctx, profileID)
 }

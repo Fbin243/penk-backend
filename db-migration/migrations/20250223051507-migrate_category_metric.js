@@ -1,4 +1,7 @@
-const cols = require("../collections");
+const cols = {
+  Profile: "profiles",
+  Character: "characters",
+}
 
 module.exports = {
   async up(db, client) {

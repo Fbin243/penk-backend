@@ -55,12 +55,15 @@ func TestMapGoal(t *testing.T) {
 	rpcGoal := &core.Goal{}
 
 	copier.Copy(rpcGoal, &goal)
-	rpcGoal.Status = core.GoalFinishStatus(core.GoalFinishStatus_value[string(goal.Status)])
+	rpcGoal.Status = core.GoalStatus(core.GoalStatus_value[string(goal.Status)])
 	rpcGoal.CreatedAt = goal.CreatedAt.Unix()
 	rpcGoal.UpdatedAt = goal.UpdatedAt.Unix()
 	rpcGoal.StartTime = goal.StartTime.Unix()
 	rpcGoal.EndTime = goal.EndTime.Unix()
 	copier.Copy(&rpcGoal.Metrics, &goal.Metrics)
+
+	// fmt.Printf("rpcGoal: %v\n", utils.PrettyJSON(rpcGoal))
+	// fmt.Printf("goal: %v\n", utils.PrettyJSON(goal))
 	copier.Copy(&rpcGoal.Checkboxes, &goal.Checkboxes)
 
 	assert.Equal(t, goal.ID, rpcGoal.Id)
@@ -111,13 +114,6 @@ var rpcGoalCheckboxInput = &core.CheckboxInput{
 	Value: true,
 }
 
-var rpcGoalCategoryInput = &core.GoalCategoryInput{
-	Id: mongodb.GenObjectID(),
-	Metrics: []*core.GoalMetricInput{
-		rpcGoalMetricInput, rpcGoalMetricInput,
-	},
-}
-
 var rpcGoalInput = &core.GoalInput{
 	Id:          lo.ToPtr(mongodb.GenObjectID()),
 	CharacterId: mongodb.GenObjectID(),
@@ -125,9 +121,6 @@ var rpcGoalInput = &core.GoalInput{
 	Description: lo.ToPtr("Goal desc"),
 	StartTime:   utils.Now().Unix(),
 	EndTime:     utils.Now().Unix(),
-	Categories: []*core.GoalCategoryInput{
-		rpcGoalCategoryInput, rpcGoalCategoryInput,
-	},
 	Metrics: []*core.GoalMetricInput{
 		rpcGoalMetricInput, rpcGoalMetricInput,
 	},

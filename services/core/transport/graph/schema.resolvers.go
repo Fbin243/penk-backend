@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 	"tenkhours/services/core/transport/graph/model"
@@ -128,7 +127,5 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type (
-	mutationResolver struct{ *Resolver }
-	queryResolver    struct{ *Resolver }
-)
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

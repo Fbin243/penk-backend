@@ -16,7 +16,7 @@ type Resolver struct {
 	MetricBusiness    business.IMetricBusiness
 	CategoryBusiness  business.ICategoryBusiness
 	CharacterRepo     business.ICharacterRepo
-	GoalRepo          business.IGoalRepo
 	MetricRepo        business.IMetricRepo
 	CategoryRepo      business.ICategoryRepo
+	TimeTrackingRepo  business.ITimeTrackingRepo
 }

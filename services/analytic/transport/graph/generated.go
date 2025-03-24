@@ -48,34 +48,8 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	CapturedRecord struct {
-		Categories       func(childComplexity int) int
-		ID               func(childComplexity int) int
-		Metadata         func(childComplexity int) int
-		TimeTrackings    func(childComplexity int) int
-		Timestamp        func(childComplexity int) int
-		TotalFocusedTime func(childComplexity int) int
-	}
-
-	CapturedRecordCategory struct {
-		ID   func(childComplexity int) int
-		Time func(childComplexity int) int
-	}
-
-	CapturedRecordMetadata struct {
-		CharacterID func(childComplexity int) int
-		ProfileID   func(childComplexity int) int
-	}
-
-	CapturedRecordTimeTracking struct {
-		CategoryID func(childComplexity int) int
-		EndTime    func(childComplexity int) int
-		StartTime  func(childComplexity int) int
-		Time       func(childComplexity int) int
-	}
-
 	Query struct {
-		AnalyticResults    func(childComplexity int, characterID *string, startTime *time.Time, endTime *time.Time, analyticSections []entity.AnalyticSection) int
+		StatAnalytic       func(childComplexity int, characterID string, startTime *time.Time, endTime *time.Time, analyticSections []entity.AnalyticSection) int
 		__resolve__service func(childComplexity int) int
 	}
 
@@ -85,7 +59,7 @@ type ComplexityRoot struct {
 }
 
 type QueryResolver interface {
-	AnalyticResults(ctx context.Context, characterID *string, startTime *time.Time, endTime *time.Time, analyticSections []entity.AnalyticSection) (map[string]interface{}, error)
+	StatAnalytic(ctx context.Context, characterID string, startTime *time.Time, endTime *time.Time, analyticSections []entity.AnalyticSection) (map[string]interface{}, error)
 }
 
 type executableSchema struct {
@@ -107,115 +81,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "CapturedRecord.categories":
-		if e.complexity.CapturedRecord.Categories == nil {
+	case "Query.statAnalytic":
+		if e.complexity.Query.StatAnalytic == nil {
 			break
 		}
 
-		return e.complexity.CapturedRecord.Categories(childComplexity), true
-
-	case "CapturedRecord.id":
-		if e.complexity.CapturedRecord.ID == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecord.ID(childComplexity), true
-
-	case "CapturedRecord.metadata":
-		if e.complexity.CapturedRecord.Metadata == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecord.Metadata(childComplexity), true
-
-	case "CapturedRecord.timeTrackings":
-		if e.complexity.CapturedRecord.TimeTrackings == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecord.TimeTrackings(childComplexity), true
-
-	case "CapturedRecord.timestamp":
-		if e.complexity.CapturedRecord.Timestamp == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecord.Timestamp(childComplexity), true
-
-	case "CapturedRecord.totalFocusedTime":
-		if e.complexity.CapturedRecord.TotalFocusedTime == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecord.TotalFocusedTime(childComplexity), true
-
-	case "CapturedRecordCategory.id":
-		if e.complexity.CapturedRecordCategory.ID == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecordCategory.ID(childComplexity), true
-
-	case "CapturedRecordCategory.time":
-		if e.complexity.CapturedRecordCategory.Time == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecordCategory.Time(childComplexity), true
-
-	case "CapturedRecordMetadata.characterID":
-		if e.complexity.CapturedRecordMetadata.CharacterID == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecordMetadata.CharacterID(childComplexity), true
-
-	case "CapturedRecordMetadata.profileID":
-		if e.complexity.CapturedRecordMetadata.ProfileID == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecordMetadata.ProfileID(childComplexity), true
-
-	case "CapturedRecordTimeTracking.categoryID":
-		if e.complexity.CapturedRecordTimeTracking.CategoryID == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecordTimeTracking.CategoryID(childComplexity), true
-
-	case "CapturedRecordTimeTracking.endTime":
-		if e.complexity.CapturedRecordTimeTracking.EndTime == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecordTimeTracking.EndTime(childComplexity), true
-
-	case "CapturedRecordTimeTracking.startTime":
-		if e.complexity.CapturedRecordTimeTracking.StartTime == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecordTimeTracking.StartTime(childComplexity), true
-
-	case "CapturedRecordTimeTracking.time":
-		if e.complexity.CapturedRecordTimeTracking.Time == nil {
-			break
-		}
-
-		return e.complexity.CapturedRecordTimeTracking.Time(childComplexity), true
-
-	case "Query.analyticResults":
-		if e.complexity.Query.AnalyticResults == nil {
-			break
-		}
-
-		args, err := ec.field_Query_analyticResults_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_statAnalytic_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.AnalyticResults(childComplexity, args["characterID"].(*string), args["startTime"].(*time.Time), args["endTime"].(*time.Time), args["analyticSections"].([]entity.AnalyticSection)), true
+		return e.complexity.Query.StatAnalytic(childComplexity, args["characterID"].(string), args["startTime"].(*time.Time), args["endTime"].(*time.Time), args["analyticSections"].([]entity.AnalyticSection)), true
 
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
@@ -415,13 +291,13 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_analyticResults_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_statAnalytic_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
+	var arg0 string
 	if tmp, ok := rawArgs["characterID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -495,8 +371,8 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _CapturedRecord_id(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecord) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_id(ctx, field)
+func (ec *executionContext) _Query_statAnalytic(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_statAnalytic(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -509,636 +385,7 @@ func (ec *executionContext) _CapturedRecord_id(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecord_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecord_timestamp(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecord) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_timestamp(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Timestamp, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecord_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecord_totalFocusedTime(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecord) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_totalFocusedTime(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TotalFocusedTime, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int32)
-	fc.Result = res
-	return ec.marshalNInt2int32(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecord_totalFocusedTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecord_categories(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecord) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_categories(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Categories, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]entity.CapturedRecordCategory)
-	fc.Result = res
-	return ec.marshalOCapturedRecordCategory2ᚕtenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordCategoryᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecord_categories(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CapturedRecordCategory_id(ctx, field)
-			case "time":
-				return ec.fieldContext_CapturedRecordCategory_time(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CapturedRecordCategory", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecord_timeTrackings(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecord) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_timeTrackings(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TimeTrackings, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]entity.CapturedRecordTimeTracking)
-	fc.Result = res
-	return ec.marshalOCapturedRecordTimeTracking2ᚕtenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordTimeTrackingᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecord_timeTrackings(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "categoryID":
-				return ec.fieldContext_CapturedRecordTimeTracking_categoryID(ctx, field)
-			case "time":
-				return ec.fieldContext_CapturedRecordTimeTracking_time(ctx, field)
-			case "startTime":
-				return ec.fieldContext_CapturedRecordTimeTracking_startTime(ctx, field)
-			case "endTime":
-				return ec.fieldContext_CapturedRecordTimeTracking_endTime(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CapturedRecordTimeTracking", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecord_metadata(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecord) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecord_metadata(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Metadata, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(entity.CapturedRecordMetadata)
-	fc.Result = res
-	return ec.marshalNCapturedRecordMetadata2tenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordMetadata(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecord_metadata(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecord",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "characterID":
-				return ec.fieldContext_CapturedRecordMetadata_characterID(ctx, field)
-			case "profileID":
-				return ec.fieldContext_CapturedRecordMetadata_profileID(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CapturedRecordMetadata", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecordCategory_id(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecordCategory_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecordCategory_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecordCategory",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecordCategory_time(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecordCategory_time(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Time, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int32)
-	fc.Result = res
-	return ec.marshalNInt2int32(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecordCategory_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecordCategory",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecordMetadata_characterID(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordMetadata) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecordMetadata_characterID(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CharacterID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecordMetadata_characterID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecordMetadata",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecordMetadata_profileID(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordMetadata) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecordMetadata_profileID(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ProfileID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecordMetadata_profileID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecordMetadata",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecordTimeTracking_categoryID(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecordTimeTracking_categoryID(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CategoryID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecordTimeTracking_categoryID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecordTimeTracking",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecordTimeTracking_time(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecordTimeTracking_time(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Time, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int32)
-	fc.Result = res
-	return ec.marshalNInt2int32(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecordTimeTracking_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecordTimeTracking",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecordTimeTracking_startTime(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecordTimeTracking_startTime(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.StartTime, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecordTimeTracking_startTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecordTimeTracking",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CapturedRecordTimeTracking_endTime(ctx context.Context, field graphql.CollectedField, obj *entity.CapturedRecordTimeTracking) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CapturedRecordTimeTracking_endTime(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EndTime, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CapturedRecordTimeTracking_endTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CapturedRecordTimeTracking",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_analyticResults(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_analyticResults(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AnalyticResults(rctx, fc.Args["characterID"].(*string), fc.Args["startTime"].(*time.Time), fc.Args["endTime"].(*time.Time), fc.Args["analyticSections"].([]entity.AnalyticSection))
+		return ec.resolvers.Query().StatAnalytic(rctx, fc.Args["characterID"].(string), fc.Args["startTime"].(*time.Time), fc.Args["endTime"].(*time.Time), fc.Args["analyticSections"].([]entity.AnalyticSection))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1155,7 +402,7 @@ func (ec *executionContext) _Query_analyticResults(ctx context.Context, field gr
 	return ec.marshalNJSON2map(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_analyticResults(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_statAnalytic(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1172,7 +419,7 @@ func (ec *executionContext) fieldContext_Query_analyticResults(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_analyticResults_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_statAnalytic_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3178,203 +2425,6 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** object.gotpl ****************************
 
-var capturedRecordImplementors = []string{"CapturedRecord"}
-
-func (ec *executionContext) _CapturedRecord(ctx context.Context, sel ast.SelectionSet, obj *entity.CapturedRecord) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, capturedRecordImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CapturedRecord")
-		case "id":
-			out.Values[i] = ec._CapturedRecord_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "timestamp":
-			out.Values[i] = ec._CapturedRecord_timestamp(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "totalFocusedTime":
-			out.Values[i] = ec._CapturedRecord_totalFocusedTime(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "categories":
-			out.Values[i] = ec._CapturedRecord_categories(ctx, field, obj)
-		case "timeTrackings":
-			out.Values[i] = ec._CapturedRecord_timeTrackings(ctx, field, obj)
-		case "metadata":
-			out.Values[i] = ec._CapturedRecord_metadata(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var capturedRecordCategoryImplementors = []string{"CapturedRecordCategory"}
-
-func (ec *executionContext) _CapturedRecordCategory(ctx context.Context, sel ast.SelectionSet, obj *entity.CapturedRecordCategory) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, capturedRecordCategoryImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CapturedRecordCategory")
-		case "id":
-			out.Values[i] = ec._CapturedRecordCategory_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "time":
-			out.Values[i] = ec._CapturedRecordCategory_time(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var capturedRecordMetadataImplementors = []string{"CapturedRecordMetadata"}
-
-func (ec *executionContext) _CapturedRecordMetadata(ctx context.Context, sel ast.SelectionSet, obj *entity.CapturedRecordMetadata) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, capturedRecordMetadataImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CapturedRecordMetadata")
-		case "characterID":
-			out.Values[i] = ec._CapturedRecordMetadata_characterID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "profileID":
-			out.Values[i] = ec._CapturedRecordMetadata_profileID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var capturedRecordTimeTrackingImplementors = []string{"CapturedRecordTimeTracking"}
-
-func (ec *executionContext) _CapturedRecordTimeTracking(ctx context.Context, sel ast.SelectionSet, obj *entity.CapturedRecordTimeTracking) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, capturedRecordTimeTrackingImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CapturedRecordTimeTracking")
-		case "categoryID":
-			out.Values[i] = ec._CapturedRecordTimeTracking_categoryID(ctx, field, obj)
-		case "time":
-			out.Values[i] = ec._CapturedRecordTimeTracking_time(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "startTime":
-			out.Values[i] = ec._CapturedRecordTimeTracking_startTime(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "endTime":
-			out.Values[i] = ec._CapturedRecordTimeTracking_endTime(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -3394,7 +2444,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "analyticResults":
+		case "statAnalytic":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -3403,7 +2453,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_analyticResults(ctx, field)
+				res = ec._Query_statAnalytic(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3923,18 +2973,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNCapturedRecordCategory2tenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordCategory(ctx context.Context, sel ast.SelectionSet, v entity.CapturedRecordCategory) graphql.Marshaler {
-	return ec._CapturedRecordCategory(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNCapturedRecordMetadata2tenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordMetadata(ctx context.Context, sel ast.SelectionSet, v entity.CapturedRecordMetadata) graphql.Marshaler {
-	return ec._CapturedRecordMetadata(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNCapturedRecordTimeTracking2tenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordTimeTracking(ctx context.Context, sel ast.SelectionSet, v entity.CapturedRecordTimeTracking) graphql.Marshaler {
-	return ec._CapturedRecordTimeTracking(ctx, sel, &v)
-}
-
 func (ec *executionContext) unmarshalNFieldSet2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3957,21 +2995,6 @@ func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface
 
 func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalID(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v interface{}) (int32, error) {
-	res, err := graphql.UnmarshalInt32(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.SelectionSet, v int32) graphql.Marshaler {
-	res := graphql.MarshalInt32(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4008,21 +3031,6 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
-	res, err := graphql.UnmarshalTime(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
-	res := graphql.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4469,116 +3477,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	res := graphql.MarshalBoolean(*v)
-	return res
-}
-
-func (ec *executionContext) marshalOCapturedRecordCategory2ᚕtenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordCategoryᚄ(ctx context.Context, sel ast.SelectionSet, v []entity.CapturedRecordCategory) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNCapturedRecordCategory2tenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordCategory(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalOCapturedRecordTimeTracking2ᚕtenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordTimeTrackingᚄ(ctx context.Context, sel ast.SelectionSet, v []entity.CapturedRecordTimeTracking) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNCapturedRecordTimeTracking2tenkhoursᚋservicesᚋanalyticᚋentityᚐCapturedRecordTimeTracking(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalID(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalID(*v)
 	return res
 }
 

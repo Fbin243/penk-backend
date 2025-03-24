@@ -1,4 +1,4 @@
-package mongorepo
+package mongomodel
 
 import (
 	mongodb "tenkhours/pkg/db/mongo"

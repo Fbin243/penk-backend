@@ -4,6 +4,7 @@ type Character {
   updatedAt: Time!
   profileID: ID!
   name: String!
+  time: Int!
 }
 
 input CharacterInput {

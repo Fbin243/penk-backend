@@ -7,8 +7,3 @@ type Character struct {
 	ProfileID        string `json:"profileID,omitempty" bson:"profile_id"`
 	Name             string `json:"name,omitempty"      bson:"name"`
 }
-
-type CharacterMap struct {
-	CategoryMap map[string]Category
-	MetricMap   map[string]Metric
-}

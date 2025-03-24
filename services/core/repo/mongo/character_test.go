@@ -62,25 +62,6 @@ func TestGetCharactersByProfileID(t *testing.T) {
 	assertCharacter(t, character, &characters[0])
 }
 
-func TestGetAllCharacters(t *testing.T) {
-	characterMap := map[string]*entity.Character{}
-	for range 3 {
-		character := NewCharacter()
-		characterMap[character.ID] = character
-		createdCharacter, err := characterRepo.InsertOne(context.Background(), character)
-		defer cleanUpCharacter(createdCharacter.ID)
-		assert.Nil(t, err)
-	}
-
-	retrievedCharacters, err := characterRepo.GetAllCharacters(context.Background())
-	assert.Nil(t, err)
-
-	assert.Equal(t, 3, len(retrievedCharacters))
-	for i := 0; i < 3; i++ {
-		assertCharacter(t, characterMap[retrievedCharacters[i].ID], &retrievedCharacters[i])
-	}
-}
-
 func TestUpdateCharacter(t *testing.T) {
 	character := NewCharacter()
 	_, err := characterRepo.InsertOne(context.Background(), character)

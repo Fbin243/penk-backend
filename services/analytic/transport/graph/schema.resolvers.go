@@ -11,13 +11,13 @@ import (
 	"time"
 )
 
-// AnalyticResults is the resolver for the analyticResults field.
-func (r *queryResolver) AnalyticResults(ctx context.Context, characterID *string, startTime *time.Time, endTime *time.Time, analyticSections []entity.AnalyticSection) (map[string]interface{}, error) {
+// StatAnalytic is the resolver for the statAnalytic field.
+func (r *queryResolver) StatAnalytic(ctx context.Context, characterID string, startTime *time.Time, endTime *time.Time, analyticSections []entity.AnalyticSection) (map[string]interface{}, error) {
 	if startTime != nil && endTime != nil && startTime.After(*endTime) {
 		return nil, fmt.Errorf("start time must be before end time")
 	}
 
-	return r.AnalyticBusiness.GetAnalyticResults(ctx, characterID, startTime, endTime, analyticSections)
+	return r.AnalyticBusiness.GetStatAnalytic(ctx, characterID, startTime, endTime, analyticSections)
 }
 
 // Query returns QueryResolver implementation.
