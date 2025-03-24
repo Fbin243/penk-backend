@@ -59,6 +59,8 @@ module.exports = {
         await db.collection('characters').insertMany(newCharacters);
         await db.collection('categories').insertMany(categoryArr);
         await db.collection('metrics').insertMany(metricArr);
+        await db.collection('goals').drop();
+        await db.collection('snapshots').drop();
       });
     } finally {
       session.endSession();
