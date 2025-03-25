@@ -67,6 +67,7 @@ type ComplexityRoot struct {
 		CharacterID func(childComplexity int) int
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
+		MetricCount func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Style       func(childComplexity int) int
 		Time        func(childComplexity int) int
@@ -177,6 +178,7 @@ type ComplexityRoot struct {
 
 type CategoryResolver interface {
 	Time(ctx context.Context, obj *entity.Category) (int, error)
+	MetricCount(ctx context.Context, obj *entity.Category) (int, error)
 }
 type CharacterResolver interface {
 	Time(ctx context.Context, obj *entity.Character) (int, error)
@@ -286,6 +288,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Category.ID(childComplexity), true
+
+	case "Category.metricCount":
+		if e.complexity.Category.MetricCount == nil {
+			break
+		}
+
+		return e.complexity.Category.MetricCount(childComplexity), true
 
 	case "Category.name":
 		if e.complexity.Category.Name == nil {
@@ -1787,6 +1796,50 @@ func (ec *executionContext) fieldContext_Category_time(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Category_metricCount(ctx context.Context, field graphql.CollectedField, obj *entity.Category) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Category_metricCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Category().MetricCount(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Category_metricCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CategoryStyle_color(ctx context.Context, field graphql.CollectedField, obj *entity.CategoryStyle) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CategoryStyle_color(ctx, field)
 	if err != nil {
@@ -3226,6 +3279,8 @@ func (ec *executionContext) fieldContext_Metric_category(_ context.Context, fiel
 				return ec.fieldContext_Category_style(ctx, field)
 			case "time":
 				return ec.fieldContext_Category_time(ctx, field)
+			case "metricCount":
+				return ec.fieldContext_Category_metricCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -3997,6 +4052,8 @@ func (ec *executionContext) fieldContext_Mutation_upsertCategory(ctx context.Con
 				return ec.fieldContext_Category_style(ctx, field)
 			case "time":
 				return ec.fieldContext_Category_time(ctx, field)
+			case "metricCount":
+				return ec.fieldContext_Category_metricCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -4066,6 +4123,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteCategory(ctx context.Con
 				return ec.fieldContext_Category_style(ctx, field)
 			case "time":
 				return ec.fieldContext_Category_time(ctx, field)
+			case "metricCount":
+				return ec.fieldContext_Category_metricCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -4920,6 +4979,8 @@ func (ec *executionContext) fieldContext_Query_categories(ctx context.Context, f
 				return ec.fieldContext_Category_style(ctx, field)
 			case "time":
 				return ec.fieldContext_Category_time(ctx, field)
+			case "metricCount":
+				return ec.fieldContext_Category_metricCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -7626,6 +7687,42 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 					}
 				}()
 				res = ec._Category_time(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "metricCount":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Category_metricCount(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

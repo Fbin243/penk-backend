@@ -22,11 +22,12 @@ func NewBaseRepo[M base.IBaseEntity, N any](collection *mongo.Collection, mapper
 	return &BaseRepo[M, N]{collection, mapper, withTimestamp}
 }
 
-func (r *BaseRepo[M, N]) CountAll(ctx context.Context) (int64, error) {
+func (r *BaseRepo[M, N]) CountAll(ctx context.Context) (int, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	return r.Collection.CountDocuments(ctx, bson.M{})
+	count, err := r.Collection.CountDocuments(ctx, bson.M{})
+	return int(count), err
 }
 
 func (r *BaseRepo[M, N]) InsertMany(ctx context.Context, ms []M) ([]M, error) {

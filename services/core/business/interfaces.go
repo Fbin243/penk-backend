@@ -62,7 +62,7 @@ type ICharacterRepo interface {
 
 type ICategoryRepo interface {
 	base.IBaseRepo[entity.Category]
-	CountByCharacterID(ctx context.Context, characterID string) (int64, error)
+	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 	Exist(ctx context.Context, characterID, categoryID string) error
 	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Category, error)
 	DeleteByCharacterID(ctx context.Context, characterID string) error
@@ -72,6 +72,7 @@ type ICategoryRepo interface {
 type IMetricRepo interface {
 	base.IBaseRepo[entity.Metric]
 	CountByCharacterID(ctx context.Context, characterID string) (int64, error)
+	CountByCategoryID(ctx context.Context, categoryID string) (int, error)
 	Exist(ctx context.Context, characterID, categoryID string) error
 	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Metric, error)
 	UnassignCategory(ctx context.Context, categoryID string) error

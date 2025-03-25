@@ -25,11 +25,12 @@ func NewCategoryRepo(db *mongo.Database) *CategoryRepo {
 	)}
 }
 
-func (r *CategoryRepo) CountByCharacterID(ctx context.Context, characterID string) (int64, error) {
+func (r *CategoryRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	return r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
+	count, err := r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
+	return int(count), err
 }
 
 func (r *CategoryRepo) Exist(ctx context.Context, characterID, categoryID string) error {

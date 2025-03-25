@@ -6,6 +6,7 @@ type Category {
   description: String!
   style: CategoryStyle!
   time: Int!
+  metricCount: Int!
 }
 
 type CategoryStyle {

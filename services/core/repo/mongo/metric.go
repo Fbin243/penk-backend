@@ -67,6 +67,14 @@ func (r *MetricRepo) CountByCharacterID(ctx context.Context, characterID string)
 	return r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
 }
 
+func (r *MetricRepo) CountByCategoryID(ctx context.Context, categoryID string) (int, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	count, err := r.CountDocuments(ctx, bson.M{"category_id": mongodb.ToObjectID(categoryID)})
+	return int(count), err
+}
+
 func (r *MetricRepo) UnassignCategory(ctx context.Context, categoryID string) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -89,11 +97,4 @@ func (r *MetricRepo) DeleteByCharacterIDs(ctx context.Context, characterIDs []st
 
 	_, err := r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
 	return err
-}
-
-func (r *MetricRepo) CountByCategoryID(ctx context.Context, categoryID string) (int64, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	return r.CountDocuments(ctx, bson.M{"category_id": mongodb.ToObjectID(categoryID)})
 }
