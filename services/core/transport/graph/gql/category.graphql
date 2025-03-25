@@ -1,6 +1,7 @@
 
 type Category {
   id: ID!
+  characterID: ID!
   name: String!
   description: String!
   style: CategoryStyle!
@@ -14,6 +15,7 @@ type CategoryStyle {
 
 input CategoryInput {
   id: ID
+  characterID: ID!
   name: String!
   description: String
   style: CategoryStyleInput!
