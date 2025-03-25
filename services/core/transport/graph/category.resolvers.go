@@ -6,13 +6,17 @@ package graph
 
 import (
 	"context"
-
 	"tenkhours/services/core/entity"
 )
 
 // Time is the resolver for the time field.
 func (r *categoryResolver) Time(ctx context.Context, obj *entity.Category) (int, error) {
 	return r.TimeTrackingRepo.GetTotalTimeByCategoryID(ctx, obj.ID)
+}
+
+// MetricCount is the resolver for the metricCount field.
+func (r *categoryResolver) MetricCount(ctx context.Context, obj *entity.Category) (int, error) {
+	return r.MetricRepo.CountByCategoryID(ctx, obj.ID)
 }
 
 // Category returns CategoryResolver implementation.

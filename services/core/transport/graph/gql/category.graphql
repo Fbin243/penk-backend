@@ -1,10 +1,12 @@
 
 type Category {
   id: ID!
+  characterID: ID!
   name: String!
   description: String!
   style: CategoryStyle!
   time: Int!
+  metricCount: Int!
 }
 
 type CategoryStyle {
@@ -14,6 +16,7 @@ type CategoryStyle {
 
 input CategoryInput {
   id: ID
+  characterID: ID!
   name: String!
   description: String
   style: CategoryStyleInput!

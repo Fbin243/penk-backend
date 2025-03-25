@@ -1,6 +1,7 @@
 
 type Metric {
   id: ID!
+  characterID: ID!
   categoryID: ID
   category: Category
   name: String!
@@ -10,6 +11,7 @@ type Metric {
 
 input MetricInput {
   id: ID
+  characterID: ID!
   categoryID: ID
   name: String!
   value: Float!

@@ -64,8 +64,10 @@ type ComplexityRoot struct {
 	}
 
 	Category struct {
+		CharacterID func(childComplexity int) int
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
+		MetricCount func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Style       func(childComplexity int) int
 		Time        func(childComplexity int) int
@@ -118,12 +120,13 @@ type ComplexityRoot struct {
 	}
 
 	Metric struct {
-		Category   func(childComplexity int) int
-		CategoryID func(childComplexity int) int
-		ID         func(childComplexity int) int
-		Name       func(childComplexity int) int
-		Unit       func(childComplexity int) int
-		Value      func(childComplexity int) int
+		Category    func(childComplexity int) int
+		CategoryID  func(childComplexity int) int
+		CharacterID func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Unit        func(childComplexity int) int
+		Value       func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -175,6 +178,7 @@ type ComplexityRoot struct {
 
 type CategoryResolver interface {
 	Time(ctx context.Context, obj *entity.Category) (int, error)
+	MetricCount(ctx context.Context, obj *entity.Category) (int, error)
 }
 type CharacterResolver interface {
 	Time(ctx context.Context, obj *entity.Character) (int, error)
@@ -264,6 +268,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AppSettings.MinDurationTime(childComplexity), true
 
+	case "Category.characterID":
+		if e.complexity.Category.CharacterID == nil {
+			break
+		}
+
+		return e.complexity.Category.CharacterID(childComplexity), true
+
 	case "Category.description":
 		if e.complexity.Category.Description == nil {
 			break
@@ -277,6 +288,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Category.ID(childComplexity), true
+
+	case "Category.metricCount":
+		if e.complexity.Category.MetricCount == nil {
+			break
+		}
+
+		return e.complexity.Category.MetricCount(childComplexity), true
 
 	case "Category.name":
 		if e.complexity.Category.Name == nil {
@@ -508,6 +526,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Metric.CategoryID(childComplexity), true
+
+	case "Metric.characterID":
+		if e.complexity.Metric.CharacterID == nil {
+			break
+		}
+
+		return e.complexity.Metric.CharacterID(childComplexity), true
 
 	case "Metric.id":
 		if e.complexity.Metric.ID == nil {
@@ -1545,6 +1570,50 @@ func (ec *executionContext) fieldContext_Category_id(_ context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Category_characterID(ctx context.Context, field graphql.CollectedField, obj *entity.Category) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Category_characterID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CharacterID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Category_characterID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Category_name(ctx context.Context, field graphql.CollectedField, obj *entity.Category) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Category_name(ctx, field)
 	if err != nil {
@@ -1715,6 +1784,50 @@ func (ec *executionContext) _Category_time(ctx context.Context, field graphql.Co
 }
 
 func (ec *executionContext) fieldContext_Category_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Category_metricCount(ctx context.Context, field graphql.CollectedField, obj *entity.Category) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Category_metricCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Category().MetricCount(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Category_metricCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Category",
 		Field:      field,
@@ -2838,6 +2951,8 @@ func (ec *executionContext) fieldContext_GoalMetric_metric(_ context.Context, fi
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Metric_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Metric_characterID(ctx, field)
 			case "categoryID":
 				return ec.fieldContext_Metric_categoryID(ctx, field)
 			case "category":
@@ -3031,6 +3146,50 @@ func (ec *executionContext) fieldContext_Metric_id(_ context.Context, field grap
 	return fc, nil
 }
 
+func (ec *executionContext) _Metric_characterID(ctx context.Context, field graphql.CollectedField, obj *entity.Metric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Metric_characterID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CharacterID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Metric_characterID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Metric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Metric_categoryID(ctx context.Context, field graphql.CollectedField, obj *entity.Metric) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Metric_categoryID(ctx, field)
 	if err != nil {
@@ -3110,6 +3269,8 @@ func (ec *executionContext) fieldContext_Metric_category(_ context.Context, fiel
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Category_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Category_characterID(ctx, field)
 			case "name":
 				return ec.fieldContext_Category_name(ctx, field)
 			case "description":
@@ -3118,6 +3279,8 @@ func (ec *executionContext) fieldContext_Metric_category(_ context.Context, fiel
 				return ec.fieldContext_Category_style(ctx, field)
 			case "time":
 				return ec.fieldContext_Category_time(ctx, field)
+			case "metricCount":
+				return ec.fieldContext_Category_metricCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -3737,6 +3900,8 @@ func (ec *executionContext) fieldContext_Mutation_upsertMetric(ctx context.Conte
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Metric_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Metric_characterID(ctx, field)
 			case "categoryID":
 				return ec.fieldContext_Metric_categoryID(ctx, field)
 			case "category":
@@ -3806,6 +3971,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteMetric(ctx context.Conte
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Metric_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Metric_characterID(ctx, field)
 			case "categoryID":
 				return ec.fieldContext_Metric_categoryID(ctx, field)
 			case "category":
@@ -3875,6 +4042,8 @@ func (ec *executionContext) fieldContext_Mutation_upsertCategory(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Category_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Category_characterID(ctx, field)
 			case "name":
 				return ec.fieldContext_Category_name(ctx, field)
 			case "description":
@@ -3883,6 +4052,8 @@ func (ec *executionContext) fieldContext_Mutation_upsertCategory(ctx context.Con
 				return ec.fieldContext_Category_style(ctx, field)
 			case "time":
 				return ec.fieldContext_Category_time(ctx, field)
+			case "metricCount":
+				return ec.fieldContext_Category_metricCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -3942,6 +4113,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteCategory(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Category_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Category_characterID(ctx, field)
 			case "name":
 				return ec.fieldContext_Category_name(ctx, field)
 			case "description":
@@ -3950,6 +4123,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteCategory(ctx context.Con
 				return ec.fieldContext_Category_style(ctx, field)
 			case "time":
 				return ec.fieldContext_Category_time(ctx, field)
+			case "metricCount":
+				return ec.fieldContext_Category_metricCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -4723,6 +4898,8 @@ func (ec *executionContext) fieldContext_Query_metrics(ctx context.Context, fiel
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Metric_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Metric_characterID(ctx, field)
 			case "categoryID":
 				return ec.fieldContext_Metric_categoryID(ctx, field)
 			case "category":
@@ -4792,6 +4969,8 @@ func (ec *executionContext) fieldContext_Query_categories(ctx context.Context, f
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Category_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Category_characterID(ctx, field)
 			case "name":
 				return ec.fieldContext_Category_name(ctx, field)
 			case "description":
@@ -4800,6 +4979,8 @@ func (ec *executionContext) fieldContext_Query_categories(ctx context.Context, f
 				return ec.fieldContext_Category_style(ctx, field)
 			case "time":
 				return ec.fieldContext_Category_time(ctx, field)
+			case "metricCount":
+				return ec.fieldContext_Category_metricCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -6959,7 +7140,7 @@ func (ec *executionContext) unmarshalInputCategoryInput(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "description", "style"}
+	fieldsInOrder := [...]string{"id", "characterID", "name", "description", "style"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -6973,6 +7154,13 @@ func (ec *executionContext) unmarshalInputCategoryInput(ctx context.Context, obj
 				return it, err
 			}
 			it.ID = data
+		case "characterID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CharacterID = data
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -7240,7 +7428,7 @@ func (ec *executionContext) unmarshalInputMetricInput(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "categoryID", "name", "value", "unit"}
+	fieldsInOrder := [...]string{"id", "characterID", "categoryID", "name", "value", "unit"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7254,6 +7442,13 @@ func (ec *executionContext) unmarshalInputMetricInput(ctx context.Context, obj i
 				return it, err
 			}
 			it.ID = data
+		case "characterID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CharacterID = data
 		case "categoryID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryID"))
 			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
@@ -7462,6 +7657,11 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "characterID":
+			out.Values[i] = ec._Category_characterID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "name":
 			out.Values[i] = ec._Category_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -7487,6 +7687,42 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 					}
 				}()
 				res = ec._Category_time(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "metricCount":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Category_metricCount(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -7943,6 +8179,11 @@ func (ec *executionContext) _Metric(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = graphql.MarshalString("Metric")
 		case "id":
 			out.Values[i] = ec._Metric_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "characterID":
+			out.Values[i] = ec._Metric_characterID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
