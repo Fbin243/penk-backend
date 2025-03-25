@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db/base"
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
@@ -52,7 +53,9 @@ func (b *MetricBusiness) UpsertMetric(ctx context.Context, metricInput entity.Me
 		}
 	}
 
-	metric := &entity.Metric{}
+	metric := &entity.Metric{
+		BaseEntity: &base.BaseEntity{},
+	}
 	if metricInput.ID == nil {
 		count, err := b.metricRepo.CountByCharacterID(ctx, metricInput.CharacterID)
 		if err != nil {

@@ -7,6 +7,7 @@ import (
 	"tenkhours/pkg/db/base"
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/graphql"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 )
@@ -37,7 +38,7 @@ func (b *CategoryBusiness) GetCategories(ctx context.Context, characterID string
 	cates, err := b.cateRepo.FindByCharacterID(ctx, characterID)
 	cates = append(cates, entity.Category{
 		BaseEntity: &base.BaseEntity{
-			ID: "unassigned",
+			ID: graphql.UnassignedID,
 		},
 		CharacterID: characterID,
 	})
@@ -56,7 +57,9 @@ func (b *CategoryBusiness) UpsertCategory(ctx context.Context, cateInput entity.
 		return nil, err
 	}
 
-	cate := &entity.Category{}
+	cate := &entity.Category{
+		BaseEntity: &base.BaseEntity{},
+	}
 	if cateInput.ID == nil {
 		count, err := b.cateRepo.CountByCharacterID(ctx, cateInput.CharacterID)
 		if err != nil {

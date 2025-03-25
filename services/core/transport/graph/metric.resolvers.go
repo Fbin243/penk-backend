@@ -6,12 +6,24 @@ package graph
 
 import (
 	"context"
+
+	"tenkhours/pkg/graphql"
 	"tenkhours/services/core/entity"
+
+	"github.com/samber/lo"
 )
+
+// CategoryID is the resolver for the categoryID field.
+func (r *metricResolver) CategoryID(ctx context.Context, obj *entity.Metric) (*string, error) {
+	if obj.CategoryID == nil {
+		obj.CategoryID = lo.ToPtr(graphql.UnassignedID)
+	}
+	return obj.CategoryID, nil
+}
 
 // Category is the resolver for the category field.
 func (r *metricResolver) Category(ctx context.Context, obj *entity.Metric) (*entity.Category, error) {
-	if obj.CategoryID == nil {
+	if obj.CategoryID == nil || *obj.CategoryID == graphql.UnassignedID {
 		return nil, nil
 	}
 	return r.CategoryRepo.FindByID(ctx, *obj.CategoryID)
