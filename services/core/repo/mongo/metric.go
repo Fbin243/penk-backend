@@ -7,20 +7,21 @@ import (
 	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/pkg/errors"
 	"tenkhours/services/core/entity"
-	mongorepo "tenkhours/services/core/repo/mongo/model"
+	mongomodel "tenkhours/services/core/repo/mongo/model"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type MetricRepo struct {
-	*mongodb.BaseRepo[entity.Metric, mongorepo.Metric]
+	*mongodb.BaseRepo[entity.Metric, mongomodel.Metric]
 }
 
 func NewMetricRepo(db *mongo.Database) *MetricRepo {
 	return &MetricRepo{mongodb.NewBaseRepo(
 		db.Collection(mongodb.MetricsCollection),
-		&mongodb.Mapper[entity.Metric, mongorepo.Metric]{},
+		&mongodb.Mapper[entity.Metric, mongomodel.Metric]{},
+		true,
 	)}
 }
 

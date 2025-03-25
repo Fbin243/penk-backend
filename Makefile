@@ -132,7 +132,8 @@ dump:
 
 restore:
 	@echo "Restoring database [$(DB_URI)]"
-	@mongorestore --uri=$(DB_URI) dump/$(MONGO_DATABASE_NAME) --drop
+	@mongosh $(DB_URI) --eval "db.getSiblingDB('$(MONGO_DATABASE_NAME)').dropDatabase()"
+	@mongorestore --uri=$(DB_URI) dump/$(MONGO_DATABASE_NAME)
 
 restore-col:
 	@echo "Restoring specific collection [$(COL)] in database [$(DB_URI)]"

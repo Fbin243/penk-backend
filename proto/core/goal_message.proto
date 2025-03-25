@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package core;
 
-import "core/character_message.proto";
-
 option go_package = "tenkhours/proto/pb/core";
 
 message Goal {
@@ -15,25 +13,13 @@ message Goal {
   string description = 6;
   int64 start_time = 7;
   int64 end_time = 8;
-  GoalFinishStatus status = 9;
-  repeated GoalCategory categories = 10;
-  repeated GoalMetric metrics = 11;
-  repeated Checkbox checkboxes = 12;
-}
-
-message GoalCategory {
-  string id = 1;
-  string name = 2;
-  string description = 3;
-  CategoryStyle style = 4;
-  repeated GoalMetric metrics = 5;
+  GoalStatus status = 9;
+  repeated GoalMetric metrics = 10;
+  repeated Checkbox checkboxes = 11;
 }
 
 message GoalMetric {
   string id = 1;
-  string name = 2;
-  double value = 3;
-  string unit = 4;
   MetricCondition condition = 5;
   optional double target_value = 6;
   optional Range range_value = 7;
@@ -58,14 +44,8 @@ message GoalInput {
   optional string description = 4;
   int64 start_time = 5;
   int64 end_time = 6;
-  repeated GoalCategoryInput categories = 7;
   repeated GoalMetricInput metrics = 8;
   repeated CheckboxInput checkboxes = 9;
-}
-
-message GoalCategoryInput {
-  string id = 1;
-  repeated GoalMetricInput metrics = 2;
 }
 
 message GoalMetricInput {
@@ -86,11 +66,6 @@ message CheckboxInput {
   bool value = 3;
 }
 
-message GoalStatusFilter {
-  optional GoalFinishStatus finish_status = 1;
-  optional GoalExpireStatus expire_status = 2;
-}
-
 // Enums
 enum MetricCondition {
   lt = 0;
@@ -101,12 +76,9 @@ enum MetricCondition {
   ir = 5;
 }
 
-enum GoalFinishStatus {
-  Unfinished = 0;
-  Finished = 1;
-}
-
-enum GoalExpireStatus {
-  Expired = 0;
-  Unexpired = 1;
+enum GoalStatus {
+  Planned = 0;
+  InProgress = 1;
+  Completed = 2;
+  Overdue = 3;
 }

@@ -22,14 +22,16 @@ func ToObjectIDs(ids []string) []primitive.ObjectID {
 	})
 }
 
-func addMissingFields[M base.IBaseEntity](m M) {
+func addMissingFields[M base.IBaseEntity](m M, withTimestamp bool) {
 	if m.GetID() == "" {
 		m.SetID(GenObjectID())
 	}
-	if m.GetCreatedAt().IsZero() {
-		m.SetCreatedAtByNow()
-	}
-	if m.GetUpdatedAt().IsZero() {
-		m.SetUpdatedAtByNow()
+	if withTimestamp {
+		if m.GetCreatedAt().IsZero() {
+			m.SetCreatedAtByNow()
+		}
+		if m.GetUpdatedAt().IsZero() {
+			m.SetUpdatedAtByNow()
+		}
 	}
 }

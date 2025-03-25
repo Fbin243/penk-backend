@@ -42,7 +42,7 @@ func (hdl *CoreHandler) UpsertGoal(ctx context.Context, req *core.GoalInput) (*c
 
 	// Mapping entity to rpc
 	copier.Copy(resp, &goal)
-	resp.Status = core.GoalFinishStatus(core.GoalFinishStatus_value[string(goal.Status)])
+	resp.Status = core.GoalStatus(core.GoalStatus_value[string(goal.Status)])
 	resp.CreatedAt = goal.CreatedAt.Unix()
 	resp.UpdatedAt = goal.UpdatedAt.Unix()
 	resp.StartTime = goal.StartTime.Unix()

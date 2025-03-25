@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"tenkhours/services/core/entity"
-	mongorepo "tenkhours/services/core/repo/mongo/model"
+	mongomodel "tenkhours/services/core/repo/mongo/model"
 
 	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/pkg/errors"
@@ -17,13 +17,14 @@ import (
 )
 
 type CharacterRepo struct {
-	*mongodb.BaseRepo[entity.Character, mongorepo.Character]
+	*mongodb.BaseRepo[entity.Character, mongomodel.Character]
 }
 
 func NewCharacterRepo(db *mongo.Database) *CharacterRepo {
 	return &CharacterRepo{mongodb.NewBaseRepo(
 		db.Collection(mongodb.CharactersCollection),
-		&mongodb.Mapper[entity.Character, mongorepo.Character]{},
+		&mongodb.Mapper[entity.Character, mongomodel.Character]{},
+		true,
 	)}
 }
 

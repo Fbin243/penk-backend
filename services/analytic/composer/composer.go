@@ -2,20 +2,17 @@ package composer
 
 import (
 	mongodb "tenkhours/pkg/db/mongo"
-	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/services/analytic/business"
-	mongorepo "tenkhours/services/analytic/repo/mongo"
-	"tenkhours/services/analytic/repo/redis"
 	"tenkhours/services/analytic/repo/rpc"
+	tt "tenkhours/services/timetracking/repo/mongo"
 
 	"google.golang.org/grpc"
 )
 
 type Composer struct {
-	CapturedRecordRepo *mongorepo.CapturedRecordRepo
-	AnalyticBiz        business.IAnalyticBusiness
-	CoreClient         *rpc.CoreClient
-	CoreClientConn     *grpc.ClientConn
+	AnalyticBiz    business.IAnalyticBusiness
+	CoreClient     *rpc.CoreClient
+	CoreClientConn *grpc.ClientConn
 }
 
 var composer *Composer
@@ -27,22 +24,19 @@ func GetComposer() *Composer {
 
 	// Databases
 	db := mongodb.GetDBManager().DB
-	redisClient := rdb.GetRedisClient()
 
 	// Repositories
-	capturedRecordRepo := mongorepo.NewCapturedRecordRepo(db)
-	redisRepo := redis.NewRedisRepo(redisClient)
+	timetrackingRepo := tt.NewTimeTrackingRepo(db)
 
 	// RPC Clients
 	coreClient, conn := ComposeCoreClient()
 
 	// Business
-	analyticBiz := business.NewAnalyticBusiness(capturedRecordRepo, coreClient, redisRepo)
+	analyticBiz := business.NewAnalyticBusiness(coreClient, timetrackingRepo)
 
 	return &Composer{
-		CapturedRecordRepo: capturedRecordRepo,
-		AnalyticBiz:        analyticBiz,
-		CoreClient:         coreClient,
-		CoreClientConn:     conn,
+		AnalyticBiz:    analyticBiz,
+		CoreClient:     coreClient,
+		CoreClientConn: conn,
 	}
 }

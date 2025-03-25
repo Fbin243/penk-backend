@@ -42,6 +42,8 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Category() CategoryResolver
+	Character() CharacterResolver
 	GoalMetric() GoalMetricResolver
 	Metric() MetricResolver
 	Mutation() MutationResolver
@@ -66,6 +68,7 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Style       func(childComplexity int) int
+		Time        func(childComplexity int) int
 	}
 
 	CategoryStyle struct {
@@ -78,6 +81,7 @@ type ComplexityRoot struct {
 		ID        func(childComplexity int) int
 		Name      func(childComplexity int) int
 		ProfileID func(childComplexity int) int
+		Time      func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 	}
 
@@ -169,6 +173,12 @@ type ComplexityRoot struct {
 	}
 }
 
+type CategoryResolver interface {
+	Time(ctx context.Context, obj *entity.Category) (int, error)
+}
+type CharacterResolver interface {
+	Time(ctx context.Context, obj *entity.Character) (int, error)
+}
 type GoalMetricResolver interface {
 	Metric(ctx context.Context, obj *entity.GoalMetric) (*entity.Metric, error)
 }
@@ -282,6 +292,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Category.Style(childComplexity), true
 
+	case "Category.time":
+		if e.complexity.Category.Time == nil {
+			break
+		}
+
+		return e.complexity.Category.Time(childComplexity), true
+
 	case "CategoryStyle.color":
 		if e.complexity.CategoryStyle.Color == nil {
 			break
@@ -323,6 +340,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Character.ProfileID(childComplexity), true
+
+	case "Character.time":
+		if e.complexity.Character.Time == nil {
+			break
+		}
+
+		return e.complexity.Character.Time(childComplexity), true
 
 	case "Character.updatedAt":
 		if e.complexity.Character.UpdatedAt == nil {
@@ -1659,6 +1683,50 @@ func (ec *executionContext) fieldContext_Category_style(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Category_time(ctx context.Context, field graphql.CollectedField, obj *entity.Category) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Category_time(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Category().Time(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Category_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CategoryStyle_color(ctx context.Context, field graphql.CollectedField, obj *entity.CategoryStyle) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CategoryStyle_color(ctx, field)
 	if err != nil {
@@ -1962,6 +2030,50 @@ func (ec *executionContext) fieldContext_Character_name(_ context.Context, field
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Character_time(ctx context.Context, field graphql.CollectedField, obj *entity.Character) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Character_time(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Character().Time(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Character_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Character",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3004,6 +3116,8 @@ func (ec *executionContext) fieldContext_Metric_category(_ context.Context, fiel
 				return ec.fieldContext_Category_description(ctx, field)
 			case "style":
 				return ec.fieldContext_Category_style(ctx, field)
+			case "time":
+				return ec.fieldContext_Category_time(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -3335,6 +3449,8 @@ func (ec *executionContext) fieldContext_Mutation_upsertCharacter(ctx context.Co
 				return ec.fieldContext_Character_profileID(ctx, field)
 			case "name":
 				return ec.fieldContext_Character_name(ctx, field)
+			case "time":
+				return ec.fieldContext_Character_time(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
 		},
@@ -3402,6 +3518,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteCharacter(ctx context.Co
 				return ec.fieldContext_Character_profileID(ctx, field)
 			case "name":
 				return ec.fieldContext_Character_name(ctx, field)
+			case "time":
+				return ec.fieldContext_Character_time(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
 		},
@@ -3763,6 +3881,8 @@ func (ec *executionContext) fieldContext_Mutation_upsertCategory(ctx context.Con
 				return ec.fieldContext_Category_description(ctx, field)
 			case "style":
 				return ec.fieldContext_Category_style(ctx, field)
+			case "time":
+				return ec.fieldContext_Category_time(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -3828,6 +3948,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteCategory(ctx context.Con
 				return ec.fieldContext_Category_description(ctx, field)
 			case "style":
 				return ec.fieldContext_Category_style(ctx, field)
+			case "time":
+				return ec.fieldContext_Category_time(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -4244,6 +4366,8 @@ func (ec *executionContext) fieldContext_Profile_characters(_ context.Context, f
 				return ec.fieldContext_Character_profileID(ctx, field)
 			case "name":
 				return ec.fieldContext_Character_name(ctx, field)
+			case "time":
+				return ec.fieldContext_Character_time(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
 		},
@@ -4348,6 +4472,8 @@ func (ec *executionContext) fieldContext_Query_characters(_ context.Context, fie
 				return ec.fieldContext_Character_profileID(ctx, field)
 			case "name":
 				return ec.fieldContext_Character_name(ctx, field)
+			case "time":
+				return ec.fieldContext_Character_time(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
 		},
@@ -4672,6 +4798,8 @@ func (ec *executionContext) fieldContext_Query_categories(ctx context.Context, f
 				return ec.fieldContext_Category_description(ctx, field)
 			case "style":
 				return ec.fieldContext_Category_style(ctx, field)
+			case "time":
+				return ec.fieldContext_Category_time(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -7332,23 +7460,59 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 		case "id":
 			out.Values[i] = ec._Category_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._Category_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "description":
 			out.Values[i] = ec._Category_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "style":
 			out.Values[i] = ec._Category_style(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "time":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Category_time(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7430,28 +7594,64 @@ func (ec *executionContext) _Character(ctx context.Context, sel ast.SelectionSet
 		case "id":
 			out.Values[i] = ec._Character_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
 			out.Values[i] = ec._Character_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "updatedAt":
 			out.Values[i] = ec._Character_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "profileID":
 			out.Values[i] = ec._Character_profileID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._Character_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "time":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Character_time(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

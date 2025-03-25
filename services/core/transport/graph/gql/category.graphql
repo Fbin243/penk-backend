@@ -4,6 +4,7 @@ type Category {
   name: String!
   description: String!
   style: CategoryStyle!
+  time: Int!
 }
 
 type CategoryStyle {

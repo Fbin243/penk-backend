@@ -19,6 +19,7 @@ var (
 	MetricsCollection         = "metrics"
 	GoalsCollection           = "goals"
 	CapturedRecordsCollection = "captured_records"
+	TimeTrackingsCollecion    = "time_trackings"
 	FishCollection            = "fish"
 	TemplatesCollection       = "templates"
 	TemplateTopicsCollection  = "template_topics"

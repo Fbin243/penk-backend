@@ -1,4 +1,4 @@
-package mongorepo
+package mongomodel
 
 import (
 	"time"

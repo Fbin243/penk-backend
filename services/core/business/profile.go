@@ -16,23 +16,19 @@ import (
 )
 
 type ProfileBusiness struct {
-	ProfileRepo    IProfileRepo
-	CharacterRepo  ICharacterRepo
-	CategoryRepo   ICategoryRepo
-	MetricRepo     IMetricRepo
-	GoalRepo       IGoalRepo
-	CurrencyClient ICurrencyClient
-	AnalyticClient IAnalyticClient
-	Cache          ICache
+	ProfileRepo      IProfileRepo
+	CharacterRepo    ICharacterRepo
+	CategoryRepo     ICategoryRepo
+	MetricRepo       IMetricRepo
+	GoalRepo         IGoalRepo
+	TimeTrackingRepo ITimeTrackingRepo
+	CurrencyClient   ICurrencyClient
+	Cache            ICache
 }
 
-func NewProfileBusiness(profileRepo IProfileRepo, characterRepo ICharacterRepo, currencyClient ICurrencyClient, analyticClient IAnalyticClient, cache ICache) *ProfileBusiness {
+func NewProfileBusiness(profileRepo IProfileRepo, characterRepo ICharacterRepo, categoryRepo ICategoryRepo, metricRepo IMetricRepo, goalRepo IGoalRepo, timeTrackingRepo ITimeTrackingRepo, currencyClient ICurrencyClient, cache ICache) *ProfileBusiness {
 	return &ProfileBusiness{
-		ProfileRepo:    profileRepo,
-		CharacterRepo:  characterRepo,
-		CurrencyClient: currencyClient,
-		AnalyticClient: analyticClient,
-		Cache:          cache,
+		profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, timeTrackingRepo, currencyClient, cache,
 	}
 }
 
@@ -89,7 +85,7 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 		return nil, err
 	}
 
-	// Delete all metrics | habits | tasks | categories | goals of all characters
+	// Delete all metrics | habits | tasks | categories | goals | timetrackings of all characters
 	characterIDs := lo.Map(characters, func(c entity.Character, _ int) string {
 		return c.ID
 	})
@@ -109,6 +105,11 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 		return nil, err
 	}
 
+	err = biz.TimeTrackingRepo.DeleteByCharacterIDs(ctx, characterIDs)
+	if err != nil {
+		return nil, err
+	}
+
 	// Delete all characters in database
 	err = biz.CharacterRepo.DeleteCharactersByProfileID(ctx, authSession.ProfileID)
 	if err != nil {
@@ -123,12 +124,6 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 
 	// Delete the profile in database
 	profile, err = biz.ProfileRepo.DeleteByID(ctx, authSession.ProfileID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Delete all captured records
-	err = biz.AnalyticClient.DeleteCapturedRecords(ctx, authSession.ProfileID)
 	if err != nil {
 		return nil, err
 	}

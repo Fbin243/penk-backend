@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"tenkhours/pkg/db/base"
 	"tenkhours/services/timetracking/entity"
 )
 
@@ -18,8 +19,6 @@ type ICache interface {
 	GetCurrentTimeTracking(ctx context.Context, profileID string) (*entity.TimeTracking, error)
 	DeleteCurrentTimeTracking(ctx context.Context, profileID string) error
 	CreateTimeTracking(ctx context.Context, profileID string, timeTracking *entity.TimeTracking) error
-	GetCurrentCapturedRecord(ctx context.Context, profileID, characterID string) (*entity.CapturedRecord, error)
-	UpsertTimeTrackingInCapturedRecord(ctx context.Context, profileID string, timeTracking *entity.TimeTracking, duration int32) error
 }
 
 type ICoreClient interface {
@@ -33,4 +32,11 @@ type ICurrencyClient interface {
 
 type INotificationClient interface {
 	SendNotification(ctx context.Context, req *entity.SendNotiReq) (bool, error)
+}
+
+type ITimeTrackingRepo interface {
+	base.IBaseRepo[entity.TimeTracking]
+	FindByTimestamp(ctx context.Context, timestamp time.Time) ([]entity.TimeTracking, error)
+	FindByCategoryID(ctx context.Context, categoryID string) ([]entity.TimeTracking, error)
+	FindByCharacterID(ctx context.Context, characterID string) ([]entity.TimeTracking, error)
 }

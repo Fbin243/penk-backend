@@ -80,13 +80,5 @@ models:
     - github.com/99designs/gqlgen/graphql.Int32
   JSON:
     model: github.com/99designs/gqlgen/graphql.Map
-  CapturedRecord:
-    model: tenkhours/services/analytic/entity.CapturedRecord
-  CapturedRecordCategory:
-    model: tenkhours/services/analytic/entity.CapturedRecordCategory
-  CapturedRecordTimeTracking:
-    model: tenkhours/services/analytic/entity.CapturedRecordTimeTracking
-  CapturedRecordMetadata:
-    model: tenkhours/services/analytic/entity.CapturedRecordMetadata
   AnalyticSection:
     model: tenkhours/services/analytic/entity.AnalyticSection

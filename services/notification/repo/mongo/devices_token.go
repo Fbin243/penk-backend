@@ -32,7 +32,9 @@ func NewDevicesTokenRepo(db *mongo.Database) *DeviceTokenRepo {
 	}
 
 	return &DeviceTokenRepo{
-		mongodb.NewBaseRepo(devicesTokenCollection, &mongodb.Mapper[entity.DevicesToken, DevicesToken]{}),
+		mongodb.NewBaseRepo(devicesTokenCollection,
+			&mongodb.Mapper[entity.DevicesToken, DevicesToken]{},
+			true),
 	}
 }
 

@@ -15,16 +15,17 @@ import (
 )
 
 type CharacterBusiness struct {
-	CharacterRepo ICharacterRepo
-	ProfileRepo   IProfileRepo
-	GoalRepo      IGoalRepo
-	MetricRepo    IMetricRepo
-	CategoryRepo  ICategoryRepo
+	CharacterRepo    ICharacterRepo
+	ProfileRepo      IProfileRepo
+	GoalRepo         IGoalRepo
+	MetricRepo       IMetricRepo
+	CategoryRepo     ICategoryRepo
+	TimeTrackingRepo ITimeTrackingRepo
 }
 
-func NewCharacterBusiness(characterRepo ICharacterRepo, profileRepo IProfileRepo, goalRepo IGoalRepo, metricRepo IMetricRepo, cateRepo ICategoryRepo) *CharacterBusiness {
+func NewCharacterBusiness(characterRepo ICharacterRepo, profileRepo IProfileRepo, goalRepo IGoalRepo, metricRepo IMetricRepo, cateRepo ICategoryRepo, timetrackRepo ITimeTrackingRepo) *CharacterBusiness {
 	return &CharacterBusiness{
-		characterRepo, profileRepo, goalRepo, metricRepo, cateRepo,
+		characterRepo, profileRepo, goalRepo, metricRepo, cateRepo, timetrackRepo,
 	}
 }
 
@@ -127,6 +128,11 @@ func (biz *CharacterBusiness) DeleteCharacter(ctx context.Context, id string) (*
 	}
 
 	err = biz.GoalRepo.DeleteByCharacterID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = biz.TimeTrackingRepo.DeleteByCharacterID(ctx, id)
 	if err != nil {
 		return nil, err
 	}

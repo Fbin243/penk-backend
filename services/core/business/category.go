@@ -11,13 +11,14 @@ import (
 )
 
 type CategoryBusiness struct {
-	cateRepo      ICategoryRepo
-	characterRepo ICharacterRepo
-	metricRepo    IMetricRepo
+	cateRepo         ICategoryRepo
+	characterRepo    ICharacterRepo
+	metricRepo       IMetricRepo
+	timetrackingRepo ITimeTrackingRepo
 }
 
-func NewCategoryBusiness(cateRepo ICategoryRepo, characterRepo ICharacterRepo, metricRepo IMetricRepo) *CategoryBusiness {
-	return &CategoryBusiness{cateRepo, characterRepo, metricRepo}
+func NewCategoryBusiness(cateRepo ICategoryRepo, characterRepo ICharacterRepo, metricRepo IMetricRepo, timetrackingRepo ITimeTrackingRepo) *CategoryBusiness {
+	return &CategoryBusiness{cateRepo, characterRepo, metricRepo, timetrackingRepo}
 }
 
 func (b *CategoryBusiness) GetCategories(ctx context.Context, characterID string) ([]entity.Category, error) {
@@ -96,8 +97,13 @@ func (b *CategoryBusiness) DeleteCategory(ctx context.Context, categoryID string
 		return nil, err
 	}
 
-	// Unassign all metrics | habits | tasks of this category
+	// Unassign all metrics | habits | tasks | timetrackings of this category
 	err = b.metricRepo.UnassignCategory(ctx, categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = b.timetrackingRepo.UnassignCategory(ctx, categoryID)
 	if err != nil {
 		return nil, err
 	}

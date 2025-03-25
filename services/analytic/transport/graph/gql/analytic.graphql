@@ -3,32 +3,6 @@
 scalar Time
 scalar JSON
 
-type CapturedRecord {
-  id: ID!
-  timestamp: Time!
-  totalFocusedTime: Int!
-  categories: [CapturedRecordCategory!]
-  timeTrackings: [CapturedRecordTimeTracking!]
-  metadata: CapturedRecordMetadata!
-}
-
-type CapturedRecordCategory {
-  id: ID!
-  time: Int!
-}
-
-type CapturedRecordTimeTracking {
-  categoryID: ID
-  time: Int!
-  startTime: Time!
-  endTime: Time!
-}
-
-type CapturedRecordMetadata {
-  characterID: ID!
-  profileID: ID!
-}
-
 enum AnalyticSection {
   Overall
   Distribution

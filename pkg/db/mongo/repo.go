@@ -15,10 +15,11 @@ import (
 type BaseRepo[M base.IBaseEntity, N any] struct {
 	*mongo.Collection
 	*Mapper[M, N]
+	WithTimestamp bool
 }
 
-func NewBaseRepo[M base.IBaseEntity, N any](collection *mongo.Collection, mapper *Mapper[M, N]) *BaseRepo[M, N] {
-	return &BaseRepo[M, N]{collection, mapper}
+func NewBaseRepo[M base.IBaseEntity, N any](collection *mongo.Collection, mapper *Mapper[M, N], withTimestamp bool) *BaseRepo[M, N] {
+	return &BaseRepo[M, N]{collection, mapper, withTimestamp}
 }
 
 func (r *BaseRepo[M, N]) CountAll(ctx context.Context) (int64, error) {
@@ -34,7 +35,7 @@ func (r *BaseRepo[M, N]) InsertMany(ctx context.Context, ms []M) ([]M, error) {
 
 	docs := make([]interface{}, len(ms))
 	for i, m := range ms {
-		addMissingFields(m)
+		addMissingFields(m, r.WithTimestamp)
 		docs[i] = r.ToMongoEntity(&m)
 	}
 
@@ -46,7 +47,7 @@ func (r *BaseRepo[M, N]) InsertOne(ctx context.Context, m *M) (*M, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	addMissingFields(*m)
+	addMissingFields(*m, r.WithTimestamp)
 	_, err := r.Collection.InsertOne(ctx, r.ToMongoEntity(m))
 	return m, err
 }
@@ -80,7 +81,9 @@ func (r *BaseRepo[M, N]) UpdateByID(ctx context.Context, id string, m *M) (*M, e
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	lo.FromPtr(m).SetUpdatedAtByNow()
+	if r.WithTimestamp {
+		lo.FromPtr(m).SetUpdatedAtByNow()
+	}
 
 	err := r.Collection.FindOneAndUpdate(ctx,
 		bson.M{"_id": ToObjectID(id)},

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"tenkhours/services/core/entity"
-	mongorepo "tenkhours/services/core/repo/mongo/model"
+	mongomodel "tenkhours/services/core/repo/mongo/model"
 
 	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/pkg/errors"
@@ -15,13 +15,14 @@ import (
 )
 
 type GoalRepo struct {
-	*mongodb.BaseRepo[entity.Goal, mongorepo.Goal]
+	*mongodb.BaseRepo[entity.Goal, mongomodel.Goal]
 }
 
 func NewGoalRepo(db *mongo.Database) *GoalRepo {
 	return &GoalRepo{mongodb.NewBaseRepo(
 		db.Collection(mongodb.GoalsCollection),
-		&mongodb.Mapper[entity.Goal, mongorepo.Goal]{},
+		&mongodb.Mapper[entity.Goal, mongomodel.Goal]{},
+		true,
 	)}
 }
 

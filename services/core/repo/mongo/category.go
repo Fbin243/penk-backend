@@ -7,20 +7,21 @@ import (
 	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/pkg/errors"
 	"tenkhours/services/core/entity"
-	mongorepo "tenkhours/services/core/repo/mongo/model"
+	mongomodel "tenkhours/services/core/repo/mongo/model"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type CategoryRepo struct {
-	*mongodb.BaseRepo[entity.Category, mongorepo.Category]
+	*mongodb.BaseRepo[entity.Category, mongomodel.Category]
 }
 
 func NewCategoryRepo(db *mongo.Database) *CategoryRepo {
 	return &CategoryRepo{mongodb.NewBaseRepo(
 		db.Collection(mongodb.CategoriesCollection),
-		&mongodb.Mapper[entity.Category, mongorepo.Category]{},
+		&mongodb.Mapper[entity.Category, mongomodel.Category]{},
+		true,
 	)}
 }
 
