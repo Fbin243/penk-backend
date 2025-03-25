@@ -10,6 +10,8 @@ import (
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
+
+	"github.com/samber/lo"
 )
 
 type GoalBusiness struct {
@@ -34,9 +36,15 @@ func (biz *GoalBusiness) GetGoals(ctx context.Context, characterID string, statu
 		return nil, err
 	}
 
-	goals, err := biz.goalRepo.GetGoalsByCharacterID(ctx, characterID, status)
+	goals, err := biz.goalRepo.GetGoalsByCharacterID(ctx, characterID)
 	if err != nil {
 		return nil, err
+	}
+
+	if status != nil {
+		goals = lo.Filter(goals, func(goal entity.Goal, _ int) bool {
+			return goal.EvaluateStatus() == *status
+		})
 	}
 
 	return goals, nil
@@ -69,37 +77,18 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput)
 		goal = &entity.Goal{
 			BaseEntity:  &base.BaseEntity{},
 			CharacterID: input.CharacterID,
-			Status:      entity.GoalStatusPlanned,
 		}
 	}
 
 	goal.Name = input.Name
 	goal.StartTime = input.StartTime
 	goal.EndTime = input.EndTime
+	goal.CompletedTime = input.CompletedTime
 	if input.Description != nil {
 		goal.Description = *input.Description
 	}
 
-	if input.Status != nil {
-		goal.Status = *input.Status
-	}
-
 	if input.Metrics != nil {
-		err := biz.upsertGoalMetrics(ctx, goal, input.Metrics)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if input.Checkboxes != nil {
-		err := biz.upsertCheckboxesInGoal(ctx, goal, input.Checkboxes)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if input.Metrics != nil ||
-		input.Checkboxes != nil {
 		// Get currrent metrics
 		metrics, err := biz.metricRepo.FindByCharacterID(ctx, goal.CharacterID)
 		if err != nil {
@@ -110,7 +99,22 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput)
 		for _, metric := range metrics {
 			metricMap[metric.ID] = metric
 		}
-		goal.UpdateStatus(metricMap)
+
+		err = biz.upsertGoalMetrics(ctx, upsertGoalMetricsParams{
+			goal,
+			input.Metrics,
+			metricMap,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if input.Checkboxes != nil {
+		err := biz.upsertCheckboxesInGoal(ctx, goal, input.Checkboxes)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if input.ID != nil {
@@ -128,9 +132,20 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput)
 	return goal, nil
 }
 
-func (biz *GoalBusiness) upsertGoalMetrics(_ context.Context, goal *entity.Goal, metricInputs []entity.GoalMetricInput) error {
+type upsertGoalMetricsParams struct {
+	goal         *entity.Goal
+	metricInputs []entity.GoalMetricInput
+	metricMap    map[string]entity.Metric
+}
+
+func (biz *GoalBusiness) upsertGoalMetrics(_ context.Context, params upsertGoalMetricsParams) error {
 	metrics := []entity.GoalMetric{}
-	for _, metricInput := range metricInputs {
+	for _, metricInput := range params.metricInputs {
+		_, ok := params.metricMap[metricInput.ID]
+		if !ok {
+			return errors.NewGQLError(errors.ErrCodeNotFound, "Metric not found")
+		}
+
 		metric := entity.GoalMetric{
 			ID:        metricInput.ID,
 			Condition: metricInput.Condition,
@@ -149,8 +164,8 @@ func (biz *GoalBusiness) upsertGoalMetrics(_ context.Context, goal *entity.Goal,
 		metrics = append(metrics, metric)
 	}
 
-	if goal != nil {
-		goal.Metrics = metrics
+	if params.goal != nil {
+		params.goal.Metrics = metrics
 	}
 
 	return nil
@@ -171,7 +186,7 @@ func (biz *GoalBusiness) upsertCheckboxesInGoal(_ context.Context, goal *entity.
 		checkbox := entity.Checkbox{}
 		if checkboxInput.ID != nil {
 			if _, ok := checkboxMap[*checkboxInput.ID]; !ok {
-				return errors.NewGQLError(errors.ErrCodeBadRequest, "Category not found")
+				return errors.NewGQLError(errors.ErrCodeNotFound, "Checkbox not found")
 			}
 
 			checkbox = checkboxMap[*checkboxInput.ID]

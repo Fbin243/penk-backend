@@ -24,7 +24,6 @@ var goal = &entity.Goal{
 	Description: "example description",
 	StartTime:   time.Now(),
 	EndTime:     time.Now(),
-	Status:      entity.GoalStatusPlanned,
 	Metrics:     []entity.GoalMetric{targetMetric, rangeMetric, targetMetric},
 	Checkboxes:  []entity.Checkbox{checkbox, checkbox, checkbox},
 }
@@ -62,7 +61,7 @@ func TestGetGoalsByCharacterID(t *testing.T) {
 		assert.Nil(t, err)
 	}
 
-	goals, err := goalRepo.GetGoalsByCharacterID(context.Background(), goal.CharacterID, nil)
+	goals, err := goalRepo.GetGoalsByCharacterID(context.Background(), goal.CharacterID)
 	assert.Nil(t, err)
 	assert.Equal(t, 3, len(goals))
 	for _, g := range goals {

@@ -16,15 +16,15 @@ const (
 )
 
 type Goal struct {
-	*base.BaseEntity `                   bson:",inline"`
-	CharacterID      string       `json:"characterID" bson:"character_id"`
-	Name             string       `json:"name"        bson:"name"`
-	Description      string       `json:"description" bson:"description"`
-	StartTime        time.Time    `json:"startTime"   bson:"start_time"`
-	EndTime          time.Time    `json:"endTime"     bson:"end_time"`
-	Status           GoalStatus   `json:"status"      bson:"status"`
-	Metrics          []GoalMetric `json:"metrics"     bson:"metrics"`
-	Checkboxes       []Checkbox   `json:"checkboxes"  bson:"checkboxes"`
+	*base.BaseEntity `                     bson:",inline"`
+	CharacterID      string       `json:"characterID"   bson:"character_id"`
+	Name             string       `json:"name"          bson:"name"`
+	Description      string       `json:"description"   bson:"description"`
+	StartTime        time.Time    `json:"startTime"     bson:"start_time"`
+	CompletedTime    *time.Time   `json:"completedTime" bson:"completed_time"`
+	EndTime          time.Time    `json:"endTime"       bson:"end_time"`
+	Metrics          []GoalMetric `json:"metrics"       bson:"metrics"`
+	Checkboxes       []Checkbox   `json:"checkboxes"    bson:"checkboxes"`
 }
 
 type GoalMetric struct {
@@ -71,6 +71,20 @@ func (g *Goal) UpdateStatus(metricMap map[string]Metric) {
 			return
 		}
 	}
+}
 
-	g.Status = GoalStatusCompleted
+func (g *Goal) EvaluateStatus() GoalStatus {
+	if g.CompletedTime != nil {
+		return GoalStatusCompleted
+	}
+
+	if time.Now().After(g.EndTime) {
+		return GoalStatusOverdue
+	}
+
+	if time.Now().After(g.StartTime) {
+		return GoalStatusInProgress
+	}
+
+	return GoalStatusPlanned
 }

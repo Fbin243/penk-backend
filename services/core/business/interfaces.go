@@ -71,8 +71,9 @@ type ICategoryRepo interface {
 
 type IMetricRepo interface {
 	base.IBaseRepo[entity.Metric]
-	CountByCharacterID(ctx context.Context, characterID string) (int64, error)
+	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 	CountByCategoryID(ctx context.Context, categoryID string) (int, error)
+	CountUnassigned(ctx context.Context, characterID string) (int, error)
 	Exist(ctx context.Context, characterID, categoryID string) error
 	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Metric, error)
 	UnassignCategory(ctx context.Context, categoryID string) error
@@ -82,10 +83,8 @@ type IMetricRepo interface {
 
 type IGoalRepo interface {
 	base.IBaseRepo[entity.Goal]
-	GetGoalsByCharacterID(ctx context.Context, characterID string, status *entity.GoalStatus) ([]entity.Goal, error)
+	GetGoalsByCharacterID(ctx context.Context, characterID string) ([]entity.Goal, error)
 	ValidateGoal(ctx context.Context, profileID, goalID string) error
-	UpdateStatusOfGoals(ctx context.Context, goalIDs []string, status entity.GoalStatus) error
-	SyncGoalStatus(ctx context.Context, characterID string) error
 	DeleteByCharacterID(ctx context.Context, characterID string) error
 	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
 }
@@ -105,6 +104,7 @@ type ICurrencyClient interface {
 // TODO: Allow Core service fetch data from Timetracking repo
 type ITimeTrackingRepo interface {
 	GetTotalTimeByCategoryID(ctx context.Context, categoryID string) (int, error)
+	GetTotalTimeOfUnassigned(ctx context.Context, characterID string) (int, error)
 	GetTotalTimeByCharacterID(ctx context.Context, characterID string) (int, error)
 	UnassignCategory(ctx context.Context, categoryID string) error
 	DeleteByCharacterID(ctx context.Context, characterID string) error

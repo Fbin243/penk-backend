@@ -7,6 +7,7 @@ type Goal {
   description: String!
   startTime: Time!
   endTime: Time!
+  completedTime: Time
   status: GoalStatus!
   metrics: [GoalMetric!]!
   checkboxes: [Checkbox!]!
@@ -39,6 +40,7 @@ input GoalInput {
   description: String
   startTime: Time!
   endTime: Time!
+  completedTime: Time
   metrics: [GoalMetricInput!]
   checkboxes: [CheckboxInput!]
 }
@@ -71,8 +73,8 @@ enum MetricCondition {
 }
 
 enum GoalStatus {
-  InProgress
   Planned
+  InProgress
   Completed
   Overdue
 }

@@ -11,11 +11,19 @@ import (
 
 // Time is the resolver for the time field.
 func (r *categoryResolver) Time(ctx context.Context, obj *entity.Category) (int, error) {
+	if obj.ID == "unassigned" {
+		return r.TimeTrackingRepo.GetTotalTimeOfUnassigned(ctx, obj.CharacterID)
+	}
+
 	return r.TimeTrackingRepo.GetTotalTimeByCategoryID(ctx, obj.ID)
 }
 
 // MetricCount is the resolver for the metricCount field.
 func (r *categoryResolver) MetricCount(ctx context.Context, obj *entity.Category) (int, error) {
+	if obj.ID == "unassigned" {
+		return r.MetricRepo.CountUnassigned(ctx, obj.CharacterID)
+	}
+
 	return r.MetricRepo.CountByCategoryID(ctx, obj.ID)
 }
 
