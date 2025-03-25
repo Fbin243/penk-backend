@@ -73,9 +73,7 @@ func (b *MetricBusiness) UpsertMetric(ctx context.Context, metricInput entity.Me
 
 	metric.Name = metricInput.Name
 	metric.CharacterID = metricInput.CharacterID
-	if metricInput.CategoryID != nil {
-		metric.CategoryID = metricInput.CategoryID
-	}
+	metric.CategoryID = metricInput.CategoryID
 	metric.Value = metricInput.Value
 	metric.Unit = metricInput.Unit
 
