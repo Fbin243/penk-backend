@@ -101,6 +101,9 @@ models:
     model: tenkhours/services/core/entity.CategoryInput
   Metric:
     model: tenkhours/services/core/entity.Metric
+    fields:
+      categoryID:
+        resolver: true
   MetricInput:
     model: tenkhours/services/core/entity.MetricInput
   CategoryStyle:
@@ -115,7 +118,7 @@ models:
     model: tenkhours/services/core/entity.MetricCondition
   Range:
     model: tenkhours/services/core/entity.Range
-  GoalMetric: 
+  GoalMetric:
     model: tenkhours/services/core/entity.GoalMetric
   GoalStatus:
     model: tenkhours/services/core/entity.GoalStatus

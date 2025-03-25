@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-
 	"tenkhours/services/core/entity"
 )
 
@@ -26,7 +25,5 @@ func (r *Resolver) Goal() GoalResolver { return &goalResolver{r} }
 // GoalMetric returns GoalMetricResolver implementation.
 func (r *Resolver) GoalMetric() GoalMetricResolver { return &goalMetricResolver{r} }
 
-type (
-	goalResolver       struct{ *Resolver }
-	goalMetricResolver struct{ *Resolver }
-)
+type goalResolver struct{ *Resolver }
+type goalMetricResolver struct{ *Resolver }

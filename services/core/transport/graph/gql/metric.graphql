@@ -1,4 +1,3 @@
-
 type Metric {
   id: ID!
   characterID: ID!
