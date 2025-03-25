@@ -2,6 +2,7 @@ package mongorepo
 
 import (
 	"context"
+	"log"
 	"time"
 
 	mongodb "tenkhours/pkg/db/mongo"
@@ -18,8 +19,17 @@ type CategoryRepo struct {
 }
 
 func NewCategoryRepo(db *mongo.Database) *CategoryRepo {
+	cateColl := db.Collection(mongodb.CategoriesCollection)
+	_, err := cateColl.Indexes().CreateMany(context.TODO(), []mongo.IndexModel{
+		{Keys: bson.D{{Key: "character_id", Value: 1}}},
+	})
+	if err != nil {
+		log.Printf("failed to create indexes for %s collection\n", mongodb.CategoriesCollection)
+		return nil
+	}
+
 	return &CategoryRepo{mongodb.NewBaseRepo(
-		db.Collection(mongodb.CategoriesCollection),
+		cateColl,
 		&mongodb.Mapper[entity.Category, mongomodel.Category]{},
 		true,
 	)}

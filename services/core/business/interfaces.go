@@ -83,10 +83,8 @@ type IMetricRepo interface {
 
 type IGoalRepo interface {
 	base.IBaseRepo[entity.Goal]
-	GetGoalsByCharacterID(ctx context.Context, characterID string, status *entity.GoalStatus) ([]entity.Goal, error)
+	GetGoalsByCharacterID(ctx context.Context, characterID string) ([]entity.Goal, error)
 	ValidateGoal(ctx context.Context, profileID, goalID string) error
-	UpdateStatusOfGoals(ctx context.Context, goalIDs []string, status entity.GoalStatus) error
-	SyncGoalStatus(ctx context.Context, characterID string) error
 	DeleteByCharacterID(ctx context.Context, characterID string) error
 	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
 }

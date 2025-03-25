@@ -42,7 +42,6 @@ var goal = entity.Goal{
 	Description: "Goal desc",
 	StartTime:   utils.Now(),
 	EndTime:     utils.Now(),
-	Status:      entity.GoalStatusPlanned,
 	Metrics: []entity.GoalMetric{
 		goalMetric, goalMetric,
 	},
@@ -55,7 +54,6 @@ func TestMapGoal(t *testing.T) {
 	rpcGoal := &core.Goal{}
 
 	copier.Copy(rpcGoal, &goal)
-	rpcGoal.Status = core.GoalStatus(core.GoalStatus_value[string(goal.Status)])
 	rpcGoal.CreatedAt = goal.CreatedAt.Unix()
 	rpcGoal.UpdatedAt = goal.UpdatedAt.Unix()
 	rpcGoal.StartTime = goal.StartTime.Unix()
@@ -70,7 +68,6 @@ func TestMapGoal(t *testing.T) {
 	assert.Equal(t, goal.CharacterID, rpcGoal.CharacterId)
 	assert.Equal(t, goal.Name, rpcGoal.Name)
 	assert.Equal(t, goal.Description, rpcGoal.Description)
-	assert.Equal(t, string(goal.Status), rpcGoal.Status.String())
 	assert.Equal(t, goal.StartTime.Unix(), rpcGoal.StartTime)
 	assert.Equal(t, goal.EndTime.Unix(), rpcGoal.EndTime)
 	assert.Equal(t, goal.CreatedAt.Unix(), rpcGoal.CreatedAt)

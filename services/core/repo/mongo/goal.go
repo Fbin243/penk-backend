@@ -2,6 +2,7 @@ package mongorepo
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"tenkhours/services/core/entity"
@@ -19,35 +20,33 @@ type GoalRepo struct {
 }
 
 func NewGoalRepo(db *mongo.Database) *GoalRepo {
+	goalCollection := db.Collection(mongodb.GoalsCollection)
+	_, err := goalCollection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+		Keys: bson.D{{Key: "character_id", Value: 1}},
+	})
+	if err != nil {
+		log.Printf("failed to create indexes for %s collection\n", mongodb.GoalsCollection)
+		return nil
+	}
+
 	return &GoalRepo{mongodb.NewBaseRepo(
-		db.Collection(mongodb.GoalsCollection),
+		goalCollection,
 		&mongodb.Mapper[entity.Goal, mongomodel.Goal]{},
 		true,
 	)}
 }
 
-func (r *GoalRepo) GetGoalsByCharacterID(ctx context.Context, characterID string, status *entity.GoalStatus) ([]entity.Goal, error) {
+func (r *GoalRepo) GetGoalsByCharacterID(ctx context.Context, characterID string) ([]entity.Goal, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	err := r.SyncGoalStatus(ctx, characterID)
+	cursor, err := r.Find(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
 	if err != nil {
 		return nil, err
 	}
-
-	filter := bson.M{"character_id": mongodb.ToObjectID(characterID)}
-	if status != nil {
-		filter["status"] = status
-	}
-
-	goals := []entity.Goal{}
-	cursor, err := r.Find(ctx, filter)
-	if err != nil {
-		return nil, err
-	}
-
 	defer cursor.Close(ctx)
 
+	goals := []entity.Goal{}
 	err = cursor.All(ctx, &goals)
 
 	return goals, err
@@ -77,54 +76,6 @@ func (r *GoalRepo) ValidateGoal(ctx context.Context, profileID, goalID string) e
 	}
 
 	return nil
-}
-
-func (r *GoalRepo) UpdateStatusOfGoals(ctx context.Context, goalIDs []string, status entity.GoalStatus) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	filter := bson.M{"_id": bson.M{"$in": mongodb.ToObjectIDs(goalIDs)}}
-	update := bson.M{"$set": bson.M{"status": status}}
-	_, err := r.UpdateMany(ctx, filter, update)
-
-	return err
-}
-
-func (r *GoalRepo) SyncGoalStatus(ctx context.Context, characterID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	operations := []mongo.WriteModel{
-		// Planned --> In Progress
-		mongo.NewUpdateManyModel().
-			SetFilter(bson.M{
-				"character_id": mongodb.ToObjectID(characterID),
-				"status":       entity.GoalStatusPlanned,
-				"start_time":   bson.M{"$lte": time.Now()},
-			}).
-			SetUpdate(bson.M{
-				"$set": bson.M{
-					"status": entity.GoalStatusInProgress,
-				},
-			}),
-
-		// In Progress --> Overdue
-		mongo.NewUpdateManyModel().
-			SetFilter(bson.M{
-				"character_id": mongodb.ToObjectID(characterID),
-				"status":       entity.GoalStatusInProgress,
-				"end_time":     bson.M{"$lt": time.Now()},
-			}).
-			SetUpdate(bson.M{
-				"$set": bson.M{
-					"status": entity.GoalStatusOverdue,
-				},
-			}),
-	}
-
-	_, err := r.BulkWrite(ctx, operations)
-
-	return err
 }
 
 func (r *GoalRepo) DeleteByCharacterID(ctx context.Context, characterID string) error {

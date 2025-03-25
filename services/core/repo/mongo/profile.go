@@ -33,7 +33,7 @@ func NewProfileRepo(db *mongo.Database) *ProfileRepo {
 		},
 	})
 	if err != nil {
-		log.Println("failed to create indexes for profiles collection")
+		log.Printf("failed to create indexes for %s collection\n", mongodb.ProfilesCollection)
 		return nil
 	}
 

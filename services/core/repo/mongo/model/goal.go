@@ -20,6 +20,7 @@ type Goal struct {
 	Status              entity.GoalStatus  `json:"status"      bson:"status"`
 	Metrics             []GoalMetric       `json:"metrics"     bson:"metrics"`
 	Checkboxes          []Checkbox         `json:"checkboxes"  bson:"checkboxes"`
+	CompletedTime       *time.Time         `json:"completedTime" bson:"completed_time"`
 }
 
 func (g *Goal) CharacterID(id string) {

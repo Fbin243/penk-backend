@@ -10,6 +10,7 @@ var (
 	ErrUnauthorized     = NewGQLError(ErrCodeUnauthorized, "unauthorized")
 	ErrPermissionDenied = NewGQLError(ErrCodePermissionDenied, "permission denied")
 	ErrBadRequest       = NewGQLError(ErrCodeBadRequest, "bad request")
+	ErrNotFound         = NewGQLError(ErrCodeNotFound, "not found")
 	ErrMongoNotFound    = NewGQLError(ErrCodeMongoNotFound, "mongo not found")
 	ErrRedisNotFound    = NewGQLError(ErrCodeRedisNotFound, "redis not found")
 	ErrLimitMetric      = NewGQLError(ErrCodeLimitMetric, "over limit metric")

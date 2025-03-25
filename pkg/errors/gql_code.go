@@ -8,6 +8,7 @@ const (
 	ErrCodeBadRequest       ErrorCode = "BAD_REQUEST"
 	ErrCodePermissionDenied ErrorCode = "PERMISSION_DENIED"
 	ErrCodeUnauthorized     ErrorCode = "UNAUTHORIZED"
+	ErrCodeNotFound         ErrorCode = "NOT_FOUND"
 	ErrCodeMongoNotFound    ErrorCode = "MONGO_NOT_FOUND"
 	ErrCodeRedisNotFound    ErrorCode = "REDIS_NOT_FOUND"
 

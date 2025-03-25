@@ -6,15 +6,27 @@ package graph
 
 import (
 	"context"
+
 	"tenkhours/services/core/entity"
 )
+
+// Status is the resolver for the status field.
+func (r *goalResolver) Status(ctx context.Context, obj *entity.Goal) (entity.GoalStatus, error) {
+	return obj.EvaluateStatus(), nil
+}
 
 // Metric is the resolver for the metric field.
 func (r *goalMetricResolver) Metric(ctx context.Context, obj *entity.GoalMetric) (*entity.Metric, error) {
 	return r.MetricRepo.FindByID(ctx, obj.ID)
 }
 
+// Goal returns GoalResolver implementation.
+func (r *Resolver) Goal() GoalResolver { return &goalResolver{r} }
+
 // GoalMetric returns GoalMetricResolver implementation.
 func (r *Resolver) GoalMetric() GoalMetricResolver { return &goalMetricResolver{r} }
 
-type goalMetricResolver struct{ *Resolver }
+type (
+	goalResolver       struct{ *Resolver }
+	goalMetricResolver struct{ *Resolver }
+)
