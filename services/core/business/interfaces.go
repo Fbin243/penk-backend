@@ -71,8 +71,9 @@ type ICategoryRepo interface {
 
 type IMetricRepo interface {
 	base.IBaseRepo[entity.Metric]
-	CountByCharacterID(ctx context.Context, characterID string) (int64, error)
+	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 	CountByCategoryID(ctx context.Context, categoryID string) (int, error)
+	CountUnassigned(ctx context.Context, characterID string) (int, error)
 	Exist(ctx context.Context, characterID, categoryID string) error
 	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Metric, error)
 	UnassignCategory(ctx context.Context, categoryID string) error
@@ -105,6 +106,7 @@ type ICurrencyClient interface {
 // TODO: Allow Core service fetch data from Timetracking repo
 type ITimeTrackingRepo interface {
 	GetTotalTimeByCategoryID(ctx context.Context, categoryID string) (int, error)
+	GetTotalTimeOfUnassigned(ctx context.Context, characterID string) (int, error)
 	GetTotalTimeByCharacterID(ctx context.Context, characterID string) (int, error)
 	UnassignCategory(ctx context.Context, categoryID string) error
 	DeleteByCharacterID(ctx context.Context, characterID string) error

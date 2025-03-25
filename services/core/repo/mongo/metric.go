@@ -60,11 +60,12 @@ func (r *MetricRepo) Exist(ctx context.Context, characterID, metricID string) er
 	return nil
 }
 
-func (r *MetricRepo) CountByCharacterID(ctx context.Context, characterID string) (int64, error) {
+func (r *MetricRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	return r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
+	count, err := r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
+	return int(count), err
 }
 
 func (r *MetricRepo) CountByCategoryID(ctx context.Context, categoryID string) (int, error) {
@@ -72,6 +73,14 @@ func (r *MetricRepo) CountByCategoryID(ctx context.Context, categoryID string) (
 	defer cancel()
 
 	count, err := r.CountDocuments(ctx, bson.M{"category_id": mongodb.ToObjectID(categoryID)})
+	return int(count), err
+}
+
+func (r *MetricRepo) CountUnassigned(ctx context.Context, characterID string) (int, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	count, err := r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID), "category_id": nil})
 	return int(count), err
 }
 

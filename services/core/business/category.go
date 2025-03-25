@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"tenkhours/pkg/auth"
+	"tenkhours/pkg/db/base"
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
@@ -32,7 +33,16 @@ func (b *CategoryBusiness) GetCategories(ctx context.Context, characterID string
 		return nil, err
 	}
 
-	return b.cateRepo.FindByCharacterID(ctx, characterID)
+	// Add the default category with id = "unassigned"
+	cates, err := b.cateRepo.FindByCharacterID(ctx, characterID)
+	cates = append(cates, entity.Category{
+		BaseEntity: &base.BaseEntity{
+			ID: "unassigned",
+		},
+		CharacterID: characterID,
+	})
+
+	return cates, err
 }
 
 func (b *CategoryBusiness) UpsertCategory(ctx context.Context, cateInput entity.CategoryInput) (*entity.Category, error) {
