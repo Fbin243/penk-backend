@@ -56,7 +56,9 @@ func (b *CategoryBusiness) UpsertCategory(ctx context.Context, cateInput entity.
 		return nil, err
 	}
 
-	cate := &entity.Category{}
+	cate := &entity.Category{
+		BaseEntity: &base.BaseEntity{},
+	}
 	if cateInput.ID == nil {
 		count, err := b.cateRepo.CountByCharacterID(ctx, cateInput.CharacterID)
 		if err != nil {
