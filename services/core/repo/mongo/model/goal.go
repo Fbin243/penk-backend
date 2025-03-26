@@ -17,7 +17,6 @@ type Goal struct {
 	Description         string             `json:"description"   bson:"description"`
 	StartTime           time.Time          `json:"startTime"     bson:"start_time"`
 	EndTime             time.Time          `json:"endTime"       bson:"end_time"`
-	Status              entity.GoalStatus  `json:"status"        bson:"status"`
 	Metrics             []GoalMetric       `json:"metrics"       bson:"metrics"`
 	Checkboxes          []Checkbox         `json:"checkboxes"    bson:"checkboxes"`
 	CompletedTime       *time.Time         `json:"completedTime" bson:"completed_time"`

@@ -10,7 +10,7 @@ type GoalStatus string
 
 const (
 	GoalStatusPlanned    GoalStatus = "Planned"
-	GoalStatusInProgress GoalStatus = "In Progress"
+	GoalStatusInProgress GoalStatus = "InProgress"
 	GoalStatusCompleted  GoalStatus = "Completed"
 	GoalStatusOverdue    GoalStatus = "Overdue"
 )

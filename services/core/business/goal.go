@@ -81,6 +81,7 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput)
 	}
 
 	goal.Name = input.Name
+	goal.CharacterID = input.CharacterID
 	goal.StartTime = input.StartTime
 	goal.EndTime = input.EndTime
 	if input.Description != nil {

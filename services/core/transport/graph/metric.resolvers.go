@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-
 	gql "tenkhours/pkg/graphql"
 	"tenkhours/services/core/entity"
 
