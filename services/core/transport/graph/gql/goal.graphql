@@ -40,7 +40,6 @@ input GoalInput {
   description: String
   startTime: Time!
   endTime: Time!
-  completedTime: Time
   metrics: [GoalMetricInput!]
   checkboxes: [CheckboxInput!]
 }

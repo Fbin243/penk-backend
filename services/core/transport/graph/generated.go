@@ -7364,7 +7364,7 @@ func (ec *executionContext) unmarshalInputGoalInput(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "characterID", "name", "description", "startTime", "endTime", "completedTime", "metrics", "checkboxes"}
+	fieldsInOrder := [...]string{"id", "characterID", "name", "description", "startTime", "endTime", "metrics", "checkboxes"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7413,13 +7413,6 @@ func (ec *executionContext) unmarshalInputGoalInput(ctx context.Context, obj int
 				return it, err
 			}
 			it.EndTime = data
-		case "completedTime":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("completedTime"))
-			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CompletedTime = data
 		case "metrics":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metrics"))
 			data, err := ec.unmarshalOGoalMetricInput2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐGoalMetricInputᚄ(ctx, v)

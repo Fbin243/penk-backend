@@ -83,23 +83,22 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput)
 	goal.Name = input.Name
 	goal.StartTime = input.StartTime
 	goal.EndTime = input.EndTime
-	goal.CompletedTime = input.CompletedTime
 	if input.Description != nil {
 		goal.Description = *input.Description
 	}
 
+	// Get currrent metrics
+	metrics, err := biz.metricRepo.FindByCharacterID(ctx, goal.CharacterID)
+	if err != nil {
+		return nil, err
+	}
+
+	metricMap := map[string]entity.Metric{}
+	for _, metric := range metrics {
+		metricMap[metric.ID] = metric
+	}
+
 	if input.Metrics != nil {
-		// Get currrent metrics
-		metrics, err := biz.metricRepo.FindByCharacterID(ctx, goal.CharacterID)
-		if err != nil {
-			return nil, err
-		}
-
-		metricMap := map[string]entity.Metric{}
-		for _, metric := range metrics {
-			metricMap[metric.ID] = metric
-		}
-
 		err = biz.upsertGoalMetrics(ctx, upsertGoalMetricsParams{
 			goal,
 			input.Metrics,
@@ -115,6 +114,12 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput)
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	if !goal.IsCompleted(metricMap) {
+		goal.CompletedTime = nil
+	} else if goal.CompletedTime == nil {
+		goal.CompletedTime = lo.ToPtr(utils.Now())
 	}
 
 	if input.ID != nil {
