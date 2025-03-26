@@ -1,0 +1,11 @@
+scalar Time
+
+type Reward {
+    id: ID!
+    createdAt: Time!
+    updatedAt: Time!
+    profileID: ID!
+    fishCount: Int!
+    claimedAt: Time!
+    streakCount: Int!
+}

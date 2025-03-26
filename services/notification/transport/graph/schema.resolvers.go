@@ -22,7 +22,7 @@ func (r *mutationResolver) AddToWaitlist(ctx context.Context, email string) (boo
 
 // RegisterDeviceToken is the resolver for the RegisterDeviceToken field.
 func (r *mutationResolver) RegisterDeviceToken(ctx context.Context, token string, profileID string, deviceID string, platform string) (bool, error) {
-	_, err := r.DeviceTokenBusiness.RegisterDeviceToken(ctx, profileID, token, deviceID, platform)
+	_, err := r.NotificationBusiness.RegisterDeviceToken(ctx, profileID, token, deviceID, platform)
 	if err != nil {
 		fmt.Printf("Failed to register device token: %v\n", err)
 		return false, err
@@ -33,7 +33,7 @@ func (r *mutationResolver) RegisterDeviceToken(ctx context.Context, token string
 
 // RemoveDeviceToken is the resolver for the RemoveDeviceToken field.
 func (r *mutationResolver) RemoveDeviceToken(ctx context.Context, token string, profileID string, deviceID string) (bool, error) {
-	_, err := r.DeviceTokenBusiness.RemoveDeviceToken(ctx, profileID, token)
+	_, err := r.NotificationBusiness.RemoveDeviceToken(ctx, profileID, token)
 	if err != nil {
 		fmt.Printf("Failed to remove device token: %v\n", err)
 		return false, err
@@ -53,6 +53,3 @@ type mutationResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *mutationResolver) AddDeviceToken(ctx context.Context, token string) (bool, error) {
-	panic(fmt.Errorf("not implemented: AddDeviceToken - addDeviceToken"))
-}

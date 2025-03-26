@@ -6,11 +6,15 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 )
 
 // Status is the resolver for the status field.
 func (r *goalResolver) Status(ctx context.Context, obj *entity.Goal) (entity.GoalStatus, error) {
+	fmt.Printf("goalResolver.Status: %v\n", utils.PrettyJSON(obj))
+	fmt.Printf("goalResolver.Status: %v\n", obj.EvaluateStatus())
 	return obj.EvaluateStatus(), nil
 }
 

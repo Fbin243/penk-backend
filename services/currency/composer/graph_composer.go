@@ -7,6 +7,6 @@ import (
 func ComposeGraphQLResolver() *graph.Resolver {
 	composer := GetComposer()
 	return &graph.Resolver{
-		CurrencyBusiness: composer.CurrencyBiz,
+		RewardBusiness: composer.RewardBiz,
 	}
 }

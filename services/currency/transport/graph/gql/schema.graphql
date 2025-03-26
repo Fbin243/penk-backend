@@ -1,0 +1,7 @@
+type Query {
+    reward: Reward!
+}
+
+type Mutation {
+    getDailyReward: Reward!
+}

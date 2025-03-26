@@ -9,10 +9,10 @@ import (
 )
 
 type Composer struct {
-	FishRepo       business.IFishRepo
-	CoreClient     business.ICoreClient
-	CoreClientConn *grpc.ClientConn
-	CurrencyBiz    business.ICurrencyBusiness
+	DailyRewardRepo business.IRewardRepo
+	CoreClient      business.ICoreClient
+	CoreClientConn  *grpc.ClientConn
+	RewardBiz       business.IRewardBusiness
 }
 
 var composer *Composer
@@ -26,18 +26,17 @@ func GetComposer() *Composer {
 	db := mongodb.GetDBManager().DB
 
 	// Repository
-	fishRepo := mongorepo.NewFishRepo(db)
+	rewardRepo := mongorepo.NewRewardRepo(db)
 
 	// RPC Client
 	coreClient, coreClientConn := ComposeCoreClient()
 
 	// Business
-	currencyBiz := business.NewCurrencyBusiness(fishRepo, coreClient)
+	rewardBiz := business.NewRewardBusiness(rewardRepo, coreClient)
 
 	return &Composer{
-		FishRepo:       fishRepo,
 		CoreClient:     coreClient,
 		CoreClientConn: coreClientConn,
-		CurrencyBiz:    currencyBiz,
+		RewardBiz:      rewardBiz,
 	}
 }

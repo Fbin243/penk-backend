@@ -2,11 +2,11 @@ package mongorepo
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
 	mongodb "tenkhours/pkg/db/mongo"
-	"tenkhours/pkg/utils"
 	"tenkhours/services/notification/entity"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -45,28 +45,39 @@ func (r *DeviceTokenRepo) UpsertDeviceToken(ctx context.Context, profileID, toke
 
 	filter := bson.M{"profile_id": profileID, "tokens.device_id": deviceID}
 	update := bson.M{
-		"$set": bson.M{"tokens.$.token": token, "tokens.$.platform": platform, "tokens.$.create_at": time.Now().Format(time.RFC3339)},
+		"$set": bson.M{
+			"tokens.$.token":     token,
+			"tokens.$.platform":  platform,
+			"tokens.$.create_at": time.Now().Format(time.RFC3339),
+		},
 	}
 
-	opts := options.Update().SetUpsert(true)
+	opts := options.Update().SetUpsert(false)
 
-	_, err := r.UpdateOne(ctx, filter, update, opts)
+	res, err := r.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
-		// If the token for the deviceID does not exist, add it
-		if err == mongo.ErrNoDocuments {
-			filter = bson.M{"profile_id": profileID}
-			update = bson.M{
-				"$addToSet": bson.M{"tokens": bson.M{
-					"device_id": deviceID,
-					"token":     token,
-					"platform":  platform,
-					"create_at": utils.Now().Format(time.RFC3339),
-				}},
-			}
-			_, err = r.UpdateOne(ctx, filter, update, opts)
+		return fmt.Errorf("failed to update device token: %v", err)
+	}
+
+	if res.ModifiedCount == 0 {
+		filter = bson.M{"profile_id": profileID}
+		update = bson.M{
+			"$addToSet": bson.M{"tokens": bson.M{
+				"device_id": deviceID,
+				"token":     token,
+				"platform":  platform,
+				"create_at": time.Now().Format(time.RFC3339),
+			}},
+		}
+
+		upsertOpts := options.Update().SetUpsert(true)
+		_, err = r.UpdateOne(ctx, filter, update, upsertOpts)
+		if err != nil {
+			return fmt.Errorf("failed to add new device token: %v", err)
 		}
 	}
-	return err
+
+	return nil
 }
 
 // RemoveDeviceToken removes a device token from the user's profile

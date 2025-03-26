@@ -20,7 +20,7 @@ var (
 	GoalsCollection           = "goals"
 	CapturedRecordsCollection = "captured_records"
 	TimeTrackingsCollecion    = "time_trackings"
-	FishCollection            = "fish"
+	RewardCollection          = "reward"
 	TemplatesCollection       = "templates"
 	TemplateTopicsCollection  = "template_topics"
 	DevicesTokensCollection   = "devices_tokens"

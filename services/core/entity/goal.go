@@ -10,7 +10,7 @@ type GoalStatus string
 
 const (
 	GoalStatusPlanned    GoalStatus = "Planned"
-	GoalStatusInProgress GoalStatus = "In Progress"
+	GoalStatusInProgress GoalStatus = "InProgress"
 	GoalStatusCompleted  GoalStatus = "Completed"
 	GoalStatusOverdue    GoalStatus = "Overdue"
 )
@@ -21,8 +21,8 @@ type Goal struct {
 	Name             string       `json:"name"          bson:"name"`
 	Description      string       `json:"description"   bson:"description"`
 	StartTime        time.Time    `json:"startTime"     bson:"start_time"`
-	CompletedTime    *time.Time   `json:"completedTime" bson:"completed_time"`
 	EndTime          time.Time    `json:"endTime"       bson:"end_time"`
+	CompletedTime    *time.Time   `json:"completedTime" bson:"completed_time"`
 	Metrics          []GoalMetric `json:"metrics"       bson:"metrics"`
 	Checkboxes       []Checkbox   `json:"checkboxes"    bson:"checkboxes"`
 }
@@ -58,19 +58,21 @@ func (m *GoalMetric) Evaluate(currentMetric Metric) bool {
 	}
 }
 
-func (g *Goal) UpdateStatus(metricMap map[string]Metric) {
+func (g *Goal) IsCompleted(metricMap map[string]Metric) bool {
 	for _, targetMetric := range g.Metrics {
 		currentMetric := metricMap[targetMetric.ID]
 		if !targetMetric.Evaluate(currentMetric) {
-			return
+			return false
 		}
 	}
 
 	for _, checkbox := range g.Checkboxes {
 		if !checkbox.Value {
-			return
+			return false
 		}
 	}
+
+	return true
 }
 
 func (g *Goal) EvaluateStatus() GoalStatus {

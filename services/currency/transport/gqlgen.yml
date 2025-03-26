@@ -92,7 +92,5 @@ models:
     - github.com/99designs/gqlgen/graphql.Int
     - github.com/99designs/gqlgen/graphql.Int64
     - github.com/99designs/gqlgen/graphql.Int32
-  Fish:
-    model: tenkhours/services/currency/entity.Fish
-  FishType:
-    model: tenkhours/services/currency/entity.FishType
+  Reward:
+    model: tenkhours/services/currency/entity.Reward
