@@ -2,12 +2,10 @@ package main
 
 import (
 	"log"
-	"net"
 	"os"
 
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
-	"tenkhours/proto/pb/currency"
 	"tenkhours/services/currency/composer"
 	"tenkhours/services/currency/transport/graph"
 
@@ -15,7 +13,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -56,33 +53,10 @@ func main() {
 
 	defer composer.GetComposer().CoreClientConn.Close()
 
-	// Start RPC server
-	go startRPCServer()
-
 	port, found := os.LookupEnv("CURRENCY_PORT")
 	if !found {
 		port = "8085"
 	}
 
 	app.Run(":" + port)
-}
-
-func startRPCServer() {
-	// Create the server for gRPC API
-	s := grpc.NewServer()
-	currency.RegisterCurrencyServer(s, composer.ComposeRPCHandler())
-
-	port, found := os.LookupEnv("CURRENCY_GRPC_PORT")
-	if !found {
-		port = "50055"
-	}
-
-	lis, err := net.Listen("tcp", ":"+port)
-	if err != nil {
-		log.Fatalf("Failed to listen: %v", err)
-	}
-
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("Failed to serve: %v", err)
-	}
 }

@@ -1,6 +1,0 @@
-type Fish @key(fields: "profileID") {
-  id: ID!
-  profileID: ID!
-  gold: Int
-  normal: Int
-}

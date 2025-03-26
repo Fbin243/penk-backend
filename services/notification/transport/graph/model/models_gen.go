@@ -19,5 +19,5 @@ type Token struct {
 type DevicesToken struct {
 	ID        string   `json:"id"`
 	ProfileID string   `json:"profileID"`
-	Tokens    []*Token `json:"tokens,omitempty"`
+	Tokens    []*Token `json:"tokens"`
 }

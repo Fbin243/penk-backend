@@ -7,19 +7,15 @@ import (
 	"tenkhours/services/currency/entity"
 )
 
-type ICurrencyBusiness interface {
-	GetFish(ctx context.Context, profileID string) (*entity.Fish, error)
-	CreateFish(ctx context.Context, profileID string) (*entity.Fish, error)
-	CatchFish(ctx context.Context) (*entity.CatchFishResult, error)
-	UpdateFish(ctx context.Context, fish *entity.Fish) (*entity.Fish, error)
-	DeleteFish(ctx context.Context, profileID string) (*entity.Fish, error)
+type IRewardBusiness interface {
+	GetRewardByProfileID(ctx context.Context) (*entity.Reward, error)
+	ClaimDailyReward(ctx context.Context) (*entity.Reward, error)
 }
 
-type IFishRepo interface {
-	base.IBaseRepo[entity.Fish]
-	GetFishByProfileID(ctx context.Context, profileID string) (*entity.Fish, error)
-	UpdateFishByProfileID(ctx context.Context, profileID string, fish *entity.Fish) (*entity.Fish, error)
-	DeleteFishByProfileID(ctx context.Context, profileID string) (*entity.Fish, error)
+type IRewardRepo interface {
+	base.IBaseRepo[entity.Reward]
+	GetRewardByProfileID(ctx context.Context, profileID string) (*entity.Reward, error)
+	UpdateReward(ctx context.Context, profileID string, streakCount, fishCount int32) (*entity.Reward, error)
 }
 
 type ICoreClient interface{}
