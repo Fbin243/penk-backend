@@ -114,6 +114,6 @@ func TestUnassignCategory(t *testing.T) {
 }
 
 func cleanUpMetric(t *testing.T, id string) {
-	_, err := metricRepo.DeleteByID(context.Background(), id)
+	err := metricRepo.DeleteByID(context.Background(), id)
 	assert.Nil(t, err)
 }

@@ -8,13 +8,17 @@ func ComposeGraphQLResolver() *graph.Resolver {
 	composer := GetComposer()
 	return &graph.Resolver{
 		ProfileBusiness:   composer.ProfileBiz,
-		CharacterBusiness: composer.CharacaterBiz,
+		CharacterBusiness: composer.CharacterBiz,
 		GoalBusiness:      composer.GoalBiz,
-		CharacterRepo:     composer.CharacterRepo,
-		MetricRepo:        composer.MetricRepo,
-		CategoryRepo:      composer.CategoryRepo,
-		TimeTrackingRepo:  composer.TimeTrackingRepo,
+		HabitBusiness:     composer.HabitBusiness,
 		MetricBusiness:    composer.MetricBiz,
 		CategoryBusiness:  composer.CategoryBiz,
+
+		CharacterRepo:    composer.CharacterRepo,
+		MetricRepo:       composer.MetricRepo,
+		CategoryRepo:     composer.CategoryRepo,
+		TimeTrackingRepo: composer.TimeTrackingRepo,
+		HabitRepo:        composer.HabitRepo,
+		HabitLogRepo:     composer.HabitLogRepo,
 	}
 }

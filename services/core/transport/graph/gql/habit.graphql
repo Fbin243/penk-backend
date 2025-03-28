@@ -1,0 +1,34 @@
+type Habit {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  characterID: ID!
+  categoryID: ID
+  category: Category
+  completionType: CompletionType
+  name: String!
+  value: Float!
+  unit: String
+  startTime: Time!
+  endTime: Time
+  frequency: String
+}
+
+enum CompletionType {
+  Metric
+  Checkbox
+  Time
+}
+
+input HabitInput {
+  id: ID
+  characterID: ID!
+  categoryID: ID
+  completionType: CompletionType!
+  name: String!
+  value: Float!
+  unit: String
+  startTime: Time!
+  endTime: Time
+  frequency: String!
+}

@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"time"
 
 	"tenkhours/pkg/db/base"
 	"tenkhours/services/core/entity"
@@ -42,6 +43,14 @@ type ICategoryBusiness interface {
 	DeleteCategory(ctx context.Context, id string) (*entity.Category, error)
 }
 
+type IHabitBusiness interface {
+	GetHabits(ctx context.Context, characterID string) ([]entity.Habit, error)
+	UpsertHabit(ctx context.Context, input *entity.HabitInput) (*entity.Habit, error)
+	DeleteHabit(ctx context.Context, id string) (*entity.Habit, error)
+	GetHabitLogs(ctx context.Context, habitID string) ([]entity.HabitLog, error)
+	UpsertHabitLog(ctx context.Context, input *entity.HabitLogInput) (*entity.HabitLog, error)
+}
+
 // Repository
 type IProfileRepo interface {
 	base.IBaseRepo[entity.Profile]
@@ -57,7 +66,7 @@ type ICharacterRepo interface {
 	GetAllCharacters(ctx context.Context) ([]entity.Character, error)
 	DeleteCharacter(ctx context.Context, id string) (*entity.Character, error)
 	DeleteCharactersByProfileID(ctx context.Context, profileID string) error
-	Exist(ctx context.Context, characterID, categoryID string) error
+	Exist(ctx context.Context, profileID, characterID string) error
 }
 
 type ICategoryRepo interface {
@@ -74,7 +83,7 @@ type IMetricRepo interface {
 	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 	CountByCategoryID(ctx context.Context, categoryID string) (int, error)
 	CountUnassigned(ctx context.Context, characterID string) (int, error)
-	Exist(ctx context.Context, characterID, categoryID string) error
+	Exist(ctx context.Context, characterID, metricID string) error
 	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Metric, error)
 	UnassignCategory(ctx context.Context, categoryID string) error
 	DeleteByCharacterID(ctx context.Context, characterID string) error
@@ -93,6 +102,21 @@ type ICache interface {
 	GetAuthSession(ctx context.Context, firebaseUID string) (*rdb.AuthSession, error)
 	SetAuthSession(ctx context.Context, profile *entity.Profile, session *rdb.AuthSession) error
 	DeleteProfileData(ctx context.Context, profile *entity.Profile) error
+}
+
+type IHabitRepo interface {
+	base.IBaseRepo[entity.Habit]
+	CountByCharacterID(ctx context.Context, characterID string) (int, error)
+	Exist(ctx context.Context, characterID, habitID string) error
+	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Habit, error)
+	DeleteByCharacterID(ctx context.Context, characterID string) error
+	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
+}
+
+type IHabitLogRepo interface {
+	base.IBaseRepo[entity.HabitLog]
+	FindByHabitID(ctx context.Context, habitID string) ([]entity.HabitLog, error)
+	DeleteByHabitIDAndTimestamp(ctx context.Context, habitID string, timestamp time.Time) error
 }
 
 // RPCs

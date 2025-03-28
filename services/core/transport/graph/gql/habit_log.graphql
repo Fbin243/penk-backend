@@ -1,0 +1,12 @@
+type HabitLog {
+  id: ID!
+  habitID: ID!
+  timestamp: Time!
+  value: Float!
+  percent: Float!
+}
+
+input HabitLogInput {
+  habitID: ID!
+  value: Float!
+}

@@ -5,6 +5,8 @@ type Query {
   goals(characterID: ID!, status: GoalStatus): [Goal!]!
   metrics(characterID: ID!): [Metric!]!
   categories(characterID: ID!): [Category!]!
+  habits(characterID: ID!): [Habit!]!
+  habitLogs(habitID: ID!): [HabitLog!]!
 }
 
 type Mutation {
@@ -18,4 +20,7 @@ type Mutation {
   deleteMetric(id: ID!): Metric!
   upsertCategory(input: CategoryInput!): Category!
   deleteCategory(id: ID!): Category!
+  upsertHabit(input: HabitInput!): Habit!
+  deleteHabit(id: ID!): Habit!
+  upsertHabitLog(input: HabitLogInput!): HabitLog!  
 }

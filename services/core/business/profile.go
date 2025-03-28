@@ -123,7 +123,7 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 	}
 
 	// Delete the profile in database
-	profile, err = biz.ProfileRepo.DeleteByID(ctx, authSession.ProfileID)
+	profile, err = biz.ProfileRepo.FindOneAndDeleteByID(ctx, authSession.ProfileID)
 	if err != nil {
 		return nil, err
 	}
