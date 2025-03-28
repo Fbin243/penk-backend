@@ -36,3 +36,6 @@ dump
 
 # Observability
 .data/
+
+# IDE
+.cursorignore

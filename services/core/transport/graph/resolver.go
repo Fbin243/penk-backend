@@ -19,4 +19,7 @@ type Resolver struct {
 	MetricRepo        business.IMetricRepo
 	CategoryRepo      business.ICategoryRepo
 	TimeTrackingRepo  business.ITimeTrackingRepo
+	HabitBusiness     business.IHabitBusiness
+	HabitRepo         business.IHabitRepo
+	HabitLogRepo      business.IHabitLogRepo
 }

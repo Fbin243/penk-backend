@@ -24,6 +24,8 @@ var (
 	TemplatesCollection       = "templates"
 	TemplateTopicsCollection  = "template_topics"
 	DevicesTokensCollection   = "devices_tokens"
+	HabitsCollection          = "habits"
+	HabitLogsCollection       = "habit_logs"
 	FindOneAndUpdateOptions   = options.FindOneAndUpdate().SetReturnDocument(options.After)
 )
 
@@ -75,16 +77,6 @@ func InitDBManagerFromEnv() *DatabaseManager {
 	}
 
 	db := client.Database(mongoDatabase)
-
-	db.CreateCollection(ctx, CapturedRecordsCollection,
-		options.CreateCollection().
-			SetTimeSeriesOptions(
-				options.TimeSeries().
-					SetTimeField("timestamp").
-					SetMetaField("metadata").
-					SetGranularity("hours"),
-			),
-	)
 
 	return &DatabaseManager{
 		DB:     db,

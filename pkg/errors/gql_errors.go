@@ -17,6 +17,7 @@ var (
 	ErrLimitCheckbox    = NewGQLError(ErrCodeLimitCheckbox, "over limit checkbox")
 	ErrLimitCharacter   = NewGQLError(ErrCodeLimitCharacter, "over limit character")
 	ErrLimitCategory    = NewGQLError(ErrCodeLimitCategory, "over limit category")
+	ErrLimitHabit       = NewGQLError(ErrCodeLimitHabit, "over limit habit")
 )
 
 func NewGQLError(code ErrorCode, msg any) *gqlerror.Error {

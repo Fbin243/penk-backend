@@ -65,6 +65,11 @@ func (b *MetricBusiness) UpsertMetric(ctx context.Context, metricInput entity.Me
 			return nil, errors.ErrLimitMetric
 		}
 	} else {
+		err := b.metricRepo.Exist(ctx, metricInput.CharacterID, *metricInput.ID)
+		if err != nil {
+			return nil, err
+		}
+
 		metric, err = b.metricRepo.FindByID(ctx, *metricInput.ID)
 		if err != nil {
 			return nil, err
@@ -100,5 +105,5 @@ func (b *MetricBusiness) DeleteMetric(ctx context.Context, metricID string) (*en
 		return nil, err
 	}
 
-	return b.metricRepo.DeleteByID(ctx, metricID)
+	return b.metricRepo.FindOneAndDeleteByID(ctx, metricID)
 }

@@ -93,11 +93,19 @@ func (r *BaseRepo[M, N]) UpdateByID(ctx context.Context, id string, m *M) (*M, e
 	return m, err
 }
 
-func (r *BaseRepo[M, N]) DeleteByID(ctx context.Context, id string) (*M, error) {
+func (r *BaseRepo[M, N]) FindOneAndDeleteByID(ctx context.Context, id string) (*M, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	var m M
 	err := r.Collection.FindOneAndDelete(ctx, bson.M{"_id": ToObjectID(id)}).Decode(&m)
 	return &m, err
+}
+
+func (r *BaseRepo[M, N]) DeleteByID(ctx context.Context, id string) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	_, err := r.Collection.DeleteOne(ctx, bson.M{"_id": ToObjectID(id)})
+	return err
 }

@@ -90,6 +90,6 @@ func TestUpdateProfile(t *testing.T) {
 
 func cleanUpProfile(t *testing.T, id string) {
 	// Delete profile from database
-	_, err := profileRepo.DeleteByID(context.Background(), id)
+	_, err := profileRepo.FindOneAndDeleteByID(context.Background(), id)
 	assert.Nil(t, err)
 }

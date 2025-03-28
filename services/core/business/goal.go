@@ -225,7 +225,7 @@ func (biz *GoalBusiness) DeleteGoal(ctx context.Context, goalID string) (*entity
 		return nil, err
 	}
 
-	goal, err := biz.goalRepo.DeleteByID(ctx, goalID)
+	goal, err := biz.goalRepo.FindOneAndDeleteByID(ctx, goalID)
 	if err != nil {
 		return nil, err
 	}

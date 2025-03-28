@@ -14,28 +14,29 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type CategoryRepo struct {
-	*mongodb.BaseRepo[entity.Category, mongomodel.Category]
+type HabitRepo struct {
+	*mongodb.BaseRepo[entity.Habit, mongomodel.Habit]
 }
 
-func NewCategoryRepo(db *mongo.Database) *CategoryRepo {
-	cateColl := db.Collection(mongodb.CategoriesCollection)
-	_, err := cateColl.Indexes().CreateMany(context.TODO(), []mongo.IndexModel{
+func NewHabitRepo(db *mongo.Database) *HabitRepo {
+	habitCollection := db.Collection(mongodb.HabitsCollection)
+	_, err := habitCollection.Indexes().CreateMany(context.TODO(), []mongo.IndexModel{
 		{Keys: bson.D{{Key: "character_id", Value: 1}}},
+		{Keys: bson.D{{Key: "category_id", Value: 1}}},
 	})
 	if err != nil {
-		log.Printf("failed to create indexes for %s collection\n", mongodb.CategoriesCollection)
+		log.Printf("failed to create indexes for %s collection\n", mongodb.HabitsCollection)
 		return nil
 	}
 
-	return &CategoryRepo{mongodb.NewBaseRepo(
-		cateColl,
-		&mongodb.Mapper[entity.Category, mongomodel.Category]{},
+	return &HabitRepo{mongodb.NewBaseRepo(
+		habitCollection,
+		&mongodb.Mapper[entity.Habit, mongomodel.Habit]{},
 		true,
 	)}
 }
 
-func (r *CategoryRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
+func (r *HabitRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -43,11 +44,11 @@ func (r *CategoryRepo) CountByCharacterID(ctx context.Context, characterID strin
 	return int(count), err
 }
 
-func (r *CategoryRepo) Exist(ctx context.Context, characterID, categoryID string) error {
+func (r *HabitRepo) Exist(ctx context.Context, characterID, habitID string) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	count, err := r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID), "_id": mongodb.ToObjectID(categoryID)})
+	count, err := r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID), "_id": mongodb.ToObjectID(habitID)})
 	if err != nil {
 		return err
 	}
@@ -58,7 +59,7 @@ func (r *CategoryRepo) Exist(ctx context.Context, characterID, categoryID string
 	return nil
 }
 
-func (r *CategoryRepo) FindByCharacterID(ctx context.Context, characterID string) ([]entity.Category, error) {
+func (r *HabitRepo) FindByCharacterID(ctx context.Context, characterID string) ([]entity.Habit, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -69,16 +70,16 @@ func (r *CategoryRepo) FindByCharacterID(ctx context.Context, characterID string
 
 	defer cursor.Close(ctx)
 
-	categories := []entity.Category{}
-	err = cursor.All(ctx, &categories)
+	habits := []entity.Habit{}
+	err = cursor.All(ctx, &habits)
 	if err != nil {
 		return nil, err
 	}
 
-	return categories, nil
+	return habits, nil
 }
 
-func (r *CategoryRepo) DeleteByCharacterID(ctx context.Context, characterID string) error {
+func (r *HabitRepo) DeleteByCharacterID(ctx context.Context, characterID string) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -86,7 +87,7 @@ func (r *CategoryRepo) DeleteByCharacterID(ctx context.Context, characterID stri
 	return err
 }
 
-func (r *CategoryRepo) DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error {
+func (r *HabitRepo) DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 

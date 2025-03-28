@@ -130,3 +130,16 @@ models:
     model: tenkhours/services/core/entity.CheckboxInput
   RangeInput:
     model: tenkhours/services/core/entity.RangeInput
+  Habit:
+    model: tenkhours/services/core/entity.Habit
+    fields:
+      categoryID:
+        resolver: true
+  CompletionType:
+    model: tenkhours/services/core/entity.CompletionType
+  HabitInput:
+    model: tenkhours/services/core/entity.HabitInput
+  HabitLog:
+    model: tenkhours/services/core/entity.HabitLog
+  HabitLogInput:
+    model: tenkhours/services/core/entity.HabitLogInput

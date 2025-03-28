@@ -85,6 +85,21 @@ func (r *mutationResolver) DeleteCategory(ctx context.Context, id string) (*enti
 	return r.CategoryBusiness.DeleteCategory(ctx, id)
 }
 
+// UpsertHabit is the resolver for the upsertHabit field.
+func (r *mutationResolver) UpsertHabit(ctx context.Context, input entity.HabitInput) (*entity.Habit, error) {
+	return r.HabitBusiness.UpsertHabit(ctx, &input)
+}
+
+// DeleteHabit is the resolver for the deleteHabit field.
+func (r *mutationResolver) DeleteHabit(ctx context.Context, id string) (*entity.Habit, error) {
+	return r.HabitBusiness.DeleteHabit(ctx, id)
+}
+
+// UpsertHabitLog is the resolver for the upsertHabitLog field.
+func (r *mutationResolver) UpsertHabitLog(ctx context.Context, input entity.HabitLogInput) (*entity.HabitLog, error) {
+	return r.HabitBusiness.UpsertHabitLog(ctx, &input)
+}
+
 // Characters is the resolver for the characters field.
 func (r *queryResolver) Characters(ctx context.Context) ([]entity.Character, error) {
 	return r.CharacterBusiness.GetCharactersByProfileID(ctx)
@@ -119,6 +134,21 @@ func (r *queryResolver) Metrics(ctx context.Context, characterID string) ([]enti
 // Categories is the resolver for the categories field.
 func (r *queryResolver) Categories(ctx context.Context, characterID string) ([]entity.Category, error) {
 	return r.CategoryBusiness.GetCategories(ctx, characterID)
+}
+
+// Habits is the resolver for the habits field.
+func (r *queryResolver) Habits(ctx context.Context, characterID string) ([]entity.Habit, error) {
+	return r.HabitBusiness.GetHabits(ctx, characterID)
+}
+
+// HabitLogs is the resolver for the habitLogs field.
+func (r *queryResolver) HabitLogs(ctx context.Context, habitID string) ([]entity.HabitLog, error) {
+	habitLogs, err := r.HabitBusiness.GetHabitLogs(ctx, habitID)
+	if err != nil {
+		return nil, err
+	}
+
+	return habitLogs, nil
 }
 
 // Mutation returns MutationResolver implementation.

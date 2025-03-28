@@ -13,19 +13,14 @@ const (
 	ErrCodeRedisNotFound    ErrorCode = "REDIS_NOT_FOUND"
 
 	// Core errors
-	ErrCodeLimitCharacter      ErrorCode = "LIMIT_CHARACTER"
-	ErrCodeLimitCategory       ErrorCode = "LIMIT_CATEGORY"
-	ErrCodeLimitMetric         ErrorCode = "LIMIT_METRIC"
-	ErrCodeLimitCheckbox       ErrorCode = "LIMIT_CHECKBOX"
-	ErrCodeGoalAlreadyFinished ErrorCode = "GOAL_ALREADY_FINISHED"
-	ErrCodeGoalAlreadyExpired  ErrorCode = "GOAL_ALREADY_EXPIRED"
+	ErrCodeLimitCharacter ErrorCode = "LIMIT_CHARACTER"
+	ErrCodeLimitCategory  ErrorCode = "LIMIT_CATEGORY"
+	ErrCodeLimitMetric    ErrorCode = "LIMIT_METRIC"
+	ErrCodeLimitCheckbox  ErrorCode = "LIMIT_CHECKBOX"
+	ErrCodeLimitHabit     ErrorCode = "LIMIT_HABIT"
 
 	// Time tracking errors
 	ErrCodeUnderMinDuration          ErrorCode = "UNDER_MIN_DURATION"
 	ErrCodeOverMaxDifferenceDuration ErrorCode = "OVER_MAX_DIFFERENCE_DURATION"
 	ErrCodeTimeTrackingAlreadyExists ErrorCode = "TIME_TRACKING_ALREADY_EXISTS"
-
-	// Analytics errors
-	ErrCodeLimitSnapshot     ErrorCode = "LIMIT_SNAPSHOT"
-	ErrCodeDuplicateSnapshot ErrorCode = "DUPLICATE_SNAPSHOT"
 )

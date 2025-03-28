@@ -121,5 +121,5 @@ func (b *CategoryBusiness) DeleteCategory(ctx context.Context, categoryID string
 		return nil, err
 	}
 
-	return b.cateRepo.DeleteByID(ctx, categoryID)
+	return b.cateRepo.FindOneAndDeleteByID(ctx, categoryID)
 }

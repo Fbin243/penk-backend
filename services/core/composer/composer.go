@@ -12,17 +12,22 @@ import (
 )
 
 type Composer struct {
-	ProfileBiz       business.IProfileBusiness
-	CharacaterBiz    business.ICharacterBusiness
-	GoalBiz          business.IGoalBusiness
-	CategoryBiz      business.ICategoryBusiness
-	MetricBiz        business.IMetricBusiness
+	ProfileBiz    business.IProfileBusiness
+	CharacterBiz  business.ICharacterBusiness
+	GoalBiz       business.IGoalBusiness
+	CategoryBiz   business.ICategoryBusiness
+	MetricBiz     business.IMetricBusiness
+	HabitBusiness business.IHabitBusiness
+
 	CharacterRepo    business.ICharacterRepo
 	CategoryRepo     business.ICategoryRepo
 	MetricRepo       business.IMetricRepo
 	TimeTrackingRepo business.ITimeTrackingRepo
-	CurrencyConn     *grpc.ClientConn
-	AnalyticConn     *grpc.ClientConn
+	HabitRepo        business.IHabitRepo
+	HabitLogRepo     business.IHabitLogRepo
+
+	CurrencyConn *grpc.ClientConn
+	AnalyticConn *grpc.ClientConn
 }
 
 var composer *Composer
@@ -44,6 +49,8 @@ func GetComposer() *Composer {
 	categoryRepo := mongorepo.NewCategoryRepo(mongodb)
 	metricRepo := mongorepo.NewMetricRepo(mongodb)
 	timetrackingRepo := timetrackrepo.NewTimeTrackingRepo(mongodb)
+	habitRepo := mongorepo.NewHabitRepo(mongodb)
+	habitLogRepo := mongorepo.NewHabitLogRepo(mongodb)
 
 	// RPC Clients
 	currencyClient, currencyConn := ComposeCurrencyClient()
@@ -54,10 +61,11 @@ func GetComposer() *Composer {
 	goalBiz := business.NewGoalBusiness(goalRepo, characterRepo, categoryRepo, metricRepo)
 	catgoryBiz := business.NewCategoryBusiness(categoryRepo, characterRepo, metricRepo, timetrackingRepo)
 	metricBiz := business.NewMetricBusiness(metricRepo, characterRepo, categoryRepo)
+	habitBusiness := business.NewHabitBusiness(habitRepo, habitLogRepo, characterRepo, categoryRepo)
 
 	return &Composer{
 		ProfileBiz:       profileBiz,
-		CharacaterBiz:    characterBiz,
+		CharacterBiz:     characterBiz,
 		GoalBiz:          goalBiz,
 		CategoryBiz:      catgoryBiz,
 		MetricBiz:        metricBiz,
@@ -65,6 +73,9 @@ func GetComposer() *Composer {
 		CategoryRepo:     categoryRepo,
 		MetricRepo:       metricRepo,
 		TimeTrackingRepo: timetrackingRepo,
+		HabitRepo:        habitRepo,
+		HabitLogRepo:     habitLogRepo,
+		HabitBusiness:    habitBusiness,
 		CurrencyConn:     currencyConn,
 	}
 }

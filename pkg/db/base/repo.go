@@ -10,5 +10,6 @@ type IBaseRepo[M any] interface {
 	FindAll(ctx context.Context) ([]M, error)
 	FindByID(ctx context.Context, id string) (*M, error)
 	UpdateByID(ctx context.Context, id string, m *M) (*M, error)
-	DeleteByID(ctx context.Context, id string) (*M, error)
+	FindOneAndDeleteByID(ctx context.Context, id string) (*M, error)
+	DeleteByID(ctx context.Context, id string) error
 }
