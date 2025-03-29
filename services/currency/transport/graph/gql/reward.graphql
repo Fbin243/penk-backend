@@ -6,6 +6,6 @@ type Reward {
     updatedAt: Time!
     profileID: ID!
     fishCount: Int!
-    claimedAt: Time!
+    claimedAt: Time
     streakCount: Int!
 }
