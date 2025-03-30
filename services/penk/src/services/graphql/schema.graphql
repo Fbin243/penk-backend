@@ -1,8 +1,10 @@
 type Query {
+  context: Context
   messages: [Message!]!
 }
 
 type Mutation {
+  upsertContext(input: ContextInput!): Context!
   chat(content: String!): Message!
 }
 
@@ -15,4 +17,18 @@ type Message {
 enum MessageType {
   USER_MESSAGE
   AI_MESSAGE
+}
+
+type Context {
+  timezone: String!
+  locale: String!
+  tone: String!
+  context: String!
+}
+
+input ContextInput {
+  timezone: String!
+  locale: String!
+  tone: String!
+  context: String!
 }

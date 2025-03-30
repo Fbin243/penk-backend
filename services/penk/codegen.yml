@@ -1,4 +1,4 @@
-schema: "src/graphql/schema.graphql"
+schema: "src/services/graphql/schema.graphql"
 generates:
   ./src/utils/types/__generated__.ts:
     plugins:
@@ -6,6 +6,6 @@ generates:
       - "typescript-resolvers"
     config:
       useIndexSignature: true
-      contextType: "./src/graphql/index#ResolverContext"
+      contextType: "./src/services/graphql/index#ResolverContext"
       scalars:
         Upload: any

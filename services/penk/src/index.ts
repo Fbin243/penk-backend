@@ -14,20 +14,23 @@ const server = new ApolloServer({
     const resolverContext: ResolverContext = {
       token: "",
       email: "",
+      userId: "",
       profileId: "",
     };
 
-    const token = req.headers.authorization ? `${req.headers.authorization}`.split(" ")[1] : "";
+    if (req.headers.authorization) {
+      const token = `${req.headers.authorization}`.split(" ")[1];
+      if (token) {
+        const decodedToken = await decodeFirebaseJwt(token);
+        if (!decodedToken?.email) throw new Error("invalid jwt");
+        const mongoProfile = await getProfileByEmail(decodedToken.email);
+        if (!mongoProfile) throw new Error("profile not found");
 
-    if (token) {
-      const decodedToken = await decodeFirebaseJwt(token);
-      if (!decodedToken?.email) throw new Error("invalid jwt");
-      const mongoProfile = await getProfileByEmail(decodedToken.email);
-      if (!mongoProfile) throw new Error("profile not found");
-
-      resolverContext.token = token;
-      resolverContext.email = decodedToken.email;
-      resolverContext.profileId = mongoProfile.current_character_id.toString();
+        resolverContext.token = token;
+        resolverContext.email = decodedToken.email;
+        resolverContext.userId = mongoProfile._id.toString();
+        resolverContext.profileId = mongoProfile.current_character_id.toString();
+      }
     }
 
     return resolverContext;

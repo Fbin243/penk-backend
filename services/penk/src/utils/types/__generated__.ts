@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql';
-import { ResolverContext } from './src/graphql/index';
+import { ResolverContext } from './src/services/graphql/index';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -17,6 +17,21 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type Context = {
+  __typename?: 'Context';
+  context: Scalars['String']['output'];
+  locale: Scalars['String']['output'];
+  timezone: Scalars['String']['output'];
+  tone: Scalars['String']['output'];
+};
+
+export type ContextInput = {
+  context: Scalars['String']['input'];
+  locale: Scalars['String']['input'];
+  timezone: Scalars['String']['input'];
+  tone: Scalars['String']['input'];
+};
+
 export type Message = {
   __typename?: 'Message';
   content: Scalars['String']['output'];
@@ -32,6 +47,7 @@ export enum MessageType {
 export type Mutation = {
   __typename?: 'Mutation';
   chat: Message;
+  upsertContext: Context;
 };
 
 
@@ -39,8 +55,14 @@ export type MutationChatArgs = {
   content: Scalars['String']['input'];
 };
 
+
+export type MutationUpsertContextArgs = {
+  input: ContextInput;
+};
+
 export type Query = {
   __typename?: 'Query';
+  context?: Maybe<Context>;
   messages: Array<Message>;
 };
 
@@ -117,6 +139,8 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  Context: ResolverTypeWrapper<Context>;
+  ContextInput: ContextInput;
   Message: ResolverTypeWrapper<Message>;
   MessageType: MessageType;
   Mutation: ResolverTypeWrapper<{}>;
@@ -127,10 +151,20 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
+  Context: Context;
+  ContextInput: ContextInput;
   Message: Message;
   Mutation: {};
   Query: {};
   String: Scalars['String']['output'];
+}>;
+
+export type ContextResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Context'] = ResolversParentTypes['Context']> = ResolversObject<{
+  context?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type MessageResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Message'] = ResolversParentTypes['Message']> = ResolversObject<{
@@ -142,13 +176,16 @@ export type MessageResolvers<ContextType = ResolverContext, ParentType extends R
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   chat?: Resolver<ResolversTypes['Message'], ParentType, ContextType, RequireFields<MutationChatArgs, 'content'>>;
+  upsertContext?: Resolver<ResolversTypes['Context'], ParentType, ContextType, RequireFields<MutationUpsertContextArgs, 'input'>>;
 }>;
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  context?: Resolver<Maybe<ResolversTypes['Context']>, ParentType, ContextType>;
   messages?: Resolver<Array<ResolversTypes['Message']>, ParentType, ContextType>;
 }>;
 
 export type Resolvers<ContextType = ResolverContext> = ResolversObject<{
+  Context?: ContextResolvers<ContextType>;
   Message?: MessageResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

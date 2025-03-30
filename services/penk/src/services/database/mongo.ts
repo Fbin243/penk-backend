@@ -19,28 +19,26 @@ const ProfileSchema = new Schema({
 
 export const ProfileModel = conn.model("profiles", ProfileSchema);
 
-const UserContextSchema = new Schema({
-  profile_id: {
+const PenKContextSchema = new Schema({
+  user_id: {
     type: Schema.Types.ObjectId,
     ref: "profiles",
     required: true,
     unique: true,
   },
-  timezone: { type: String, default: "UTC" },
-  locale: { type: String, default: "en-US" },
-  preferences: {
-    tone: String,
-  },
-  context: String,
+  timezone: { type: String, default: "Asia/Saigon" },
+  locale: { type: String, default: "vi-VN" },
+  tone: { type: String, default: "casual" },
+  context: { type: String, default: "" },
 });
 
-export const UserContextModel = conn.model("user_contexts", UserContextSchema);
+export const PenKContextModel = conn.model("penk_contexts", PenKContextSchema);
 
-const MessageSchema = new Schema(
+const PenKMessageSchema = new Schema(
   {
     profile_id: {
       type: Schema.Types.ObjectId,
-      ref: "profiles",
+      ref: "characters",
       required: true,
     },
     timestamp: { type: Date, required: true },
@@ -61,9 +59,9 @@ const MessageSchema = new Schema(
   },
 );
 
-MessageSchema.index(
+PenKMessageSchema.index(
   { timestamp: 1 },
   { expireAfterSeconds: 60 * 60 * 24, partialFilterExpression: { profile_id: { $exists: true } } },
 );
 
-export const MessageModel = conn.model("penk_messages", MessageSchema);
+export const PenKMessageModel = conn.model("penk_messages", PenKMessageSchema);
