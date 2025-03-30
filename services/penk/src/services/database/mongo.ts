@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import { FunctionCallType, MessageType } from "../types";
+import { MessageType } from "../../utils/types";
 
 const conn = mongoose.createConnection(
   `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_ADDRESS}/${process.env.MONGO_DATABASE_NAME}?retryWrites=true&w=majority`,
@@ -36,28 +36,12 @@ const UserContextSchema = new Schema({
 
 export const UserContextModel = conn.model("user_contexts", UserContextSchema);
 
-const FunctionCallSchema = new Schema(
-  {
-    type: {
-      type: String,
-      required: true,
-      enum: [FunctionCallType.CreateTimeTracking, FunctionCallType.UpdateTimeTracking],
-    },
-    result: {
-      type: String,
-      required: true,
-    },
-  },
-  { _id: false },
-);
-
 const MessageSchema = new Schema(
   {
     profile_id: {
       type: Schema.Types.ObjectId,
       ref: "profiles",
       required: true,
-      unique: true,
     },
     timestamp: { type: Date, required: true },
     content: { type: String, required: true },
@@ -65,11 +49,6 @@ const MessageSchema = new Schema(
       type: String,
       required: true,
       enum: [MessageType.UserMessage, MessageType.AiMessage],
-    },
-    functionCalls: {
-      type: [FunctionCallSchema],
-      required: true,
-      default: [],
     },
   },
   {

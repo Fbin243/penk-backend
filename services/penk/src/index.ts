@@ -2,37 +2,35 @@ import "./bootstrap";
 
 import { ApolloServer } from "apollo-server";
 
-import { ResolverContext, schema } from "./graphql";
-import { getProfileByEmail } from "./utils/db/utils";
-import { decodeFirebaseJwt } from "./utils/firebase";
-import { Profile } from "./utils/types";
+import { getProfileByEmail } from "./services/database/utils";
+import { decodeFirebaseJwt } from "./services/firebase";
+import { ResolverContext, schema } from "./services/graphql";
 
 const server = new ApolloServer({
   cors: {
     allowedHeaders: "Authorization",
   },
   context: async ({ req }) => {
-    const token = req.headers.authorization ? `${req.headers.authorization}`.split(" ")[1] : "";
+    const resolverContext: ResolverContext = {
+      token: "",
+      email: "",
+      profileId: "",
+    };
 
-    let profile: Profile | undefined = undefined;
+    const token = req.headers.authorization ? `${req.headers.authorization}`.split(" ")[1] : "";
 
     if (token) {
       const decodedToken = await decodeFirebaseJwt(token);
       if (!decodedToken?.email) throw new Error("invalid jwt");
       const mongoProfile = await getProfileByEmail(decodedToken.email);
       if (!mongoProfile) throw new Error("profile not found");
-      profile = {
-        id: mongoProfile.id,
-        name: mongoProfile.name,
-        email: decodedToken.email,
-        currentCharacterId: mongoProfile.current_character_id.toString(),
-      };
+
+      resolverContext.token = token;
+      resolverContext.email = decodedToken.email;
+      resolverContext.profileId = mongoProfile.current_character_id.toString();
     }
 
-    return {
-      token,
-      profile,
-    } satisfies ResolverContext;
+    return resolverContext;
   },
   schema,
 });

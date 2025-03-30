@@ -1,6 +1,13 @@
 import mongoose from "mongoose";
 
-import { MessageModel, ProfileModel, UserContextModel } from "./mongo";
+import { MessageModel, ProfileModel } from "./mongo";
+
+export const getProfileByEmail = async (email: string) => {
+  const profile = await ProfileModel.findOne({
+    email,
+  });
+  return profile;
+};
 
 const convertObjectIdsToStrings = (result: object): object => {
   const convertedResult = {};
@@ -32,43 +39,7 @@ const convertObjectIdsToStrings = (result: object): object => {
   return convertedResult;
 };
 
-export const getProfileByEmail = async (email: string) => {
-  const profile = await ProfileModel.findOne({
-    email,
-  });
-  return profile;
-};
-
-export const getUserContext = async (profileId: string) => {
-  let userContext = await UserContextModel.findOne({
-    profile_id: profileId,
-  });
-
-  if (!userContext) {
-    userContext = await UserContextModel.create({
-      profile_id: profileId,
-      locale: "vi",
-      timezone: "Asia/Ho_Chi_Minh",
-      context: "",
-      preferences: {
-        tone: "funny",
-      },
-    });
-  }
-
-  return {
-    timezone: userContext.timezone,
-    locale: userContext.locale,
-    context: userContext.context || "",
-    preferences: {
-      tone: userContext.preferences?.tone || "",
-    },
-  };
-};
-
 export const getUserData = async (profileId: string) => {
-  const userContext = await getUserContext(profileId);
-
   const aggregatedData = await ProfileModel.aggregate([
     { $match: { _id: new mongoose.Types.ObjectId(profileId) } },
     {
@@ -150,7 +121,7 @@ export const getUserData = async (profileId: string) => {
     },
   ]);
 
-  const userData = { ...convertObjectIdsToStrings(aggregatedData[0]), context: userContext };
+  const userData = convertObjectIdsToStrings(aggregatedData[0]);
 
   // console.log("[User Data]");
   // console.dir(userData, { depth: null, colors: true });

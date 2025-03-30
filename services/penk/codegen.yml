@@ -7,3 +7,5 @@ generates:
     config:
       useIndexSignature: true
       contextType: "./src/graphql/index#ResolverContext"
+      scalars:
+        Upload: any

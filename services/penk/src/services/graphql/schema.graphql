@@ -1,0 +1,18 @@
+type Query {
+  messages: [Message!]!
+}
+
+type Mutation {
+  chat(content: String!): Message!
+}
+
+type Message {
+  type: MessageType!
+  content: String!
+  timestamp: String!
+}
+
+enum MessageType {
+  USER_MESSAGE
+  AI_MESSAGE
+}
