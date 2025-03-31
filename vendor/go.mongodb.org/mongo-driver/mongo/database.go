@@ -26,7 +26,9 @@ import (
 	"go.mongodb.org/mongo-driver/x/mongo/driver/session"
 )
 
-var defaultRunCmdOpts = []*options.RunCmdOptions{options.RunCmd().SetReadPreference(readpref.Primary())}
+var (
+	defaultRunCmdOpts = []*options.RunCmdOptions{options.RunCmd().SetReadPreference(readpref.Primary())}
+)
 
 // Database is a handle to a MongoDB database. It is safe for concurrent use by multiple goroutines.
 type Database struct {
@@ -120,8 +122,7 @@ func (db *Database) Collection(name string, opts ...*options.CollectionOptions) 
 //
 // For more information about the command, see https://www.mongodb.com/docs/manual/reference/command/aggregate/.
 func (db *Database) Aggregate(ctx context.Context, pipeline interface{},
-	opts ...*options.AggregateOptions,
-) (*Cursor, error) {
+	opts ...*options.AggregateOptions) (*Cursor, error) {
 	a := aggregateParams{
 		ctx:            ctx,
 		pipeline:       pipeline,
@@ -140,8 +141,7 @@ func (db *Database) Aggregate(ctx context.Context, pipeline interface{},
 }
 
 func (db *Database) processRunCommand(ctx context.Context, cmd interface{},
-	cursorCommand bool, opts ...*options.RunCmdOptions,
-) (*operation.Command, *session.Client, error) {
+	cursorCommand bool, opts ...*options.RunCmdOptions) (*operation.Command, *session.Client, error) {
 	sess := sessionFromContext(ctx)
 	if sess == nil && db.client.sessionPool != nil {
 		sess = session.NewImplicitClientSession(db.client.sessionPool, db.client.id)
@@ -334,8 +334,8 @@ func (db *Database) Drop(ctx context.Context) error {
 // BUG(benjirewis): ListCollectionSpecifications prevents listing more than 100 collections per database when running
 // against MongoDB version 2.6.
 func (db *Database) ListCollectionSpecifications(ctx context.Context, filter interface{},
-	opts ...*options.ListCollectionsOptions,
-) ([]*CollectionSpecification, error) {
+	opts ...*options.ListCollectionsOptions) ([]*CollectionSpecification, error) {
+
 	cursor, err := db.ListCollections(ctx, filter, opts...)
 	if err != nil {
 		return nil, err
@@ -512,8 +512,8 @@ func (db *Database) WriteConcern() *writeconcern.WriteConcern {
 // The opts parameter can be used to specify options for change stream creation (see the options.ChangeStreamOptions
 // documentation).
 func (db *Database) Watch(ctx context.Context, pipeline interface{},
-	opts ...*options.ChangeStreamOptions,
-) (*ChangeStream, error) {
+	opts ...*options.ChangeStreamOptions) (*ChangeStream, error) {
+
 	csConfig := changeStreamConfig{
 		readConcern:    db.readConcern,
 		readPreference: db.readPreference,
@@ -795,8 +795,8 @@ func (db *Database) createCollectionOperation(name string, opts ...*options.Crea
 // The opts parameter can be used to specify options for the operation (see the options.CreateViewOptions
 // documentation).
 func (db *Database) CreateView(ctx context.Context, viewName, viewOn string, pipeline interface{},
-	opts ...*options.CreateViewOptions,
-) error {
+	opts ...*options.CreateViewOptions) error {
+
 	pipelineArray, _, err := marshalAggregatePipeline(pipeline, db.bsonOpts, db.registry)
 	if err != nil {
 		return err
