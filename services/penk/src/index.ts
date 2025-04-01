@@ -2,9 +2,9 @@ import "./bootstrap";
 
 import { ApolloServer } from "apollo-server";
 
-import { getProfileByEmail } from "./services/database/utils";
-import { decodeFirebaseJwt } from "./services/firebase";
 import { ResolverContext, schema } from "./services/graphql";
+import { getProfileByEmail } from "./utils/database/utils";
+import { decodeFirebaseJwt } from "./utils/firebase";
 
 const server = new ApolloServer({
   cors: {

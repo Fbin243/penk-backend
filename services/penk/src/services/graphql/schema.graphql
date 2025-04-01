@@ -5,7 +5,7 @@ type Query {
 
 type Mutation {
   upsertContext(input: ContextInput!): Context!
-  chat(content: String!): Message!
+  chat(input: ChatInput!): ChatOutput!
 }
 
 type Message {
@@ -22,13 +22,23 @@ enum MessageType {
 type Context {
   timezone: String!
   locale: String!
-  tone: String!
+  personality: String!
   context: String!
+}
+
+type ChatOutput {
+  message: Message!
+  audio: String
 }
 
 input ContextInput {
   timezone: String!
   locale: String!
-  tone: String!
+  personality: String!
   context: String!
+}
+
+input ChatInput {
+  content: String!
+  voiceMode: Boolean
 }

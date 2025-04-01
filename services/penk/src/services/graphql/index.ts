@@ -3,10 +3,10 @@ import { gql } from "apollo-server";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
+import { PenKContextModel, PenKMessageModel } from "../../utils/database/mongo";
+import { getPenKData, getPenKMessages } from "../../utils/database/utils";
 import { Message, MessageType, Resolvers } from "../../utils/types";
-import { chat } from "../ai/utils";
-import { PenKContextModel, PenKMessageModel } from "../database/mongo";
-import { getPenKData, getPenKMessages } from "../database/utils";
+import { base64ToUploadable, chat, transcribeAudio } from "../ai/utils";
 
 export interface ResolverContext {
   token: string;
@@ -51,33 +51,45 @@ const resolvers: Resolvers = {
     chat: async (_, args, context) => {
       requireAuth(context);
 
-      const { content } = args;
+      const { content, voiceMode } = args.input;
 
-      const penkData = await getPenKData(context.userId);
+      const [transcribedInput, penkData, penkMessages] = await Promise.all([
+        voiceMode
+          ? transcribeAudio(base64ToUploadable(content, "audio.wav"))
+          : { text: content, cost: 0 },
+        getPenKData(context.userId),
+        getPenKMessages(context.profileId),
+      ]);
 
       const userMessage: Message = {
         type: MessageType.UserMessage,
-        content,
+        content: transcribedInput.text,
         timestamp: new Date().toISOString(),
       };
 
-      const previousMessages = (await getPenKMessages(context.profileId)).map((message) => ({
-        type: message.type,
-        content: message.content,
-        timestamp: message.timestamp.toISOString(),
-      }));
-
-      const aiMessage = await chat({
+      const chatResult = await chat({
         userData: JSON.stringify(penkData),
-        messages: [...previousMessages, userMessage],
+        history: penkMessages.map((message) => ({
+          type: message.type,
+          content: message.content,
+          timestamp: message.timestamp.toISOString(),
+        })),
+        newMessage: transcribedInput.text,
+        voiceMode: voiceMode ?? false,
       });
 
-      await PenKMessageModel.insertMany([
+      // Why is this not async?
+      // -> Because I want to return the response ASAP
+      // and it is not a big deal even if it fails to insert, I guess xD
+      PenKMessageModel.insertMany([
         { ...userMessage, profile_id: context.profileId },
-        { ...aiMessage, profile_id: context.profileId },
+        { ...chatResult.aiMessage, profile_id: context.profileId },
       ]);
 
-      return aiMessage;
+      return {
+        message: chatResult.aiMessage,
+        audio: chatResult.audio?.data,
+      };
     },
   },
 };

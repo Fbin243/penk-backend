@@ -17,19 +17,30 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type ChatInput = {
+  content: Scalars['String']['input'];
+  voiceMode?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type ChatOutput = {
+  __typename?: 'ChatOutput';
+  audio?: Maybe<Scalars['String']['output']>;
+  message: Message;
+};
+
 export type Context = {
   __typename?: 'Context';
   context: Scalars['String']['output'];
   locale: Scalars['String']['output'];
+  personality: Scalars['String']['output'];
   timezone: Scalars['String']['output'];
-  tone: Scalars['String']['output'];
 };
 
 export type ContextInput = {
   context: Scalars['String']['input'];
   locale: Scalars['String']['input'];
+  personality: Scalars['String']['input'];
   timezone: Scalars['String']['input'];
-  tone: Scalars['String']['input'];
 };
 
 export type Message = {
@@ -46,13 +57,13 @@ export enum MessageType {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  chat: Message;
+  chat: ChatOutput;
   upsertContext: Context;
 };
 
 
 export type MutationChatArgs = {
-  content: Scalars['String']['input'];
+  input: ChatInput;
 };
 
 
@@ -139,6 +150,8 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ChatInput: ChatInput;
+  ChatOutput: ResolverTypeWrapper<ChatOutput>;
   Context: ResolverTypeWrapper<Context>;
   ContextInput: ContextInput;
   Message: ResolverTypeWrapper<Message>;
@@ -151,6 +164,8 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
+  ChatInput: ChatInput;
+  ChatOutput: ChatOutput;
   Context: Context;
   ContextInput: ContextInput;
   Message: Message;
@@ -159,11 +174,17 @@ export type ResolversParentTypes = ResolversObject<{
   String: Scalars['String']['output'];
 }>;
 
+export type ChatOutputResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ChatOutput'] = ResolversParentTypes['ChatOutput']> = ResolversObject<{
+  audio?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['Message'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ContextResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Context'] = ResolversParentTypes['Context']> = ResolversObject<{
   context?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  personality?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  tone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -175,7 +196,7 @@ export type MessageResolvers<ContextType = ResolverContext, ParentType extends R
 }>;
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  chat?: Resolver<ResolversTypes['Message'], ParentType, ContextType, RequireFields<MutationChatArgs, 'content'>>;
+  chat?: Resolver<ResolversTypes['ChatOutput'], ParentType, ContextType, RequireFields<MutationChatArgs, 'input'>>;
   upsertContext?: Resolver<ResolversTypes['Context'], ParentType, ContextType, RequireFields<MutationUpsertContextArgs, 'input'>>;
 }>;
 
@@ -185,6 +206,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
 }>;
 
 export type Resolvers<ContextType = ResolverContext> = ResolversObject<{
+  ChatOutput?: ChatOutputResolvers<ContextType>;
   Context?: ContextResolvers<ContextType>;
   Message?: MessageResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;

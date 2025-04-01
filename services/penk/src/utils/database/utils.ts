@@ -95,7 +95,7 @@ export const getPenKData = async (userId: string) => {
         _id: 0,
         timezone: 1,
         locale: 1,
-        tone: 1,
+        personality: 1,
         context: 1,
         profile_id: "$profile.current_character_id",
         categories: {

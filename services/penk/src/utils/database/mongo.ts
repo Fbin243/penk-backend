@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import { MessageType } from "../../utils/types";
+import { MessageType } from "../types";
 
 const conn = mongoose.createConnection(
   `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_ADDRESS}/${process.env.MONGO_DATABASE_NAME}?retryWrites=true&w=majority`,
@@ -28,7 +28,7 @@ const PenKContextSchema = new Schema({
   },
   timezone: { type: String, default: "Asia/Saigon" },
   locale: { type: String, default: "vi-VN" },
-  tone: { type: String, default: "casual" },
+  personality: { type: String, default: "casual" },
   context: { type: String, default: "" },
 });
 
