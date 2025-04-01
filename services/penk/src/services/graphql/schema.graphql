@@ -5,7 +5,6 @@ type Query {
 
 type Mutation {
   upsertContext(input: ContextInput!): Context!
-  chat(input: ChatInput!): ChatOutput!
 }
 
 type Message {
@@ -26,11 +25,6 @@ type Context {
   context: String!
 }
 
-type ChatOutput {
-  message: Message!
-  audio: String
-}
-
 input ContextInput {
   timezone: String!
   locale: String!
@@ -38,7 +32,28 @@ input ContextInput {
   context: String!
 }
 
-input ChatInput {
+# WS Types
+type WS_Message {
+  type: WS_MessageType!
   content: String!
-  voiceMode: Boolean
+  timestamp: String!
+}
+
+type WS_TextChatInput {
+  content: String!
+}
+
+enum WS_MessageType {
+  AUTH
+  INFO
+  TEXT_CHAT
+  AUDIO_CHAT
+}
+
+enum WS_InfoType {
+  AUTHENTICATION_SUCCESS
+  AUTHENTICATION_FAILED
+  AUTHENTICATION_REQUIRED
+  AUTHENTICATION_TIMEOUT
+  MESSAGE_STREAM_COMPLETED
 }

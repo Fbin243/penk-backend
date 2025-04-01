@@ -3,8 +3,12 @@ import "./bootstrap";
 import { ApolloServer } from "apollo-server";
 
 import { ResolverContext, schema } from "./services/graphql";
+import { initializeWebSocketServer } from "./services/websocket";
 import { getProfileByEmail } from "./utils/database/utils";
 import { decodeFirebaseJwt } from "./utils/firebase";
+
+// Initialize the WebSocket server for streaming chat
+initializeWebSocketServer();
 
 const server = new ApolloServer({
   cors: {
@@ -39,5 +43,5 @@ const server = new ApolloServer({
 });
 
 server.listen(8099).then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`);
+  console.log(`🚀 GraphQL Server ready at ${url}`);
 });

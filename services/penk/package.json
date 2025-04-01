@@ -27,7 +27,8 @@
     "mongoose": "^8.13.1",
     "openai": "^4.90.0",
     "redis": "^4.7.0",
-    "tiktoken": "^1.0.20"
+    "tiktoken": "^1.0.20",
+    "ws": "^8.17.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
@@ -35,6 +36,7 @@
     "@graphql-codegen/typescript": "^4.1.4",
     "@graphql-codegen/typescript-resolvers": "^4.4.3",
     "@types/node": "^22.13.10",
+    "@types/ws": "^8.5.11",
     "eslint": "^9.20.1",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "globals": "^15.15.0",

@@ -101,6 +101,87 @@ export const transcribeAudio = async (audio: Uploadable) => {
   };
 };
 
+/**
+ * Streams chat completions from OpenAI with text-only responses
+ * @param props Chat properties including user data, history, and the new message
+ * @param onChunk Callback function that receives each chunk of the streamed response
+ * @param onComplete Optional callback function called when streaming is complete with the full message
+ */
+export const textChatStream = async (
+  props: {
+    userData: string;
+    history: Message[];
+    newMessage: string;
+  },
+  onChunk: (chunk: string, timestamp: string) => void,
+  onComplete?: (fullMessage: Message, usage?: ReturnType<typeof analyzeUsage>) => void,
+) => {
+  const openAiMessages: ChatCompletionMessageParam[] = [
+    {
+      role: "system",
+      content: instructions,
+    },
+    {
+      role: "user",
+      content: `My data: ${props.userData}`,
+    },
+    ...props.history.map((message) => {
+      if (message.type === MessageType.UserMessage) {
+        return {
+          role: "user",
+          content: message.content,
+        } satisfies ChatCompletionUserMessageParam;
+      }
+      return {
+        role: "assistant",
+        content: message.content,
+      } satisfies ChatCompletionAssistantMessageParam;
+    }),
+    {
+      role: "user",
+      content: props.newMessage,
+    },
+  ];
+
+  let fullContent = "";
+
+  try {
+    const stream = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: openAiMessages,
+      stream: true,
+      max_tokens: 2048,
+    });
+
+    const aiTimestamp = new Date().toISOString();
+
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content || "";
+      if (content) {
+        fullContent += content;
+        onChunk(content, aiTimestamp);
+      }
+    }
+
+    // Create the complete message object after streaming is done
+    const aiMessage: Message = {
+      type: MessageType.AiMessage,
+      content: fullContent,
+      timestamp: aiTimestamp,
+    };
+
+    // Call onComplete callback if provided
+    if (onComplete) {
+      onComplete(aiMessage, undefined); // We don't have usage info in streaming
+    }
+
+    return aiMessage;
+  } catch (error) {
+    console.error("Error in textChatStream:", error);
+    throw error;
+  }
+};
+
 export const chat = async (props: {
   userData: string;
   history: Message[];

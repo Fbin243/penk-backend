@@ -17,17 +17,6 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
-export type ChatInput = {
-  content: Scalars['String']['input'];
-  voiceMode?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type ChatOutput = {
-  __typename?: 'ChatOutput';
-  audio?: Maybe<Scalars['String']['output']>;
-  message: Message;
-};
-
 export type Context = {
   __typename?: 'Context';
   context: Scalars['String']['output'];
@@ -57,13 +46,7 @@ export enum MessageType {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  chat: ChatOutput;
   upsertContext: Context;
-};
-
-
-export type MutationChatArgs = {
-  input: ChatInput;
 };
 
 
@@ -75,6 +58,33 @@ export type Query = {
   __typename?: 'Query';
   context?: Maybe<Context>;
   messages: Array<Message>;
+};
+
+export enum Ws_InfoType {
+  AuthenticationFailed = 'AUTHENTICATION_FAILED',
+  AuthenticationRequired = 'AUTHENTICATION_REQUIRED',
+  AuthenticationSuccess = 'AUTHENTICATION_SUCCESS',
+  AuthenticationTimeout = 'AUTHENTICATION_TIMEOUT',
+  MessageStreamCompleted = 'MESSAGE_STREAM_COMPLETED'
+}
+
+export type Ws_Message = {
+  __typename?: 'WS_Message';
+  content: Scalars['String']['output'];
+  timestamp: Scalars['String']['output'];
+  type: Ws_MessageType;
+};
+
+export enum Ws_MessageType {
+  AudioChat = 'AUDIO_CHAT',
+  Auth = 'AUTH',
+  Info = 'INFO',
+  TextChat = 'TEXT_CHAT'
+}
+
+export type Ws_TextChatInput = {
+  __typename?: 'WS_TextChatInput';
+  content: Scalars['String']['output'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -150,8 +160,6 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
-  ChatInput: ChatInput;
-  ChatOutput: ResolverTypeWrapper<ChatOutput>;
   Context: ResolverTypeWrapper<Context>;
   ContextInput: ContextInput;
   Message: ResolverTypeWrapper<Message>;
@@ -159,25 +167,23 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  WS_InfoType: Ws_InfoType;
+  WS_Message: ResolverTypeWrapper<Ws_Message>;
+  WS_MessageType: Ws_MessageType;
+  WS_TextChatInput: ResolverTypeWrapper<Ws_TextChatInput>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
-  ChatInput: ChatInput;
-  ChatOutput: ChatOutput;
   Context: Context;
   ContextInput: ContextInput;
   Message: Message;
   Mutation: {};
   Query: {};
   String: Scalars['String']['output'];
-}>;
-
-export type ChatOutputResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ChatOutput'] = ResolversParentTypes['ChatOutput']> = ResolversObject<{
-  audio?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  message?: Resolver<ResolversTypes['Message'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+  WS_Message: Ws_Message;
+  WS_TextChatInput: Ws_TextChatInput;
 }>;
 
 export type ContextResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Context'] = ResolversParentTypes['Context']> = ResolversObject<{
@@ -196,7 +202,6 @@ export type MessageResolvers<ContextType = ResolverContext, ParentType extends R
 }>;
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  chat?: Resolver<ResolversTypes['ChatOutput'], ParentType, ContextType, RequireFields<MutationChatArgs, 'input'>>;
   upsertContext?: Resolver<ResolversTypes['Context'], ParentType, ContextType, RequireFields<MutationUpsertContextArgs, 'input'>>;
 }>;
 
@@ -205,11 +210,24 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   messages?: Resolver<Array<ResolversTypes['Message']>, ParentType, ContextType>;
 }>;
 
+export type Ws_MessageResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WS_Message'] = ResolversParentTypes['WS_Message']> = ResolversObject<{
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['WS_MessageType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type Ws_TextChatInputResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WS_TextChatInput'] = ResolversParentTypes['WS_TextChatInput']> = ResolversObject<{
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type Resolvers<ContextType = ResolverContext> = ResolversObject<{
-  ChatOutput?: ChatOutputResolvers<ContextType>;
   Context?: ContextResolvers<ContextType>;
   Message?: MessageResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  WS_Message?: Ws_MessageResolvers<ContextType>;
+  WS_TextChatInput?: Ws_TextChatInputResolvers<ContextType>;
 }>;
 
