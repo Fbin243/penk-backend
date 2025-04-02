@@ -61,31 +61,31 @@ export type Query = {
 };
 
 export enum Ws_InfoType {
+  AudioStreamCompleted = 'AUDIO_STREAM_COMPLETED',
   AuthenticationFailed = 'AUTHENTICATION_FAILED',
   AuthenticationRequired = 'AUTHENTICATION_REQUIRED',
   AuthenticationSuccess = 'AUTHENTICATION_SUCCESS',
   AuthenticationTimeout = 'AUTHENTICATION_TIMEOUT',
-  MessageStreamCompleted = 'MESSAGE_STREAM_COMPLETED'
+  MessageStreamCompleted = 'MESSAGE_STREAM_COMPLETED',
+  TranscriptionFailed = 'TRANSCRIPTION_FAILED'
 }
 
 export type Ws_Message = {
   __typename?: 'WS_Message';
-  content: Scalars['String']['output'];
+  data: Scalars['String']['output'];
   timestamp: Scalars['String']['output'];
   type: Ws_MessageType;
 };
 
 export enum Ws_MessageType {
-  AudioChat = 'AUDIO_CHAT',
   Auth = 'AUTH',
+  ConfigAudioFormat = 'CONFIG_AUDIO_FORMAT',
+  DownloadAudio = 'DOWNLOAD_AUDIO',
   Info = 'INFO',
-  TextChat = 'TEXT_CHAT'
+  TextChat = 'TEXT_CHAT',
+  TextStream = 'TEXT_STREAM',
+  UploadAudio = 'UPLOAD_AUDIO'
 }
-
-export type Ws_TextChatInput = {
-  __typename?: 'WS_TextChatInput';
-  content: Scalars['String']['output'];
-};
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
@@ -170,7 +170,6 @@ export type ResolversTypes = ResolversObject<{
   WS_InfoType: Ws_InfoType;
   WS_Message: ResolverTypeWrapper<Ws_Message>;
   WS_MessageType: Ws_MessageType;
-  WS_TextChatInput: ResolverTypeWrapper<Ws_TextChatInput>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -183,7 +182,6 @@ export type ResolversParentTypes = ResolversObject<{
   Query: {};
   String: Scalars['String']['output'];
   WS_Message: Ws_Message;
-  WS_TextChatInput: Ws_TextChatInput;
 }>;
 
 export type ContextResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Context'] = ResolversParentTypes['Context']> = ResolversObject<{
@@ -211,14 +209,9 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
 }>;
 
 export type Ws_MessageResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WS_Message'] = ResolversParentTypes['WS_Message']> = ResolversObject<{
-  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  data?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['WS_MessageType'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type Ws_TextChatInputResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WS_TextChatInput'] = ResolversParentTypes['WS_TextChatInput']> = ResolversObject<{
-  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -228,6 +221,5 @@ export type Resolvers<ContextType = ResolverContext> = ResolversObject<{
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   WS_Message?: Ws_MessageResolvers<ContextType>;
-  WS_TextChatInput?: Ws_TextChatInputResolvers<ContextType>;
 }>;
 

@@ -1,4 +1,5 @@
-import { readFileSync } from "fs";
+import ffmpeg from "fluent-ffmpeg";
+import { promises as fs, readFileSync } from "fs";
 import OpenAI from "openai";
 import { Uploadable } from "openai/core.mjs";
 import {
@@ -7,6 +8,8 @@ import {
   ChatCompletionUserMessageParam,
   CompletionUsage,
 } from "openai/resources/index.mjs";
+import os from "os";
+import path from "path";
 import { encoding_for_model } from "tiktoken";
 
 import { Message, MessageType } from "../../utils/types";
@@ -45,8 +48,6 @@ const analyzeUsage = (usage: CompletionUsage) => {
 
   const totalCost = textInputCost + audioInputCost + textOutputCost + audioOutputCost;
 
-  const usdToVnd = 25575;
-
   return {
     textInputTokens,
     cachedTextTokens,
@@ -58,10 +59,76 @@ const analyzeUsage = (usage: CompletionUsage) => {
     textOutputCost,
     audioOutputCost,
     totalCost,
-    totalCostVnd: `${Math.round(
-      totalCost * usdToVnd,
-    ).toLocaleString()} VND, with 1 USD = ${usdToVnd} VND`,
   };
+};
+
+/**
+ * Converts a File object from one audio format to another
+ * @param audioFile The input audio file
+ * @param targetFormat The desired output format (mp3 or m4a)
+ * @returns A Promise that resolves to a new File in the target format
+ */
+export const convertAudioFormat = async (audioFile: File, targetFormat: string): Promise<File> => {
+  // Create temporary input and output file paths
+  const tempDir = os.tmpdir();
+  const inputPath = path.join(tempDir, `input-${Date.now()}`);
+  const outputPath = path.join(tempDir, `output-${Date.now()}.${targetFormat}`);
+
+  try {
+    // Write the input file to disk
+    const buffer = await audioFile.arrayBuffer();
+    await fs.writeFile(inputPath, Buffer.from(buffer));
+
+    // Convert using ffmpeg
+    await new Promise<void>((resolve, reject) => {
+      ffmpeg(inputPath)
+        .output(outputPath)
+        .on("end", () => resolve())
+        .on("error", (err) => reject(err))
+        .run();
+    });
+
+    // Read the converted file
+    const outputBuffer = await fs.readFile(outputPath);
+
+    // Create a new File object
+    const convertedFile = new File([outputBuffer], `converted.${targetFormat}`, {
+      type: targetFormat === "mp3" ? "audio/mpeg" : "audio/x-m4a",
+    });
+
+    return convertedFile;
+  } finally {
+    // Clean up temporary files
+    try {
+      await fs.unlink(inputPath).catch(() => {});
+      await fs.unlink(outputPath).catch(() => {});
+    } catch (error) {
+      console.error("Error cleaning up temp files:", error);
+    }
+  }
+};
+
+/**
+ * Converts base64 string to a File object
+ */
+export const base64ToFile = (
+  base64: string,
+  filename: string,
+  mimeType: string = "audio/mpeg",
+): File => {
+  // Remove the Base64 prefix if it exists
+  const base64Data = base64.split(",")[1] || base64;
+
+  // Convert Base64 to binary
+  const byteCharacters = atob(base64Data);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+
+  // Create a File object
+  return new File([byteArray], filename, { type: mimeType });
 };
 
 export const base64ToUploadable = (
@@ -182,12 +249,21 @@ export const textChatStream = async (
   }
 };
 
-export const chat = async (props: {
-  userData: string;
-  history: Message[];
-  newMessage: string;
-  voiceMode?: boolean;
-}) => {
+/**
+ * Process audio chat with OpenAI, including audio response generation
+ * @param props Chat properties including user data, history, and the transcribed message
+ * @param onTextReady Callback function for when the text response is ready
+ * @param onAudioReady Callback function for when the audio response is ready
+ */
+export const audioChatStream = async (
+  props: {
+    userData: string;
+    history: Message[];
+    transcribedMessage: string;
+  },
+  onTextReady: (textResponse: Message) => void,
+  onAudioReady: (base64Audio: string) => void,
+) => {
   const openAiMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
@@ -211,35 +287,53 @@ export const chat = async (props: {
     }),
     {
       role: "user",
-      content: props.newMessage,
+      content: props.transcribedMessage,
     },
   ];
 
-  const completion = await client.chat.completions.create({
-    model: props.voiceMode ? "gpt-4o-mini-audio-preview" : "gpt-4o-mini",
-    messages: openAiMessages,
-    modalities: props.voiceMode ? ["text", "audio"] : ["text"],
-    audio: props.voiceMode
-      ? {
-          format: "wav",
-          voice: "alloy",
-        }
-      : undefined,
-    max_completion_tokens: 2048,
-  });
+  try {
+    // Using the audio-enabled model to get both text and audio responses
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini-audio-preview",
+      messages: openAiMessages,
+      modalities: ["text", "audio"],
+      audio: {
+        format: "mp3",
+        voice: "alloy",
+      },
+      max_completion_tokens: 2048,
+    });
 
-  const aiMessage: Message = {
-    type: MessageType.AiMessage,
-    content:
-      completion.choices[0].message.content ||
-      completion.choices[0].message.audio?.transcript ||
-      "",
-    timestamp: new Date().toISOString(),
-  };
+    // Create the AI message from the text response
+    const aiMessage: Message = {
+      type: MessageType.AiMessage,
+      content:
+        completion.choices[0].message.content ||
+        completion.choices[0].message.audio?.transcript ||
+        "",
+      timestamp: new Date().toISOString(),
+    };
 
-  return {
-    aiMessage,
-    audio: completion.choices[0].message.audio,
-    usage: completion.usage ? analyzeUsage(completion.usage) : undefined,
-  };
+    // Send the text response first
+    onTextReady(aiMessage);
+    console.log("Text response sent:", aiMessage.content);
+
+    // If audio is available, send the base64 data directly
+    if (completion.choices[0].message.audio?.data) {
+      const base64Data = completion.choices[0].message.audio.data;
+      onAudioReady(base64Data);
+      console.log("Audio response sent");
+    } else {
+      console.log("No audio response");
+    }
+
+    return {
+      aiMessage,
+      audio: completion.choices[0].message.audio,
+      usage: completion.usage ? analyzeUsage(completion.usage) : undefined,
+    };
+  } catch (error) {
+    console.error("Error in audioChatStream:", error);
+    throw error;
+  }
 };

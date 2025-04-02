@@ -35,19 +35,18 @@ input ContextInput {
 # WS Types
 type WS_Message {
   type: WS_MessageType!
-  content: String!
+  data: String!
   timestamp: String!
-}
-
-type WS_TextChatInput {
-  content: String!
 }
 
 enum WS_MessageType {
   AUTH
   INFO
   TEXT_CHAT
-  AUDIO_CHAT
+  TEXT_STREAM
+  CONFIG_AUDIO_FORMAT
+  UPLOAD_AUDIO
+  DOWNLOAD_AUDIO
 }
 
 enum WS_InfoType {
@@ -56,4 +55,6 @@ enum WS_InfoType {
   AUTHENTICATION_REQUIRED
   AUTHENTICATION_TIMEOUT
   MESSAGE_STREAM_COMPLETED
+  AUDIO_STREAM_COMPLETED
+  TRANSCRIPTION_FAILED
 }
