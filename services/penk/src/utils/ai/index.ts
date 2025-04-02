@@ -12,13 +12,13 @@ import os from "os";
 import path from "path";
 import { encoding_for_model } from "tiktoken";
 
-import { Message, MessageType } from "../../utils/types";
+import { Message, MessageType } from "../types";
 
 const client = new OpenAI({
   apiKey: process.env.OPEN_AI_API_KEY,
 });
 
-const instructions = readFileSync("instructions.md", "utf8");
+const baseInstruction = readFileSync("resources/instructions/base.md", "utf8");
 
 const analyzeUsage = (usage: CompletionUsage) => {
   /*
@@ -65,14 +65,13 @@ const analyzeUsage = (usage: CompletionUsage) => {
 /**
  * Converts a File object from one audio format to another
  * @param audioFile The input audio file
- * @param targetFormat The desired output format (mp3 or m4a)
  * @returns A Promise that resolves to a new File in the target format
  */
-export const convertAudioFormat = async (audioFile: File, targetFormat: string): Promise<File> => {
+export const convertAudioFormatToMp3 = async (audioFile: File): Promise<File> => {
   // Create temporary input and output file paths
   const tempDir = os.tmpdir();
   const inputPath = path.join(tempDir, `input-${Date.now()}`);
-  const outputPath = path.join(tempDir, `output-${Date.now()}.${targetFormat}`);
+  const outputPath = path.join(tempDir, `output-${Date.now()}.mp3`);
 
   try {
     // Write the input file to disk
@@ -92,8 +91,8 @@ export const convertAudioFormat = async (audioFile: File, targetFormat: string):
     const outputBuffer = await fs.readFile(outputPath);
 
     // Create a new File object
-    const convertedFile = new File([outputBuffer], `converted.${targetFormat}`, {
-      type: targetFormat === "mp3" ? "audio/mpeg" : "audio/x-m4a",
+    const convertedFile = new File([outputBuffer], `converted.mp3`, {
+      type: "audio/mpeg",
     });
 
     return convertedFile;
@@ -106,29 +105,6 @@ export const convertAudioFormat = async (audioFile: File, targetFormat: string):
       console.error("Error cleaning up temp files:", error);
     }
   }
-};
-
-/**
- * Converts base64 string to a File object
- */
-export const base64ToFile = (
-  base64: string,
-  filename: string,
-  mimeType: string = "audio/mpeg",
-): File => {
-  // Remove the Base64 prefix if it exists
-  const base64Data = base64.split(",")[1] || base64;
-
-  // Convert Base64 to binary
-  const byteCharacters = atob(base64Data);
-  const byteNumbers = new Array(byteCharacters.length);
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
-  }
-  const byteArray = new Uint8Array(byteNumbers);
-
-  // Create a File object
-  return new File([byteArray], filename, { type: mimeType });
 };
 
 export const base64ToUploadable = (
@@ -186,7 +162,7 @@ export const textChatStream = async (
   const openAiMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content: instructions,
+      content: baseInstruction,
     },
     {
       role: "user",
@@ -255,7 +231,7 @@ export const textChatStream = async (
  * @param onTextReady Callback function for when the text response is ready
  * @param onAudioReady Callback function for when the audio response is ready
  */
-export const audioChatStream = async (
+export const audioChat = async (
   props: {
     userData: string;
     history: Message[];
@@ -267,7 +243,7 @@ export const audioChatStream = async (
   const openAiMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content: instructions,
+      content: baseInstruction,
     },
     {
       role: "user",

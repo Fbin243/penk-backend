@@ -1,6 +1,12 @@
 import chalk from "chalk";
 import { WebSocket } from "ws";
 
+import {
+  audioChat,
+  base64ToUploadable,
+  convertAudioFormatToMp3,
+  transcribeAudio,
+} from "../../../utils/ai";
 import { PenKMessageModel } from "../../../utils/database/mongo";
 import { getPenKData, getPenKMessages } from "../../../utils/database/utils";
 import {
@@ -10,13 +16,8 @@ import {
   Ws_Message,
   Ws_MessageType,
 } from "../../../utils/types";
-import {
-  audioChatStream,
-  base64ToUploadable,
-  convertAudioFormat,
-  transcribeAudio,
-} from "../../ai/utils";
 import { WebSocketContext } from "../types";
+import { sendErrorResponse, sendInfoResponse } from "../utils";
 
 export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
   console.log(`Audio chat connection established for user: ${context.email}`);
@@ -41,7 +42,7 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
           if (clientAudioFormat === "m4a") {
             console.log("Converting input audio from m4a to mp3 for transcription");
             const m4aFile = base64ToUploadable(data, `${filename}.m4a`, "audio/x-m4a");
-            const mp3File = await convertAudioFormat(m4aFile, "mp3");
+            const mp3File = await convertAudioFormatToMp3(m4aFile);
             uploadableAudio = mp3File;
           } else {
             uploadableAudio = base64ToUploadable(data, `${filename}.mp3`, "audio/mpeg");
@@ -71,8 +72,7 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
           };
 
           // Process with AI and generate response
-          console.log("Processing with AI and generating response...");
-          const { usage } = await audioChatStream(
+          const { usage } = await audioChat(
             {
               userData: JSON.stringify(penkData),
               history: penkMessages.map((message) => ({
@@ -137,27 +137,3 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
     console.log("Audio chat connection closed");
   });
 };
-
-/**
- * Sends an error response to the client
- */
-function sendErrorResponse(ws: WebSocket, message: string): void {
-  const response: Ws_Message = {
-    type: Ws_MessageType.Info,
-    data: message,
-    timestamp: new Date().toISOString(),
-  };
-  ws.send(JSON.stringify(response));
-}
-
-/**
- * Sends an info response to the client
- */
-function sendInfoResponse(ws: WebSocket, infoType: Ws_InfoType): void {
-  const response: Ws_Message = {
-    type: Ws_MessageType.Info,
-    data: infoType,
-    timestamp: new Date().toISOString(),
-  };
-  ws.send(JSON.stringify(response));
-}

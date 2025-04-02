@@ -7,7 +7,6 @@
     "start": "tsx src/index.ts",
     "start:production": "NODE_ENV=production tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
-    "playground": "tsx src/playground.ts",
     "gen-graphql": "graphql-codegen --config codegen.yml",
     "gen-grpc": "proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --includeDirs=../../proto/ --outDir=src/utils/grpc/proto/ ../../proto/**/*.proto",
     "lint": "eslint .",

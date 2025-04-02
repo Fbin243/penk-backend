@@ -1,5 +1,6 @@
 import { WebSocket } from "ws";
 
+import { textChatStream } from "../../../utils/ai";
 import { PenKMessageModel } from "../../../utils/database/mongo";
 import { getPenKData, getPenKMessages } from "../../../utils/database/utils";
 import {
@@ -9,8 +10,8 @@ import {
   Ws_Message,
   Ws_MessageType,
 } from "../../../utils/types";
-import { textChatStream } from "../../ai/utils";
 import { WebSocketContext } from "../types";
+import { sendErrorResponse } from "../utils";
 
 export const handleTextChat = (ws: WebSocket, context: WebSocketContext) => {
   console.log(`Text chat connection established for user: ${context.email}`);
@@ -87,12 +88,3 @@ export const handleTextChat = (ws: WebSocket, context: WebSocketContext) => {
     console.log("Text chat connection closed");
   });
 };
-
-function sendErrorResponse(ws: WebSocket, message: string): void {
-  const response: Ws_Message = {
-    type: Ws_MessageType.Info,
-    data: message,
-    timestamp: new Date().toISOString(),
-  };
-  ws.send(JSON.stringify(response));
-}
