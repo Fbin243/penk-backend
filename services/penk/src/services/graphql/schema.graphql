@@ -21,14 +21,12 @@ enum MessageType {
 type Context {
   timezone: String!
   locale: String!
-  personality: String!
   context: String!
 }
 
 input ContextInput {
   timezone: String!
   locale: String!
-  personality: String!
   context: String!
 }
 
@@ -45,6 +43,7 @@ enum WS_MessageType {
   TEXT_CHAT
   TEXT_STREAM
   CONFIG_AUDIO_FORMAT
+  TRANSCRIPT_RESULT
   UPLOAD_AUDIO
   DOWNLOAD_AUDIO
 }

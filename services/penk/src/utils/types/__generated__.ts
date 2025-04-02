@@ -21,14 +21,12 @@ export type Context = {
   __typename?: 'Context';
   context: Scalars['String']['output'];
   locale: Scalars['String']['output'];
-  personality: Scalars['String']['output'];
   timezone: Scalars['String']['output'];
 };
 
 export type ContextInput = {
   context: Scalars['String']['input'];
   locale: Scalars['String']['input'];
-  personality: Scalars['String']['input'];
   timezone: Scalars['String']['input'];
 };
 
@@ -84,6 +82,7 @@ export enum Ws_MessageType {
   Info = 'INFO',
   TextChat = 'TEXT_CHAT',
   TextStream = 'TEXT_STREAM',
+  TranscriptResult = 'TRANSCRIPT_RESULT',
   UploadAudio = 'UPLOAD_AUDIO'
 }
 
@@ -187,7 +186,6 @@ export type ResolversParentTypes = ResolversObject<{
 export type ContextResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Context'] = ResolversParentTypes['Context']> = ResolversObject<{
   context?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  personality?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

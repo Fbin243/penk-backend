@@ -1,7 +1,8 @@
+import chalk from "chalk";
 import { WebSocket } from "ws";
 
 import { textChatStream } from "../../../utils/ai";
-import { PenKMessageModel } from "../../../utils/database/mongo";
+import { PenKMessageModel, PenKUsageModel } from "../../../utils/database/mongo";
 import { getPenKData, getPenKMessages } from "../../../utils/database/utils";
 import {
   Message,
@@ -34,7 +35,7 @@ export const handleTextChat = (ws: WebSocket, context: WebSocketContext) => {
       try {
         let completeAiMessage: Message | null = null;
 
-        await textChatStream(
+        const { cost } = await textChatStream(
           {
             userData: JSON.stringify(penkData),
             history: penkMessages.map((message) => ({
@@ -74,6 +75,17 @@ export const handleTextChat = (ws: WebSocket, context: WebSocketContext) => {
             }
           },
         );
+
+        if (cost) {
+          console.log(chalk.green("Total cost:", cost));
+          PenKUsageModel.updateOne(
+            { profile_id: context.profileId },
+            { $inc: { total_cost: cost, text_chat_count: 1 } },
+            { upsert: true },
+          ).catch((error) => {
+            console.error("Error updating usage:", error);
+          });
+        }
       } catch (error) {
         console.error("Error in streaming chat:", error);
         sendErrorResponse(ws, "Error in streaming chat");

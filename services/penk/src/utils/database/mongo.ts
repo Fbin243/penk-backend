@@ -28,7 +28,6 @@ const PenKContextSchema = new Schema({
   },
   timezone: { type: String, default: "Asia/Saigon" },
   locale: { type: String, default: "vi-VN" },
-  personality: { type: String, default: "casual" },
   context: { type: String, default: "" },
 });
 
@@ -65,3 +64,16 @@ PenKMessageSchema.index(
 );
 
 export const PenKMessageModel = conn.model("penk_messages", PenKMessageSchema);
+
+const PenKUsageSchema = new Schema({
+  profile_id: {
+    type: Schema.Types.ObjectId,
+    ref: "characters",
+    required: true,
+  },
+  total_cost: { type: Number, required: true },
+  text_chat_count: { type: Number, required: true },
+  voice_chat_count: { type: Number, required: true },
+});
+
+export const PenKUsageModel = conn.model("penk_usages", PenKUsageSchema);

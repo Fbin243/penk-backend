@@ -1,13 +1,9 @@
 import chalk from "chalk";
 import { WebSocket } from "ws";
 
-import {
-  audioChat,
-  base64ToUploadable,
-  convertAudioFormatToMp3,
-  transcribeAudio,
-} from "../../../utils/ai";
-import { PenKMessageModel } from "../../../utils/database/mongo";
+import { audioChat, base64ToUploadable, transcribeAudio } from "../../../utils/ai";
+import { convertAudioFormatToMp3 } from "../../../utils/audio";
+import { PenKMessageModel, PenKUsageModel } from "../../../utils/database/mongo";
 import { getPenKData, getPenKMessages } from "../../../utils/database/utils";
 import {
   Message,
@@ -26,27 +22,35 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
 
   ws.on("message", async (message: string) => {
     try {
+      const startTime = Date.now();
+      console.log(`[${context.email}] Starting audio chat processing`);
+
       const { data, type } = JSON.parse(message.toString()) as Ws_Message;
 
       if (type === Ws_MessageType.ConfigAudioFormat) {
         clientAudioFormat = data;
-        console.log(`Audio format configured: ${clientAudioFormat}`);
       }
 
       if (type === Ws_MessageType.UploadAudio) {
+        const uploadStartTime = Date.now();
+
         const filename = `audio-${context.profileId}`;
 
         let uploadableAudio;
         try {
           // Convert to MP3 if needed for transcription (OpenAI doesn't support m4a)
           if (clientAudioFormat === "m4a") {
-            console.log("Converting input audio from m4a to mp3 for transcription");
             const m4aFile = base64ToUploadable(data, `${filename}.m4a`, "audio/x-m4a");
             const mp3File = await convertAudioFormatToMp3(m4aFile);
             uploadableAudio = mp3File;
           } else {
             uploadableAudio = base64ToUploadable(data, `${filename}.mp3`, "audio/mpeg");
           }
+          console.log(
+            `[${context.email}] Audio format processing completed in ${
+              Date.now() - uploadStartTime
+            }ms`,
+          );
         } catch (error) {
           console.error("Error preparing audio for transcription:", error);
           sendErrorResponse(ws, "Error processing audio format");
@@ -54,15 +58,26 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
         }
 
         try {
-          // Transcribe the audio
-          const transcriptionResult = await transcribeAudio(uploadableAudio);
-          console.log(`Transcribed message: ${transcriptionResult.text}`);
+          const processingStartTime = Date.now();
+          console.log(`[${context.email}] Starting transcription and AI processing`);
 
           // Get PenK data and chat history
-          const [penkData, penkMessages] = await Promise.all([
+          const [transcriptionResult, penkData, penkMessages] = await Promise.all([
+            transcribeAudio(uploadableAudio),
             getPenKData(context.userId),
             getPenKMessages(context.profileId),
           ]);
+          console.log(`Transcribed message: ${transcriptionResult.text}`);
+          console.log(
+            `[${context.email}] Transcription completed in ${Date.now() - processingStartTime}ms`,
+          );
+
+          const transcriptResultMessage: Ws_Message = {
+            type: Ws_MessageType.TranscriptResult,
+            data: transcriptionResult.text,
+            timestamp: new Date().toISOString(),
+          };
+          ws.send(JSON.stringify(transcriptResultMessage));
 
           // Create user message from transcription
           const userMessage: Message = {
@@ -72,7 +87,9 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
           };
 
           // Process with AI and generate response
-          const { usage } = await audioChat(
+          const aiStartTime = Date.now();
+
+          const { cost } = await audioChat(
             {
               userData: JSON.stringify(penkData),
               history: penkMessages.map((message) => ({
@@ -84,6 +101,11 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
             },
             // This callback is called when text response is ready
             (textResponse) => {
+              const textResponseTime = Date.now();
+              console.log(
+                `[${context.email}] Text response ready in ${textResponseTime - aiStartTime}ms`,
+              );
+
               // Save messages to database
               PenKMessageModel.insertMany([
                 { ...userMessage, profile_id: context.profileId },
@@ -100,6 +122,11 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
             },
             // This callback is called when audio response is ready (always in mp3 format from OpenAI)
             async (base64Audio) => {
+              const audioResponseTime = Date.now();
+              console.log(
+                `[${context.email}] Audio response ready in ${audioResponseTime - aiStartTime}ms`,
+              );
+
               try {
                 // Send the audio response to client
                 const audioResponseMessage: Ws_Message = {
@@ -118,13 +145,32 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
             },
           );
 
+          const totalCost = transcriptionResult.cost + cost;
+          console.log(chalk.green("Total cost:", totalCost));
+
+          PenKUsageModel.updateOne(
+            { profile_id: context.profileId },
+            { $inc: { total_cost: totalCost, voice_chat_count: 1 } },
+            { upsert: true },
+          ).catch((error) => {
+            console.error("Error updating usage:", error);
+          });
+
+          const totalTime = Date.now() - startTime;
           console.log(
-            chalk.green("Total cost:", transcriptionResult.cost + (usage?.totalCost ?? 0)),
+            chalk.cyan(
+              `[${context.email}] Total audio chat processing completed in ${totalTime}ms`,
+            ),
           );
         } catch (error) {
           console.error("Error processing audio:", error);
           sendInfoResponse(ws, Ws_InfoType.TranscriptionFailed);
           sendErrorResponse(ws, "Error processing audio");
+
+          const totalTime = Date.now() - startTime;
+          console.log(
+            chalk.red(`[${context.email}] Audio chat processing failed after ${totalTime}ms`),
+          );
         }
       }
     } catch (error) {
