@@ -23,7 +23,6 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
   ws.on("message", async (message: string) => {
     try {
       const startTime = Date.now();
-      console.log(`[${context.email}] Starting audio chat processing`);
 
       const { data, type } = JSON.parse(message.toString()) as Ws_Message;
 
@@ -46,11 +45,7 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
           } else {
             uploadableAudio = base64ToUploadable(data, `${filename}.mp3`, "audio/mpeg");
           }
-          console.log(
-            `[${context.email}] Audio format processing completed in ${
-              Date.now() - uploadStartTime
-            }ms`,
-          );
+          console.log(`Audio format processing completed in ${Date.now() - uploadStartTime}ms`);
         } catch (error) {
           console.error("Error preparing audio for transcription:", error);
           sendErrorResponse(ws, "Error processing audio format");
@@ -59,7 +54,6 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
 
         try {
           const processingStartTime = Date.now();
-          console.log(`[${context.email}] Starting transcription and AI processing`);
 
           // Get PenK data and chat history
           const [transcriptionResult, penkData, penkMessages] = await Promise.all([
@@ -68,9 +62,7 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
             getPenKMessages(context.profileId),
           ]);
           console.log(`Transcribed message: ${transcriptionResult.text}`);
-          console.log(
-            `[${context.email}] Transcription completed in ${Date.now() - processingStartTime}ms`,
-          );
+          console.log(`Transcription completed in ${Date.now() - processingStartTime}ms`);
 
           const transcriptResultMessage: Ws_Message = {
             type: Ws_MessageType.TranscriptResult,
@@ -157,20 +149,14 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
           });
 
           const totalTime = Date.now() - startTime;
-          console.log(
-            chalk.cyan(
-              `[${context.email}] Total audio chat processing completed in ${totalTime}ms`,
-            ),
-          );
+          console.log(`Total audio chat processing completed in ${totalTime}ms`);
         } catch (error) {
           console.error("Error processing audio:", error);
           sendInfoResponse(ws, Ws_InfoType.TranscriptionFailed);
           sendErrorResponse(ws, "Error processing audio");
 
           const totalTime = Date.now() - startTime;
-          console.log(
-            chalk.red(`[${context.email}] Audio chat processing failed after ${totalTime}ms`),
-          );
+          console.log(`Audio chat processing failed after ${totalTime}ms`);
         }
       }
     } catch (error) {

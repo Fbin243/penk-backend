@@ -4,12 +4,13 @@ import { Uploadable } from "openai/core.mjs";
 import {
   ChatCompletionAssistantMessageParam,
   ChatCompletionMessageParam,
+  ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
-  CompletionUsage,
 } from "openai/resources/index.mjs";
 
 import { getAudioDuration } from "../audio";
 import { Message, MessageType } from "../types";
+import { callFunction, FunctionName, tools } from "./functions";
 import {
   calculateCompletionUsage,
   calculateTranscriptionCost,
@@ -74,7 +75,7 @@ export const textChatStream = async (
   const openAiMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content: `${baseInstruction}\n\n${voiceModeInstruction}`,
+      content: baseInstruction,
     },
     {
       role: "user",
@@ -109,26 +110,97 @@ export const textChatStream = async (
         include_usage: true,
       },
       max_tokens: 2048,
+      tools,
+      tool_choice: "auto",
     });
 
     const aiTimestamp = new Date().toISOString();
 
-    let usage: CompletionUsage | undefined | null;
+    let cost = 0;
+
+    const finalToolCalls: Record<
+      number,
+      OpenAI.Chat.Completions.ChatCompletionChunk.Choice.Delta.ToolCall
+    > = {};
 
     for await (const chunk of stream) {
+      const toolCalls = chunk.choices[0]?.delta?.tool_calls || [];
+      if (toolCalls.length > 0) {
+        for (const toolCall of toolCalls) {
+          const { index } = toolCall;
+
+          if (!finalToolCalls[index]) {
+            finalToolCalls[index] = toolCall;
+          }
+
+          if (finalToolCalls[index].function && toolCall.function?.arguments) {
+            finalToolCalls[index].function.arguments += toolCall.function.arguments;
+          }
+        }
+      }
+
       const content = chunk.choices[0]?.delta?.content || "";
       if (content) {
         fullContent += content;
         onChunk(content, aiTimestamp);
       }
+
       if (chunk.usage) {
-        usage = chunk.usage;
+        cost += calculateCompletionUsage(chunk.usage, gpt4oMiniPricingModel);
+      }
+    }
+
+    if (Object.keys(finalToolCalls).length > 0) {
+      for (const toolCall of Object.values(finalToolCalls)) {
+        const result = await callFunction(
+          toolCall.function!.name as FunctionName,
+          JSON.parse(toolCall.function!.arguments!),
+        );
+        openAiMessages.push({
+          role: "assistant",
+          tool_calls: [
+            {
+              id: toolCall.id!,
+              function: {
+                name: toolCall.function!.name!,
+                arguments: toolCall.function!.arguments!,
+              },
+              type: "function",
+            },
+          ],
+        });
+        openAiMessages.push({
+          role: "tool",
+          content: JSON.stringify(result),
+          tool_call_id: toolCall.id!,
+        } satisfies ChatCompletionToolMessageParam);
+      }
+
+      const completion = await client.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: openAiMessages,
+        max_tokens: 2048,
+        tools,
+        tool_choice: "auto",
+        stream: true,
+      });
+
+      for await (const chunk of completion) {
+        const content = chunk.choices[0]?.delta?.content || "";
+        if (content) {
+          fullContent += content;
+          onChunk(content, aiTimestamp);
+        }
+
+        if (chunk.usage) {
+          cost += calculateCompletionUsage(chunk.usage, gpt4oMiniPricingModel);
+        }
       }
     }
 
     const aiMessage: Message = {
       type: MessageType.AiMessage,
-      content: fullContent,
+      content: fullContent || "Something went wrong",
       timestamp: aiTimestamp,
     };
 
@@ -138,7 +210,7 @@ export const textChatStream = async (
 
     return {
       aiMessage,
-      cost: usage ? calculateCompletionUsage(usage, gpt4oMiniPricingModel) : 0,
+      cost,
     };
   } catch (error) {
     console.error("Error in textChatStream:", error);
