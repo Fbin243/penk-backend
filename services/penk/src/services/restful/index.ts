@@ -2,10 +2,23 @@ import express from "express";
 
 import { OAuthTokenModel } from "../../utils/database/mongo";
 import { getAuthResult } from "../../utils/googleapis";
+import { LinkedAccountType } from "../../utils/types";
 import { encrypt } from "./../../utils/encrypt";
 
 const app = express();
 const PORT = 8097;
+
+const getTypeFromScope = (scope: string) => {
+  if (scope.includes("gmail")) {
+    return LinkedAccountType.Gmail;
+  }
+
+  if (scope.includes("calendar")) {
+    return LinkedAccountType.GoogleCalendar;
+  }
+
+  throw new Error(`Invalid scope: ${scope}`);
+};
 
 // Route to handle OAuth redirect from Google
 app.get("/oauth_redirect", async (req, res) => {
@@ -19,6 +32,10 @@ app.get("/oauth_redirect", async (req, res) => {
     return res.status(400).send("Linking account not found");
   }
 
+  if (!scope) {
+    return res.status(400).send("Scope not found");
+  }
+
   try {
     const authResult = await getAuthResult(code as string);
 
@@ -27,7 +44,7 @@ app.get("/oauth_redirect", async (req, res) => {
     }
 
     await OAuthTokenModel.findOneAndUpdate(
-      { profile_id: state, email: authResult.email, scope },
+      { profile_id: state, email: authResult.email, type: getTypeFromScope(scope.toString()) },
       { refresh_token: encrypt(authResult.refreshToken) },
       { upsert: true },
     );

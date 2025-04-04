@@ -35,8 +35,13 @@ export type LinkedAccount = {
   accessToken: Scalars['String']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  scope: Scalars['String']['output'];
+  type: LinkedAccountType;
 };
+
+export enum LinkedAccountType {
+  Gmail = 'Gmail',
+  GoogleCalendar = 'GoogleCalendar'
+}
 
 export type Message = {
   __typename?: 'Message';
@@ -76,7 +81,7 @@ export type Query = {
 
 
 export type QueryGoogleAuthUrlArgs = {
-  scope: Scalars['String']['input'];
+  type: LinkedAccountType;
 };
 
 export enum Ws_InfoType {
@@ -184,6 +189,7 @@ export type ResolversTypes = ResolversObject<{
   ContextInput: ContextInput;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   LinkedAccount: ResolverTypeWrapper<LinkedAccount>;
+  LinkedAccountType: LinkedAccountType;
   Message: ResolverTypeWrapper<Message>;
   MessageType: MessageType;
   Mutation: ResolverTypeWrapper<{}>;
@@ -219,7 +225,7 @@ export type LinkedAccountResolvers<ContextType = ResolverContext, ParentType ext
   accessToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  scope?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['LinkedAccountType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -237,7 +243,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   context?: Resolver<Maybe<ResolversTypes['Context']>, ParentType, ContextType>;
-  googleAuthUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryGoogleAuthUrlArgs, 'scope'>>;
+  googleAuthUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryGoogleAuthUrlArgs, 'type'>>;
   linkedAccounts?: Resolver<Array<ResolversTypes['LinkedAccount']>, ParentType, ContextType>;
   messages?: Resolver<Array<ResolversTypes['Message']>, ParentType, ContextType>;
 }>;

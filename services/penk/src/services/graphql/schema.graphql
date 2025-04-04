@@ -1,7 +1,7 @@
 type Query {
   context: Context
   messages: [Message!]!
-  googleAuthUrl(scope: String!): String!
+  googleAuthUrl(type: LinkedAccountType!): String!
   linkedAccounts: [LinkedAccount!]!
 }
 
@@ -13,8 +13,13 @@ type Mutation {
 type LinkedAccount {
   id: ID!
   email: String!
-  scope: String!
+  type: LinkedAccountType!
   accessToken: String!
+}
+
+enum LinkedAccountType {
+  Gmail
+  GoogleCalendar
 }
 
 type Message {

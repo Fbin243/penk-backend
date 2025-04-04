@@ -2,10 +2,8 @@ import { readFileSync } from "fs";
 import OpenAI from "openai";
 import { Uploadable } from "openai/core.mjs";
 import {
-  ChatCompletionAssistantMessageParam,
   ChatCompletionMessageParam,
   ChatCompletionToolMessageParam,
-  ChatCompletionUserMessageParam,
 } from "openai/resources/index.mjs";
 
 import { getAudioDuration } from "../audio";
@@ -17,12 +15,12 @@ import {
   calculateTtsCost,
   gpt4oMiniPricingModel,
 } from "./pricing";
+import { setupInitialMessages, streamAssistantResponse } from "./utils";
 
 const client = new OpenAI({
   apiKey: process.env.OPEN_AI_API_KEY,
 });
 
-const baseInstruction = readFileSync("resources/instructions/base.md", "utf8");
 const voiceModeInstruction = readFileSync("resources/instructions/voice-mode.md", "utf8");
 
 export const base64ToUploadable = (
@@ -57,12 +55,6 @@ export const transcribeAudio = async (audio: Uploadable) => {
   };
 };
 
-/**
- * Streams chat completions from OpenAI with text-only responses
- * @param props Chat properties including user data, history, and the new message
- * @param onChunk Callback function that receives each chunk of the streamed response
- * @param onComplete Optional callback function called when streaming is complete with the full message
- */
 export const textChatStream = async (
   props: {
     userData: string;
@@ -72,91 +64,33 @@ export const textChatStream = async (
   onChunk: (chunk: string, timestamp: string) => void,
   onComplete?: (fullMessage: Message) => void,
 ) => {
-  const openAiMessages: ChatCompletionMessageParam[] = [
-    {
-      role: "system",
-      content: baseInstruction,
-    },
-    {
-      role: "user",
-      content: `My data: ${props.userData}`,
-    },
-    ...props.history.map((message) => {
-      if (message.type === MessageType.UserMessage) {
-        return {
-          role: "user",
-          content: message.content,
-        } satisfies ChatCompletionUserMessageParam;
-      }
-      return {
-        role: "assistant",
-        content: message.content,
-      } satisfies ChatCompletionAssistantMessageParam;
-    }),
-    {
-      role: "user",
-      content: props.newMessage,
-    },
-  ];
-
+  const aiTimestamp = new Date().toISOString();
   let fullContent = "";
+  let cost = 0;
+
+  const openAiMessages = setupInitialMessages(props.userData, props.history);
+  openAiMessages.push({ role: "user", content: props.newMessage });
 
   try {
-    const stream = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+    const { content, toolCalls, usage } = await streamAssistantResponse({
+      client,
       messages: openAiMessages,
-      stream: true,
-      stream_options: {
-        include_usage: true,
-      },
-      max_tokens: 2048,
-      tools,
-      tool_choice: "auto",
+      aiTimestamp,
+      onChunk,
     });
+    fullContent += content;
+    if (usage) cost += calculateCompletionUsage(usage, gpt4oMiniPricingModel);
 
-    const aiTimestamp = new Date().toISOString();
+    let currentToolCalls = toolCalls;
 
-    let cost = 0;
+    while (Object.keys(currentToolCalls).length > 0) {
+      const newMessages: ChatCompletionMessageParam[] = [];
 
-    const finalToolCalls: Record<
-      number,
-      OpenAI.Chat.Completions.ChatCompletionChunk.Choice.Delta.ToolCall
-    > = {};
+      for (const toolCall of Object.values(currentToolCalls)) {
+        const args = JSON.parse(toolCall.function!.arguments!);
+        const result = await callFunction(toolCall.function!.name as FunctionName, args);
 
-    for await (const chunk of stream) {
-      const toolCalls = chunk.choices[0]?.delta?.tool_calls || [];
-      if (toolCalls.length > 0) {
-        for (const toolCall of toolCalls) {
-          const { index } = toolCall;
-
-          if (!finalToolCalls[index]) {
-            finalToolCalls[index] = toolCall;
-          }
-
-          if (finalToolCalls[index].function && toolCall.function?.arguments) {
-            finalToolCalls[index].function.arguments += toolCall.function.arguments;
-          }
-        }
-      }
-
-      const content = chunk.choices[0]?.delta?.content || "";
-      if (content) {
-        fullContent += content;
-        onChunk(content, aiTimestamp);
-      }
-
-      if (chunk.usage) {
-        cost += calculateCompletionUsage(chunk.usage, gpt4oMiniPricingModel);
-      }
-    }
-
-    if (Object.keys(finalToolCalls).length > 0) {
-      for (const toolCall of Object.values(finalToolCalls)) {
-        const result = await callFunction(
-          toolCall.function!.name as FunctionName,
-          JSON.parse(toolCall.function!.arguments!),
-        );
-        openAiMessages.push({
+        newMessages.push({
           role: "assistant",
           tool_calls: [
             {
@@ -169,33 +103,25 @@ export const textChatStream = async (
             },
           ],
         });
-        openAiMessages.push({
+
+        newMessages.push({
           role: "tool",
           content: JSON.stringify(result),
           tool_call_id: toolCall.id!,
         } satisfies ChatCompletionToolMessageParam);
       }
 
-      const completion = await client.chat.completions.create({
-        model: "gpt-4o-mini",
+      openAiMessages.push(...newMessages);
+
+      const followup = await streamAssistantResponse({
+        client,
         messages: openAiMessages,
-        max_tokens: 2048,
-        tools,
-        tool_choice: "auto",
-        stream: true,
+        aiTimestamp,
+        onChunk,
       });
-
-      for await (const chunk of completion) {
-        const content = chunk.choices[0]?.delta?.content || "";
-        if (content) {
-          fullContent += content;
-          onChunk(content, aiTimestamp);
-        }
-
-        if (chunk.usage) {
-          cost += calculateCompletionUsage(chunk.usage, gpt4oMiniPricingModel);
-        }
-      }
+      fullContent += followup.content;
+      if (followup.usage) cost += calculateCompletionUsage(followup.usage, gpt4oMiniPricingModel);
+      currentToolCalls = followup.toolCalls;
     }
 
     const aiMessage: Message = {
@@ -204,26 +130,14 @@ export const textChatStream = async (
       timestamp: aiTimestamp,
     };
 
-    if (onComplete) {
-      onComplete(aiMessage);
-    }
-
-    return {
-      aiMessage,
-      cost,
-    };
+    if (onComplete) onComplete(aiMessage);
+    return { aiMessage, cost };
   } catch (error) {
     console.error("Error in textChatStream:", error);
     throw error;
   }
 };
 
-/**
- * Process audio chat with OpenAI, including audio response generation
- * @param props Chat properties including user data, history, and the transcribed message
- * @param onTextReady Callback function for when the text response is ready
- * @param onAudioReady Callback function for when the audio response is ready
- */
 export const audioChat = async (
   props: {
     userData: string;
@@ -233,32 +147,104 @@ export const audioChat = async (
   onTextReady: (textResponse: Message) => void,
   onAudioReady: (base64Audio: string) => void,
 ) => {
-  const openAiMessages: ChatCompletionMessageParam[] = [
-    {
-      role: "system",
-      content: baseInstruction,
-    },
-    {
-      role: "user",
-      content: `My data: ${props.userData}`,
-    },
-    ...props.history.map((message) => {
-      if (message.type === MessageType.UserMessage) {
-        return {
-          role: "user",
-          content: message.content,
-        } satisfies ChatCompletionUserMessageParam;
+  const openAiMessages = setupInitialMessages(props.userData, props.history);
+  openAiMessages.push({
+    role: "user",
+    content: props.transcribedMessage,
+  });
+
+  let finalContent = "";
+  const aiTimestamp = new Date().toISOString();
+  let totalCost = 0;
+
+  while (true) {
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: openAiMessages,
+      modalities: ["text"],
+      tools,
+      tool_choice: "auto",
+      max_completion_tokens: 2048,
+    });
+
+    const choice = completion.choices[0].message;
+    totalCost += completion.usage
+      ? calculateCompletionUsage(completion.usage, gpt4oMiniPricingModel)
+      : 0;
+
+    // If tool calls exist, call them and loop again
+    if (choice.tool_calls?.length) {
+      for (const toolCall of choice.tool_calls) {
+        const fnName = toolCall.function.name as FunctionName;
+        const args = JSON.parse(toolCall.function.arguments || "{}");
+
+        const result = await callFunction(fnName, args);
+
+        openAiMessages.push({
+          role: "assistant",
+          tool_calls: [toolCall],
+        });
+
+        openAiMessages.push({
+          role: "tool",
+          tool_call_id: toolCall.id,
+          content: JSON.stringify(result),
+        });
       }
-      return {
-        role: "assistant",
-        content: message.content,
-      } satisfies ChatCompletionAssistantMessageParam;
-    }),
-    {
-      role: "user",
-      content: props.transcribedMessage,
-    },
-  ];
+      continue; // back to top with new messages
+    }
+
+    // Final message
+    finalContent = choice.content || "";
+    break;
+  }
+
+  const aiMessage: Message = {
+    type: MessageType.AiMessage,
+    content: finalContent,
+    timestamp: aiTimestamp,
+  };
+
+  onTextReady(aiMessage);
+  console.log("Text response sent:", finalContent);
+
+  // Generate audio
+  const mp3 = await client.audio.speech.create({
+    model: "gpt-4o-mini-tts",
+    voice: "ash",
+    input: aiMessage.content,
+    instructions: voiceModeInstruction,
+  });
+
+  const mp3ArrayBuffer = await mp3.arrayBuffer();
+  const base64Audio = Buffer.from(mp3ArrayBuffer).toString("base64");
+  onAudioReady(base64Audio);
+
+  const duration = await getAudioDuration(Buffer.from(mp3ArrayBuffer));
+  totalCost += calculateTtsCost(duration);
+  console.log(`TTS cost for ${duration} seconds: ${calculateTtsCost(duration)}`);
+
+  return {
+    aiMessage,
+    audio: base64Audio,
+    cost: totalCost,
+  };
+};
+
+export const audioChat2 = async (
+  props: {
+    userData: string;
+    history: Message[];
+    transcribedMessage: string;
+  },
+  onTextReady: (textResponse: Message) => void,
+  onAudioReady: (base64Audio: string) => void,
+) => {
+  const openAiMessages = setupInitialMessages(props.userData, props.history);
+  openAiMessages.push({
+    role: "user",
+    content: props.transcribedMessage,
+  });
 
   try {
     const completion = await client.chat.completions.create({

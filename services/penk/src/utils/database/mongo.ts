@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import { MessageType } from "../types";
+import { LinkedAccountType, MessageType } from "../types";
 
 const conn = mongoose.createConnection(
   `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_ADDRESS}/${process.env.MONGO_DATABASE_NAME}?retryWrites=true&w=majority`,
@@ -86,7 +86,11 @@ export const OAuthTokenSchema = new Schema({
     required: true,
   },
   email: { type: String, required: true },
-  scope: { type: String, required: true },
+  type: {
+    type: String,
+    required: true,
+    enum: [LinkedAccountType.Gmail, LinkedAccountType.GoogleCalendar],
+  },
   refresh_token: { type: String, required: true },
 });
 

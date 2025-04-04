@@ -1,4 +1,3 @@
-// import chalk from "chalk";
 import mongoose from "mongoose";
 
 import { PenKContextModel, PenKMessageModel, ProfileModel } from "./mongo";
@@ -180,10 +179,6 @@ export const getPenKData = async (userId: string) => {
   ]);
 
   const userData = convertObjectsToStrings(aggregatedData[0]);
-
-  // console.log(chalk.green("[PenK Context]"));
-  // console.dir(userData, { depth: null, colors: true });
-  // console.log();
 
   return userData;
 };

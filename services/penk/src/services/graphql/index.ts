@@ -41,7 +41,7 @@ const resolvers: Resolvers = {
     },
     googleAuthUrl: async (_, args, context) => {
       requireAuth(context);
-      const url = await getGoogleAuthUrl(context.profileId, args.scope);
+      const url = await getGoogleAuthUrl(context.profileId, args.type);
       return url;
     },
     linkedAccounts: async (_, __, context) => {
@@ -54,7 +54,7 @@ const resolvers: Resolvers = {
           linkedAccounts.push({
             id: token._id.toString(),
             email: token.email,
-            scope: token.scope,
+            type: token.type,
             accessToken,
           });
         }
