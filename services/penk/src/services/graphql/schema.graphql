@@ -1,10 +1,20 @@
 type Query {
   context: Context
   messages: [Message!]!
+  googleAuthUrl(scope: String!): String!
+  linkedAccounts: [LinkedAccount!]!
 }
 
 type Mutation {
   upsertContext(input: ContextInput!): Context!
+  revokeLinkedAccount(id: ID!): Boolean!
+}
+
+type LinkedAccount {
+  id: ID!
+  email: String!
+  scope: String!
+  accessToken: String!
 }
 
 type Message {

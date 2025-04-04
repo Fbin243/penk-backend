@@ -77,3 +77,17 @@ const PenKUsageSchema = new Schema({
 });
 
 export const PenKUsageModel = conn.model("penk_usages", PenKUsageSchema);
+
+// 1 profile can link multiple oauth tokens
+export const OAuthTokenSchema = new Schema({
+  profile_id: {
+    type: Schema.Types.ObjectId,
+    ref: "characters",
+    required: true,
+  },
+  email: { type: String, required: true },
+  scope: { type: String, required: true },
+  refresh_token: { type: String, required: true },
+});
+
+export const OAuthTokenModel = conn.model("oauth_tokens", OAuthTokenSchema);

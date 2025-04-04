@@ -30,6 +30,14 @@ export type ContextInput = {
   timezone: Scalars['String']['input'];
 };
 
+export type LinkedAccount = {
+  __typename?: 'LinkedAccount';
+  accessToken: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  scope: Scalars['String']['output'];
+};
+
 export type Message = {
   __typename?: 'Message';
   content: Scalars['String']['output'];
@@ -44,7 +52,13 @@ export enum MessageType {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  revokeLinkedAccount: Scalars['Boolean']['output'];
   upsertContext: Context;
+};
+
+
+export type MutationRevokeLinkedAccountArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -55,7 +69,14 @@ export type MutationUpsertContextArgs = {
 export type Query = {
   __typename?: 'Query';
   context?: Maybe<Context>;
+  googleAuthUrl: Scalars['String']['output'];
+  linkedAccounts: Array<LinkedAccount>;
   messages: Array<Message>;
+};
+
+
+export type QueryGoogleAuthUrlArgs = {
+  scope: Scalars['String']['input'];
 };
 
 export enum Ws_InfoType {
@@ -161,6 +182,8 @@ export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Context: ResolverTypeWrapper<Context>;
   ContextInput: ContextInput;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  LinkedAccount: ResolverTypeWrapper<LinkedAccount>;
   Message: ResolverTypeWrapper<Message>;
   MessageType: MessageType;
   Mutation: ResolverTypeWrapper<{}>;
@@ -176,6 +199,8 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
   Context: Context;
   ContextInput: ContextInput;
+  ID: Scalars['ID']['output'];
+  LinkedAccount: LinkedAccount;
   Message: Message;
   Mutation: {};
   Query: {};
@@ -190,6 +215,14 @@ export type ContextResolvers<ContextType = ResolverContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type LinkedAccountResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LinkedAccount'] = ResolversParentTypes['LinkedAccount']> = ResolversObject<{
+  accessToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  scope?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MessageResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Message'] = ResolversParentTypes['Message']> = ResolversObject<{
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -198,11 +231,14 @@ export type MessageResolvers<ContextType = ResolverContext, ParentType extends R
 }>;
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  revokeLinkedAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeLinkedAccountArgs, 'id'>>;
   upsertContext?: Resolver<ResolversTypes['Context'], ParentType, ContextType, RequireFields<MutationUpsertContextArgs, 'input'>>;
 }>;
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   context?: Resolver<Maybe<ResolversTypes['Context']>, ParentType, ContextType>;
+  googleAuthUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryGoogleAuthUrlArgs, 'scope'>>;
+  linkedAccounts?: Resolver<Array<ResolversTypes['LinkedAccount']>, ParentType, ContextType>;
   messages?: Resolver<Array<ResolversTypes['Message']>, ParentType, ContextType>;
 }>;
 
@@ -215,6 +251,7 @@ export type Ws_MessageResolvers<ContextType = ResolverContext, ParentType extend
 
 export type Resolvers<ContextType = ResolverContext> = ResolversObject<{
   Context?: ContextResolvers<ContextType>;
+  LinkedAccount?: LinkedAccountResolvers<ContextType>;
   Message?: MessageResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
