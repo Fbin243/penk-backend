@@ -52,32 +52,6 @@ func (r *GoalRepo) GetGoalsByCharacterID(ctx context.Context, characterID string
 	return goals, err
 }
 
-func (r *GoalRepo) ValidateGoal(ctx context.Context, profileID, goalID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	pineline := bson.A{
-		bson.M{"$match": bson.M{"_id": mongodb.ToObjectID(goalID)}},
-		bson.M{
-			"$lookup": bson.M{
-				"from":         mongodb.CharactersCollection,
-				"localField":   "character_id",
-				"foreignField": "_id",
-				"as":           "character",
-			},
-		},
-		bson.M{"$unwind": "$character"},
-		bson.M{"$match": bson.M{"character.profile_id": mongodb.ToObjectID(profileID)}},
-	}
-
-	cursor, err := r.Aggregate(ctx, pineline)
-	if err != nil || !cursor.Next(ctx) {
-		return errors.ErrPermissionDenied
-	}
-
-	return nil
-}
-
 func (r *GoalRepo) DeleteByCharacterID(ctx context.Context, characterID string) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -92,4 +66,31 @@ func (r *GoalRepo) DeleteByCharacterIDs(ctx context.Context, characterIDs []stri
 
 	_, err := r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
 	return err
+}
+
+func (r *GoalRepo) Exist(ctx context.Context, characterID, goalID string) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	count, err := r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID), "_id": mongodb.ToObjectID(goalID)})
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.ErrMongoNotFound
+	}
+
+	return nil
+}
+
+func (r *GoalRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	count, err := r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
+	if err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
 }

@@ -15,6 +15,5 @@ use (
 	./services/core
 	./services/currency
 	./services/notification
-	./services/timetracking
 	./test
 )

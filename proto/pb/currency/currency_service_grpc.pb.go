@@ -20,8 +20,6 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Currency_CreateFish_FullMethodName = "/currency.Currency/CreateFish"
-	Currency_UpdateFish_FullMethodName = "/currency.Currency/UpdateFish"
-	Currency_CatchFish_FullMethodName  = "/currency.Currency/CatchFish"
 	Currency_DeleteFish_FullMethodName = "/currency.Currency/DeleteFish"
 )
 
@@ -30,8 +28,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CurrencyClient interface {
 	CreateFish(ctx context.Context, in *CreateFishReq, opts ...grpc.CallOption) (*CreateFishResp, error)
-	UpdateFish(ctx context.Context, in *UpdateFishReq, opts ...grpc.CallOption) (*UpdateFishResp, error)
-	CatchFish(ctx context.Context, in *CatchFishReq, opts ...grpc.CallOption) (*CatchFishResp, error)
 	DeleteFish(ctx context.Context, in *DeleteFishReq, opts ...grpc.CallOption) (*DeleteFishResp, error)
 }
 
@@ -53,26 +49,6 @@ func (c *currencyClient) CreateFish(ctx context.Context, in *CreateFishReq, opts
 	return out, nil
 }
 
-func (c *currencyClient) UpdateFish(ctx context.Context, in *UpdateFishReq, opts ...grpc.CallOption) (*UpdateFishResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateFishResp)
-	err := c.cc.Invoke(ctx, Currency_UpdateFish_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *currencyClient) CatchFish(ctx context.Context, in *CatchFishReq, opts ...grpc.CallOption) (*CatchFishResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CatchFishResp)
-	err := c.cc.Invoke(ctx, Currency_CatchFish_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *currencyClient) DeleteFish(ctx context.Context, in *DeleteFishReq, opts ...grpc.CallOption) (*DeleteFishResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteFishResp)
@@ -88,8 +64,6 @@ func (c *currencyClient) DeleteFish(ctx context.Context, in *DeleteFishReq, opts
 // for forward compatibility.
 type CurrencyServer interface {
 	CreateFish(context.Context, *CreateFishReq) (*CreateFishResp, error)
-	UpdateFish(context.Context, *UpdateFishReq) (*UpdateFishResp, error)
-	CatchFish(context.Context, *CatchFishReq) (*CatchFishResp, error)
 	DeleteFish(context.Context, *DeleteFishReq) (*DeleteFishResp, error)
 	mustEmbedUnimplementedCurrencyServer()
 }
@@ -103,12 +77,6 @@ type UnimplementedCurrencyServer struct{}
 
 func (UnimplementedCurrencyServer) CreateFish(context.Context, *CreateFishReq) (*CreateFishResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFish not implemented")
-}
-func (UnimplementedCurrencyServer) UpdateFish(context.Context, *UpdateFishReq) (*UpdateFishResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateFish not implemented")
-}
-func (UnimplementedCurrencyServer) CatchFish(context.Context, *CatchFishReq) (*CatchFishResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CatchFish not implemented")
 }
 func (UnimplementedCurrencyServer) DeleteFish(context.Context, *DeleteFishReq) (*DeleteFishResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteFish not implemented")
@@ -152,42 +120,6 @@ func _Currency_CreateFish_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Currency_UpdateFish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateFishReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CurrencyServer).UpdateFish(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Currency_UpdateFish_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CurrencyServer).UpdateFish(ctx, req.(*UpdateFishReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Currency_CatchFish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CatchFishReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CurrencyServer).CatchFish(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Currency_CatchFish_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CurrencyServer).CatchFish(ctx, req.(*CatchFishReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Currency_DeleteFish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteFishReq)
 	if err := dec(in); err != nil {
@@ -216,14 +148,6 @@ var Currency_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateFish",
 			Handler:    _Currency_CreateFish_Handler,
-		},
-		{
-			MethodName: "UpdateFish",
-			Handler:    _Currency_UpdateFish_Handler,
-		},
-		{
-			MethodName: "CatchFish",
-			Handler:    _Currency_CatchFish_Handler,
 		},
 		{
 			MethodName: "DeleteFish",

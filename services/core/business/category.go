@@ -1,125 +1,22 @@
 package business
 
-import (
-	"context"
-
-	"tenkhours/pkg/auth"
-	"tenkhours/pkg/db/base"
-	rdb "tenkhours/pkg/db/redis"
-	"tenkhours/pkg/errors"
-	"tenkhours/pkg/graphql"
-	"tenkhours/pkg/utils"
-	"tenkhours/services/core/entity"
-)
-
 type CategoryBusiness struct {
+	permBiz          IPermissionBusiness
 	cateRepo         ICategoryRepo
-	characterRepo    ICharacterRepo
 	metricRepo       IMetricRepo
 	timetrackingRepo ITimeTrackingRepo
 }
 
-func NewCategoryBusiness(cateRepo ICategoryRepo, characterRepo ICharacterRepo, metricRepo IMetricRepo, timetrackingRepo ITimeTrackingRepo) *CategoryBusiness {
-	return &CategoryBusiness{cateRepo, characterRepo, metricRepo, timetrackingRepo}
-}
-
-func (b *CategoryBusiness) GetCategories(ctx context.Context, characterID string) ([]entity.Category, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+func NewCategoryBusiness(
+	permBiz IPermissionBusiness,
+	cateRepo ICategoryRepo,
+	metricRepo IMetricRepo,
+	timetrackingRepo ITimeTrackingRepo,
+) *CategoryBusiness {
+	return &CategoryBusiness{
+		permBiz:          permBiz,
+		cateRepo:         cateRepo,
+		metricRepo:       metricRepo,
+		timetrackingRepo: timetrackingRepo,
 	}
-
-	err := b.characterRepo.Exist(ctx, authSession.ProfileID, characterID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Add the default category with id = "unassigned"
-	cates, err := b.cateRepo.FindByCharacterID(ctx, characterID)
-	cates = append(cates, entity.Category{
-		BaseEntity: &base.BaseEntity{
-			ID: graphql.UnassignedID,
-		},
-		CharacterID: characterID,
-	})
-
-	return cates, err
-}
-
-func (b *CategoryBusiness) UpsertCategory(ctx context.Context, cateInput entity.CategoryInput) (*entity.Category, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
-	}
-
-	err := b.characterRepo.Exist(ctx, authSession.ProfileID, cateInput.CharacterID)
-	if err != nil {
-		return nil, err
-	}
-
-	cate := &entity.Category{
-		BaseEntity: &base.BaseEntity{},
-	}
-	if cateInput.ID == nil {
-		count, err := b.cateRepo.CountByCharacterID(ctx, cateInput.CharacterID)
-		if err != nil {
-			return nil, err
-		}
-		if count >= utils.LimitedCategoryNumber {
-			return nil, errors.ErrLimitMetric
-		}
-	} else {
-		cate, err = b.cateRepo.FindByID(ctx, *cateInput.ID)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	cate.Name = cateInput.Name
-	cate.CharacterID = cateInput.CharacterID
-	if cateInput.Description != nil {
-		cate.Description = *cateInput.Description
-	}
-	if cateInput.Style != nil {
-		cate.Style = entity.CategoryStyle{
-			Color: cateInput.Style.Color,
-			Icon:  cateInput.Style.Icon,
-		}
-	}
-
-	if cateInput.ID != nil {
-		return b.cateRepo.UpdateByID(ctx, *cateInput.ID, cate)
-	}
-
-	return b.cateRepo.InsertOne(ctx, cate)
-}
-
-func (b *CategoryBusiness) DeleteCategory(ctx context.Context, categoryID string) (*entity.Category, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
-	}
-
-	cate, err := b.cateRepo.FindByID(ctx, categoryID)
-	if err != nil {
-		return nil, err
-	}
-
-	err = b.characterRepo.Exist(ctx, authSession.ProfileID, cate.CharacterID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Unassign all metrics | habits | tasks | timetrackings of this category
-	err = b.metricRepo.UnassignCategory(ctx, categoryID)
-	if err != nil {
-		return nil, err
-	}
-
-	err = b.timetrackingRepo.UnassignCategory(ctx, categoryID)
-	if err != nil {
-		return nil, err
-	}
-
-	return b.cateRepo.FindOneAndDeleteByID(ctx, categoryID)
 }

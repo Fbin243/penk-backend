@@ -10,18 +10,14 @@ import (
 	"tenkhours/services/analytic/entity"
 
 	rdb "tenkhours/pkg/db/redis"
-
-	"github.com/samber/lo"
 )
 
 type analyticBusiness struct {
-	coreClient       ICoreClient
 	timetrackingRepo ITimeTrackingRepo
 }
 
-func NewAnalyticBusiness(coreClient ICoreClient, timetrackingRepo ITimeTrackingRepo) *analyticBusiness {
+func NewAnalyticBusiness(timetrackingRepo ITimeTrackingRepo) *analyticBusiness {
 	return &analyticBusiness{
-		coreClient:       coreClient,
 		timetrackingRepo: timetrackingRepo,
 	}
 }
@@ -34,14 +30,8 @@ func (biz *analyticBusiness) GetStatAnalytic(ctx context.Context, characterID st
 	}
 
 	capturedRecordFilter := entity.GetCapturedRecordFilter{
-		// ProfileID:   authSession.ProfileID,
-		CharacterID: characterID,
+		CharacterID: authSession.CurrentCharacterID,
 		EndTime:     time.Now(),
-	}
-
-	authorized, err := biz.coreClient.CheckPermission(ctx, lo.ToPtr(authSession.ProfileID), lo.ToPtr(characterID), nil)
-	if !authorized || err != nil {
-		return nil, errors.ErrPermissionDenied
 	}
 
 	if startTime != nil {

@@ -10,7 +10,6 @@ type Metric {
 
 input MetricInput {
   id: ID
-  characterID: ID!
   categoryID: ID
   name: String!
   value: Float!

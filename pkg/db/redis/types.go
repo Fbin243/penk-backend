@@ -1,6 +1,8 @@
 package rdb
 
 type AuthSession struct {
-	ProfileID string `json:"profileID"`
-	DeviceID  string `json:"deviceID"`
+	FirebaseUID        string `json:"firebaseUID"`
+	ProfileID          string `json:"profileID"`
+	CurrentCharacterID string `json:"currentCharacterID"`
+	DeviceID           string `json:"deviceID"`
 }

@@ -9,16 +9,23 @@ import (
 
 type CoreHandler struct {
 	core.UnimplementedCoreServer
-	profileBiz   business.IProfileBusiness
-	characterBiz business.ICharacterBusiness
-	goalBiz      business.IGoalBusiness
+	profileBiz      business.IProfileBusiness
+	characterBiz    business.ICharacterBusiness
+	goalBiz         business.IGoalBusiness
+	timetrackingBiz business.ITimeTrackingBusiness
 }
 
-func NewCoreHandler(profilesBusiness business.IProfileBusiness, charactersBusiness business.ICharacterBusiness, goalBiz business.IGoalBusiness) *CoreHandler {
+func NewCoreHandler(
+	profilesBusiness business.IProfileBusiness,
+	charactersBusiness business.ICharacterBusiness,
+	goalBiz business.IGoalBusiness,
+	timetrackingBiz business.ITimeTrackingBusiness,
+) *CoreHandler {
 	return &CoreHandler{
-		profileBiz:   profilesBusiness,
-		characterBiz: charactersBusiness,
-		goalBiz:      goalBiz,
+		profileBiz:      profilesBusiness,
+		characterBiz:    charactersBusiness,
+		goalBiz:         goalBiz,
+		timetrackingBiz: timetrackingBiz,
 	}
 }
 
@@ -33,19 +40,8 @@ func (hdl *CoreHandler) IntrospectToken(ctx context.Context, req *core.Introspec
 	resp.Success = true
 	resp.ProfileId = authSession.ProfileID
 	resp.DeviceId = authSession.DeviceID
-
-	return resp, nil
-}
-
-func (hdl *CoreHandler) CheckPermission(ctx context.Context, req *core.CheckPermissionReq) (*core.CheckPermissionResp, error) {
-	resp := &core.CheckPermissionResp{Authorized: false}
-
-	err := hdl.profileBiz.CheckPermission(ctx, req.ProfileId, req.CharacterId, req.CategoryId)
-	if err != nil {
-		return resp, err
-	}
-
-	resp.Authorized = true
+	resp.CurrentCharacterId = authSession.CurrentCharacterID
+	resp.FirebaseUid = authSession.FirebaseUID
 
 	return resp, nil
 }

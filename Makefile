@@ -23,14 +23,6 @@ else
 	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/analytic.air.toml
 endif
 
-timetracking:
-	@echo "Starting timetracking service..."
-ifeq ($(OS),Windows_NT)
-	set TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/timetracking.air.toml
-else
-	export TENK_ENV=$(TENK_ENV) && air -c ./tools/air-configs/timetracking.air.toml
-endif
-
 notification:
 	@echo "Starting notification service..."
 ifeq ($(OS),Windows_NT)

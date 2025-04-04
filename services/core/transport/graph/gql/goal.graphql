@@ -35,7 +35,6 @@ type Checkbox {
 # Inputs
 input GoalInput {
   id: ID
-  characterID: ID!
   name: String!
   description: String
   startTime: Time!

@@ -6,18 +6,18 @@ import (
 	"tenkhours/services/core/business"
 	mongorepo "tenkhours/services/core/repo/mongo"
 	redisrepo "tenkhours/services/core/repo/redis"
-	timetrackrepo "tenkhours/services/timetracking/repo/mongo"
 
 	"google.golang.org/grpc"
 )
 
 type Composer struct {
-	ProfileBiz    business.IProfileBusiness
-	CharacterBiz  business.ICharacterBusiness
-	GoalBiz       business.IGoalBusiness
-	CategoryBiz   business.ICategoryBusiness
-	MetricBiz     business.IMetricBusiness
-	HabitBusiness business.IHabitBusiness
+	ProfileBiz      business.IProfileBusiness
+	CharacterBiz    business.ICharacterBusiness
+	GoalBiz         business.IGoalBusiness
+	CategoryBiz     business.ICategoryBusiness
+	MetricBiz       business.IMetricBusiness
+	HabitBiz        business.IHabitBusiness
+	TimeTrackingBiz business.ITimeTrackingBusiness
 
 	CharacterRepo    business.ICharacterRepo
 	CategoryRepo     business.ICategoryRepo
@@ -28,6 +28,7 @@ type Composer struct {
 
 	CurrencyConn *grpc.ClientConn
 	AnalyticConn *grpc.ClientConn
+	NotiConn     *grpc.ClientConn
 }
 
 var composer *Composer
@@ -48,34 +49,48 @@ func GetComposer() *Composer {
 	redisRepo := redisrepo.NewRedisRepo(redisClient)
 	categoryRepo := mongorepo.NewCategoryRepo(mongodb)
 	metricRepo := mongorepo.NewMetricRepo(mongodb)
-	timetrackingRepo := timetrackrepo.NewTimeTrackingRepo(mongodb)
+	timetrackingRepo := mongorepo.NewTimeTrackingRepo(mongodb)
 	habitRepo := mongorepo.NewHabitRepo(mongodb)
 	habitLogRepo := mongorepo.NewHabitLogRepo(mongodb)
 
 	// RPC Clients
 	currencyClient, currencyConn := ComposeCurrencyClient()
+	notiClient, notiConn := ComposeNotificationClient()
 
 	// Business
-	profileBiz := business.NewProfileBusiness(profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, timetrackingRepo, currencyClient, redisRepo)
-	characterBiz := business.NewCharacterBusiness(characterRepo, profileRepo, goalRepo, metricRepo, categoryRepo, timetrackingRepo)
-	goalBiz := business.NewGoalBusiness(goalRepo, characterRepo, categoryRepo, metricRepo)
-	catgoryBiz := business.NewCategoryBusiness(categoryRepo, characterRepo, metricRepo, timetrackingRepo)
-	metricBiz := business.NewMetricBusiness(metricRepo, characterRepo, categoryRepo)
-	habitBusiness := business.NewHabitBusiness(habitRepo, habitLogRepo, characterRepo, categoryRepo)
+	permBiz := business.NewPermissionBusiness(profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, habitRepo, timetrackingRepo)
+	profileBiz := business.NewProfileBusiness(permBiz, profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, habitRepo, timetrackingRepo, currencyClient, redisRepo)
+	characterBiz := business.NewCharacterBusiness(characterRepo, profileRepo, goalRepo, metricRepo, categoryRepo, timetrackingRepo, redisRepo)
+	goalBiz := business.NewGoalBusiness(permBiz, goalRepo, characterRepo, categoryRepo, metricRepo)
+	catgoryBiz := business.NewCategoryBusiness(permBiz, categoryRepo, metricRepo, timetrackingRepo)
+	metricBiz := business.NewMetricBusiness(permBiz, metricRepo, categoryRepo)
+	habitBiz := business.NewHabitBusiness(permBiz, habitRepo, habitLogRepo, categoryRepo, timetrackingRepo)
+	timetrackingBiz := business.NewTimeTrackingBusiness(permBiz, notiClient, redisRepo, habitRepo, habitLogRepo, timetrackingRepo)
 
 	return &Composer{
-		ProfileBiz:       profileBiz,
-		CharacterBiz:     characterBiz,
-		GoalBiz:          goalBiz,
-		CategoryBiz:      catgoryBiz,
-		MetricBiz:        metricBiz,
+		ProfileBiz:      profileBiz,
+		CharacterBiz:    characterBiz,
+		GoalBiz:         goalBiz,
+		CategoryBiz:     catgoryBiz,
+		MetricBiz:       metricBiz,
+		HabitBiz:        habitBiz,
+		TimeTrackingBiz: timetrackingBiz,
+
 		CharacterRepo:    characterRepo,
 		CategoryRepo:     categoryRepo,
 		MetricRepo:       metricRepo,
 		TimeTrackingRepo: timetrackingRepo,
 		HabitRepo:        habitRepo,
 		HabitLogRepo:     habitLogRepo,
-		HabitBusiness:    habitBusiness,
-		CurrencyConn:     currencyConn,
+
+		CurrencyConn: currencyConn,
+		AnalyticConn: notiConn,
+		NotiConn:     notiConn,
 	}
+}
+
+func (c *Composer) Close() {
+	c.AnalyticConn.Close()
+	c.CurrencyConn.Close()
+	c.NotiConn.Close()
 }

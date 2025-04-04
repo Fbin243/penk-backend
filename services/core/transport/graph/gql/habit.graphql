@@ -9,9 +9,7 @@ type Habit {
   name: String!
   value: Float!
   unit: String
-  startTime: Time!
-  endTime: Time
-  frequency: String
+  rrule: String
 }
 
 enum CompletionType {
@@ -22,13 +20,10 @@ enum CompletionType {
 
 input HabitInput {
   id: ID
-  characterID: ID!
   categoryID: ID
   completionType: CompletionType!
   name: String!
   value: Float!
   unit: String
-  startTime: Time!
-  endTime: Time
-  frequency: String!
+  rrule: String!
 }

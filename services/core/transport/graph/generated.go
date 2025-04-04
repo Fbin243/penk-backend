@@ -128,11 +128,9 @@ type ComplexityRoot struct {
 		CharacterID    func(childComplexity int) int
 		CompletionType func(childComplexity int) int
 		CreatedAt      func(childComplexity int) int
-		EndTime        func(childComplexity int) int
-		Frequency      func(childComplexity int) int
 		ID             func(childComplexity int) int
 		Name           func(childComplexity int) int
-		StartTime      func(childComplexity int) int
+		RRule          func(childComplexity int) int
 		Unit           func(childComplexity int) int
 		UpdatedAt      func(childComplexity int) int
 		Value          func(childComplexity int) int
@@ -157,19 +155,21 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		DeleteCategory  func(childComplexity int, id string) int
-		DeleteCharacter func(childComplexity int, id string) int
-		DeleteGoal      func(childComplexity int, id string) int
-		DeleteHabit     func(childComplexity int, id string) int
-		DeleteMetric    func(childComplexity int, id string) int
-		DeleteProfile   func(childComplexity int) int
-		UpdateProfile   func(childComplexity int, input entity.ProfileInput) int
-		UpsertCategory  func(childComplexity int, input entity.CategoryInput) int
-		UpsertCharacter func(childComplexity int, input entity.CharacterInput) int
-		UpsertGoal      func(childComplexity int, input entity.GoalInput) int
-		UpsertHabit     func(childComplexity int, input entity.HabitInput) int
-		UpsertHabitLog  func(childComplexity int, input entity.HabitLogInput) int
-		UpsertMetric    func(childComplexity int, input entity.MetricInput) int
+		CreateTimeTracking func(childComplexity int, input *entity.TimeTrackingInput) int
+		DeleteCategory     func(childComplexity int, id string) int
+		DeleteCharacter    func(childComplexity int, id string) int
+		DeleteGoal         func(childComplexity int, id string) int
+		DeleteHabit        func(childComplexity int, id string) int
+		DeleteMetric       func(childComplexity int, id string) int
+		DeleteProfile      func(childComplexity int) int
+		UpdateProfile      func(childComplexity int, input entity.ProfileInput) int
+		UpdateTimeTracking func(childComplexity int) int
+		UpsertCategory     func(childComplexity int, input entity.CategoryInput) int
+		UpsertCharacter    func(childComplexity int, input entity.CharacterInput) int
+		UpsertGoal         func(childComplexity int, input entity.GoalInput) int
+		UpsertHabit        func(childComplexity int, input entity.HabitInput) int
+		UpsertHabitLog     func(childComplexity int, input entity.HabitLogInput) int
+		UpsertMetric       func(childComplexity int, input entity.MetricInput) int
 	}
 
 	Profile struct {
@@ -186,21 +186,33 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AppSettings        func(childComplexity int) int
-		Categories         func(childComplexity int, characterID string) int
-		Characters         func(childComplexity int) int
-		Goals              func(childComplexity int, characterID string, status *entity.GoalStatus) int
-		HabitLogs          func(childComplexity int, habitID string) int
-		Habits             func(childComplexity int, characterID string) int
-		Metrics            func(childComplexity int, characterID string) int
-		Profile            func(childComplexity int) int
-		__resolve__service func(childComplexity int) int
-		__resolve_entities func(childComplexity int, representations []map[string]interface{}) int
+		AppSettings              func(childComplexity int) int
+		Categories               func(childComplexity int) int
+		Characters               func(childComplexity int) int
+		CurrentTimeTracking      func(childComplexity int) int
+		Goals                    func(childComplexity int, status *entity.GoalStatus) int
+		HabitLogs                func(childComplexity int, habitID string, startTime time.Time, endTime time.Time) int
+		Habits                   func(childComplexity int) int
+		Metrics                  func(childComplexity int) int
+		Profile                  func(childComplexity int) int
+		TotalCurrentTimeTracking func(childComplexity int, timestamp time.Time) int
+		__resolve__service       func(childComplexity int) int
+		__resolve_entities       func(childComplexity int, representations []map[string]interface{}) int
 	}
 
 	Range struct {
 		Max func(childComplexity int) int
 		Min func(childComplexity int) int
+	}
+
+	TimeTracking struct {
+		CategoryID    func(childComplexity int) int
+		CharacterID   func(childComplexity int) int
+		EndTime       func(childComplexity int) int
+		ID            func(childComplexity int) int
+		ReferenceID   func(childComplexity int) int
+		ReferenceType func(childComplexity int) int
+		StartTime     func(childComplexity int) int
 	}
 
 	_Service struct {
@@ -243,6 +255,8 @@ type MutationResolver interface {
 	UpsertHabit(ctx context.Context, input entity.HabitInput) (*entity.Habit, error)
 	DeleteHabit(ctx context.Context, id string) (*entity.Habit, error)
 	UpsertHabitLog(ctx context.Context, input entity.HabitLogInput) (*entity.HabitLog, error)
+	CreateTimeTracking(ctx context.Context, input *entity.TimeTrackingInput) (*entity.TimeTracking, error)
+	UpdateTimeTracking(ctx context.Context) (*entity.TimeTracking, error)
 }
 type ProfileResolver interface {
 	Characters(ctx context.Context, obj *entity.Profile) ([]entity.Character, error)
@@ -252,11 +266,13 @@ type QueryResolver interface {
 	Characters(ctx context.Context) ([]entity.Character, error)
 	Profile(ctx context.Context) (*entity.Profile, error)
 	AppSettings(ctx context.Context) (*model.AppSettings, error)
-	Goals(ctx context.Context, characterID string, status *entity.GoalStatus) ([]entity.Goal, error)
-	Metrics(ctx context.Context, characterID string) ([]entity.Metric, error)
-	Categories(ctx context.Context, characterID string) ([]entity.Category, error)
-	Habits(ctx context.Context, characterID string) ([]entity.Habit, error)
-	HabitLogs(ctx context.Context, habitID string) ([]entity.HabitLog, error)
+	Goals(ctx context.Context, status *entity.GoalStatus) ([]entity.Goal, error)
+	Metrics(ctx context.Context) ([]entity.Metric, error)
+	Categories(ctx context.Context) ([]entity.Category, error)
+	Habits(ctx context.Context) ([]entity.Habit, error)
+	HabitLogs(ctx context.Context, habitID string, startTime time.Time, endTime time.Time) ([]entity.HabitLog, error)
+	CurrentTimeTracking(ctx context.Context) (*entity.TimeTracking, error)
+	TotalCurrentTimeTracking(ctx context.Context, timestamp time.Time) (int, error)
 }
 
 type executableSchema struct {
@@ -600,20 +616,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Habit.CreatedAt(childComplexity), true
 
-	case "Habit.endTime":
-		if e.complexity.Habit.EndTime == nil {
-			break
-		}
-
-		return e.complexity.Habit.EndTime(childComplexity), true
-
-	case "Habit.frequency":
-		if e.complexity.Habit.Frequency == nil {
-			break
-		}
-
-		return e.complexity.Habit.Frequency(childComplexity), true
-
 	case "Habit.id":
 		if e.complexity.Habit.ID == nil {
 			break
@@ -628,12 +630,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Habit.Name(childComplexity), true
 
-	case "Habit.startTime":
-		if e.complexity.Habit.StartTime == nil {
+	case "Habit.rrule":
+		if e.complexity.Habit.RRule == nil {
 			break
 		}
 
-		return e.complexity.Habit.StartTime(childComplexity), true
+		return e.complexity.Habit.RRule(childComplexity), true
 
 	case "Habit.unit":
 		if e.complexity.Habit.Unit == nil {
@@ -740,6 +742,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Metric.Value(childComplexity), true
 
+	case "Mutation.createTimeTracking":
+		if e.complexity.Mutation.CreateTimeTracking == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createTimeTracking_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateTimeTracking(childComplexity, args["input"].(*entity.TimeTrackingInput)), true
+
 	case "Mutation.deleteCategory":
 		if e.complexity.Mutation.DeleteCategory == nil {
 			break
@@ -818,6 +832,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateProfile(childComplexity, args["input"].(entity.ProfileInput)), true
+
+	case "Mutation.updateTimeTracking":
+		if e.complexity.Mutation.UpdateTimeTracking == nil {
+			break
+		}
+
+		return e.complexity.Mutation.UpdateTimeTracking(childComplexity), true
 
 	case "Mutation.upsertCategory":
 		if e.complexity.Mutation.UpsertCategory == nil {
@@ -973,12 +994,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_categories_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Categories(childComplexity, args["characterID"].(string)), true
+		return e.complexity.Query.Categories(childComplexity), true
 
 	case "Query.characters":
 		if e.complexity.Query.Characters == nil {
@@ -986,6 +1002,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Characters(childComplexity), true
+
+	case "Query.currentTimeTracking":
+		if e.complexity.Query.CurrentTimeTracking == nil {
+			break
+		}
+
+		return e.complexity.Query.CurrentTimeTracking(childComplexity), true
 
 	case "Query.goals":
 		if e.complexity.Query.Goals == nil {
@@ -997,7 +1020,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Goals(childComplexity, args["characterID"].(string), args["status"].(*entity.GoalStatus)), true
+		return e.complexity.Query.Goals(childComplexity, args["status"].(*entity.GoalStatus)), true
 
 	case "Query.habitLogs":
 		if e.complexity.Query.HabitLogs == nil {
@@ -1009,31 +1032,21 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.HabitLogs(childComplexity, args["habitID"].(string)), true
+		return e.complexity.Query.HabitLogs(childComplexity, args["habitID"].(string), args["startTime"].(time.Time), args["endTime"].(time.Time)), true
 
 	case "Query.habits":
 		if e.complexity.Query.Habits == nil {
 			break
 		}
 
-		args, err := ec.field_Query_habits_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Habits(childComplexity, args["characterID"].(string)), true
+		return e.complexity.Query.Habits(childComplexity), true
 
 	case "Query.metrics":
 		if e.complexity.Query.Metrics == nil {
 			break
 		}
 
-		args, err := ec.field_Query_metrics_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Metrics(childComplexity, args["characterID"].(string)), true
+		return e.complexity.Query.Metrics(childComplexity), true
 
 	case "Query.profile":
 		if e.complexity.Query.Profile == nil {
@@ -1041,6 +1054,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Profile(childComplexity), true
+
+	case "Query.totalCurrentTimeTracking":
+		if e.complexity.Query.TotalCurrentTimeTracking == nil {
+			break
+		}
+
+		args, err := ec.field_Query_totalCurrentTimeTracking_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.TotalCurrentTimeTracking(childComplexity, args["timestamp"].(time.Time)), true
 
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
@@ -1075,6 +1100,55 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Range.Min(childComplexity), true
 
+	case "TimeTracking.categoryID":
+		if e.complexity.TimeTracking.CategoryID == nil {
+			break
+		}
+
+		return e.complexity.TimeTracking.CategoryID(childComplexity), true
+
+	case "TimeTracking.characterID":
+		if e.complexity.TimeTracking.CharacterID == nil {
+			break
+		}
+
+		return e.complexity.TimeTracking.CharacterID(childComplexity), true
+
+	case "TimeTracking.endTime":
+		if e.complexity.TimeTracking.EndTime == nil {
+			break
+		}
+
+		return e.complexity.TimeTracking.EndTime(childComplexity), true
+
+	case "TimeTracking.id":
+		if e.complexity.TimeTracking.ID == nil {
+			break
+		}
+
+		return e.complexity.TimeTracking.ID(childComplexity), true
+
+	case "TimeTracking.referenceID":
+		if e.complexity.TimeTracking.ReferenceID == nil {
+			break
+		}
+
+		return e.complexity.TimeTracking.ReferenceID(childComplexity), true
+
+	case "TimeTracking.referenceType":
+		if e.complexity.TimeTracking.ReferenceType == nil {
+			break
+		}
+
+		return e.complexity.TimeTracking.ReferenceType(childComplexity), true
+
+	case "TimeTracking.startTime":
+		if e.complexity.TimeTracking.StartTime == nil {
+			break
+		}
+
+		return e.complexity.TimeTracking.StartTime(childComplexity), true
+
 	case "_Service.sdl":
 		if e.complexity._Service.SDL == nil {
 			break
@@ -1101,6 +1175,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputMetricInput,
 		ec.unmarshalInputProfileInput,
 		ec.unmarshalInputRangeInput,
+		ec.unmarshalInputTimeTrackingInput,
 	)
 	first := true
 
@@ -1197,7 +1272,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "gql/category.graphql" "gql/character.graphql" "gql/error_code.graphql" "gql/goal.graphql" "gql/habit.graphql" "gql/habit_log.graphql" "gql/metric.graphql" "gql/profile.graphql" "gql/schema.graphql" "gql/setting.graphql" "gql/time.graphql"
+//go:embed "gql/category.graphql" "gql/character.graphql" "gql/error_code.graphql" "gql/goal.graphql" "gql/habit.graphql" "gql/habit_log.graphql" "gql/metric.graphql" "gql/profile.graphql" "gql/schema.graphql" "gql/setting.graphql" "gql/time.graphql" "gql/timetracking.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -1220,6 +1295,7 @@ var sources = []*ast.Source{
 	{Name: "gql/schema.graphql", Input: sourceData("gql/schema.graphql"), BuiltIn: false},
 	{Name: "gql/setting.graphql", Input: sourceData("gql/setting.graphql"), BuiltIn: false},
 	{Name: "gql/time.graphql", Input: sourceData("gql/time.graphql"), BuiltIn: false},
+	{Name: "gql/timetracking.graphql", Input: sourceData("gql/timetracking.graphql"), BuiltIn: false},
 	{Name: "../federation/directives.graphql", Input: `
 	directive @authenticated on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM
 	directive @composeDirective(name: String!) repeatable on SCHEMA
@@ -1290,6 +1366,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_createTimeTracking_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *entity.TimeTrackingInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOTimeTrackingInput2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTimeTrackingInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_deleteCategory_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1501,42 +1592,18 @@ func (ec *executionContext) field_Query__entities_args(ctx context.Context, rawA
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_categories_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["characterID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["characterID"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Query_goals_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["characterID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["characterID"] = arg0
-	var arg1 *entity.GoalStatus
+	var arg0 *entity.GoalStatus
 	if tmp, ok := rawArgs["status"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-		arg1, err = ec.unmarshalOGoalStatus2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐGoalStatus(ctx, tmp)
+		arg0, err = ec.unmarshalOGoalStatus2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐGoalStatus(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["status"] = arg1
+	args["status"] = arg0
 	return args, nil
 }
 
@@ -1552,36 +1619,39 @@ func (ec *executionContext) field_Query_habitLogs_args(ctx context.Context, rawA
 		}
 	}
 	args["habitID"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_habits_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["characterID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+	var arg1 time.Time
+	if tmp, ok := rawArgs["startTime"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
+		arg1, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["characterID"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_metrics_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["characterID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+	args["startTime"] = arg1
+	var arg2 time.Time
+	if tmp, ok := rawArgs["endTime"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endTime"))
+		arg2, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["characterID"] = arg0
+	args["endTime"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_totalCurrentTimeTracking_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 time.Time
+	if tmp, ok := rawArgs["timestamp"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
+		arg0, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["timestamp"] = arg0
 	return args, nil
 }
 
@@ -3904,8 +3974,8 @@ func (ec *executionContext) fieldContext_Habit_unit(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Habit_startTime(ctx context.Context, field graphql.CollectedField, obj *entity.Habit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Habit_startTime(ctx, field)
+func (ec *executionContext) _Habit_rrule(ctx context.Context, field graphql.CollectedField, obj *entity.Habit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Habit_rrule(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3918,92 +3988,7 @@ func (ec *executionContext) _Habit_startTime(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.StartTime, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Habit_startTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Habit",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Habit_endTime(ctx context.Context, field graphql.CollectedField, obj *entity.Habit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Habit_endTime(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EndTime, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*time.Time)
-	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Habit_endTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Habit",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Habit_frequency(ctx context.Context, field graphql.CollectedField, obj *entity.Habit) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Habit_frequency(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Frequency, nil
+		return obj.RRule, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4017,7 +4002,7 @@ func (ec *executionContext) _Habit_frequency(ctx context.Context, field graphql.
 	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Habit_frequency(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Habit_rrule(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Habit",
 		Field:      field,
@@ -5354,12 +5339,8 @@ func (ec *executionContext) fieldContext_Mutation_upsertHabit(ctx context.Contex
 				return ec.fieldContext_Habit_value(ctx, field)
 			case "unit":
 				return ec.fieldContext_Habit_unit(ctx, field)
-			case "startTime":
-				return ec.fieldContext_Habit_startTime(ctx, field)
-			case "endTime":
-				return ec.fieldContext_Habit_endTime(ctx, field)
-			case "frequency":
-				return ec.fieldContext_Habit_frequency(ctx, field)
+			case "rrule":
+				return ec.fieldContext_Habit_rrule(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Habit", field.Name)
 		},
@@ -5437,12 +5418,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteHabit(ctx context.Contex
 				return ec.fieldContext_Habit_value(ctx, field)
 			case "unit":
 				return ec.fieldContext_Habit_unit(ctx, field)
-			case "startTime":
-				return ec.fieldContext_Habit_startTime(ctx, field)
-			case "endTime":
-				return ec.fieldContext_Habit_endTime(ctx, field)
-			case "frequency":
-				return ec.fieldContext_Habit_frequency(ctx, field)
+			case "rrule":
+				return ec.fieldContext_Habit_rrule(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Habit", field.Name)
 		},
@@ -5524,6 +5501,137 @@ func (ec *executionContext) fieldContext_Mutation_upsertHabitLog(ctx context.Con
 	if fc.Args, err = ec.field_Mutation_upsertHabitLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createTimeTracking(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createTimeTracking(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateTimeTracking(rctx, fc.Args["input"].(*entity.TimeTrackingInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entity.TimeTracking)
+	fc.Result = res
+	return ec.marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTimeTracking(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createTimeTracking(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TimeTracking_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_TimeTracking_characterID(ctx, field)
+			case "categoryID":
+				return ec.fieldContext_TimeTracking_categoryID(ctx, field)
+			case "referenceID":
+				return ec.fieldContext_TimeTracking_referenceID(ctx, field)
+			case "referenceType":
+				return ec.fieldContext_TimeTracking_referenceType(ctx, field)
+			case "startTime":
+				return ec.fieldContext_TimeTracking_startTime(ctx, field)
+			case "endTime":
+				return ec.fieldContext_TimeTracking_endTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TimeTracking", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createTimeTracking_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateTimeTracking(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateTimeTracking(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateTimeTracking(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entity.TimeTracking)
+	fc.Result = res
+	return ec.marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTimeTracking(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateTimeTracking(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TimeTracking_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_TimeTracking_characterID(ctx, field)
+			case "categoryID":
+				return ec.fieldContext_TimeTracking_categoryID(ctx, field)
+			case "referenceID":
+				return ec.fieldContext_TimeTracking_referenceID(ctx, field)
+			case "referenceType":
+				return ec.fieldContext_TimeTracking_referenceType(ctx, field)
+			case "startTime":
+				return ec.fieldContext_TimeTracking_startTime(ctx, field)
+			case "endTime":
+				return ec.fieldContext_TimeTracking_endTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TimeTracking", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -5859,9 +5967,9 @@ func (ec *executionContext) _Profile_currentCharacterID(ctx context.Context, fie
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Profile_currentCharacterID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6177,7 +6285,7 @@ func (ec *executionContext) _Query_goals(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Goals(rctx, fc.Args["characterID"].(string), fc.Args["status"].(*entity.GoalStatus))
+		return ec.resolvers.Query().Goals(rctx, fc.Args["status"].(*entity.GoalStatus))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6258,7 +6366,7 @@ func (ec *executionContext) _Query_metrics(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Metrics(rctx, fc.Args["characterID"].(string))
+		return ec.resolvers.Query().Metrics(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6275,7 +6383,7 @@ func (ec *executionContext) _Query_metrics(ctx context.Context, field graphql.Co
 	return ec.marshalNMetric2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐMetricᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_metrics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -6301,17 +6409,6 @@ func (ec *executionContext) fieldContext_Query_metrics(ctx context.Context, fiel
 			return nil, fmt.Errorf("no field named %q was found under type Metric", field.Name)
 		},
 	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_metrics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
 	return fc, nil
 }
 
@@ -6329,7 +6426,7 @@ func (ec *executionContext) _Query_categories(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Categories(rctx, fc.Args["characterID"].(string))
+		return ec.resolvers.Query().Categories(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6346,7 +6443,7 @@ func (ec *executionContext) _Query_categories(ctx context.Context, field graphql
 	return ec.marshalNCategory2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐCategoryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_categories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_categories(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -6372,17 +6469,6 @@ func (ec *executionContext) fieldContext_Query_categories(ctx context.Context, f
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
 	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_categories_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
 	return fc, nil
 }
 
@@ -6400,7 +6486,7 @@ func (ec *executionContext) _Query_habits(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Habits(rctx, fc.Args["characterID"].(string))
+		return ec.resolvers.Query().Habits(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6417,7 +6503,7 @@ func (ec *executionContext) _Query_habits(ctx context.Context, field graphql.Col
 	return ec.marshalNHabit2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐHabitᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_habits(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_habits(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -6445,26 +6531,11 @@ func (ec *executionContext) fieldContext_Query_habits(ctx context.Context, field
 				return ec.fieldContext_Habit_value(ctx, field)
 			case "unit":
 				return ec.fieldContext_Habit_unit(ctx, field)
-			case "startTime":
-				return ec.fieldContext_Habit_startTime(ctx, field)
-			case "endTime":
-				return ec.fieldContext_Habit_endTime(ctx, field)
-			case "frequency":
-				return ec.fieldContext_Habit_frequency(ctx, field)
+			case "rrule":
+				return ec.fieldContext_Habit_rrule(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Habit", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_habits_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -6483,7 +6554,7 @@ func (ec *executionContext) _Query_habitLogs(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().HabitLogs(rctx, fc.Args["habitID"].(string))
+		return ec.resolvers.Query().HabitLogs(rctx, fc.Args["habitID"].(string), fc.Args["startTime"].(time.Time), fc.Args["endTime"].(time.Time))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6530,6 +6601,118 @@ func (ec *executionContext) fieldContext_Query_habitLogs(ctx context.Context, fi
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_habitLogs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_currentTimeTracking(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_currentTimeTracking(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CurrentTimeTracking(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*entity.TimeTracking)
+	fc.Result = res
+	return ec.marshalOTimeTracking2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTimeTracking(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_currentTimeTracking(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TimeTracking_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_TimeTracking_characterID(ctx, field)
+			case "categoryID":
+				return ec.fieldContext_TimeTracking_categoryID(ctx, field)
+			case "referenceID":
+				return ec.fieldContext_TimeTracking_referenceID(ctx, field)
+			case "referenceType":
+				return ec.fieldContext_TimeTracking_referenceType(ctx, field)
+			case "startTime":
+				return ec.fieldContext_TimeTracking_startTime(ctx, field)
+			case "endTime":
+				return ec.fieldContext_TimeTracking_endTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TimeTracking", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_totalCurrentTimeTracking(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_totalCurrentTimeTracking(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().TotalCurrentTimeTracking(rctx, fc.Args["timestamp"].(time.Time))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_totalCurrentTimeTracking(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_totalCurrentTimeTracking_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6851,6 +7034,302 @@ func (ec *executionContext) fieldContext_Range_max(_ context.Context, field grap
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeTracking_id(ctx context.Context, field graphql.CollectedField, obj *entity.TimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTracking_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeTracking_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeTracking",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeTracking_characterID(ctx context.Context, field graphql.CollectedField, obj *entity.TimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTracking_characterID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CharacterID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeTracking_characterID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeTracking",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeTracking_categoryID(ctx context.Context, field graphql.CollectedField, obj *entity.TimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTracking_categoryID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeTracking_categoryID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeTracking",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeTracking_referenceID(ctx context.Context, field graphql.CollectedField, obj *entity.TimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTracking_referenceID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ReferenceID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeTracking_referenceID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeTracking",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeTracking_referenceType(ctx context.Context, field graphql.CollectedField, obj *entity.TimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTracking_referenceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ReferenceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*entity.EntityType)
+	fc.Result = res
+	return ec.marshalOEntityType2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐEntityType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeTracking_referenceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeTracking",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type EntityType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeTracking_startTime(ctx context.Context, field graphql.CollectedField, obj *entity.TimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTracking_startTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeTracking_startTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeTracking",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeTracking_endTime(ctx context.Context, field graphql.CollectedField, obj *entity.TimeTracking) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeTracking_endTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EndTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeTracking_endTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeTracking",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8677,7 +9156,7 @@ func (ec *executionContext) unmarshalInputCategoryInput(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "characterID", "name", "description", "style"}
+	fieldsInOrder := [...]string{"id", "name", "description", "style"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8691,13 +9170,6 @@ func (ec *executionContext) unmarshalInputCategoryInput(ctx context.Context, obj
 				return it, err
 			}
 			it.ID = data
-		case "characterID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CharacterID = data
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -8841,7 +9313,7 @@ func (ec *executionContext) unmarshalInputGoalInput(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "characterID", "name", "description", "startTime", "endTime", "metrics", "checkboxes"}
+	fieldsInOrder := [...]string{"id", "name", "description", "startTime", "endTime", "metrics", "checkboxes"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8855,13 +9327,6 @@ func (ec *executionContext) unmarshalInputGoalInput(ctx context.Context, obj int
 				return it, err
 			}
 			it.ID = data
-		case "characterID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CharacterID = data
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -8965,7 +9430,7 @@ func (ec *executionContext) unmarshalInputHabitInput(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "characterID", "categoryID", "completionType", "name", "value", "unit", "startTime", "endTime", "frequency"}
+	fieldsInOrder := [...]string{"id", "categoryID", "completionType", "name", "value", "unit", "rrule"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8979,13 +9444,6 @@ func (ec *executionContext) unmarshalInputHabitInput(ctx context.Context, obj in
 				return it, err
 			}
 			it.ID = data
-		case "characterID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CharacterID = data
 		case "categoryID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryID"))
 			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
@@ -9021,27 +9479,13 @@ func (ec *executionContext) unmarshalInputHabitInput(ctx context.Context, obj in
 				return it, err
 			}
 			it.Unit = data
-		case "startTime":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
-			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.StartTime = data
-		case "endTime":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endTime"))
-			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.EndTime = data
-		case "frequency":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("frequency"))
+		case "rrule":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rrule"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Frequency = data
+			it.RRule = data
 		}
 	}
 
@@ -9089,7 +9533,7 @@ func (ec *executionContext) unmarshalInputMetricInput(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "characterID", "categoryID", "name", "value", "unit"}
+	fieldsInOrder := [...]string{"id", "categoryID", "name", "value", "unit"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -9103,13 +9547,6 @@ func (ec *executionContext) unmarshalInputMetricInput(ctx context.Context, obj i
 				return it, err
 			}
 			it.ID = data
-		case "characterID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterID"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CharacterID = data
 		case "categoryID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryID"))
 			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
@@ -9174,7 +9611,7 @@ func (ec *executionContext) unmarshalInputProfileInput(ctx context.Context, obj 
 			it.ImageURL = data
 		case "currentCharacterID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("currentCharacterID"))
-			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalNID2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9213,6 +9650,54 @@ func (ec *executionContext) unmarshalInputRangeInput(ctx context.Context, obj in
 				return it, err
 			}
 			it.Max = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTimeTrackingInput(ctx context.Context, obj interface{}) (entity.TimeTrackingInput, error) {
+	var it entity.TimeTrackingInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"categoryID", "referenceID", "referenceType", "startTime"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "categoryID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryID"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CategoryID = data
+		case "referenceID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("referenceID"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ReferenceID = data
+		case "referenceType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("referenceType"))
+			data, err := ec.unmarshalOEntityType2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐEntityType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ReferenceType = data
+		case "startTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
+			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StartTime = data
 		}
 	}
 
@@ -9971,15 +10456,8 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "unit":
 			out.Values[i] = ec._Habit_unit(ctx, field, obj)
-		case "startTime":
-			out.Values[i] = ec._Habit_startTime(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "endTime":
-			out.Values[i] = ec._Habit_endTime(ctx, field, obj)
-		case "frequency":
-			out.Values[i] = ec._Habit_frequency(ctx, field, obj)
+		case "rrule":
+			out.Values[i] = ec._Habit_rrule(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10293,6 +10771,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "upsertHabitLog":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_upsertHabitLog(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createTimeTracking":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createTimeTracking(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateTimeTracking":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateTimeTracking(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -10658,6 +11150,47 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "currentTimeTracking":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_currentTimeTracking(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "totalCurrentTimeTracking":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_totalCurrentTimeTracking(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "_entities":
 			field := field
 
@@ -10754,6 +11287,63 @@ func (ec *executionContext) _Range(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var timeTrackingImplementors = []string{"TimeTracking"}
+
+func (ec *executionContext) _TimeTracking(ctx context.Context, sel ast.SelectionSet, obj *entity.TimeTracking) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, timeTrackingImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TimeTracking")
+		case "id":
+			out.Values[i] = ec._TimeTracking_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "characterID":
+			out.Values[i] = ec._TimeTracking_characterID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "categoryID":
+			out.Values[i] = ec._TimeTracking_categoryID(ctx, field, obj)
+		case "referenceID":
+			out.Values[i] = ec._TimeTracking_referenceID(ctx, field, obj)
+		case "referenceType":
+			out.Values[i] = ec._TimeTracking_referenceType(ctx, field, obj)
+		case "startTime":
+			out.Values[i] = ec._TimeTracking_startTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "endTime":
+			out.Values[i] = ec._TimeTracking_endTime(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11832,6 +12422,20 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
+func (ec *executionContext) marshalNTimeTracking2tenkhoursᚋservicesᚋcoreᚋentityᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v entity.TimeTracking) graphql.Marshaler {
+	return ec._TimeTracking(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTimeTracking2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v *entity.TimeTracking) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TimeTracking(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalN_Any2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
 	res, err := graphql.UnmarshalMap(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -12402,6 +13006,23 @@ func (ec *executionContext) marshalOCompletionType2tenkhoursᚋservicesᚋcore�
 	return res
 }
 
+func (ec *executionContext) unmarshalOEntityType2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐEntityType(ctx context.Context, v interface{}) (*entity.EntityType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	tmp, err := graphql.UnmarshalString(v)
+	res := entity.EntityType(tmp)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOEntityType2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐEntityType(ctx context.Context, sel ast.SelectionSet, v *entity.EntityType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalString(string(*v))
+	return res
+}
+
 func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
 	if v == nil {
 		return nil, nil
@@ -12452,6 +13073,16 @@ func (ec *executionContext) marshalOGoalStatus2ᚖtenkhoursᚋservicesᚋcoreᚋ
 		return graphql.Null
 	}
 	res := graphql.MarshalString(string(*v))
+	return res
+}
+
+func (ec *executionContext) unmarshalOID2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalID(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalID(v)
 	return res
 }
 
@@ -12574,6 +13205,21 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 	}
 	res := graphql.MarshalTime(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOTimeTracking2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTimeTracking(ctx context.Context, sel ast.SelectionSet, v *entity.TimeTracking) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TimeTracking(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTimeTrackingInput2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTimeTrackingInput(ctx context.Context, v interface{}) (*entity.TimeTrackingInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTimeTrackingInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalO_Entity2githubᚗcomᚋ99designsᚋgqlgenᚋpluginᚋfederationᚋfedruntimeᚐEntity(ctx context.Context, sel ast.SelectionSet, v fedruntime.Entity) graphql.Marshaler {

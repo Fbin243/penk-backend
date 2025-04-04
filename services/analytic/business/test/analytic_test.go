@@ -30,33 +30,22 @@ func (m *MockTimeTrackingRepo) DeleteCapturedRecords(ctx context.Context, profil
 	return args.Error(0)
 }
 
-type MockCoreClient struct {
-	mock.Mock
-}
-
-func (m *MockCoreClient) CheckPermission(ctx context.Context, profileID, characterID, _ *string) (bool, error) {
-	args := m.Called(ctx, profileID, characterID)
-	return args.Bool(0), args.Error(1)
-}
-
 type GetAnalyticResultsSuite struct {
 	suite.Suite
-	mockRepo       *MockTimeTrackingRepo
-	mockCoreClient *MockCoreClient
-	biz            business.IAnalyticBusiness
-	profileID      string
-	characterID    string
-	startTime      time.Time
-	endTime        time.Time
-	ctx            context.Context
-	filter         entity.GetCapturedRecordFilter
-	sections       []entity.AnalyticSection
+	mockRepo    *MockTimeTrackingRepo
+	biz         business.IAnalyticBusiness
+	profileID   string
+	characterID string
+	startTime   time.Time
+	endTime     time.Time
+	ctx         context.Context
+	filter      entity.GetCapturedRecordFilter
+	sections    []entity.AnalyticSection
 }
 
 func (s *GetAnalyticResultsSuite) SetupSuite() {
 	s.mockRepo = new(MockTimeTrackingRepo)
-	s.mockCoreClient = new(MockCoreClient)
-	s.biz = business.NewAnalyticBusiness(s.mockCoreClient, s.mockRepo)
+	s.biz = business.NewAnalyticBusiness(s.mockRepo)
 	s.profileID = "profile_id"
 	s.characterID = "character_id_1"
 	s.startTime = utils.ParseTime("2025-01-01T00:00:00.000Z")
@@ -78,7 +67,6 @@ func (s *GetAnalyticResultsSuite) SetupSuite() {
 }
 
 func (s *GetAnalyticResultsSuite) TestGetAnalyticResultsForCharacter() {
-	s.mockCoreClient.On("CheckPermission", s.ctx, &s.profileID, &s.characterID).Return(true, nil)
 	s.mockRepo.On("AggregateDailyCapturedRecord", s.ctx, s.filter).Return(capturedRecords, nil)
 
 	result, err := s.biz.GetStatAnalytic(s.ctx, s.characterID, &s.startTime, &s.endTime, s.sections)
@@ -88,7 +76,6 @@ func (s *GetAnalyticResultsSuite) TestGetAnalyticResultsForCharacter() {
 	analyticResultJSON, _ := os.ReadFile("character_analytic_result.json")
 	s.JSONEq(string(analyticResultJSON), utils.PrettyJSON(result))
 
-	s.mockCoreClient.AssertExpectations(s.T())
 	s.mockRepo.AssertExpectations(s.T())
 }
 

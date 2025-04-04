@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	common "tenkhours/proto/pb/common"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,10 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Core_IntrospectToken_FullMethodName = "/core.Core/IntrospectToken"
-	Core_CheckPermission_FullMethodName = "/core.Core/CheckPermission"
-	Core_UpsertCharacter_FullMethodName = "/core.Core/UpsertCharacter"
-	Core_UpsertGoal_FullMethodName      = "/core.Core/UpsertGoal"
+	Core_IntrospectToken_FullMethodName             = "/core.Core/IntrospectToken"
+	Core_UpsertCharacter_FullMethodName             = "/core.Core/UpsertCharacter"
+	Core_UpsertGoal_FullMethodName                  = "/core.Core/UpsertGoal"
+	Core_GetCurrentTimeTracking_FullMethodName      = "/core.Core/GetCurrentTimeTracking"
+	Core_GetTotalCurrentTimeTracking_FullMethodName = "/core.Core/GetTotalCurrentTimeTracking"
+	Core_CreateTimeTracking_FullMethodName          = "/core.Core/CreateTimeTracking"
+	Core_UpdateTimeTracking_FullMethodName          = "/core.Core/UpdateTimeTracking"
 )
 
 // CoreClient is the client API for Core service.
@@ -30,10 +34,12 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CoreClient interface {
 	IntrospectToken(ctx context.Context, in *IntrospectReq, opts ...grpc.CallOption) (*IntrospectResp, error)
-	CheckPermission(ctx context.Context, in *CheckPermissionReq, opts ...grpc.CallOption) (*CheckPermissionResp, error)
-	// Penk Service
 	UpsertCharacter(ctx context.Context, in *CharacterInput, opts ...grpc.CallOption) (*Character, error)
 	UpsertGoal(ctx context.Context, in *GoalInput, opts ...grpc.CallOption) (*Goal, error)
+	GetCurrentTimeTracking(ctx context.Context, in *common.EmptyReq, opts ...grpc.CallOption) (*TimeTracking, error)
+	GetTotalCurrentTimeTracking(ctx context.Context, in *TotalTimeTrackingReq, opts ...grpc.CallOption) (*TotalTimeTrackingResp, error)
+	CreateTimeTracking(ctx context.Context, in *CreateTimeTrackingReq, opts ...grpc.CallOption) (*TimeTracking, error)
+	UpdateTimeTracking(ctx context.Context, in *common.EmptyReq, opts ...grpc.CallOption) (*TimeTracking, error)
 }
 
 type coreClient struct {
@@ -48,16 +54,6 @@ func (c *coreClient) IntrospectToken(ctx context.Context, in *IntrospectReq, opt
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(IntrospectResp)
 	err := c.cc.Invoke(ctx, Core_IntrospectToken_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *coreClient) CheckPermission(ctx context.Context, in *CheckPermissionReq, opts ...grpc.CallOption) (*CheckPermissionResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CheckPermissionResp)
-	err := c.cc.Invoke(ctx, Core_CheckPermission_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,15 +80,57 @@ func (c *coreClient) UpsertGoal(ctx context.Context, in *GoalInput, opts ...grpc
 	return out, nil
 }
 
+func (c *coreClient) GetCurrentTimeTracking(ctx context.Context, in *common.EmptyReq, opts ...grpc.CallOption) (*TimeTracking, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TimeTracking)
+	err := c.cc.Invoke(ctx, Core_GetCurrentTimeTracking_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreClient) GetTotalCurrentTimeTracking(ctx context.Context, in *TotalTimeTrackingReq, opts ...grpc.CallOption) (*TotalTimeTrackingResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TotalTimeTrackingResp)
+	err := c.cc.Invoke(ctx, Core_GetTotalCurrentTimeTracking_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreClient) CreateTimeTracking(ctx context.Context, in *CreateTimeTrackingReq, opts ...grpc.CallOption) (*TimeTracking, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TimeTracking)
+	err := c.cc.Invoke(ctx, Core_CreateTimeTracking_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreClient) UpdateTimeTracking(ctx context.Context, in *common.EmptyReq, opts ...grpc.CallOption) (*TimeTracking, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TimeTracking)
+	err := c.cc.Invoke(ctx, Core_UpdateTimeTracking_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoreServer is the server API for Core service.
 // All implementations must embed UnimplementedCoreServer
 // for forward compatibility.
 type CoreServer interface {
 	IntrospectToken(context.Context, *IntrospectReq) (*IntrospectResp, error)
-	CheckPermission(context.Context, *CheckPermissionReq) (*CheckPermissionResp, error)
-	// Penk Service
 	UpsertCharacter(context.Context, *CharacterInput) (*Character, error)
 	UpsertGoal(context.Context, *GoalInput) (*Goal, error)
+	GetCurrentTimeTracking(context.Context, *common.EmptyReq) (*TimeTracking, error)
+	GetTotalCurrentTimeTracking(context.Context, *TotalTimeTrackingReq) (*TotalTimeTrackingResp, error)
+	CreateTimeTracking(context.Context, *CreateTimeTrackingReq) (*TimeTracking, error)
+	UpdateTimeTracking(context.Context, *common.EmptyReq) (*TimeTracking, error)
 	mustEmbedUnimplementedCoreServer()
 }
 
@@ -106,14 +144,23 @@ type UnimplementedCoreServer struct{}
 func (UnimplementedCoreServer) IntrospectToken(context.Context, *IntrospectReq) (*IntrospectResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IntrospectToken not implemented")
 }
-func (UnimplementedCoreServer) CheckPermission(context.Context, *CheckPermissionReq) (*CheckPermissionResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckPermission not implemented")
-}
 func (UnimplementedCoreServer) UpsertCharacter(context.Context, *CharacterInput) (*Character, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertCharacter not implemented")
 }
 func (UnimplementedCoreServer) UpsertGoal(context.Context, *GoalInput) (*Goal, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertGoal not implemented")
+}
+func (UnimplementedCoreServer) GetCurrentTimeTracking(context.Context, *common.EmptyReq) (*TimeTracking, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCurrentTimeTracking not implemented")
+}
+func (UnimplementedCoreServer) GetTotalCurrentTimeTracking(context.Context, *TotalTimeTrackingReq) (*TotalTimeTrackingResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTotalCurrentTimeTracking not implemented")
+}
+func (UnimplementedCoreServer) CreateTimeTracking(context.Context, *CreateTimeTrackingReq) (*TimeTracking, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTimeTracking not implemented")
+}
+func (UnimplementedCoreServer) UpdateTimeTracking(context.Context, *common.EmptyReq) (*TimeTracking, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateTimeTracking not implemented")
 }
 func (UnimplementedCoreServer) mustEmbedUnimplementedCoreServer() {}
 func (UnimplementedCoreServer) testEmbeddedByValue()              {}
@@ -154,24 +201,6 @@ func _Core_IntrospectToken_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Core_CheckPermission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CheckPermissionReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CoreServer).CheckPermission(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Core_CheckPermission_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoreServer).CheckPermission(ctx, req.(*CheckPermissionReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Core_UpsertCharacter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CharacterInput)
 	if err := dec(in); err != nil {
@@ -208,6 +237,78 @@ func _Core_UpsertGoal_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Core_GetCurrentTimeTracking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(common.EmptyReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).GetCurrentTimeTracking(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_GetCurrentTimeTracking_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).GetCurrentTimeTracking(ctx, req.(*common.EmptyReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Core_GetTotalCurrentTimeTracking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TotalTimeTrackingReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).GetTotalCurrentTimeTracking(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_GetTotalCurrentTimeTracking_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).GetTotalCurrentTimeTracking(ctx, req.(*TotalTimeTrackingReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Core_CreateTimeTracking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTimeTrackingReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).CreateTimeTracking(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_CreateTimeTracking_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).CreateTimeTracking(ctx, req.(*CreateTimeTrackingReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Core_UpdateTimeTracking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(common.EmptyReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).UpdateTimeTracking(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_UpdateTimeTracking_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).UpdateTimeTracking(ctx, req.(*common.EmptyReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Core_ServiceDesc is the grpc.ServiceDesc for Core service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -220,16 +321,28 @@ var Core_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Core_IntrospectToken_Handler,
 		},
 		{
-			MethodName: "CheckPermission",
-			Handler:    _Core_CheckPermission_Handler,
-		},
-		{
 			MethodName: "UpsertCharacter",
 			Handler:    _Core_UpsertCharacter_Handler,
 		},
 		{
 			MethodName: "UpsertGoal",
 			Handler:    _Core_UpsertGoal_Handler,
+		},
+		{
+			MethodName: "GetCurrentTimeTracking",
+			Handler:    _Core_GetCurrentTimeTracking_Handler,
+		},
+		{
+			MethodName: "GetTotalCurrentTimeTracking",
+			Handler:    _Core_GetTotalCurrentTimeTracking_Handler,
+		},
+		{
+			MethodName: "CreateTimeTracking",
+			Handler:    _Core_CreateTimeTracking_Handler,
+		},
+		{
+			MethodName: "UpdateTimeTracking",
+			Handler:    _Core_UpdateTimeTracking_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
