@@ -89,6 +89,17 @@ PenK:
 You have a weekly meeting with John Doe on Tuesday at 10:00 AM.
 ```
 
+### Gmail
+
+There are many cases to consider when getting emails.
+
+- If the user asks for the most recent emails, you should use the `newer_than:7d is:unread` query.
+- If the user asks for all emails, you should use the `is:unread` query.
+- If the user asks for emails from a specific sender, you should use the `from:sender` query.
+- If the user asks for emails from a specific date, you should use the `after:date` query.
+
+You should infer the user's intent and use the appropriate query.
+
 ## Response Length
 
 - For quick responses and follow-up questions, keep it under 20 words.
