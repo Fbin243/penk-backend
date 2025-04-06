@@ -4,11 +4,10 @@ import { readFileSync } from "fs";
 import { resolve } from "path";
 
 import { OAuthTokenModel, PenKContextModel } from "../../utils/database/mongo";
-import { getPenKMessages, getProfileByEmail } from "../../utils/database/utils";
-import { decrypt } from "../../utils/encrypt";
+import { getLinkedAccounts, getPenKMessages, getProfileByEmail } from "../../utils/database/utils";
 import { decodeFirebaseJwt } from "../../utils/firebase";
-import { getGoogleAuthUrl, refreshToken } from "../../utils/googleapis";
-import { LinkedAccount, Resolvers } from "../../utils/types";
+import { getGoogleAuthUrl } from "../../utils/googleapis";
+import { Resolvers } from "../../utils/types";
 
 export interface ResolverContext {
   token: string;
@@ -46,19 +45,7 @@ const resolvers: Resolvers = {
     },
     linkedAccounts: async (_, __, context) => {
       requireAuth(context);
-      const tokens = await OAuthTokenModel.find({ profile_id: context.profileId });
-      const linkedAccounts: LinkedAccount[] = [];
-      for (const token of tokens) {
-        const accessToken = await refreshToken(decrypt(token.refresh_token));
-        if (accessToken) {
-          linkedAccounts.push({
-            id: token._id.toString(),
-            email: token.email,
-            type: token.type,
-            accessToken,
-          });
-        }
-      }
+      const linkedAccounts = await getLinkedAccounts(context.profileId);
       return linkedAccounts;
     },
   },

@@ -2,9 +2,7 @@ import chalk from "chalk";
 import { ChatCompletionTool } from "openai/resources/index.mjs";
 import { FunctionDefinition } from "openai/resources/shared.mjs";
 
-import { OAuthTokenModel } from "../../database/mongo";
-import { decrypt } from "../../encrypt";
-import { refreshToken } from "../../googleapis";
+import { getLinkedAccounts } from "../../database/utils";
 import { getMailBody, getMails } from "../../googleapis/gmail";
 import { LinkedAccountType } from "../../types";
 import { FunctionName } from "./types";
@@ -35,36 +33,25 @@ export const functionGetMails = async (props: { profileId: string; q: string }) 
   console.dir(props, { depth: null, colors: true });
   console.log();
 
-  const tokens = await OAuthTokenModel.find({
-    profile_id: props.profileId,
-    type: LinkedAccountType.Gmail,
-  });
+  const linkedAccounts = (await getLinkedAccounts(props.profileId)).filter(
+    (linkedAccount) => linkedAccount.type === LinkedAccountType.Gmail,
+  );
 
-  const messageFetchPromises = tokens.map(async (token) => {
+  const messageFetchPromises = linkedAccounts.map(async (linkedAccount) => {
     try {
-      const accessToken = await refreshToken(decrypt(token.refresh_token));
-
-      if (!accessToken) {
-        console.warn(`Failed to refresh token for account: ${token.email}`);
-        return [];
-      }
-
       const messages = await getMails({
-        accessToken,
+        accessToken: linkedAccount.accessToken,
         q: props.q,
       });
 
       return messages || [];
     } catch (err) {
-      console.error(`Error fetching messages for ${token.email}:`, err);
+      console.error(`Error fetching messages for ${linkedAccount.email}:`, err);
       return [];
     }
   });
 
   const allMessages = (await Promise.all(messageFetchPromises)).flat();
-
-  console.log("All messages:", allMessages);
-
   return allMessages;
 };
 
@@ -106,14 +93,18 @@ export const functionGetMailBody = async (props: {
   console.dir(props, { depth: null, colors: true });
   console.log();
 
-  const tokens = await OAuthTokenModel.find({
-    profile_id: props.profileId,
-    email: props.email,
-    type: LinkedAccountType.Gmail,
-  });
+  const linkedAccounts = await getLinkedAccounts(props.profileId);
+
+  const accessToken = linkedAccounts.find(
+    (linkedAccount) => linkedAccount.email === props.email,
+  )?.accessToken;
+
+  if (!accessToken) {
+    throw new Error(`No access token found for ${props.email}`);
+  }
 
   const mailBody = await getMailBody({
-    accessToken: decrypt(tokens[0].refresh_token),
+    accessToken,
     messageId: props.messageId,
   });
 

@@ -3,10 +3,9 @@ import { ChatCompletionTool } from "openai/resources/index.mjs";
 import { FunctionDefinition } from "openai/resources/shared.mjs";
 import { rrulestr } from "rrule";
 
-import { OAuthTokenModel } from "../../database/mongo";
-import { decrypt } from "../../encrypt";
-import { getCalendarEvents, refreshToken } from "../../googleapis";
+import { getCalendarEvents } from "../../googleapis";
 import { LinkedAccountType } from "../../types";
+import { getLinkedAccounts } from "./../../database/utils";
 import { FunctionName } from "./types";
 
 const getCalendarEventsDefinition: FunctionDefinition = {
@@ -49,29 +48,21 @@ export const functionGetCalendarEvents = async (props: {
   console.dir(props, { depth: null, colors: true });
   console.log();
 
-  const tokens = await OAuthTokenModel.find({
-    profile_id: props.profileId,
-    type: LinkedAccountType.GoogleCalendar,
-  });
+  const linkedAccounts = (await getLinkedAccounts(props.profileId)).filter(
+    (linkedAccount) => linkedAccount.type === LinkedAccountType.GoogleCalendar,
+  );
 
-  const eventFetchPromises = tokens.map(async (token) => {
+  const eventFetchPromises = linkedAccounts.map(async (linkedAccount) => {
     try {
-      const accessToken = await refreshToken(decrypt(token.refresh_token));
-
-      if (!accessToken) {
-        console.warn(`Failed to refresh token for account: ${token.email}`);
-        return [];
-      }
-
       const events = await getCalendarEvents({
-        accessToken,
+        accessToken: linkedAccount.accessToken,
         timeMin: new Date(props.timeMin),
         timeMax: new Date(props.timeMax),
       });
 
       return events || [];
     } catch (err) {
-      console.error(`Error fetching events for ${token.email}:`, err);
+      console.error(`Error fetching events for ${linkedAccount.email}:`, err);
       return [];
     }
   });

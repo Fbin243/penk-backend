@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
-import { PenKContextModel, PenKMessageModel, ProfileModel } from "./mongo";
+import { decrypt } from "../encrypt";
+import { refreshToken } from "../googleapis/auth";
+import { LinkedAccount } from "../types";
+import { OAuthTokenModel, PenKContextModel, PenKMessageModel, ProfileModel } from "./mongo";
+import { getRedisClient } from "./redis";
 
 export const getProfileByEmail = async (email: string) => {
   const profile = await ProfileModel.findOne({ email });
@@ -181,4 +185,33 @@ export const getPenKData = async (userId: string) => {
   const userData = convertObjectsToStrings(aggregatedData[0]);
 
   return userData;
+};
+
+export const getLinkedAccounts = async (profileId: string) => {
+  const redisClient = await getRedisClient();
+
+  const cached = await redisClient.get(`linked_accounts:${profileId}`);
+  if (cached) {
+    return JSON.parse(cached) as LinkedAccount[];
+  }
+
+  const tokens = await OAuthTokenModel.find({ profile_id: profileId });
+  const linkedAccounts: LinkedAccount[] = [];
+  for (const token of tokens) {
+    const accessToken = await refreshToken(decrypt(token.refresh_token));
+    if (accessToken) {
+      linkedAccounts.push({
+        id: token._id.toString(),
+        email: token.email,
+        type: token.type,
+        accessToken,
+      });
+    }
+  }
+
+  await redisClient.set(`linked_accounts:${profileId}`, JSON.stringify(linkedAccounts), {
+    EX: 60 * 50, // 50 minutes
+  });
+
+  return linkedAccounts;
 };
