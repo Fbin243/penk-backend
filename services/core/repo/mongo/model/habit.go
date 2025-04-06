@@ -1,8 +1,6 @@
 package mongomodel
 
 import (
-	"time"
-
 	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/services/core/entity"
 
@@ -11,16 +9,14 @@ import (
 )
 
 type Habit struct {
-	*mongodb.BaseEntity `                           bson:",inline"`
-	CharacterOID        primitive.ObjectID    `json:"characterID"         bson:"character_id"`
-	CategoryOID         *primitive.ObjectID   `json:"categoryID"          bson:"category_id"`
-	CompletionType      entity.CompletionType `json:"completionType"      bson:"completion_type"`
-	Name                string                `json:"name"                bson:"name"`
-	Value               float64               `json:"value,omitempty"     bson:"value"`
-	Unit                *string               `json:"unit,omitempty"      bson:"unit"`
-	StartTime           time.Time             `json:"startTime,omitempty" bson:"start_time"`
-	EndTime             *time.Time            `json:"endTime,omitempty"   bson:"end_time"`
-	Frequency           string                `json:"frequency"           bson:"frequency"`
+	*mongodb.BaseEntity `                       bson:",inline"`
+	CharacterOID        primitive.ObjectID    `json:"characterID"     bson:"character_id"`
+	CategoryOID         *primitive.ObjectID   `json:"categoryID"      bson:"category_id"`
+	CompletionType      entity.CompletionType `json:"completionType"  bson:"completion_type"`
+	Name                string                `json:"name"            bson:"name"`
+	Value               float64               `json:"value,omitempty" bson:"value"`
+	Unit                *string               `json:"unit,omitempty"  bson:"unit"`
+	RRule               string                `json:"rrule"           bson:"rrule"`
 }
 
 func (h *Habit) CharacterID(id string) {

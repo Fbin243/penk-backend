@@ -3,16 +3,11 @@ package composer
 import (
 	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/services/analytic/business"
-	"tenkhours/services/analytic/repo/rpc"
-	tt "tenkhours/services/timetracking/repo/mongo"
-
-	"google.golang.org/grpc"
+	mongorepo "tenkhours/services/analytic/repo/mongo"
 )
 
 type Composer struct {
-	AnalyticBiz    business.IAnalyticBusiness
-	CoreClient     *rpc.CoreClient
-	CoreClientConn *grpc.ClientConn
+	AnalyticBiz business.IAnalyticBusiness
 }
 
 var composer *Composer
@@ -26,17 +21,12 @@ func GetComposer() *Composer {
 	db := mongodb.GetDBManager().DB
 
 	// Repositories
-	timetrackingRepo := tt.NewTimeTrackingRepo(db)
-
-	// RPC Clients
-	coreClient, conn := ComposeCoreClient()
+	timetrackingRepo := mongorepo.NewTimeTrackingRepo(db)
 
 	// Business
-	analyticBiz := business.NewAnalyticBusiness(coreClient, timetrackingRepo)
+	analyticBiz := business.NewAnalyticBusiness(timetrackingRepo)
 
 	return &Composer{
-		AnalyticBiz:    analyticBiz,
-		CoreClient:     coreClient,
-		CoreClientConn: conn,
+		AnalyticBiz: analyticBiz,
 	}
 }

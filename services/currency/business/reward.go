@@ -3,10 +3,11 @@ package business
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/errors"
 	"tenkhours/services/currency/entity"
-	"time"
 
 	rdb "tenkhours/pkg/db/redis"
 )
@@ -48,14 +49,16 @@ func (biz *RewardBusiness) ClaimDailyReward(ctx context.Context) (*entity.Reward
 		return nil, fmt.Errorf("failed to get reward - err: %v", err)
 	}
 
-	now := time.Now().UTC()
+	loc, _ := time.LoadLocation("Asia/Ho_Chi_Minh")
 
-	today7AM := time.Date(now.Year(), now.Month(), now.Day(), 7, 0, 0, 0, time.UTC)
+	now := time.Now().In(loc)
+
+	today7AM := time.Date(now.Year(), now.Month(), now.Day(), 7, 0, 0, 0, loc)
 	yesterday7AM := today7AM.Add(-24 * time.Hour)
 
 	// If reward exists, calculate streak
 	if reward.StreakCount != 0 {
-		lastClaim := reward.ClaimedAt.UTC()
+		lastClaim := reward.ClaimedAt.In(loc)
 
 		if lastClaim.After(today7AM) {
 			return nil, fmt.Errorf("already claimed today")
@@ -69,6 +72,7 @@ func (biz *RewardBusiness) ClaimDailyReward(ctx context.Context) (*entity.Reward
 			// Missed a day -> Reset streak
 			reward.StreakCount = 1
 		}
+
 	} else {
 		reward.StreakCount = 1
 	}

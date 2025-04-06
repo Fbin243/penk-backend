@@ -54,8 +54,7 @@ func main() {
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 
-	defer composer.GetComposer().CurrencyConn.Close()
-	defer composer.GetComposer().AnalyticConn.Close()
+	defer composer.GetComposer().Close()
 
 	// Start RPC server
 	go startRPCServer(authClient)

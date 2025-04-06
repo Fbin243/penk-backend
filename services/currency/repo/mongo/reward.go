@@ -45,7 +45,6 @@ func (r *RewardRepo) GetRewardByProfileID(ctx context.Context, profileID string)
 	newReward := entity.Reward{
 		BaseEntity:  &base.BaseEntity{},
 		ProfileID:   profileID,
-		ClaimedAt:   time.Now(),
 		StreakCount: 0,
 	}
 

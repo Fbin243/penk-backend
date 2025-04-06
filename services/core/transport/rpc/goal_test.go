@@ -147,7 +147,6 @@ func TestMapGoalInput(t *testing.T) {
 	goalInput.StartTime = utils.UnixToTime(rpcGoalInput.StartTime)
 
 	assert.Equal(t, rpcGoalInput.Id, goalInput.ID)
-	assert.Equal(t, rpcGoalInput.CharacterId, goalInput.CharacterID)
 	assert.Equal(t, rpcGoalInput.Name, goalInput.Name)
 	assert.Equal(t, *rpcGoalInput.Description, *goalInput.Description)
 	assert.Equal(t, rpcGoalInput.StartTime, goalInput.StartTime.Unix())

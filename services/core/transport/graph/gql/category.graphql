@@ -15,7 +15,6 @@ type CategoryStyle {
 
 input CategoryInput {
   id: ID
-  characterID: ID!
   name: String!
   description: String
   style: CategoryStyleInput!

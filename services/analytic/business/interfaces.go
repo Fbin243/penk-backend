@@ -14,10 +14,9 @@ type IAnalyticBusiness interface {
 
 // RPC client
 type ICoreClient interface {
-	CheckPermission(ctx context.Context, profileID, characterID, categoryID *string) (bool, error)
+	CheckPermission(ctx context.Context, profileID, characterID string) (bool, error)
 }
 
-// TODO: Allow Analytic fetch data from Timetracking
 type ITimeTrackingRepo interface {
 	AggregateDailyCapturedRecord(ctx context.Context, filter entity.GetCapturedRecordFilter) ([]entity.CapturedRecord, error)
 }

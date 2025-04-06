@@ -15,6 +15,7 @@ const (
 	// Core errors
 	ErrCodeLimitCharacter ErrorCode = "LIMIT_CHARACTER"
 	ErrCodeLimitCategory  ErrorCode = "LIMIT_CATEGORY"
+	ErrCodeLimitGoal      ErrorCode = "LIMIT_GOAL"
 	ErrCodeLimitMetric    ErrorCode = "LIMIT_METRIC"
 	ErrCodeLimitCheckbox  ErrorCode = "LIMIT_CHECKBOX"
 	ErrCodeLimitHabit     ErrorCode = "LIMIT_HABIT"

@@ -16,6 +16,14 @@ func ToObjectID(id string) primitive.ObjectID {
 	return oid
 }
 
+func ToObjectIDOrNil(id *string) *primitive.ObjectID {
+	if id == nil {
+		return nil
+	}
+
+	return lo.ToPtr(ToObjectID(*id))
+}
+
 func ToObjectIDs(ids []string) []primitive.ObjectID {
 	return lo.Map(ids, func(id string, _ int) primitive.ObjectID {
 		return ToObjectID(id)

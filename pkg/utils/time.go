@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -36,4 +37,10 @@ func ParseTime(timeStr string) time.Time {
 
 func UnixToTime(timestamp int64) time.Time {
 	return time.Unix(timestamp, 0)
+}
+
+func PrintTimeSlice(ts []time.Time) {
+	for _, t := range ts {
+		fmt.Println(t)
+	}
 }

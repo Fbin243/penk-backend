@@ -143,3 +143,9 @@ models:
     model: tenkhours/services/core/entity.HabitLog
   HabitLogInput:
     model: tenkhours/services/core/entity.HabitLogInput
+  TimeTracking:
+    model: tenkhours/services/core/entity.TimeTracking
+  EntityType:
+    model: tenkhours/services/core/entity.EntityType
+  TimeTrackingInput:
+    model: tenkhours/services/core/entity.TimeTrackingInput

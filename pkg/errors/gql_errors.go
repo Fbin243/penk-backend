@@ -17,6 +17,7 @@ var (
 	ErrLimitCheckbox    = NewGQLError(ErrCodeLimitCheckbox, "over limit checkbox")
 	ErrLimitCharacter   = NewGQLError(ErrCodeLimitCharacter, "over limit character")
 	ErrLimitCategory    = NewGQLError(ErrCodeLimitCategory, "over limit category")
+	ErrLimitGoal        = NewGQLError(ErrCodeLimitGoal, "over limit goal")
 	ErrLimitHabit       = NewGQLError(ErrCodeLimitHabit, "over limit habit")
 )
 

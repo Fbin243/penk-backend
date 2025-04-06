@@ -20,5 +20,5 @@ type Fish @key(fields: "profileID", resolvable: false) {
 input ProfileInput {
   name: String!
   imageURL: String!
-  currentCharacterID: ID
+  currentCharacterID: ID!
 }

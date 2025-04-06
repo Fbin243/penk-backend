@@ -10,16 +10,18 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	ProfileBusiness   business.IProfileBusiness
-	CharacterBusiness business.ICharacterBusiness
-	GoalBusiness      business.IGoalBusiness
-	MetricBusiness    business.IMetricBusiness
-	CategoryBusiness  business.ICategoryBusiness
-	CharacterRepo     business.ICharacterRepo
-	MetricRepo        business.IMetricRepo
-	CategoryRepo      business.ICategoryRepo
-	TimeTrackingRepo  business.ITimeTrackingRepo
-	HabitBusiness     business.IHabitBusiness
-	HabitRepo         business.IHabitRepo
-	HabitLogRepo      business.IHabitLogRepo
+	ProfileBusiness      business.IProfileBusiness
+	CharacterBusiness    business.ICharacterBusiness
+	GoalBusiness         business.IGoalBusiness
+	MetricBusiness       business.IMetricBusiness
+	CategoryBusiness     business.ICategoryBusiness
+	HabitBusiness        business.IHabitBusiness
+	TimeTrackingBusiness business.ITimeTrackingBusiness
+
+	CharacterRepo    business.ICharacterRepo
+	MetricRepo       business.IMetricRepo
+	CategoryRepo     business.ICategoryRepo
+	TimeTrackingRepo business.ITimeTrackingRepo
+	HabitRepo        business.IHabitRepo
+	HabitLogRepo     business.IHabitLogRepo
 }

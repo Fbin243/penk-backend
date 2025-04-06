@@ -53,7 +53,9 @@ func (ac *AuthClient) IntrospectToken(ctx context.Context, token, deviceID strin
 	}
 
 	return &rdb.AuthSession{
-		ProfileID: res.ProfileId,
-		DeviceID:  res.DeviceId,
+		ProfileID:          res.ProfileId,
+		DeviceID:           res.DeviceId,
+		FirebaseUID:        res.FirebaseUid,
+		CurrentCharacterID: res.CurrentCharacterId,
 	}, nil
 }

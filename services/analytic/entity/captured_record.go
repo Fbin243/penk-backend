@@ -3,7 +3,6 @@ package entity
 import "time"
 
 type GetCapturedRecordFilter struct {
-	// ProfileID   string
 	CharacterID string
 	StartTime   time.Time
 	EndTime     time.Time

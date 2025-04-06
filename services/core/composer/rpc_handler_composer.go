@@ -6,5 +6,5 @@ import (
 
 func ComposeRPCHandler() *rpc.CoreHandler {
 	composer = GetComposer()
-	return rpc.NewCoreHandler(composer.ProfileBiz, composer.CharacterBiz, composer.GoalBiz)
+	return rpc.NewCoreHandler(composer.ProfileBiz, composer.CharacterBiz, composer.GoalBiz, composer.TimeTrackingBiz)
 }

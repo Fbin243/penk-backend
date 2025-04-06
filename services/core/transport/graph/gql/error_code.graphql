@@ -8,6 +8,7 @@ enum ErrorCode {
     LIMIT_CHARACTER
     LIMIT_CATEGORY
     LIMIT_METRIC
+    LIMIT_GOAL
     LIMIT_CHECKBOX
     LIMIT_HABIT
     # Time tracking errors

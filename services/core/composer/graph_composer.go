@@ -7,12 +7,13 @@ import (
 func ComposeGraphQLResolver() *graph.Resolver {
 	composer := GetComposer()
 	return &graph.Resolver{
-		ProfileBusiness:   composer.ProfileBiz,
-		CharacterBusiness: composer.CharacterBiz,
-		GoalBusiness:      composer.GoalBiz,
-		HabitBusiness:     composer.HabitBusiness,
-		MetricBusiness:    composer.MetricBiz,
-		CategoryBusiness:  composer.CategoryBiz,
+		ProfileBusiness:      composer.ProfileBiz,
+		CharacterBusiness:    composer.CharacterBiz,
+		GoalBusiness:         composer.GoalBiz,
+		HabitBusiness:        composer.HabitBiz,
+		MetricBusiness:       composer.MetricBiz,
+		CategoryBusiness:     composer.CategoryBiz,
+		TimeTrackingBusiness: composer.TimeTrackingBiz,
 
 		CharacterRepo:    composer.CharacterRepo,
 		MetricRepo:       composer.MetricRepo,

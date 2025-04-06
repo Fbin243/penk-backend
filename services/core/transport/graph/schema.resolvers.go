@@ -6,10 +6,16 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"time"
+
+	errs "tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 	"tenkhours/services/core/transport/graph/model"
 	"tenkhours/services/core/transport/graph/validations"
+
+	rrule "github.com/teambition/rrule-go"
 )
 
 // UpdateProfile is the resolver for the updateProfile field.
@@ -63,7 +69,7 @@ func (r *mutationResolver) UpsertMetric(ctx context.Context, input entity.Metric
 		return nil, err
 	}
 
-	return r.MetricBusiness.UpsertMetric(ctx, input)
+	return r.MetricBusiness.UpsertMetric(ctx, &input)
 }
 
 // DeleteMetric is the resolver for the deleteMetric field.
@@ -87,6 +93,19 @@ func (r *mutationResolver) DeleteCategory(ctx context.Context, id string) (*enti
 
 // UpsertHabit is the resolver for the upsertHabit field.
 func (r *mutationResolver) UpsertHabit(ctx context.Context, input entity.HabitInput) (*entity.Habit, error) {
+	// Validate RRULE string of frequency
+	rule, err := rrule.StrToRRule(input.RRule)
+	if err != nil {
+		return nil, errs.NewGQLError(errs.ErrCodeBadRequest,
+			fmt.Sprintf("Invalid frequency: %s", err.Error()))
+	}
+
+	// RRule must have DTSTART
+	if rule.Options.Dtstart.IsZero() {
+		return nil, errs.NewGQLError(errs.ErrCodeBadRequest,
+			"DTSTART is required in frequency")
+	}
+
 	return r.HabitBusiness.UpsertHabit(ctx, &input)
 }
 
@@ -98,6 +117,20 @@ func (r *mutationResolver) DeleteHabit(ctx context.Context, id string) (*entity.
 // UpsertHabitLog is the resolver for the upsertHabitLog field.
 func (r *mutationResolver) UpsertHabitLog(ctx context.Context, input entity.HabitLogInput) (*entity.HabitLog, error) {
 	return r.HabitBusiness.UpsertHabitLog(ctx, &input)
+}
+
+// CreateTimeTracking is the resolver for the createTimeTracking field.
+func (r *mutationResolver) CreateTimeTracking(ctx context.Context, input *entity.TimeTrackingInput) (*entity.TimeTracking, error) {
+	if (input.ReferenceType == nil) != (input.ReferenceID == nil) {
+		return nil, errs.NewGQLError(errs.ErrCodeBadRequest, "ReferenceType and ReferenceID must be both null or both not null")
+	}
+
+	return r.TimeTrackingBusiness.CreateTimeTracking(ctx, input)
+}
+
+// UpdateTimeTracking is the resolver for the updateTimeTracking field.
+func (r *mutationResolver) UpdateTimeTracking(ctx context.Context) (*entity.TimeTracking, error) {
+	return r.TimeTrackingBusiness.UpdateTimeTracking(ctx)
 }
 
 // Characters is the resolver for the characters field.
@@ -122,33 +155,42 @@ func (r *queryResolver) AppSettings(ctx context.Context) (*model.AppSettings, er
 }
 
 // Goals is the resolver for the goals field.
-func (r *queryResolver) Goals(ctx context.Context, characterID string, status *entity.GoalStatus) ([]entity.Goal, error) {
-	return r.GoalBusiness.GetGoals(ctx, characterID, status)
+func (r *queryResolver) Goals(ctx context.Context, status *entity.GoalStatus) ([]entity.Goal, error) {
+	return r.GoalBusiness.GetGoals(ctx, status)
 }
 
 // Metrics is the resolver for the metrics field.
-func (r *queryResolver) Metrics(ctx context.Context, characterID string) ([]entity.Metric, error) {
-	return r.MetricBusiness.GetMetrics(ctx, characterID)
+func (r *queryResolver) Metrics(ctx context.Context) ([]entity.Metric, error) {
+	return r.MetricBusiness.GetMetrics(ctx)
 }
 
 // Categories is the resolver for the categories field.
-func (r *queryResolver) Categories(ctx context.Context, characterID string) ([]entity.Category, error) {
-	return r.CategoryBusiness.GetCategories(ctx, characterID)
+func (r *queryResolver) Categories(ctx context.Context) ([]entity.Category, error) {
+	return r.CategoryBusiness.GetCategories(ctx)
 }
 
 // Habits is the resolver for the habits field.
-func (r *queryResolver) Habits(ctx context.Context, characterID string) ([]entity.Habit, error) {
-	return r.HabitBusiness.GetHabits(ctx, characterID)
+func (r *queryResolver) Habits(ctx context.Context) ([]entity.Habit, error) {
+	return r.HabitBusiness.GetHabits(ctx)
 }
 
 // HabitLogs is the resolver for the habitLogs field.
-func (r *queryResolver) HabitLogs(ctx context.Context, habitID string) ([]entity.HabitLog, error) {
-	habitLogs, err := r.HabitBusiness.GetHabitLogs(ctx, habitID)
-	if err != nil {
-		return nil, err
+func (r *queryResolver) HabitLogs(ctx context.Context, habitID string, startTime time.Time, endTime time.Time) ([]entity.HabitLog, error) {
+	if startTime.After(endTime) {
+		return nil, errs.NewGQLError(errs.ErrCodeBadRequest, "startTime must be before endTime")
 	}
 
-	return habitLogs, nil
+	return r.HabitBusiness.GetHabitLogs(ctx, habitID, startTime, endTime)
+}
+
+// CurrentTimeTracking is the resolver for the currentTimeTracking field.
+func (r *queryResolver) CurrentTimeTracking(ctx context.Context) (*entity.TimeTracking, error) {
+	return r.TimeTrackingBusiness.GetCurrentTimeTracking(ctx)
+}
+
+// TotalCurrentTimeTracking is the resolver for the totalCurrentTimeTracking field.
+func (r *queryResolver) TotalCurrentTimeTracking(ctx context.Context, timestamp time.Time) (int, error) {
+	return r.TimeTrackingBusiness.GetTotalCurrentTimeTracking(ctx, timestamp)
 }
 
 // Mutation returns MutationResolver implementation.
@@ -157,5 +199,7 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)

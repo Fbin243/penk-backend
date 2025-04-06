@@ -31,8 +31,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TimeTrackingServiceClient interface {
 	GetCurrentTimeTracking(ctx context.Context, in *common.EmptyReq, opts ...grpc.CallOption) (*TimeTracking, error)
-	GetTotalCurrentTimeTracking(ctx context.Context, in *TotalTimeTrackingRequest, opts ...grpc.CallOption) (*TotalTimeTrackingResponse, error)
-	CreateTimeTracking(ctx context.Context, in *CreateTimeTrackingRequest, opts ...grpc.CallOption) (*TimeTracking, error)
+	GetTotalCurrentTimeTracking(ctx context.Context, in *TotalTimeTrackingReq, opts ...grpc.CallOption) (*TotalTimeTrackingResp, error)
+	CreateTimeTracking(ctx context.Context, in *CreateTimeTrackingReq, opts ...grpc.CallOption) (*TimeTracking, error)
 	UpdateTimeTracking(ctx context.Context, in *common.EmptyReq, opts ...grpc.CallOption) (*TimeTrackingWithFish, error)
 }
 
@@ -54,9 +54,9 @@ func (c *timeTrackingServiceClient) GetCurrentTimeTracking(ctx context.Context, 
 	return out, nil
 }
 
-func (c *timeTrackingServiceClient) GetTotalCurrentTimeTracking(ctx context.Context, in *TotalTimeTrackingRequest, opts ...grpc.CallOption) (*TotalTimeTrackingResponse, error) {
+func (c *timeTrackingServiceClient) GetTotalCurrentTimeTracking(ctx context.Context, in *TotalTimeTrackingReq, opts ...grpc.CallOption) (*TotalTimeTrackingResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TotalTimeTrackingResponse)
+	out := new(TotalTimeTrackingResp)
 	err := c.cc.Invoke(ctx, TimeTrackingService_GetTotalCurrentTimeTracking_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func (c *timeTrackingServiceClient) GetTotalCurrentTimeTracking(ctx context.Cont
 	return out, nil
 }
 
-func (c *timeTrackingServiceClient) CreateTimeTracking(ctx context.Context, in *CreateTimeTrackingRequest, opts ...grpc.CallOption) (*TimeTracking, error) {
+func (c *timeTrackingServiceClient) CreateTimeTracking(ctx context.Context, in *CreateTimeTrackingReq, opts ...grpc.CallOption) (*TimeTracking, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TimeTracking)
 	err := c.cc.Invoke(ctx, TimeTrackingService_CreateTimeTracking_FullMethodName, in, out, cOpts...)
@@ -89,8 +89,8 @@ func (c *timeTrackingServiceClient) UpdateTimeTracking(ctx context.Context, in *
 // for forward compatibility.
 type TimeTrackingServiceServer interface {
 	GetCurrentTimeTracking(context.Context, *common.EmptyReq) (*TimeTracking, error)
-	GetTotalCurrentTimeTracking(context.Context, *TotalTimeTrackingRequest) (*TotalTimeTrackingResponse, error)
-	CreateTimeTracking(context.Context, *CreateTimeTrackingRequest) (*TimeTracking, error)
+	GetTotalCurrentTimeTracking(context.Context, *TotalTimeTrackingReq) (*TotalTimeTrackingResp, error)
+	CreateTimeTracking(context.Context, *CreateTimeTrackingReq) (*TimeTracking, error)
 	UpdateTimeTracking(context.Context, *common.EmptyReq) (*TimeTrackingWithFish, error)
 	mustEmbedUnimplementedTimeTrackingServiceServer()
 }
@@ -105,10 +105,10 @@ type UnimplementedTimeTrackingServiceServer struct{}
 func (UnimplementedTimeTrackingServiceServer) GetCurrentTimeTracking(context.Context, *common.EmptyReq) (*TimeTracking, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCurrentTimeTracking not implemented")
 }
-func (UnimplementedTimeTrackingServiceServer) GetTotalCurrentTimeTracking(context.Context, *TotalTimeTrackingRequest) (*TotalTimeTrackingResponse, error) {
+func (UnimplementedTimeTrackingServiceServer) GetTotalCurrentTimeTracking(context.Context, *TotalTimeTrackingReq) (*TotalTimeTrackingResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTotalCurrentTimeTracking not implemented")
 }
-func (UnimplementedTimeTrackingServiceServer) CreateTimeTracking(context.Context, *CreateTimeTrackingRequest) (*TimeTracking, error) {
+func (UnimplementedTimeTrackingServiceServer) CreateTimeTracking(context.Context, *CreateTimeTrackingReq) (*TimeTracking, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTimeTracking not implemented")
 }
 func (UnimplementedTimeTrackingServiceServer) UpdateTimeTracking(context.Context, *common.EmptyReq) (*TimeTrackingWithFish, error) {
@@ -154,7 +154,7 @@ func _TimeTrackingService_GetCurrentTimeTracking_Handler(srv interface{}, ctx co
 }
 
 func _TimeTrackingService_GetTotalCurrentTimeTracking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TotalTimeTrackingRequest)
+	in := new(TotalTimeTrackingReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -166,13 +166,13 @@ func _TimeTrackingService_GetTotalCurrentTimeTracking_Handler(srv interface{}, c
 		FullMethod: TimeTrackingService_GetTotalCurrentTimeTracking_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TimeTrackingServiceServer).GetTotalCurrentTimeTracking(ctx, req.(*TotalTimeTrackingRequest))
+		return srv.(TimeTrackingServiceServer).GetTotalCurrentTimeTracking(ctx, req.(*TotalTimeTrackingReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _TimeTrackingService_CreateTimeTracking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateTimeTrackingRequest)
+	in := new(CreateTimeTrackingReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func _TimeTrackingService_CreateTimeTracking_Handler(srv interface{}, ctx contex
 		FullMethod: TimeTrackingService_CreateTimeTracking_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TimeTrackingServiceServer).CreateTimeTracking(ctx, req.(*CreateTimeTrackingRequest))
+		return srv.(TimeTrackingServiceServer).CreateTimeTracking(ctx, req.(*CreateTimeTrackingReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

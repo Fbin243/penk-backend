@@ -11,12 +11,16 @@ import (
 )
 
 // Business
+type IPermissionBusiness interface {
+	CheckOwnCharacter(ctx context.Context, profileID, characterID string) error
+	CheckOwnEntities(ctx context.Context, characterID string, entities []PermissionEntity) error
+}
+
 type IProfileBusiness interface {
 	GetProfile(ctx context.Context) (*entity.Profile, error)
 	UpdateProfile(ctx context.Context, input entity.ProfileInput) (*entity.Profile, error)
 	DeleteProfile(ctx context.Context) (*entity.Profile, error)
 	IntrospectToken(ctx context.Context, token, deviceID string) (*rdb.AuthSession, error)
-	CheckPermission(ctx context.Context, profileID, characterID, categoryID *string) error
 }
 
 type ICharacterBusiness interface {
@@ -26,29 +30,36 @@ type ICharacterBusiness interface {
 }
 
 type IGoalBusiness interface {
-	GetGoals(ctx context.Context, characterID string, status *entity.GoalStatus) ([]entity.Goal, error)
+	GetGoals(ctx context.Context, status *entity.GoalStatus) ([]entity.Goal, error)
 	UpsertGoal(ctx context.Context, input entity.GoalInput) (*entity.Goal, error)
 	DeleteGoal(ctx context.Context, id string) (*entity.Goal, error)
 }
 
 type IMetricBusiness interface {
-	GetMetrics(ctx context.Context, characterID string) ([]entity.Metric, error)
-	UpsertMetric(ctx context.Context, input entity.MetricInput) (*entity.Metric, error)
+	GetMetrics(ctx context.Context) ([]entity.Metric, error)
+	UpsertMetric(ctx context.Context, input *entity.MetricInput) (*entity.Metric, error)
 	DeleteMetric(ctx context.Context, id string) (*entity.Metric, error)
 }
 
 type ICategoryBusiness interface {
-	GetCategories(ctx context.Context, characterID string) ([]entity.Category, error)
+	GetCategories(ctx context.Context) ([]entity.Category, error)
 	UpsertCategory(ctx context.Context, input entity.CategoryInput) (*entity.Category, error)
 	DeleteCategory(ctx context.Context, id string) (*entity.Category, error)
 }
 
 type IHabitBusiness interface {
-	GetHabits(ctx context.Context, characterID string) ([]entity.Habit, error)
+	GetHabits(ctx context.Context) ([]entity.Habit, error)
 	UpsertHabit(ctx context.Context, input *entity.HabitInput) (*entity.Habit, error)
 	DeleteHabit(ctx context.Context, id string) (*entity.Habit, error)
-	GetHabitLogs(ctx context.Context, habitID string) ([]entity.HabitLog, error)
+	GetHabitLogs(ctx context.Context, habitID string, startTime, endTime time.Time) ([]entity.HabitLog, error)
 	UpsertHabitLog(ctx context.Context, input *entity.HabitLogInput) (*entity.HabitLog, error)
+}
+
+type ITimeTrackingBusiness interface {
+	GetCurrentTimeTracking(ctx context.Context) (*entity.TimeTracking, error)
+	GetTotalCurrentTimeTracking(ctx context.Context, timestamp time.Time) (int, error)
+	CreateTimeTracking(ctx context.Context, input *entity.TimeTrackingInput) (*entity.TimeTracking, error)
+	UpdateTimeTracking(ctx context.Context) (*entity.TimeTracking, error)
 }
 
 // Repository
@@ -93,15 +104,20 @@ type IMetricRepo interface {
 type IGoalRepo interface {
 	base.IBaseRepo[entity.Goal]
 	GetGoalsByCharacterID(ctx context.Context, characterID string) ([]entity.Goal, error)
-	ValidateGoal(ctx context.Context, profileID, goalID string) error
 	DeleteByCharacterID(ctx context.Context, characterID string) error
 	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
+	CountByCharacterID(ctx context.Context, characterID string) (int, error)
+	Exist(ctx context.Context, characterID, goalID string) error
 }
 
 type ICache interface {
 	GetAuthSession(ctx context.Context, firebaseUID string) (*rdb.AuthSession, error)
 	SetAuthSession(ctx context.Context, profile *entity.Profile, session *rdb.AuthSession) error
+	DeleteAuthSession(ctx context.Context, firebaseUID string) error
 	DeleteProfileData(ctx context.Context, profile *entity.Profile) error
+	GetCurrentTimeTracking(ctx context.Context, profileID string) (*entity.TimeTracking, error)
+	DeleteCurrentTimeTracking(ctx context.Context, profileID string) error
+	CreateTimeTracking(ctx context.Context, profileID string, timeTracking *entity.TimeTracking) error
 }
 
 type IHabitRepo interface {
@@ -116,7 +132,22 @@ type IHabitRepo interface {
 type IHabitLogRepo interface {
 	base.IBaseRepo[entity.HabitLog]
 	FindByHabitID(ctx context.Context, habitID string) ([]entity.HabitLog, error)
-	DeleteByHabitIDAndTimestamp(ctx context.Context, habitID string, timestamp time.Time) error
+	UpsertByTimestamp(ctx context.Context, timestamp time.Time, habit *entity.HabitLog) error
+	DeleteByHabitID(ctx context.Context, habitID string) error
+}
+
+type ITimeTrackingRepo interface {
+	base.IBaseRepo[entity.TimeTracking]
+	FindByCategoryID(ctx context.Context, categoryID string) ([]entity.TimeTracking, error)
+	FindByCharacterID(ctx context.Context, characterID string) ([]entity.TimeTracking, error)
+	GetTotalTimeByCategoryID(ctx context.Context, categoryID string) (int, error)
+	GetTotalTimeOfUnassigned(ctx context.Context, characterID string) (int, error)
+	GetTotalTimeByCharacterID(ctx context.Context, characterID string) (int, error)
+	UnassignCategory(ctx context.Context, categoryID string) error
+	UnassignReference(ctx context.Context, referenceID string, referenceType entity.EntityType) error
+	UpdateCategoryByReferenceID(ctx context.Context, referenceID string, categoryID *string) error
+	DeleteByCharacterID(ctx context.Context, characterID string) error
+	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
 }
 
 // RPCs
@@ -125,12 +156,6 @@ type ICurrencyClient interface {
 	DeleteFish(ctx context.Context, profileID string) error
 }
 
-// TODO: Allow Core service fetch data from Timetracking repo
-type ITimeTrackingRepo interface {
-	GetTotalTimeByCategoryID(ctx context.Context, categoryID string) (int, error)
-	GetTotalTimeOfUnassigned(ctx context.Context, characterID string) (int, error)
-	GetTotalTimeByCharacterID(ctx context.Context, characterID string) (int, error)
-	UnassignCategory(ctx context.Context, categoryID string) error
-	DeleteByCharacterID(ctx context.Context, characterID string) error
-	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
+type INotificationClient interface {
+	SendNotification(ctx context.Context, req *entity.SendNotiReq) (bool, error)
 }
