@@ -1,4 +1,5 @@
 import express from "express";
+import { readFileSync } from "fs";
 
 import { OAuthTokenModel } from "../../utils/database/mongo";
 import { getAuthResult } from "../../utils/googleapis";
@@ -7,6 +8,9 @@ import { encrypt } from "./../../utils/encrypt";
 
 const app = express();
 const PORT = 8097;
+
+const authSuccessHtml = readFileSync("resources/html/auth-success.html", "utf8");
+const authFailureHtml = readFileSync("resources/html/auth-failure.html", "utf8");
 
 const getTypeFromScope = (scope: string) => {
   if (scope.includes("gmail")) {
@@ -49,14 +53,10 @@ app.get("/oauth_redirect", async (req, res) => {
       { upsert: true },
     );
 
-    res.send(`
-      <h1>PenK Assistant: Authentication successful!</h1>
-      <p>Account: ${authResult.email}</p>
-      <p>You can now close this window.</p>
-    `);
+    res.send(authSuccessHtml);
   } catch (error) {
     console.error("Error handling OAuth redirect:", error);
-    res.status(500).send("Authentication failed");
+    res.send(authFailureHtml);
   }
 });
 
