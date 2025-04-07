@@ -59,7 +59,7 @@ func GetComposer() *Composer {
 
 	// Business
 	permBiz := business.NewPermissionBusiness(profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, habitRepo, timetrackingRepo)
-	profileBiz := business.NewProfileBusiness(permBiz, profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, habitRepo, timetrackingRepo, currencyClient, redisRepo)
+	profileBiz := business.NewProfileBusiness(permBiz, profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, habitRepo, habitLogRepo, timetrackingRepo, currencyClient, redisRepo)
 	characterBiz := business.NewCharacterBusiness(characterRepo, profileRepo, goalRepo, metricRepo, categoryRepo, timetrackingRepo, redisRepo)
 	goalBiz := business.NewGoalBusiness(permBiz, goalRepo, characterRepo, categoryRepo, metricRepo)
 	catgoryBiz := business.NewCategoryBusiness(permBiz, categoryRepo, metricRepo, timetrackingRepo)

@@ -125,6 +125,7 @@ type IHabitRepo interface {
 	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 	Exist(ctx context.Context, characterID, habitID string) error
 	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Habit, error)
+	FindByCharacterIDs(ctx context.Context, characterIDs []string) ([]entity.Habit, error)
 	DeleteByCharacterID(ctx context.Context, characterID string) error
 	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
 }
@@ -134,6 +135,7 @@ type IHabitLogRepo interface {
 	FindByHabitID(ctx context.Context, habitID string) ([]entity.HabitLog, error)
 	UpsertByTimestamp(ctx context.Context, timestamp time.Time, habit *entity.HabitLog) error
 	DeleteByHabitID(ctx context.Context, habitID string) error
+	DeleteByHabitIDs(ctx context.Context, habitIDs []string) error
 }
 
 type ITimeTrackingRepo interface {

@@ -61,11 +61,11 @@ func (biz *ProfileBusiness) IntrospectToken(ctx context.Context, token, deviceID
 
 		profile.CurrentCharacterID = character.ID
 
-		// Create new fish for the new user
-		err = biz.CurrencyClient.CreateFish(ctx, profile.ID)
-		if err != nil {
-			return nil, err
-		}
+		// TODO: @Namiscrea7or refactor later after the usecase of currency is clear
+		// err = biz.CurrencyClient.CreateFish(ctx, profile.ID)
+		// if err != nil {
+		// 	return nil, err
+		// }
 	}
 
 	authSession = &rdb.AuthSession{

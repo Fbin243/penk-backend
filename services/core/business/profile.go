@@ -8,6 +8,7 @@ type ProfileBusiness struct {
 	MetricRepo       IMetricRepo
 	GoalRepo         IGoalRepo
 	HabitRepo        IHabitRepo
+	HabitLogRepo     IHabitLogRepo
 	TimeTrackingRepo ITimeTrackingRepo
 	CurrencyClient   ICurrencyClient
 	Cache            ICache
@@ -21,6 +22,7 @@ func NewProfileBusiness(
 	metricRepo IMetricRepo,
 	goalRepo IGoalRepo,
 	habitRepo IHabitRepo,
+	habitLogRepo IHabitLogRepo,
 	timeTrackingRepo ITimeTrackingRepo,
 	currencyClient ICurrencyClient,
 	cache ICache,
@@ -33,6 +35,7 @@ func NewProfileBusiness(
 		MetricRepo:       metricRepo,
 		GoalRepo:         goalRepo,
 		HabitRepo:        habitRepo,
+		HabitLogRepo:     habitLogRepo,
 		TimeTrackingRepo: timeTrackingRepo,
 		CurrencyClient:   currencyClient,
 		Cache:            cache,
