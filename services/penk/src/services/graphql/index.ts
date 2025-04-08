@@ -27,7 +27,14 @@ const resolvers: Resolvers = {
     context: async (_, __, context) => {
       requireAuth(context);
       const penkContext = await PenKContextModel.findOne({ user_id: context.userId });
-      return penkContext;
+      if (penkContext) {
+        return {
+          locale: penkContext.locale,
+          timezone: penkContext.timezone,
+          context: penkContext.context,
+        }
+      }
+      return null;
     },
     messages: async (_, __, context) => {
       requireAuth(context);
