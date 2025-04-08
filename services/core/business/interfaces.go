@@ -31,7 +31,7 @@ type ICharacterBusiness interface {
 
 type IGoalBusiness interface {
 	GetGoals(ctx context.Context, status *entity.GoalStatus) ([]entity.Goal, error)
-	UpsertGoal(ctx context.Context, input entity.GoalInput) (*entity.Goal, error)
+	UpsertGoal(ctx context.Context, input *entity.GoalInput) (*entity.Goal, error)
 	DeleteGoal(ctx context.Context, id string) (*entity.Goal, error)
 }
 
@@ -60,6 +60,15 @@ type ITimeTrackingBusiness interface {
 	GetTotalCurrentTimeTracking(ctx context.Context, timestamp time.Time) (int, error)
 	CreateTimeTracking(ctx context.Context, input *entity.TimeTrackingInput) (*entity.TimeTracking, error)
 	UpdateTimeTracking(ctx context.Context) (*entity.TimeTracking, error)
+}
+
+type ITaskBusiness interface {
+	GetTasks(ctx context.Context) ([]entity.Task, error)
+	UpsertTask(ctx context.Context, input *entity.TaskInput) (*entity.Task, error)
+	DeleteTask(ctx context.Context, id string) (*entity.Task, error)
+	GetTaskSessions(ctx context.Context, taskID *string) ([]entity.TaskSession, error)
+	UpsertTaskSession(ctx context.Context, input *entity.TaskSessionInput) (*entity.TaskSession, error)
+	DeleteTaskSession(ctx context.Context, id string) (*entity.TaskSession, error)
 }
 
 // Repository
@@ -128,6 +137,7 @@ type IHabitRepo interface {
 	FindByCharacterIDs(ctx context.Context, characterIDs []string) ([]entity.Habit, error)
 	DeleteByCharacterID(ctx context.Context, characterID string) error
 	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
+	UnassignCategory(ctx context.Context, categoryID string) error
 }
 
 type IHabitLogRepo interface {
@@ -150,6 +160,25 @@ type ITimeTrackingRepo interface {
 	UpdateCategoryByReferenceID(ctx context.Context, referenceID string, categoryID *string) error
 	DeleteByCharacterID(ctx context.Context, characterID string) error
 	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
+}
+
+type ITaskRepo interface {
+	base.IBaseRepo[entity.Task]
+	CountByCharacterID(ctx context.Context, characterID string) (int, error)
+	Exist(ctx context.Context, characterID, taskID string) error
+	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Task, error)
+	FindByCharacterIDs(ctx context.Context, characterIDs []string) ([]entity.Task, error)
+	DeleteByCharacterID(ctx context.Context, characterID string) error
+	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
+	UnassignCategory(ctx context.Context, categoryID string) error
+}
+
+type ITaskSessionRepo interface {
+	base.IBaseRepo[entity.TaskSession]
+	FindByTaskID(ctx context.Context, taskID string) ([]entity.TaskSession, error)
+	FindByTaskIDs(ctx context.Context, taskIDs []string) ([]entity.TaskSession, error)
+	DeleteByTaskID(ctx context.Context, taskID string) error
+	DeleteByTaskIDs(ctx context.Context, taskIDs []string) error
 }
 
 // RPCs

@@ -17,6 +17,7 @@ type Resolver struct {
 	CategoryBusiness     business.ICategoryBusiness
 	HabitBusiness        business.IHabitBusiness
 	TimeTrackingBusiness business.ITimeTrackingBusiness
+	TaskBusiness         business.ITaskBusiness
 
 	CharacterRepo    business.ICharacterRepo
 	MetricRepo       business.IMetricRepo
@@ -24,4 +25,5 @@ type Resolver struct {
 	TimeTrackingRepo business.ITimeTrackingRepo
 	HabitRepo        business.IHabitRepo
 	HabitLogRepo     business.IHabitLogRepo
+	TaskRepo         business.ITaskRepo
 }

@@ -5,6 +5,8 @@ type CategoryBusiness struct {
 	cateRepo         ICategoryRepo
 	metricRepo       IMetricRepo
 	timetrackingRepo ITimeTrackingRepo
+	habitRepo        IHabitRepo
+	taskRepo         ITaskRepo
 }
 
 func NewCategoryBusiness(
@@ -12,11 +14,15 @@ func NewCategoryBusiness(
 	cateRepo ICategoryRepo,
 	metricRepo IMetricRepo,
 	timetrackingRepo ITimeTrackingRepo,
+	habitRepo IHabitRepo,
+	taskRepo ITaskRepo,
 ) *CategoryBusiness {
 	return &CategoryBusiness{
 		permBiz:          permBiz,
 		cateRepo:         cateRepo,
 		metricRepo:       metricRepo,
 		timetrackingRepo: timetrackingRepo,
+		habitRepo:        habitRepo,
+		taskRepo:         taskRepo,
 	}
 }

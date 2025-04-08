@@ -75,13 +75,27 @@ func (b *CategoryBusiness) DeleteCategory(ctx context.Context, categoryID string
 		return nil, err
 	}
 
-	// Unassign all metrics | habits | tasks | timetrackings of this category
+	// Unassign category
+	// Metric
 	err = b.metricRepo.UnassignCategory(ctx, categoryID)
 	if err != nil {
 		return nil, err
 	}
 
+	// Timetracking
 	err = b.timetrackingRepo.UnassignCategory(ctx, categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Habit
+	err = b.habitRepo.UnassignCategory(ctx, categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Task
+	err = b.taskRepo.UnassignCategory(ctx, categoryID)
 	if err != nil {
 		return nil, err
 	}

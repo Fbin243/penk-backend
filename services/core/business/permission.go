@@ -8,6 +8,7 @@ type PermissionBusiness struct {
 	GoalRepo         IGoalRepo
 	HabitRepo        IHabitRepo
 	TimeTrackingRepo ITimeTrackingRepo
+	TaskRepo         ITaskRepo
 }
 
 func NewPermissionBusiness(
@@ -18,6 +19,7 @@ func NewPermissionBusiness(
 	goalRepo IGoalRepo,
 	habitRepo IHabitRepo,
 	timeTrackingRepo ITimeTrackingRepo,
+	taskRepo ITaskRepo,
 ) *PermissionBusiness {
 	return &PermissionBusiness{
 		ProfileRepo:      profileRepo,
@@ -27,5 +29,6 @@ func NewPermissionBusiness(
 		GoalRepo:         goalRepo,
 		HabitRepo:        habitRepo,
 		TimeTrackingRepo: timeTrackingRepo,
+		TaskRepo:         taskRepo,
 	}
 }

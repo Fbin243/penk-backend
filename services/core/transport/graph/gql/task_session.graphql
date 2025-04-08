@@ -1,0 +1,15 @@
+type TaskSession {
+  id: ID!
+  taskID: ID!
+  startTime: Time!
+  endTime: Time!
+  completedTime: Time
+}
+
+input TaskSessionInput {
+  id: ID
+  taskID: ID!
+  startTime: Time!
+  endTime: Time!
+  completedTime: Time
+}

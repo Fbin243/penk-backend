@@ -58,32 +58,40 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 	}
 
 	var profile *entity.Profile
-	// Find all characters of profile
 	characters, err := biz.CharacterRepo.GetCharactersByProfileID(ctx, authSession.ProfileID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Delete all metrics | habits | tasks | categories | goals | timetrackings of all characters
 	characterIDs := lo.Map(characters, func(c entity.Character, _ int) string {
 		return c.ID
 	})
 
+	// Metric
 	err = biz.MetricRepo.DeleteByCharacterIDs(ctx, characterIDs)
 	if err != nil {
 		return nil, err
 	}
 
+	// Category
 	err = biz.CategoryRepo.DeleteByCharacterIDs(ctx, characterIDs)
 	if err != nil {
 		return nil, err
 	}
 
+	// Goal
 	err = biz.GoalRepo.DeleteByCharacterIDs(ctx, characterIDs)
 	if err != nil {
 		return nil, err
 	}
 
+	// Time tracking
+	err = biz.TimeTrackingRepo.DeleteByCharacterIDs(ctx, characterIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	// Habit
 	habits, err := biz.HabitRepo.FindByCharacterIDs(ctx, characterIDs)
 	if err != nil {
 		return nil, err
@@ -103,12 +111,22 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 		return nil, err
 	}
 
-	err = biz.TimeTrackingRepo.DeleteByCharacterIDs(ctx, characterIDs)
+	// Task
+	tasks, err := biz.TaskRepo.FindByCharacterIDs(ctx, characterIDs)
 	if err != nil {
 		return nil, err
 	}
 
-	// Delete all characters in database
+	taskIDs := lo.Map(tasks, func(t entity.Task, _ int) string {
+		return t.ID
+	})
+
+	err = biz.TaskSessionRepo.DeleteByTaskIDs(ctx, taskIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	// Delete all characters
 	err = biz.CharacterRepo.DeleteCharactersByProfileID(ctx, authSession.ProfileID)
 	if err != nil {
 		return nil, err

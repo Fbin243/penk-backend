@@ -149,3 +149,11 @@ models:
     model: tenkhours/services/core/entity.EntityType
   TimeTrackingInput:
     model: tenkhours/services/core/entity.TimeTrackingInput
+  Task:
+    model: tenkhours/services/core/entity.Task
+  TaskInput:
+    model: tenkhours/services/core/entity.TaskInput
+  TaskSession:
+    model: tenkhours/services/core/entity.TaskSession
+  TaskSessionInput:
+    model: tenkhours/services/core/entity.TaskSessionInput

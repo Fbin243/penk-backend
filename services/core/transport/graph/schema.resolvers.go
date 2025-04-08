@@ -7,13 +7,12 @@ package graph
 import (
 	"context"
 	"fmt"
-	"time"
-
 	errs "tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 	"tenkhours/services/core/transport/graph/model"
 	"tenkhours/services/core/transport/graph/validations"
+	"time"
 
 	rrule "github.com/teambition/rrule-go"
 )
@@ -55,7 +54,7 @@ func (r *mutationResolver) UpsertGoal(ctx context.Context, input entity.GoalInpu
 		return nil, err
 	}
 
-	return r.GoalBusiness.UpsertGoal(ctx, input)
+	return r.GoalBusiness.UpsertGoal(ctx, &input)
 }
 
 // DeleteGoal is the resolver for the deleteGoal field.
@@ -133,6 +132,26 @@ func (r *mutationResolver) UpdateTimeTracking(ctx context.Context) (*entity.Time
 	return r.TimeTrackingBusiness.UpdateTimeTracking(ctx)
 }
 
+// UpsertTask is the resolver for the upsertTask field.
+func (r *mutationResolver) UpsertTask(ctx context.Context, input entity.TaskInput) (*entity.Task, error) {
+	return r.TaskBusiness.UpsertTask(ctx, &input)
+}
+
+// DeleteTask is the resolver for the deleteTask field.
+func (r *mutationResolver) DeleteTask(ctx context.Context, id string) (*entity.Task, error) {
+	return r.TaskBusiness.DeleteTask(ctx, id)
+}
+
+// UpsertTaskSession is the resolver for the upsertTaskSession field.
+func (r *mutationResolver) UpsertTaskSession(ctx context.Context, input entity.TaskSessionInput) (*entity.TaskSession, error) {
+	return r.TaskBusiness.UpsertTaskSession(ctx, &input)
+}
+
+// DeleteTaskSession is the resolver for the deleteTaskSession field.
+func (r *mutationResolver) DeleteTaskSession(ctx context.Context, id string) (*entity.TaskSession, error) {
+	return r.TaskBusiness.DeleteTaskSession(ctx, id)
+}
+
 // Characters is the resolver for the characters field.
 func (r *queryResolver) Characters(ctx context.Context) ([]entity.Character, error) {
 	return r.CharacterBusiness.GetCharactersByProfileID(ctx)
@@ -193,13 +212,21 @@ func (r *queryResolver) TotalCurrentTimeTracking(ctx context.Context, timestamp 
 	return r.TimeTrackingBusiness.GetTotalCurrentTimeTracking(ctx, timestamp)
 }
 
+// Tasks is the resolver for the tasks field.
+func (r *queryResolver) Tasks(ctx context.Context) ([]entity.Task, error) {
+	return r.TaskBusiness.GetTasks(ctx)
+}
+
+// TaskSessions is the resolver for the taskSessions field.
+func (r *queryResolver) TaskSessions(ctx context.Context, taskID *string) ([]entity.TaskSession, error) {
+	return r.TaskBusiness.GetTaskSessions(ctx, taskID)
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type (
-	mutationResolver struct{ *Resolver }
-	queryResolver    struct{ *Resolver }
-)
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

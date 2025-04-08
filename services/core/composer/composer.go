@@ -18,6 +18,7 @@ type Composer struct {
 	MetricBiz       business.IMetricBusiness
 	HabitBiz        business.IHabitBusiness
 	TimeTrackingBiz business.ITimeTrackingBusiness
+	TaskBusiness    business.ITaskBusiness
 
 	CharacterRepo    business.ICharacterRepo
 	CategoryRepo     business.ICategoryRepo
@@ -25,6 +26,8 @@ type Composer struct {
 	TimeTrackingRepo business.ITimeTrackingRepo
 	HabitRepo        business.IHabitRepo
 	HabitLogRepo     business.IHabitLogRepo
+	TaskRepo         business.ITaskRepo
+	TaskSessionRepo  business.ITaskSessionRepo
 
 	CurrencyConn *grpc.ClientConn
 	AnalyticConn *grpc.ClientConn
@@ -52,20 +55,23 @@ func GetComposer() *Composer {
 	timetrackingRepo := mongorepo.NewTimeTrackingRepo(mongodb)
 	habitRepo := mongorepo.NewHabitRepo(mongodb)
 	habitLogRepo := mongorepo.NewHabitLogRepo(mongodb)
+	taskRepo := mongorepo.NewTaskRepo(mongodb)
+	taskSessionRepo := mongorepo.NewTaskSessionRepo(mongodb)
 
 	// RPC Clients
 	currencyClient, currencyConn := ComposeCurrencyClient()
 	notiClient, notiConn := ComposeNotificationClient()
 
 	// Business
-	permBiz := business.NewPermissionBusiness(profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, habitRepo, timetrackingRepo)
-	profileBiz := business.NewProfileBusiness(permBiz, profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, habitRepo, habitLogRepo, timetrackingRepo, currencyClient, redisRepo)
-	characterBiz := business.NewCharacterBusiness(characterRepo, profileRepo, goalRepo, metricRepo, categoryRepo, timetrackingRepo, redisRepo)
+	permBiz := business.NewPermissionBusiness(profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, habitRepo, timetrackingRepo, taskRepo)
+	profileBiz := business.NewProfileBusiness(permBiz, profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, habitRepo, habitLogRepo, timetrackingRepo, taskRepo, taskSessionRepo, currencyClient, redisRepo)
+	characterBiz := business.NewCharacterBusiness(characterRepo, profileRepo, goalRepo, metricRepo, categoryRepo, timetrackingRepo, habitRepo, habitLogRepo, taskRepo, taskSessionRepo, redisRepo)
 	goalBiz := business.NewGoalBusiness(permBiz, goalRepo, characterRepo, categoryRepo, metricRepo)
-	catgoryBiz := business.NewCategoryBusiness(permBiz, categoryRepo, metricRepo, timetrackingRepo)
+	catgoryBiz := business.NewCategoryBusiness(permBiz, categoryRepo, metricRepo, timetrackingRepo, habitRepo, taskRepo)
 	metricBiz := business.NewMetricBusiness(permBiz, metricRepo, categoryRepo)
 	habitBiz := business.NewHabitBusiness(permBiz, habitRepo, habitLogRepo, categoryRepo, timetrackingRepo)
 	timetrackingBiz := business.NewTimeTrackingBusiness(permBiz, notiClient, redisRepo, habitRepo, habitLogRepo, timetrackingRepo)
+	taskBiz := business.NewTaskBusiness(permBiz, taskRepo, taskSessionRepo, timetrackingRepo)
 
 	return &Composer{
 		ProfileBiz:      profileBiz,
@@ -75,6 +81,7 @@ func GetComposer() *Composer {
 		MetricBiz:       metricBiz,
 		HabitBiz:        habitBiz,
 		TimeTrackingBiz: timetrackingBiz,
+		TaskBusiness:    taskBiz,
 
 		CharacterRepo:    characterRepo,
 		CategoryRepo:     categoryRepo,
@@ -82,6 +89,8 @@ func GetComposer() *Composer {
 		TimeTrackingRepo: timetrackingRepo,
 		HabitRepo:        habitRepo,
 		HabitLogRepo:     habitLogRepo,
+		TaskRepo:         taskRepo,
+		TaskSessionRepo:  taskSessionRepo,
 
 		CurrencyConn: currencyConn,
 		AnalyticConn: notiConn,

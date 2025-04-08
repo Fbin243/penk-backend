@@ -26,12 +26,6 @@ type Range {
   max: Float!
 }
 
-type Checkbox {
-  id: ID!
-  name: String!
-  value: Boolean!
-}
-
 # Inputs
 input GoalInput {
   id: ID
@@ -53,12 +47,6 @@ input GoalMetricInput {
 input RangeInput {
   min: Float!
   max: Float!
-}
-
-input CheckboxInput {
-  id: ID
-  name: String!
-  value: Boolean!
 }
 
 enum MetricCondition {

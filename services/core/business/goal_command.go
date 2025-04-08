@@ -14,7 +14,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input entity.GoalInput) (*entity.Goal, error) {
+func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input *entity.GoalInput) (*entity.Goal, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized

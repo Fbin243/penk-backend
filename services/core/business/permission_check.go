@@ -20,30 +20,33 @@ func (biz *PermissionBusiness) CheckOwnCharacter(ctx context.Context, profileID,
 }
 
 func (biz *PermissionBusiness) CheckOwnEntities(ctx context.Context, characterID string, entities []PermissionEntity) error {
-	for _, entities := range entities {
-		switch entities.Type {
+	for _, entityItem := range entities {
+		switch entityItem.Type {
 		case entity.EntityTypeCategory:
-			err := biz.CategoryRepo.Exist(ctx, characterID, entities.ID)
+			err := biz.CategoryRepo.Exist(ctx, characterID, entityItem.ID)
 			if err != nil {
 				return err
 			}
 		case entity.EntityTypeMetric:
-			err := biz.MetricRepo.Exist(ctx, characterID, entities.ID)
+			err := biz.MetricRepo.Exist(ctx, characterID, entityItem.ID)
 			if err != nil {
 				return err
 			}
 		case entity.EntityTypeGoal:
-			err := biz.GoalRepo.Exist(ctx, characterID, entities.ID)
+			err := biz.GoalRepo.Exist(ctx, characterID, entityItem.ID)
 			if err != nil {
 				return err
 			}
 		case entity.EntityTypeHabit:
-			err := biz.HabitRepo.Exist(ctx, characterID, entities.ID)
+			err := biz.HabitRepo.Exist(ctx, characterID, entityItem.ID)
 			if err != nil {
 				return err
 			}
 		case entity.EntityTypeTask:
-			// TODO: Implement task permission check
+			err := biz.TaskRepo.Exist(ctx, characterID, entityItem.ID)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

@@ -110,12 +110,13 @@ func (b *HabitBusiness) DeleteHabit(ctx context.Context, habitID string) (*entit
 		return nil, err
 	}
 
-	// Delete all habit logs and unassign timetrackings of this habit
+	// Delete all habit logs
 	err = b.habitLogRepo.DeleteByHabitID(ctx, habitID)
 	if err != nil {
 		return nil, err
 	}
 
+	// Unassign reference of timetracking
 	err = b.timetrackingRepo.UnassignReference(ctx, habitID, entity.EntityTypeHabit)
 	if err != nil {
 		return nil, err
