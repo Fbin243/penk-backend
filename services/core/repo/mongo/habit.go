@@ -79,6 +79,26 @@ func (r *HabitRepo) FindByCharacterID(ctx context.Context, characterID string) (
 	return habits, nil
 }
 
+func (r *HabitRepo) FindByCharacterIDs(ctx context.Context, characterIDs []string) ([]entity.Habit, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	cursor, err := r.Find(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
+	if err != nil {
+		return nil, err
+	}
+
+	defer cursor.Close(ctx)
+
+	habits := []entity.Habit{}
+	err = cursor.All(ctx, &habits)
+	if err != nil {
+		return nil, err
+	}
+
+	return habits, nil
+}
+
 func (r *HabitRepo) DeleteByCharacterID(ctx context.Context, characterID string) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()

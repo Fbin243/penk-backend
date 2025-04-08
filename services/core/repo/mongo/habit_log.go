@@ -83,3 +83,15 @@ func (r *HabitLogRepo) DeleteByHabitID(ctx context.Context, habitID string) erro
 
 	return nil
 }
+
+func (r *HabitLogRepo) DeleteByHabitIDs(ctx context.Context, habitIDs []string) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	_, err := r.DeleteMany(ctx, bson.M{"habit_id": bson.M{"$in": mongodb.ToObjectIDs(habitIDs)}})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
