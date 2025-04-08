@@ -9,6 +9,8 @@ import (
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
+
+	"github.com/samber/lo"
 )
 
 func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.CharacterInput) (*entity.Character, error) {
@@ -89,27 +91,71 @@ func (biz *CharacterBusiness) DeleteCharacter(ctx context.Context, id string) (*
 		return nil, err
 	}
 
-	// Delete all metrics | habits | tasks | categories | goals of the character
+	// Metric
 	err = biz.MetricRepo.DeleteByCharacterID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
+	// Category
 	err = biz.CategoryRepo.DeleteByCharacterID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
+	// Goal
 	err = biz.GoalRepo.DeleteByCharacterID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
+	// TimeTracking
 	err = biz.TimeTrackingRepo.DeleteByCharacterID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
+	// Habit
+	habits, err := biz.HabitRepo.FindByCharacterID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	habitIDs := lo.Map(habits, func(habit entity.Habit, _ int) string {
+		return habit.ID
+	})
+
+	err = biz.HabitLogRepo.DeleteByHabitIDs(ctx, habitIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	err = biz.HabitRepo.DeleteByCharacterID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Task
+	tasks, err := biz.TaskRepo.FindByCharacterID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	taskIDs := lo.Map(tasks, func(task entity.Task, _ int) string {
+		return task.ID
+	})
+
+	err = biz.TaskSessionRepo.DeleteByTaskIDs(ctx, taskIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	err = biz.TaskRepo.DeleteByCharacterID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Character
 	character, err := biz.CharacterRepo.DeleteCharacter(ctx, id)
 	if err != nil {
 		return nil, err

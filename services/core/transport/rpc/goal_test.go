@@ -1,7 +1,6 @@
 package rpc_test
 
 import (
-	"fmt"
 	"testing"
 
 	"tenkhours/pkg/db/base"
@@ -9,8 +8,8 @@ import (
 	"tenkhours/pkg/utils"
 	"tenkhours/proto/pb/core"
 	"tenkhours/services/core/entity"
+	"tenkhours/services/core/transport/rpc"
 
-	"github.com/jinzhu/copier"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -23,7 +22,7 @@ var goalCheckbox = entity.Checkbox{
 
 var goalMetric = entity.GoalMetric{
 	ID:          mongodb.GenObjectID(),
-	Condition:   entity.MetricConditionEqual,
+	Condition:   entity.MetricConditionInRange,
 	TargetValue: lo.ToPtr(100.0),
 	RangeValue: &entity.Range{
 		Min: 200,
@@ -51,18 +50,8 @@ var goal = entity.Goal{
 }
 
 func TestMapGoal(t *testing.T) {
-	rpcGoal := &core.Goal{}
-
-	copier.Copy(rpcGoal, &goal)
-	rpcGoal.CreatedAt = goal.CreatedAt.Unix()
-	rpcGoal.UpdatedAt = goal.UpdatedAt.Unix()
-	rpcGoal.StartTime = goal.StartTime.Unix()
-	rpcGoal.EndTime = goal.EndTime.Unix()
-	copier.Copy(&rpcGoal.Metrics, &goal.Metrics)
-
-	// fmt.Printf("rpcGoal: %v\n", utils.PrettyJSON(rpcGoal))
-	// fmt.Printf("goal: %v\n", utils.PrettyJSON(goal))
-	copier.Copy(&rpcGoal.Checkboxes, &goal.Checkboxes)
+	rpcGoal, err := rpc.MapEntityToRPC[entity.Goal, core.Goal](&goal, append(rpc.UnixTimeConverter, rpc.MetricConditionConverter...))
+	assert.NoError(t, err)
 
 	assert.Equal(t, goal.ID, rpcGoal.Id)
 	assert.Equal(t, goal.CharacterID, rpcGoal.CharacterId)
@@ -127,24 +116,8 @@ var rpcGoalInput = &core.GoalInput{
 }
 
 func TestMapGoalInput(t *testing.T) {
-	goalInput := &entity.GoalInput{}
-
-	copier.CopyWithOption(goalInput, rpcGoalInput, copier.Option{
-		IgnoreEmpty: true,
-		Converters: []copier.TypeConverter{
-			{
-				SrcType: core.MetricCondition(0),
-				DstType: entity.MetricCondition(fmt.Sprint(0)),
-				Fn: func(src any) (any, error) {
-					return entity.MetricCondition(
-						core.MetricCondition_name[int32(src.(core.MetricCondition).Number())],
-					), nil
-				},
-			},
-		},
-	})
-	goalInput.EndTime = utils.UnixToTime(rpcGoalInput.EndTime)
-	goalInput.StartTime = utils.UnixToTime(rpcGoalInput.StartTime)
+	goalInput, err := rpc.MapRPCInputToEntityInput[core.GoalInput, entity.GoalInput](rpcGoalInput, append(rpc.UnixTimeConverter, rpc.MetricConditionConverter...))
+	assert.NoError(t, err)
 
 	assert.Equal(t, rpcGoalInput.Id, goalInput.ID)
 	assert.Equal(t, rpcGoalInput.Name, goalInput.Name)

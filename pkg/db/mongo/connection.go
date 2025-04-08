@@ -26,6 +26,8 @@ var (
 	DevicesTokensCollection   = "devices_tokens"
 	HabitsCollection          = "habits"
 	HabitLogsCollection       = "habit_logs"
+	TasksCollection           = "tasks"
+	TaskSessionsCollection    = "task_sessions"
 	FindOneAndUpdateOptions   = options.FindOneAndUpdate().SetReturnDocument(options.After)
 )
 
