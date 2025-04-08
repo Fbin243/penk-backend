@@ -6,7 +6,9 @@ import "github.com/jinzhu/copier"
 func MapEntityToRPC[E, R any](entity *E, converters []copier.TypeConverter) (*R, error) {
 	resp := new(R)
 	err := copier.CopyWithOption(resp, entity, copier.Option{
-		Converters: converters,
+		IgnoreEmpty: true,
+		DeepCopy:    true,
+		Converters:  converters,
 	})
 	return resp, err
 }
@@ -15,7 +17,9 @@ func MapEntityToRPC[E, R any](entity *E, converters []copier.TypeConverter) (*R,
 func MapRPCInputToEntityInput[R, E any](req *R, converters []copier.TypeConverter) (*E, error) {
 	entity := new(E)
 	err := copier.CopyWithOption(entity, req, copier.Option{
-		Converters: converters,
+		IgnoreEmpty: true,
+		DeepCopy:    true,
+		Converters:  converters,
 	})
 	return entity, err
 }

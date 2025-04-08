@@ -10,58 +10,10 @@ message Character {
   int64 updated_at = 3;
   string profile_id = 4;
   string name = 5;
-  bool gender = 6;
-  repeated string tags = 7;
-  repeated Category categories = 8;
-  repeated Metric metrics = 9;
-}
-
-message Category {
-  string id = 1;
-  string name = 2;
-  string description = 3;
-  CategoryStyle style = 4;
-  repeated Metric metrics = 5;
-}
-
-message CategoryStyle {
-  string color = 1;
-  string icon = 2;
-}
-
-message Metric {
-  string id = 1;
-  string name = 3;
-  float value = 4;
-  string unit = 5;
 }
 
 // Input Messages
 message CharacterInput {
   optional string id = 1;
   string name = 2;
-  bool gender = 3;
-  repeated string tags = 4;
-  repeated CategoryInput categories = 5;
-  repeated MetricInput metrics = 6;
-}
-
-message CategoryInput {
-  optional string id = 1;
-  string name = 2;
-  optional string description = 3;
-  CategoryStyleInput style = 4;
-  repeated MetricInput metrics = 5;
-}
-
-message CategoryStyleInput {
-  string color = 1;
-  string icon = 2;
-}
-
-message MetricInput {
-  optional string id = 1;
-  string name = 3;
-  float value = 4;
-  string unit = 5;
 }

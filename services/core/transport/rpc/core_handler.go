@@ -13,6 +13,7 @@ type CoreHandler struct {
 	characterBiz    business.ICharacterBusiness
 	goalBiz         business.IGoalBusiness
 	timetrackingBiz business.ITimeTrackingBusiness
+	taskBiz         business.ITaskBusiness
 }
 
 func NewCoreHandler(
@@ -20,12 +21,14 @@ func NewCoreHandler(
 	charactersBusiness business.ICharacterBusiness,
 	goalBiz business.IGoalBusiness,
 	timetrackingBiz business.ITimeTrackingBusiness,
+	taskBiz business.ITaskBusiness,
 ) *CoreHandler {
 	return &CoreHandler{
 		profileBiz:      profilesBusiness,
 		characterBiz:    charactersBusiness,
 		goalBiz:         goalBiz,
 		timetrackingBiz: timetrackingBiz,
+		taskBiz:         taskBiz,
 	}
 }
 

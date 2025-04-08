@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package core;
 
+import "core/entity_type_message.proto";
+
 option go_package = "tenkhours/proto/pb/core";
 
 message TimeTracking {
@@ -9,7 +11,7 @@ message TimeTracking {
   string character_id = 2;
   optional string category_id = 3;
   optional string reference_id = 4;
-  optional ReferenceType reference_type = 5;
+  optional EntityType reference_type = 5;
   int64 start_time = 6;
   optional int64 end_time = 7;
 }
@@ -27,11 +29,6 @@ message CreateTimeTrackingReq {
   string character_id = 1;
   optional string category_id = 2;
   optional string reference_id = 3;
-  optional ReferenceType reference_type = 4;
+  optional EntityType reference_type = 4;
   int64 start_time = 5;
-}
-
-enum ReferenceType {
-  Habit = 0;
-  Task = 1;
 }
