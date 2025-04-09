@@ -74,7 +74,6 @@ type ITaskBusiness interface {
 // Repository
 type IProfileRepo interface {
 	base.IBaseRepo[entity.Profile]
-	ProfileExists(ctx context.Context, firebaseUID string) (bool, error)
 	GetProfileByFirebaseUID(ctx context.Context, firebaseUID string) (*entity.Profile, error)
 	DeleteProfileByFirebaseUID(ctx context.Context, firebaseUID string) error
 }
@@ -82,7 +81,7 @@ type IProfileRepo interface {
 type ICharacterRepo interface {
 	base.IBaseRepo[entity.Character]
 	GetCharactersByProfileID(ctx context.Context, profileID string) ([]entity.Character, error)
-	CountCharactersByProfileID(ctx context.Context, profileID string) (int64, error)
+	CountCharactersByProfileID(ctx context.Context, profileID string) (int, error)
 	GetAllCharacters(ctx context.Context) ([]entity.Character, error)
 	DeleteCharacter(ctx context.Context, id string) (*entity.Character, error)
 	DeleteCharactersByProfileID(ctx context.Context, profileID string) error

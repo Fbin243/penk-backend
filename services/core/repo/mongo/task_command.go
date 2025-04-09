@@ -2,7 +2,6 @@ package mongorepo
 
 import (
 	"context"
-	"time"
 
 	mongodb "tenkhours/pkg/db/mongo"
 
@@ -10,27 +9,15 @@ import (
 )
 
 func (r *TaskRepo) DeleteByCharacterID(ctx context.Context, characterID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.DeleteMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-	return err
+	return r.DeleteOne(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
 }
 
 func (r *TaskRepo) DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
-	return err
+	return r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
 }
 
 func (r *TaskRepo) UnassignCategory(ctx context.Context, categoryID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.UpdateMany(ctx,
+	return r.UpdateMany(ctx,
 		bson.M{"category_id": mongodb.ToObjectID(categoryID)},
 		bson.M{"$set": bson.M{"category_id": nil}})
-	return err
 }

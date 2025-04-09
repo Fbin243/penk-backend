@@ -46,9 +46,8 @@ func NewTimeTrackingRepo(db *mongo.Database) *TimeTrackingRepo {
 		return nil
 	}
 
-	return &TimeTrackingRepo{mongodb.NewBaseRepo(
+	return &TimeTrackingRepo{mongodb.NewBaseRepo[entity.TimeTracking, mongomodel.TimeTracking](
 		timeTrackingColl,
-		&mongodb.Mapper[entity.TimeTracking, mongomodel.TimeTracking]{},
 		false,
 	)}
 }

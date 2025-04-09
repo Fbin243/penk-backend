@@ -12,6 +12,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func NewMetric() *entity.Metric {
@@ -108,7 +109,7 @@ func TestUnassignCategory(t *testing.T) {
 	err = metricRepo.DeleteByCharacterIDs(context.Background(), characterIDs)
 	assert.Nil(t, err)
 
-	count, err = metricRepo.CountAll(context.Background())
+	count, err = metricRepo.Count(context.Background(), bson.M{})
 	assert.Nil(t, err)
 	assert.Equal(t, int64(0), count)
 }

@@ -86,7 +86,7 @@ func (b *HabitBusiness) UpsertHabit(ctx context.Context, habitInput *entity.Habi
 			return nil, err
 		}
 	} else {
-		habit, err = b.habitRepo.UpdateByID(ctx, *habitInput.ID, habit)
+		habit, err = b.habitRepo.FindAndUpdateByID(ctx, *habitInput.ID, habit)
 		if err != nil {
 			return nil, err
 		}
@@ -123,5 +123,5 @@ func (b *HabitBusiness) DeleteHabit(ctx context.Context, habitID string) (*entit
 		return nil, err
 	}
 
-	return b.habitRepo.FindOneAndDeleteByID(ctx, habitID)
+	return b.habitRepo.FindAndDeleteByID(ctx, habitID)
 }

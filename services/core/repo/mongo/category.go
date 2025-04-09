@@ -3,10 +3,8 @@ package mongorepo
 import (
 	"context"
 	"log"
-	"time"
 
 	mongodb "tenkhours/pkg/db/mongo"
-	"tenkhours/pkg/errors"
 	"tenkhours/services/core/entity"
 	mongomodel "tenkhours/services/core/repo/mongo/model"
 
@@ -28,68 +26,28 @@ func NewCategoryRepo(db *mongo.Database) *CategoryRepo {
 		return nil
 	}
 
-	return &CategoryRepo{mongodb.NewBaseRepo(
-		cateColl,
-		&mongodb.Mapper[entity.Category, mongomodel.Category]{},
-		true,
-	)}
+	return &CategoryRepo{mongodb.NewBaseRepo[entity.Category, mongomodel.Category](cateColl, true)}
 }
 
 func (r *CategoryRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	count, err := r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-	return int(count), err
+	return r.Count(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
 }
 
 func (r *CategoryRepo) Exist(ctx context.Context, characterID, categoryID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	count, err := r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID), "_id": mongodb.ToObjectID(categoryID)})
-	if err != nil {
-		return err
-	}
-	if count == 0 {
-		return errors.ErrMongoNotFound
-	}
-
-	return nil
+	return r.Exists(ctx, bson.M{
+		"_id":          mongodb.ToObjectID(categoryID),
+		"character_id": mongodb.ToObjectID(characterID),
+	})
 }
 
 func (r *CategoryRepo) FindByCharacterID(ctx context.Context, characterID string) ([]entity.Category, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	cursor, err := r.Find(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-	if err != nil {
-		return nil, err
-	}
-
-	defer cursor.Close(ctx)
-
-	categories := []entity.Category{}
-	err = cursor.All(ctx, &categories)
-	if err != nil {
-		return nil, err
-	}
-
-	return categories, nil
+	return r.FindMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
 }
 
 func (r *CategoryRepo) DeleteByCharacterID(ctx context.Context, characterID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.DeleteMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-	return err
+	return r.DeleteMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
 }
 
 func (r *CategoryRepo) DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
-	return err
+	return r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
 }

@@ -76,7 +76,7 @@ func TestUpdateCharacter(t *testing.T) {
 
 	character.Name = updateInput["name"].(string)
 
-	updatedCharacter, err := characterRepo.UpdateByID(context.Background(), character.ID, character)
+	updatedCharacter, err := characterRepo.FindAndUpdateByID(context.Background(), character.ID, character)
 	assert.Nil(t, err)
 	assertCharacter(t, character, updatedCharacter)
 }

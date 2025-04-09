@@ -70,6 +70,6 @@ func TestGetGoalsByCharacterID(t *testing.T) {
 }
 
 func cleanUpGoal(t assert.TestingT, id string) {
-	_, err := goalRepo.FindOneAndDeleteByID(context.Background(), id)
+	_, err := goalRepo.FindAndDeleteByID(context.Background(), id)
 	assert.Nil(t, err)
 }

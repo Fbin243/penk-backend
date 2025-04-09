@@ -50,7 +50,7 @@ func (b *TaskBusiness) UpsertTaskSession(ctx context.Context, input *entity.Task
 			return nil, err
 		}
 	} else {
-		taskSession, err = b.taskSessionRepo.UpdateByID(ctx, *input.ID, taskSession)
+		taskSession, err = b.taskSessionRepo.FindAndUpdateByID(ctx, *input.ID, taskSession)
 		if err != nil {
 			return nil, err
 		}

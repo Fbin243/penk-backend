@@ -20,9 +20,8 @@ type RewardRepo struct {
 }
 
 func NewRewardRepo(db *mongo.Database) *RewardRepo {
-	return &RewardRepo{mongodb.NewBaseRepo(
+	return &RewardRepo{mongodb.NewBaseRepo[entity.Reward, Reward](
 		db.Collection(mongodb.RewardCollection),
-		&mongodb.Mapper[entity.Reward, Reward]{},
 		true,
 	)}
 }
@@ -34,7 +33,7 @@ func (r *RewardRepo) GetRewardByProfileID(ctx context.Context, profileID string)
 	var reward entity.Reward
 	filter := bson.M{"profile_id": mongodb.ToObjectID(profileID)}
 
-	err := r.FindOne(ctx, filter).Decode(&reward)
+	err := r.Collection.FindOne(ctx, filter).Decode(&reward)
 	if err == nil {
 		return &reward, nil
 	}
@@ -74,7 +73,7 @@ func (r *RewardRepo) UpdateReward(ctx context.Context, profileID string, streakC
 	var updatedReward entity.Reward
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 
-	err := r.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedReward)
+	err := r.Collection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedReward)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update daily reward: %w", err)
 	}

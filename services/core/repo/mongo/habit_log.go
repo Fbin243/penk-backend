@@ -26,9 +26,8 @@ func NewHabitLogRepo(db *mongo.Database) *HabitLogRepo {
 			),
 	)
 
-	return &HabitLogRepo{mongodb.NewBaseRepo(
+	return &HabitLogRepo{mongodb.NewBaseRepo[entity.HabitLog, mongomodel.HabitLog](
 		db.Collection(mongodb.HabitLogsCollection),
-		&mongodb.Mapper[entity.HabitLog, mongomodel.HabitLog]{},
 		false,
 	)}
 }

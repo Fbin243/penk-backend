@@ -15,7 +15,7 @@ func (r *HabitLogRepo) UpsertByTimestamp(ctx context.Context, timestamp time.Tim
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	_, err := r.DeleteMany(ctx, bson.M{
+	err := r.DeleteMany(ctx, bson.M{
 		"habit_id":  mongodb.ToObjectID(habitLog.HabitID),
 		"timestamp": bson.M{"$gte": utils.ResetTimeToBeginningOfDay(timestamp)},
 	})
@@ -32,25 +32,9 @@ func (r *HabitLogRepo) UpsertByTimestamp(ctx context.Context, timestamp time.Tim
 }
 
 func (r *HabitLogRepo) DeleteByHabitID(ctx context.Context, habitID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.DeleteMany(ctx, bson.M{"habit_id": mongodb.ToObjectID(habitID)})
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return r.DeleteMany(ctx, bson.M{"habit_id": mongodb.ToObjectID(habitID)})
 }
 
 func (r *HabitLogRepo) DeleteByHabitIDs(ctx context.Context, habitIDs []string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.DeleteMany(ctx, bson.M{"habit_id": bson.M{"$in": mongodb.ToObjectIDs(habitIDs)}})
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return r.DeleteMany(ctx, bson.M{"habit_id": bson.M{"$in": mongodb.ToObjectIDs(habitIDs)}})
 }

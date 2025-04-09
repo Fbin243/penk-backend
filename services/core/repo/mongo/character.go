@@ -2,17 +2,13 @@ package mongorepo
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"tenkhours/services/core/entity"
 	mongomodel "tenkhours/services/core/repo/mongo/model"
 
 	mongodb "tenkhours/pkg/db/mongo"
-	"tenkhours/pkg/errors"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -21,90 +17,35 @@ type CharacterRepo struct {
 }
 
 func NewCharacterRepo(db *mongo.Database) *CharacterRepo {
-	return &CharacterRepo{mongodb.NewBaseRepo(
+	return &CharacterRepo{mongodb.NewBaseRepo[entity.Character, mongomodel.Character](
 		db.Collection(mongodb.CharactersCollection),
-		&mongodb.Mapper[entity.Character, mongomodel.Character]{},
 		true,
 	)}
 }
 
 func (r *CharacterRepo) GetCharactersByProfileID(ctx context.Context, profileID string) ([]entity.Character, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	cursor, err := r.Find(ctx, bson.M{"profile_id": mongodb.ToObjectID(profileID)})
-	if err != nil {
-		return nil, err
-	}
-
-	defer cursor.Close(ctx)
-
-	var characters []entity.Character
-	err = cursor.All(ctx, &characters)
-	if err != nil {
-		return nil, err
-	}
-
-	return characters, nil
+	return r.FindMany(ctx, bson.M{"profile_id": mongodb.ToObjectID(profileID)})
 }
 
-func (r *CharacterRepo) CountCharactersByProfileID(ctx context.Context, profileID string) (int64, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	return r.CountDocuments(ctx, bson.M{"profile_id": mongodb.ToObjectID(profileID)})
+func (r *CharacterRepo) CountCharactersByProfileID(ctx context.Context, profileID string) (int, error) {
+	return r.Count(ctx, bson.M{"profile_id": mongodb.ToObjectID(profileID)})
 }
 
 func (r *CharacterRepo) GetAllCharacters(ctx context.Context) ([]entity.Character, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	var characters []entity.Character
-	cursor, err := r.Find(ctx, primitive.M{})
-	if err != nil {
-		return nil, fmt.Errorf("failed to find characters: %v", err)
-	}
-
-	defer cursor.Close(ctx)
-
-	err = cursor.All(ctx, &characters)
-	if err != nil {
-		return nil, err
-	}
-
-	return characters, nil
+	return r.FindMany(ctx, bson.M{})
 }
 
 func (r *CharacterRepo) DeleteCharacter(ctx context.Context, id string) (*entity.Character, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	character := &entity.Character{}
-	err := r.FindOneAndDelete(ctx, bson.M{"_id": mongodb.ToObjectID(id)}).Decode(character)
-
-	return character, err
+	return r.FindAndDeleteByID(ctx, id)
 }
 
 func (r *CharacterRepo) DeleteCharactersByProfileID(ctx context.Context, profileID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.DeleteMany(ctx, bson.M{"profile_id": mongodb.ToObjectID(profileID)})
-
-	return err
+	return r.DeleteMany(ctx, bson.M{"profile_id": mongodb.ToObjectID(profileID)})
 }
 
 func (r *CharacterRepo) Exist(ctx context.Context, profileID, characterID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	count, err := r.CountDocuments(ctx, bson.M{"profile_id": mongodb.ToObjectID(profileID), "_id": mongodb.ToObjectID(characterID)})
-	if err != nil {
-		return err
-	}
-	if count == 0 {
-		return errors.ErrMongoNotFound
-	}
-
-	return nil
+	return r.Exists(ctx, bson.M{
+		"_id":        mongodb.ToObjectID(characterID),
+		"profile_id": mongodb.ToObjectID(profileID),
+	})
 }

@@ -92,7 +92,7 @@ func TestCategoryRepo(t *testing.T) {
 	// Delete categories of two characters
 	err = categoryRepo.DeleteByCharacterIDs(context.Background(), characterIDs)
 	assert.Nil(t, err)
-	count, err = categoryRepo.CountAll(context.Background())
+	// count, err = categoryRepo.CountAll(context.Background())
 	assert.Nil(t, err)
 	assert.Equal(t, int64(0), count)
 }

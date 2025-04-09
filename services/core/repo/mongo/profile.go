@@ -3,13 +3,11 @@ package mongorepo
 import (
 	"context"
 	"log"
-	"time"
 
 	"tenkhours/services/core/entity"
 	mongomodel "tenkhours/services/core/repo/mongo/model"
 
 	mongodb "tenkhours/pkg/db/mongo"
-	"tenkhours/pkg/errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -38,45 +36,16 @@ func NewProfileRepo(db *mongo.Database) *ProfileRepo {
 	}
 
 	return &ProfileRepo{
-		mongodb.NewBaseRepo(
+		mongodb.NewBaseRepo[entity.Profile, mongomodel.Profile](
 			profilesCollection,
-			&mongodb.Mapper[entity.Profile, mongomodel.Profile]{},
 			true),
 	}
 }
 
 func (r *ProfileRepo) GetProfileByFirebaseUID(ctx context.Context, firebaseUID string) (*entity.Profile, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	var profile entity.Profile
-	err := r.FindOne(ctx, bson.M{"firebase_uid": firebaseUID}).Decode(&profile)
-	if err == mongo.ErrNoDocuments {
-		return nil, errors.ErrMongoNotFound
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	return &profile, nil
+	return r.FindOne(ctx, bson.M{"firebase_uid": firebaseUID})
 }
 
 func (r *ProfileRepo) DeleteProfileByFirebaseUID(ctx context.Context, firebaseUID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.DeleteOne(ctx, bson.M{"firebase_uid": firebaseUID})
-	return err
-}
-
-func (r *ProfileRepo) ProfileExists(ctx context.Context, firebaseUID string) (bool, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	count, err := r.CountDocuments(ctx, bson.M{"firebase_uid": firebaseUID})
-	if err != nil {
-		return false, err
-	}
-
-	return count > 0, nil
+	return r.DeleteOne(ctx, bson.M{"firebase_uid": firebaseUID})
 }
