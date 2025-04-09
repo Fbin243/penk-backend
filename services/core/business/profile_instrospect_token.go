@@ -6,6 +6,7 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
+	mongodb "tenkhours/pkg/db/mongo"
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
 	"tenkhours/services/core/entity"
@@ -36,30 +37,32 @@ func (biz *ProfileBusiness) IntrospectToken(ctx context.Context, token, deviceID
 	if profile == nil {
 		// profile not found, mean the new account
 		newProfile := entity.Profile{
-			BaseEntity:  &base.BaseEntity{},
+			BaseEntity: &base.BaseEntity{
+				ID: mongodb.GenObjectID(),
+			},
 			Name:        firebaseProfile.Name,
 			Email:       firebaseProfile.Email,
 			FirebaseUID: firebaseProfile.UID,
 			ImageURL:    firebaseProfile.Picture,
 		}
 
-		// Create new profile for the new user in DB
-		profile, err = biz.ProfileRepo.InsertOne(ctx, &newProfile)
-		if err != nil {
-			return nil, err
-		}
-
 		// Create default character for the new profile
 		character, err := biz.CharacterRepo.InsertOne(ctx, &entity.Character{
 			BaseEntity: &base.BaseEntity{},
-			ProfileID:  profile.ID,
-			Name:       profile.Name,
+			ProfileID:  newProfile.ID,
+			Name:       newProfile.Name,
 		})
 		if err != nil {
 			return nil, err
 		}
 
-		profile.CurrentCharacterID = character.ID
+		newProfile.CurrentCharacterID = character.ID
+
+		// Create new profile for the new user in DB
+		profile, err = biz.ProfileRepo.InsertOne(ctx, &newProfile)
+		if err != nil {
+			return nil, err
+		}
 
 		// TODO: @Namiscrea7or refactor later after the usecase of currency is clear
 		// err = biz.CurrencyClient.CreateFish(ctx, profile.ID)

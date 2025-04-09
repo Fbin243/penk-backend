@@ -8,6 +8,7 @@ import (
 	mongomodel "tenkhours/services/core/repo/mongo/model"
 
 	mongodb "tenkhours/pkg/db/mongo"
+	"tenkhours/pkg/errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -43,7 +44,12 @@ func NewProfileRepo(db *mongo.Database) *ProfileRepo {
 }
 
 func (r *ProfileRepo) GetProfileByFirebaseUID(ctx context.Context, firebaseUID string) (*entity.Profile, error) {
-	return r.FindOne(ctx, bson.M{"firebase_uid": firebaseUID})
+	profile, err := r.FindOne(ctx, bson.M{"firebase_uid": firebaseUID})
+	if err == mongo.ErrNoDocuments {
+		return nil, errors.ErrMongoNotFound
+	}
+
+	return profile, err
 }
 
 func (r *ProfileRepo) DeleteProfileByFirebaseUID(ctx context.Context, firebaseUID string) error {
