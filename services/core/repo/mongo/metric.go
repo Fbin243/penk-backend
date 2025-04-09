@@ -27,9 +27,8 @@ func NewMetricRepo(db *mongo.Database) *MetricRepo {
 		return nil
 	}
 
-	return &MetricRepo{mongodb.NewBaseRepo(
+	return &MetricRepo{mongodb.NewBaseRepo[entity.Metric, mongomodel.Metric](
 		metricColl,
-		&mongodb.Mapper[entity.Metric, mongomodel.Metric]{},
 		true,
 	)}
 }

@@ -64,7 +64,7 @@ func (b *MetricBusiness) UpsertMetric(ctx context.Context, metricInput *entity.M
 	}
 
 	if metricInput.ID != nil {
-		return b.metricRepo.UpdateByID(ctx, *metricInput.ID, metric)
+		return b.metricRepo.FindAndUpdateByID(ctx, *metricInput.ID, metric)
 	}
 
 	return b.metricRepo.InsertOne(ctx, metric)
@@ -86,5 +86,5 @@ func (b *MetricBusiness) DeleteMetric(ctx context.Context, metricID string) (*en
 		return nil, err
 	}
 
-	return b.metricRepo.FindOneAndDeleteByID(ctx, metricID)
+	return b.metricRepo.FindAndDeleteByID(ctx, metricID)
 }

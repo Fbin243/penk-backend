@@ -42,7 +42,7 @@ func (biz *ProfileBusiness) UpdateProfile(ctx context.Context, input entity.Prof
 	profile.CurrentCharacterID = input.CurrentCharacterID
 	profile.UpdatedAt = utils.Now()
 
-	updatedProfile, err := biz.ProfileRepo.UpdateByID(ctx, profile.ID, profile)
+	updatedProfile, err := biz.ProfileRepo.FindAndUpdateByID(ctx, profile.ID, profile)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 	// }
 
 	// Delete the profile in database
-	profile, err = biz.ProfileRepo.FindOneAndDeleteByID(ctx, authSession.ProfileID)
+	profile, err = biz.ProfileRepo.FindAndDeleteByID(ctx, authSession.ProfileID)
 	if err != nil {
 		return nil, err
 	}

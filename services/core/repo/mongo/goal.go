@@ -3,13 +3,11 @@ package mongorepo
 import (
 	"context"
 	"log"
-	"time"
 
 	"tenkhours/services/core/entity"
 	mongomodel "tenkhours/services/core/repo/mongo/model"
 
 	mongodb "tenkhours/pkg/db/mongo"
-	"tenkhours/pkg/errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -29,68 +27,31 @@ func NewGoalRepo(db *mongo.Database) *GoalRepo {
 		return nil
 	}
 
-	return &GoalRepo{mongodb.NewBaseRepo(
+	return &GoalRepo{mongodb.NewBaseRepo[entity.Goal, mongomodel.Goal](
 		goalCollection,
-		&mongodb.Mapper[entity.Goal, mongomodel.Goal]{},
 		true,
 	)}
 }
 
 func (r *GoalRepo) GetGoalsByCharacterID(ctx context.Context, characterID string) ([]entity.Goal, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	cursor, err := r.Find(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(ctx)
-
-	goals := []entity.Goal{}
-	err = cursor.All(ctx, &goals)
-
-	return goals, err
+	return r.FindMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
 }
 
 func (r *GoalRepo) DeleteByCharacterID(ctx context.Context, characterID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.DeleteMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-	return err
+	return r.DeleteMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
 }
 
 func (r *GoalRepo) DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
-	return err
+	return r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
 }
 
 func (r *GoalRepo) Exist(ctx context.Context, characterID, goalID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	count, err := r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID), "_id": mongodb.ToObjectID(goalID)})
-	if err != nil {
-		return err
-	}
-	if count == 0 {
-		return errors.ErrMongoNotFound
-	}
-
-	return nil
+	return r.Exists(ctx, bson.M{
+		"_id":          mongodb.ToObjectID(goalID),
+		"character_id": mongodb.ToObjectID(characterID),
+	})
 }
 
 func (r *GoalRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	count, err := r.CountDocuments(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-	if err != nil {
-		return 0, err
-	}
-
-	return int(count), nil
+	return r.Count(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
 }

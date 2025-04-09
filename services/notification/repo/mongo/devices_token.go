@@ -32,8 +32,8 @@ func NewDevicesTokenRepo(db *mongo.Database) *DeviceTokenRepo {
 	}
 
 	return &DeviceTokenRepo{
-		mongodb.NewBaseRepo(devicesTokenCollection,
-			&mongodb.Mapper[entity.DevicesToken, DevicesToken]{},
+		mongodb.NewBaseRepo[entity.DevicesToken, DevicesToken](
+			devicesTokenCollection,
 			true),
 	}
 }
@@ -54,7 +54,7 @@ func (r *DeviceTokenRepo) UpsertDeviceToken(ctx context.Context, profileID, toke
 
 	opts := options.Update().SetUpsert(false)
 
-	res, err := r.UpdateOne(ctx, filter, update, opts)
+	res, err := r.Collection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		return fmt.Errorf("failed to update device token: %v", err)
 	}
@@ -71,7 +71,7 @@ func (r *DeviceTokenRepo) UpsertDeviceToken(ctx context.Context, profileID, toke
 		}
 
 		upsertOpts := options.Update().SetUpsert(true)
-		_, err = r.UpdateOne(ctx, filter, update, upsertOpts)
+		_, err = r.Collection.UpdateOne(ctx, filter, update, upsertOpts)
 		if err != nil {
 			return fmt.Errorf("failed to add new device token: %v", err)
 		}
@@ -91,7 +91,7 @@ func (r *DeviceTokenRepo) RemoveDeviceToken(ctx context.Context, profileID, toke
 	}
 
 	opts := options.Update()
-	_, err := r.UpdateOne(ctx, filter, update, opts)
+	_, err := r.Collection.UpdateOne(ctx, filter, update, opts)
 	return err
 }
 
@@ -102,7 +102,7 @@ func (r *DeviceTokenRepo) GetDeviceTokenByDeviceID(ctx context.Context, deviceID
 	filter := bson.M{"tokens.device_id": deviceID}
 	devicesToken := new(entity.DevicesToken)
 
-	err := r.FindOne(ctx, filter).Decode(devicesToken)
+	err := r.Collection.FindOne(ctx, filter).Decode(devicesToken)
 	if err != nil {
 		return "", err
 	}

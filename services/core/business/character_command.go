@@ -32,7 +32,7 @@ func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.
 			return nil, err
 		}
 
-		if charactersCount >= int64(utils.LimitedCharacterNumber) {
+		if charactersCount >= utils.LimitedCharacterNumber {
 			return nil, errors.ErrLimitCharacter
 		}
 
@@ -61,7 +61,7 @@ func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.
 
 		// Update the current character of the profile with the new character
 		profile.CurrentCharacterID = character.ID
-		_, err = biz.ProfileRepo.UpdateByID(ctx, profile.ID, profile)
+		_, err = biz.ProfileRepo.FindAndUpdateByID(ctx, profile.ID, profile)
 		if err != nil {
 			return nil, err
 		}
@@ -71,7 +71,7 @@ func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.
 			return nil, err
 		}
 	} else {
-		character, err = biz.CharacterRepo.UpdateByID(ctx, *input.ID, character)
+		character, err = biz.CharacterRepo.FindAndUpdateByID(ctx, *input.ID, character)
 		if err != nil {
 			return nil, err
 		}

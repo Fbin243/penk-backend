@@ -2,7 +2,6 @@ package mongorepo
 
 import (
 	"context"
-	"time"
 
 	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/services/core/entity"
@@ -11,61 +10,30 @@ import (
 )
 
 func (r *TimeTrackingRepo) UnassignCategory(ctx context.Context, categoryID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.Collection.UpdateMany(ctx,
+	return r.UpdateMany(ctx,
 		bson.M{"category_id": mongodb.ToObjectID(categoryID)},
 		bson.M{"$set": bson.M{"category_id": nil}})
-
-	return err
 }
 
 func (r *TimeTrackingRepo) UnassignReference(ctx context.Context, referenceID string, referenceType entity.EntityType) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.Collection.UpdateMany(ctx,
+	return r.UpdateMany(ctx,
 		bson.M{
 			"reference_id":   mongodb.ToObjectID(referenceID),
 			"reference_type": referenceType,
-		}, bson.M{"$set": bson.M{"reference_id": nil}})
-
-	return err
+		},
+		bson.M{"$set": bson.M{"reference_id": nil}})
 }
 
 func (r *TimeTrackingRepo) UpdateCategoryByReferenceID(ctx context.Context, referenceID string, categoryID *string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.Collection.UpdateMany(ctx, bson.M{"reference_id": mongodb.ToObjectID(referenceID)}, bson.M{"$set": bson.M{"category_id": mongodb.ToObjectIDOrNil(categoryID)}})
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return r.UpdateMany(ctx,
+		bson.M{"reference_id": mongodb.ToObjectID(referenceID)},
+		bson.M{"$set": bson.M{"category_id": mongodb.ToObjectIDOrNil(categoryID)}})
 }
 
 func (r *TimeTrackingRepo) DeleteByCharacterID(ctx context.Context, characterID string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.Collection.DeleteMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return r.DeleteMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
 }
 
 func (r TimeTrackingRepo) DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	_, err := r.Collection.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
 }

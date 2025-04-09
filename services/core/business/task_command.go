@@ -108,7 +108,7 @@ func (b *TaskBusiness) UpsertTask(ctx context.Context, input *entity.TaskInput) 
 			return nil, err
 		}
 	} else {
-		task, err = b.taskRepo.UpdateByID(ctx, *input.ID, task)
+		task, err = b.taskRepo.FindAndUpdateByID(ctx, *input.ID, task)
 		if err != nil {
 			return nil, err
 		}
@@ -145,7 +145,7 @@ func (b *TaskBusiness) DeleteTask(ctx context.Context, id string) (*entity.Task,
 		return nil, err
 	}
 
-	task, err := b.taskRepo.FindOneAndDeleteByID(ctx, id)
+	task, err := b.taskRepo.FindAndDeleteByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}

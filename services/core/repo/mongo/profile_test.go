@@ -82,13 +82,13 @@ func TestUpdateProfile(t *testing.T) {
 	profile.ImageURL = updateInput["image_url"].(string)
 	profile.CurrentCharacterID = updateInput["current_character_id"].(string)
 
-	updatedProfile, err := profileRepo.UpdateByID(context.Background(), profile.ID, profile)
+	updatedProfile, err := profileRepo.FindAndUpdateByID(context.Background(), profile.ID, profile)
 	assert.Nil(t, err)
 	assertProfile(t, profile, updatedProfile)
 }
 
 func cleanUpProfile(t *testing.T, id string) {
 	// Delete profile from database
-	_, err := profileRepo.FindOneAndDeleteByID(context.Background(), id)
+	_, err := profileRepo.FindAndDeleteByID(context.Background(), id)
 	assert.Nil(t, err)
 }

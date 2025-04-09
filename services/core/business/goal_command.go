@@ -94,7 +94,7 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input *entity.GoalInput
 	}
 
 	if input.ID != nil {
-		goal, err = biz.goalRepo.UpdateByID(ctx, *input.ID, goal)
+		goal, err = biz.goalRepo.FindAndUpdateByID(ctx, *input.ID, goal)
 		if err != nil {
 			return nil, err
 		}
@@ -200,7 +200,7 @@ func (biz *GoalBusiness) DeleteGoal(ctx context.Context, goalID string) (*entity
 		return nil, err
 	}
 
-	goal, err := biz.goalRepo.FindOneAndDeleteByID(ctx, goalID)
+	goal, err := biz.goalRepo.FindAndDeleteByID(ctx, goalID)
 	if err != nil {
 		return nil, err
 	}

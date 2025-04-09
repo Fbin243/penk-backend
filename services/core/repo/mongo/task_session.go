@@ -26,9 +26,8 @@ func NewTaskSessionRepo(db *mongo.Database) *TaskSessionRepo {
 		return nil
 	}
 
-	return &TaskSessionRepo{mongodb.NewBaseRepo(
+	return &TaskSessionRepo{mongodb.NewBaseRepo[entity.TaskSession, mongomodel.TaskSession](
 		taskSessionCollection,
-		&mongodb.Mapper[entity.TaskSession, mongomodel.TaskSession]{},
 		false,
 	)}
 }

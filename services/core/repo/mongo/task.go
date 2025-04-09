@@ -26,9 +26,8 @@ func NewTaskRepo(db *mongo.Database) *TaskRepo {
 		return nil
 	}
 
-	return &TaskRepo{mongodb.NewBaseRepo(
+	return &TaskRepo{mongodb.NewBaseRepo[entity.Task, mongomodel.Task](
 		taskCollection,
-		&mongodb.Mapper[entity.Task, mongomodel.Task]{},
 		true,
 	)}
 }

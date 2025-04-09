@@ -1,16 +1,18 @@
 package mongodb
 
-import "github.com/jinzhu/copier"
+import (
+	"tenkhours/pkg/db/base"
 
-type Mapper[M any, N any] struct{}
+	"github.com/jinzhu/copier"
+)
 
-func (m *Mapper[M, N]) ToMongoEntity(entity *M) *N {
+func ToMongoEntity[M base.IBaseEntity, N any](entity *M) *N {
 	mongoEntity := new(N)
 	copier.Copy(mongoEntity, entity)
 	return mongoEntity
 }
 
-func (m *Mapper[M, N]) ToEntity(mongoEntity *N) *M {
+func ToEntity[N any, M base.IBaseEntity](mongoEntity *N) *M {
 	entity := new(M)
 	copier.Copy(entity, mongoEntity)
 	return entity

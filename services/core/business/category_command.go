@@ -58,7 +58,7 @@ func (b *CategoryBusiness) UpsertCategory(ctx context.Context, cateInput entity.
 	}
 
 	if cateInput.ID != nil {
-		return b.cateRepo.UpdateByID(ctx, *cateInput.ID, cate)
+		return b.cateRepo.FindAndUpdateByID(ctx, *cateInput.ID, cate)
 	}
 
 	return b.cateRepo.InsertOne(ctx, cate)
@@ -100,5 +100,5 @@ func (b *CategoryBusiness) DeleteCategory(ctx context.Context, categoryID string
 		return nil, err
 	}
 
-	return b.cateRepo.FindOneAndDeleteByID(ctx, categoryID)
+	return b.cateRepo.FindAndDeleteByID(ctx, categoryID)
 }
