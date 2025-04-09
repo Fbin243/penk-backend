@@ -6,7 +6,7 @@ type Query {
   metrics: [Metric!]!
   categories: [Category!]!
   habits: [Habit!]!
-  habitLogs(habitID: ID!, startTime: Time!, endTime: Time!): [HabitLog!]!
+  habitLogs(habitID: ID, startTime: Time!, endTime: Time!): [HabitLog!]!
   currentTimeTracking: TimeTracking
   totalCurrentTimeTracking(timestamp: Time!): Int!
   tasks: [Task!]!

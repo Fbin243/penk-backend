@@ -194,7 +194,7 @@ func (r *queryResolver) Habits(ctx context.Context) ([]entity.Habit, error) {
 }
 
 // HabitLogs is the resolver for the habitLogs field.
-func (r *queryResolver) HabitLogs(ctx context.Context, habitID string, startTime time.Time, endTime time.Time) ([]entity.HabitLog, error) {
+func (r *queryResolver) HabitLogs(ctx context.Context, habitID *string, startTime time.Time, endTime time.Time) ([]entity.HabitLog, error) {
 	if startTime.After(endTime) {
 		return nil, errs.NewGQLError(errs.ErrCodeBadRequest, "startTime must be before endTime")
 	}

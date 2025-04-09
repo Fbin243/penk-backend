@@ -51,7 +51,7 @@ type IHabitBusiness interface {
 	GetHabits(ctx context.Context) ([]entity.Habit, error)
 	UpsertHabit(ctx context.Context, input *entity.HabitInput) (*entity.Habit, error)
 	DeleteHabit(ctx context.Context, id string) (*entity.Habit, error)
-	GetHabitLogs(ctx context.Context, habitID string, startTime, endTime time.Time) ([]entity.HabitLog, error)
+	GetHabitLogs(ctx context.Context, habitID *string, startTime, endTime time.Time) ([]entity.HabitLog, error)
 	UpsertHabitLog(ctx context.Context, input *entity.HabitLogInput) (*entity.HabitLog, error)
 }
 
@@ -143,6 +143,7 @@ type IHabitRepo interface {
 type IHabitLogRepo interface {
 	base.IBaseRepo[entity.HabitLog]
 	FindByHabitID(ctx context.Context, habitID string) ([]entity.HabitLog, error)
+	FindByHabitIDs(ctx context.Context, habitIDs []string) ([]entity.HabitLog, error)
 	UpsertByTimestamp(ctx context.Context, timestamp time.Time, habit *entity.HabitLog) error
 	DeleteByHabitID(ctx context.Context, habitID string) error
 	DeleteByHabitIDs(ctx context.Context, habitIDs []string) error
