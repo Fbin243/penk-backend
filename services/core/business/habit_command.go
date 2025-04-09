@@ -65,7 +65,8 @@ func (b *HabitBusiness) UpsertHabit(ctx context.Context, habitInput *entity.Habi
 			}
 		}
 
-		if habit.CompletionType != habitInput.CompletionType {
+		if habit.CompletionType != habitInput.CompletionType ||
+			habit.RRule != habitInput.RRule {
 			// Remove all habit logs of this habit
 			err := b.habitLogRepo.DeleteByHabitID(ctx, habit.ID)
 			if err != nil {

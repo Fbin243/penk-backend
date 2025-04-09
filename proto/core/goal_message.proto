@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package core;
 
+import "core/checkbox_message.proto";
+
 option go_package = "tenkhours/proto/pb/core";
 
 message Goal {
@@ -30,12 +32,6 @@ message Range {
   double max = 2;
 }
 
-message Checkbox {
-  string id = 1;
-  string name = 2;
-  bool value = 3;
-}
-
 // Input Messages
 message GoalInput {
   optional string id = 1;
@@ -58,12 +54,6 @@ message GoalMetricInput {
 message RangeInput {
   double min = 1;
   double max = 2;
-}
-
-message CheckboxInput {
-  optional string id = 1;
-  string name = 2;
-  bool value = 3;
 }
 
 // Enums

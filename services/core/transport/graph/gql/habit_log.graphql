@@ -3,7 +3,6 @@ type HabitLog {
   habitID: ID!
   timestamp: Time!
   value: Float!
-  percent: Float!
 }
 
 input HabitLogInput {

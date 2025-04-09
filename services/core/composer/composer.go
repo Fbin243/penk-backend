@@ -18,7 +18,7 @@ type Composer struct {
 	MetricBiz       business.IMetricBusiness
 	HabitBiz        business.IHabitBusiness
 	TimeTrackingBiz business.ITimeTrackingBusiness
-	TaskBusiness    business.ITaskBusiness
+	TaskBiz         business.ITaskBusiness
 
 	CharacterRepo    business.ICharacterRepo
 	CategoryRepo     business.ICategoryRepo
@@ -81,7 +81,7 @@ func GetComposer() *Composer {
 		MetricBiz:       metricBiz,
 		HabitBiz:        habitBiz,
 		TimeTrackingBiz: timetrackingBiz,
-		TaskBusiness:    taskBiz,
+		TaskBiz:         taskBiz,
 
 		CharacterRepo:    characterRepo,
 		CategoryRepo:     categoryRepo,

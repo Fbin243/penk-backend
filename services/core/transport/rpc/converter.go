@@ -8,6 +8,7 @@ import (
 	"tenkhours/services/core/entity"
 
 	"github.com/jinzhu/copier"
+	"github.com/samber/lo"
 )
 
 var MetricConditionConverter = []copier.TypeConverter{
@@ -44,6 +45,50 @@ var UnixTimeConverter = []copier.TypeConverter{
 		DstType: int64(0),
 		Fn: func(src any) (any, error) {
 			return src.(time.Time).Unix(), nil
+		},
+	},
+	// Handle for time.Time to *int64
+	{
+		SrcType: time.Time{},
+		DstType: lo.ToPtr(int64(0)),
+		Fn: func(src any) (any, error) {
+			return lo.ToPtr(src.(time.Time).Unix()), nil
+		},
+	},
+	// Handle for *int64 to *time.Time
+	{
+		SrcType: lo.ToPtr(int64(0)),
+		DstType: &time.Time{},
+		Fn: func(src any) (any, error) {
+			return lo.ToPtr(time.Unix(*src.(*int64), 0)), nil
+		},
+	},
+	{
+		SrcType: int64(0),
+		DstType: &time.Time{},
+		Fn: func(src any) (any, error) {
+			return time.Unix(src.(int64), 0), nil
+		},
+	},
+}
+
+var EntityTypeConverter = []copier.TypeConverter{
+	{
+		SrcType: core.EntityType(0),
+		DstType: entity.EntityType(fmt.Sprint(0)),
+		Fn: func(src any) (any, error) {
+			return entity.EntityType(
+				core.EntityType_name[int32(src.(core.EntityType).Number())],
+			), nil
+		},
+	},
+	{
+		SrcType: entity.EntityType(fmt.Sprint(0)),
+		DstType: core.EntityType(0),
+		Fn: func(src any) (any, error) {
+			return core.EntityType(
+				core.EntityType_value[string(src.(entity.EntityType))],
+			), nil
 		},
 	},
 }

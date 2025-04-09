@@ -139,7 +139,6 @@ type ComplexityRoot struct {
 	HabitLog struct {
 		HabitID   func(childComplexity int) int
 		ID        func(childComplexity int) int
-		Percent   func(childComplexity int) int
 		Timestamp func(childComplexity int) int
 		Value     func(childComplexity int) int
 	}
@@ -195,7 +194,7 @@ type ComplexityRoot struct {
 		Characters               func(childComplexity int) int
 		CurrentTimeTracking      func(childComplexity int) int
 		Goals                    func(childComplexity int, status *entity.GoalStatus) int
-		HabitLogs                func(childComplexity int, habitID string, startTime time.Time, endTime time.Time) int
+		HabitLogs                func(childComplexity int, habitID *string, startTime time.Time, endTime time.Time) int
 		Habits                   func(childComplexity int) int
 		Metrics                  func(childComplexity int) int
 		Profile                  func(childComplexity int) int
@@ -302,7 +301,7 @@ type QueryResolver interface {
 	Metrics(ctx context.Context) ([]entity.Metric, error)
 	Categories(ctx context.Context) ([]entity.Category, error)
 	Habits(ctx context.Context) ([]entity.Habit, error)
-	HabitLogs(ctx context.Context, habitID string, startTime time.Time, endTime time.Time) ([]entity.HabitLog, error)
+	HabitLogs(ctx context.Context, habitID *string, startTime time.Time, endTime time.Time) ([]entity.HabitLog, error)
 	CurrentTimeTracking(ctx context.Context) (*entity.TimeTracking, error)
 	TotalCurrentTimeTracking(ctx context.Context, timestamp time.Time) (int, error)
 	Tasks(ctx context.Context) ([]entity.Task, error)
@@ -706,13 +705,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.HabitLog.ID(childComplexity), true
 
-	case "HabitLog.percent":
-		if e.complexity.HabitLog.Percent == nil {
-			break
-		}
-
-		return e.complexity.HabitLog.Percent(childComplexity), true
-
 	case "HabitLog.timestamp":
 		if e.complexity.HabitLog.Timestamp == nil {
 			break
@@ -1114,7 +1106,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.HabitLogs(childComplexity, args["habitID"].(string), args["startTime"].(time.Time), args["endTime"].(time.Time)), true
+		return e.complexity.Query.HabitLogs(childComplexity, args["habitID"].(*string), args["startTime"].(time.Time), args["endTime"].(time.Time)), true
 
 	case "Query.habits":
 		if e.complexity.Query.Habits == nil {
@@ -1888,10 +1880,10 @@ func (ec *executionContext) field_Query_goals_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Query_habitLogs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 *string
 	if tmp, ok := rawArgs["habitID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("habitID"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4484,50 +4476,6 @@ func (ec *executionContext) fieldContext_HabitLog_value(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _HabitLog_percent(ctx context.Context, field graphql.CollectedField, obj *entity.HabitLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_HabitLog_percent(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Percent, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_HabitLog_percent(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "HabitLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Metric_id(ctx context.Context, field graphql.CollectedField, obj *entity.Metric) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Metric_id(ctx, field)
 	if err != nil {
@@ -5778,8 +5726,6 @@ func (ec *executionContext) fieldContext_Mutation_upsertHabitLog(ctx context.Con
 				return ec.fieldContext_HabitLog_timestamp(ctx, field)
 			case "value":
 				return ec.fieldContext_HabitLog_value(ctx, field)
-			case "percent":
-				return ec.fieldContext_HabitLog_percent(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type HabitLog", field.Name)
 		},
@@ -7139,7 +7085,7 @@ func (ec *executionContext) _Query_habitLogs(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().HabitLogs(rctx, fc.Args["habitID"].(string), fc.Args["startTime"].(time.Time), fc.Args["endTime"].(time.Time))
+		return ec.resolvers.Query().HabitLogs(rctx, fc.Args["habitID"].(*string), fc.Args["startTime"].(time.Time), fc.Args["endTime"].(time.Time))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7172,8 +7118,6 @@ func (ec *executionContext) fieldContext_Query_habitLogs(ctx context.Context, fi
 				return ec.fieldContext_HabitLog_timestamp(ctx, field)
 			case "value":
 				return ec.fieldContext_HabitLog_value(ctx, field)
-			case "percent":
-				return ec.fieldContext_HabitLog_percent(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type HabitLog", field.Name)
 		},
@@ -12057,11 +12001,6 @@ func (ec *executionContext) _HabitLog(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "value":
 			out.Values[i] = ec._HabitLog_value(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "percent":
-			out.Values[i] = ec._HabitLog_percent(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

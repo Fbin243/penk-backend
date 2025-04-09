@@ -8,13 +8,14 @@ import (
 	"tenkhours/pkg/utils"
 	"tenkhours/proto/pb/core"
 	"tenkhours/services/core/entity"
+	"tenkhours/services/core/transport/rpc"
 
-	"github.com/jinzhu/copier"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
-var character = &entity.Character{
+// Entity
+var character = entity.Character{
 	BaseEntity: &base.BaseEntity{
 		ID:        mongodb.GenObjectID(),
 		CreatedAt: utils.Now(),
@@ -24,40 +25,17 @@ var character = &entity.Character{
 	Name:      "Character name",
 }
 
-var category = entity.Category{
-	BaseEntity: &base.BaseEntity{
-		ID:        mongodb.GenObjectID(),
-		CreatedAt: utils.Now(),
-		UpdatedAt: utils.Now(),
-	},
-	CharacterID: character.ID,
-	Name:        "Category name",
-	Description: "Category desc",
-	Style: entity.CategoryStyle{
-		Color: "#000000",
-		Icon:  "icon.png",
-	},
-}
-
-var metric = entity.Metric{
-	BaseEntity: &base.BaseEntity{
-		ID:        mongodb.GenObjectID(),
-		CreatedAt: utils.Now(),
-		UpdatedAt: utils.Now(),
-	},
-	CharacterID: character.ID,
-	CategoryID:  lo.ToPtr(category.ID),
-	Name:        "Metric name",
-	Value:       1.0,
-	Unit:        "unit",
+// RPC Input
+var rpcCharacterInput = &core.CharacterInput{
+	Id:   lo.ToPtr(mongodb.GenObjectID()),
+	Name: "Character name",
 }
 
 func TestMapCharacter(t *testing.T) {
-	rpcCharacter := &core.Character{}
-	copier.Copy(rpcCharacter, character)
-	rpcCharacter.CreatedAt = character.CreatedAt.Unix()
-	rpcCharacter.UpdatedAt = character.UpdatedAt.Unix()
+	rpcCharacter, err := rpc.MapEntityToRPC[entity.Character, core.Character](&character, rpc.UnixTimeConverter)
+	assert.NoError(t, err)
 
+	// Assert
 	assert.Equal(t, character.ID, rpcCharacter.Id)
 	assert.Equal(t, character.CreatedAt.Unix(), rpcCharacter.CreatedAt)
 	assert.Equal(t, character.UpdatedAt.Unix(), rpcCharacter.UpdatedAt)
@@ -65,17 +43,11 @@ func TestMapCharacter(t *testing.T) {
 	assert.Equal(t, character.Name, rpcCharacter.Name)
 }
 
-var rpcCharacterInput = &core.CharacterInput{
-	Id:     lo.ToPtr(mongodb.GenObjectID()),
-	Name:   "Example",
-	Gender: false,
-	Tags:   []string{"#tag1", "#tag2"},
-}
-
 func TestMapCharacterInput(t *testing.T) {
-	entityCharacterInput := &entity.CharacterInput{}
-	copier.Copy(entityCharacterInput, rpcCharacterInput)
+	characterInput, err := rpc.MapRPCInputToEntityInput[core.CharacterInput, entity.CharacterInput](rpcCharacterInput, rpc.UnixTimeConverter)
+	assert.NoError(t, err)
 
-	assert.Equal(t, entityCharacterInput.ID, rpcCharacterInput.Id)
-	assert.Equal(t, entityCharacterInput.Name, rpcCharacterInput.Name)
+	// Assert
+	assert.Equal(t, rpcCharacterInput.Id, characterInput.ID)
+	assert.Equal(t, rpcCharacterInput.Name, characterInput.Name)
 }
