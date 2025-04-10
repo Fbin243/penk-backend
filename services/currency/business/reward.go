@@ -14,13 +14,11 @@ import (
 
 type RewardBusiness struct {
 	RewardRepo IRewardRepo
-	CoreClient ICoreClient
 }
 
-func NewRewardBusiness(RewardRepo IRewardRepo, coreClient ICoreClient) *RewardBusiness {
+func NewRewardBusiness(RewardRepo IRewardRepo) *RewardBusiness {
 	return &RewardBusiness{
 		RewardRepo: RewardRepo,
-		CoreClient: coreClient,
 	}
 }
 

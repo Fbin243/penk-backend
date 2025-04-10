@@ -190,3 +190,7 @@ type ICurrencyClient interface {
 type INotificationClient interface {
 	SendNotification(ctx context.Context, req *entity.SendNotiReq) (bool, error)
 }
+
+type IRewardRepo interface {
+	DeleteReward(ctx context.Context, profileID string) error
+}

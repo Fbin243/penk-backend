@@ -80,3 +80,21 @@ func (r *RewardRepo) UpdateReward(ctx context.Context, profileID string, streakC
 
 	return &updatedReward, nil
 }
+
+func (r *RewardRepo) DeleteReward(ctx context.Context, profileID string) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"profile_id": mongodb.ToObjectID(profileID)}
+
+	var deletedReward entity.Reward
+	err := r.Collection.FindOneAndDelete(ctx, filter).Decode(&deletedReward)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil
+		}
+		return fmt.Errorf("failed to delete reward: %w", err)
+	}
+
+	return nil
+}

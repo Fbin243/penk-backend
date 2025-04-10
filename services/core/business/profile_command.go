@@ -132,11 +132,11 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 		return nil, err
 	}
 
-	// TODO: @Namiscrea7or refactor later after the usecase of currency is clear
-	// err = biz.CurrencyClient.DeleteFish(ctx, authSession.ProfileID)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	// Delete rewards
+	err = biz.RewardRepo.DeleteReward(ctx, authSession.ProfileID)
+	if err != nil {
+		return nil, err
+	}
 
 	// Delete the profile in database
 	profile, err = biz.ProfileRepo.FindAndDeleteByID(ctx, authSession.ProfileID)

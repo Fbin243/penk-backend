@@ -14,6 +14,7 @@ type ProfileBusiness struct {
 	TaskSessionRepo  ITaskSessionRepo
 	CurrencyClient   ICurrencyClient
 	Cache            ICache
+	RewardRepo       IRewardRepo
 }
 
 func NewProfileBusiness(
@@ -30,6 +31,7 @@ func NewProfileBusiness(
 	taskSessionRepo ITaskSessionRepo,
 	currencyClient ICurrencyClient,
 	cache ICache,
+	rewardRepo IRewardRepo,
 ) *ProfileBusiness {
 	return &ProfileBusiness{
 		permBiz:          permBiz,
@@ -45,5 +47,6 @@ func NewProfileBusiness(
 		TaskSessionRepo:  taskSessionRepo,
 		CurrencyClient:   currencyClient,
 		Cache:            cache,
+		RewardRepo:       rewardRepo,
 	}
 }
