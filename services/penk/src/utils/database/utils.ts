@@ -209,7 +209,7 @@ export const getLinkedAccounts = async (profileId: string) => {
     }
   }
 
-  await redisClient.set(`linked_accounts:${profileId}`, JSON.stringify(linkedAccounts), {
+  redisClient.set(`linked_accounts:${profileId}`, JSON.stringify(linkedAccounts), {
     EX: 60 * 50, // 50 minutes
   });
 

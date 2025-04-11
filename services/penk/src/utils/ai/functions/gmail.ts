@@ -37,6 +37,12 @@ export const functionGetMails = async (props: { profileId: string; q: string }) 
     (linkedAccount) => linkedAccount.type === LinkedAccountType.Gmail,
   );
 
+  if (linkedAccounts.length === 0) {
+    throw new Error(
+      'No linked Gmail accounts found. Please ask user to go to App Settings, click on the "Linked Accounts" button, and link their Gmail account.',
+    );
+  }
+
   const messageFetchPromises = linkedAccounts.map(async (linkedAccount) => {
     try {
       const messages = await getMails({

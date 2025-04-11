@@ -2,8 +2,9 @@ import express from "express";
 import { readFileSync } from "fs";
 
 import { OAuthTokenModel } from "../../utils/database/mongo";
+import { getRedisClient } from "../../utils/database/redis";
 import { getAuthResult } from "../../utils/googleapis";
-import { LinkedAccountType } from "../../utils/types";
+import { LinkedAccount, LinkedAccountType } from "../../utils/types";
 import { encrypt } from "./../../utils/encrypt";
 
 const app = express();
@@ -47,11 +48,25 @@ app.get("/oauth_redirect", async (req, res) => {
       return res.status(400).send("Failed to link account");
     }
 
-    await OAuthTokenModel.findOneAndUpdate(
+    const newAccount = await OAuthTokenModel.findOneAndUpdate(
       { profile_id: state, email: authResult.email, type: getTypeFromScope(scope.toString()) },
       { refresh_token: encrypt(authResult.refreshToken) },
-      { upsert: true },
+      { upsert: true, new: true },
     );
+
+    // Update the Redis cache
+    const redisClient = await getRedisClient();
+    const currentCache = await redisClient.get(`linked_accounts:${state}`);
+    if (currentCache) {
+      const linkedAccounts = JSON.parse(currentCache) as LinkedAccount[];
+      linkedAccounts.push({
+        id: newAccount._id.toString(),
+        email: newAccount.email,
+        type: newAccount.type,
+        accessToken: authResult.accessToken || "",
+      });
+      await redisClient.set(`linked_accounts:${state}`, JSON.stringify(linkedAccounts));
+    }
 
     res.send(authSuccessHtml);
   } catch (error) {

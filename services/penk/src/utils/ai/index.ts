@@ -88,7 +88,14 @@ export const textChatStream = async (
 
       for (const toolCall of Object.values(currentToolCalls)) {
         const args = JSON.parse(toolCall.function!.arguments!);
-        const result = await callFunction(toolCall.function!.name as FunctionName, args);
+
+        let result: unknown;
+        try {
+          result = await callFunction(toolCall.function!.name as FunctionName, args);
+        } catch (error) {
+          result = error.message || error;
+          console.error("Error calling function:", result);
+        }
 
         newMessages.push({
           role: "assistant",
@@ -178,7 +185,13 @@ export const audioChat = async (
         const fnName = toolCall.function.name as FunctionName;
         const args = JSON.parse(toolCall.function.arguments || "{}");
 
-        const result = await callFunction(fnName, args);
+        let result: unknown;
+        try {
+          result = await callFunction(fnName, args);
+        } catch (error) {
+          result = error.message || error;
+          console.error("Error calling function:", result);
+        }
 
         openAiMessages.push({
           role: "assistant",

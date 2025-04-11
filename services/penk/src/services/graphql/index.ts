@@ -4,10 +4,11 @@ import { readFileSync } from "fs";
 import { resolve } from "path";
 
 import { OAuthTokenModel, PenKContextModel } from "../../utils/database/mongo";
+import { getRedisClient } from "../../utils/database/redis";
 import { getLinkedAccounts, getPenKMessages, getProfileByEmail } from "../../utils/database/utils";
 import { decodeFirebaseJwt } from "../../utils/firebase";
 import { getGoogleAuthUrl } from "../../utils/googleapis";
-import { Resolvers } from "../../utils/types";
+import { LinkedAccount, Resolvers } from "../../utils/types";
 
 export interface ResolverContext {
   token: string;
@@ -32,7 +33,7 @@ const resolvers: Resolvers = {
           locale: penkContext.locale,
           timezone: penkContext.timezone,
           context: penkContext.context,
-        }
+        };
       }
       return null;
     },
@@ -60,7 +61,7 @@ const resolvers: Resolvers = {
     upsertContext: async (_, args, context) => {
       requireAuth(context);
       const penkContext = await PenKContextModel.findOneAndUpdate(
-        { profile_id: context.profileId },
+        { user_id: context.userId },
         args.input,
         { upsert: true, new: true },
       );
@@ -68,7 +69,20 @@ const resolvers: Resolvers = {
     },
     revokeLinkedAccount: async (_, args, context) => {
       requireAuth(context);
+
       await OAuthTokenModel.deleteOne({ _id: args.id });
+
+      const redisClient = await getRedisClient();
+      const currentCache = await redisClient.get(`linked_accounts:${context.profileId}`);
+      if (currentCache) {
+        const linkedAccounts = JSON.parse(currentCache) as LinkedAccount[];
+        const updatedAccounts = linkedAccounts.filter((account) => account.id !== args.id);
+        await redisClient.set(
+          `linked_accounts:${context.profileId}`,
+          JSON.stringify(updatedAccounts),
+        );
+      }
+
       return true;
     },
   },

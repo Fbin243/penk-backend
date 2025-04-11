@@ -52,6 +52,12 @@ export const functionGetCalendarEvents = async (props: {
     (linkedAccount) => linkedAccount.type === LinkedAccountType.GoogleCalendar,
   );
 
+  if (linkedAccounts.length === 0) {
+    throw new Error(
+      'No linked Google Calendar accounts found. Please ask user to go to App Settings, click on the "Linked Accounts" button, and link their Google Calendar account.',
+    );
+  }
+
   const eventFetchPromises = linkedAccounts.map(async (linkedAccount) => {
     try {
       const events = await getCalendarEvents({
