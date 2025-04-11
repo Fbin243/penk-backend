@@ -218,8 +218,12 @@ func (r *queryResolver) Tasks(ctx context.Context) ([]entity.Task, error) {
 }
 
 // TaskSessions is the resolver for the taskSessions field.
-func (r *queryResolver) TaskSessions(ctx context.Context, taskID *string) ([]entity.TaskSession, error) {
-	return r.TaskBusiness.GetTaskSessions(ctx, taskID)
+func (r *queryResolver) TaskSessions(ctx context.Context, taskID *string, startTime time.Time, endTime time.Time) ([]entity.TaskSession, error) {
+	if startTime.After(endTime) {
+		return nil, errs.NewGQLError(errs.ErrCodeBadRequest, "startTime must be before endTime")
+	}
+
+	return r.TaskBusiness.GetTaskSessions(ctx, taskID, startTime, endTime)
 }
 
 // Mutation returns MutationResolver implementation.

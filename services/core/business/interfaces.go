@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"tenkhours/pkg/db/base"
+	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 
 	rdb "tenkhours/pkg/db/redis"
@@ -66,7 +67,7 @@ type ITaskBusiness interface {
 	GetTasks(ctx context.Context) ([]entity.Task, error)
 	UpsertTask(ctx context.Context, input *entity.TaskInput) (*entity.Task, error)
 	DeleteTask(ctx context.Context, id string) (*entity.Task, error)
-	GetTaskSessions(ctx context.Context, taskID *string) ([]entity.TaskSession, error)
+	GetTaskSessions(ctx context.Context, taskID *string, startTime time.Time, endTime time.Time) ([]entity.TaskSession, error)
 	UpsertTaskSession(ctx context.Context, input *entity.TaskSessionInput) (*entity.TaskSession, error)
 	DeleteTaskSession(ctx context.Context, id string) (*entity.TaskSession, error)
 }
@@ -131,6 +132,8 @@ type ICache interface {
 type IHabitRepo interface {
 	base.IBaseRepo[entity.Habit]
 	CountByCharacterID(ctx context.Context, characterID string) (int, error)
+	CountByCategoryID(ctx context.Context, categoryID string) (int, error)
+	CountUnassigned(ctx context.Context, characterID string) (int, error)
 	Exist(ctx context.Context, characterID, habitID string) error
 	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Habit, error)
 	FindByCharacterIDs(ctx context.Context, characterIDs []string) ([]entity.Habit, error)
@@ -141,8 +144,8 @@ type IHabitRepo interface {
 
 type IHabitLogRepo interface {
 	base.IBaseRepo[entity.HabitLog]
-	FindByHabitID(ctx context.Context, habitID string) ([]entity.HabitLog, error)
-	FindByHabitIDs(ctx context.Context, habitIDs []string) ([]entity.HabitLog, error)
+	FindByHabitID(ctx context.Context, habitID string, timeFilter *types.TimeFilter) ([]entity.HabitLog, error)
+	FindByHabitIDs(ctx context.Context, habitIDs []string, timeFilter *types.TimeFilter) ([]entity.HabitLog, error)
 	UpsertByTimestamp(ctx context.Context, timestamp time.Time, habit *entity.HabitLog) error
 	DeleteByHabitID(ctx context.Context, habitID string) error
 	DeleteByHabitIDs(ctx context.Context, habitIDs []string) error
@@ -165,6 +168,8 @@ type ITimeTrackingRepo interface {
 type ITaskRepo interface {
 	base.IBaseRepo[entity.Task]
 	CountByCharacterID(ctx context.Context, characterID string) (int, error)
+	CountByCategoryID(ctx context.Context, categoryID string) (int, error)
+	CountUnassigned(ctx context.Context, characterID string) (int, error)
 	Exist(ctx context.Context, characterID, taskID string) error
 	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Task, error)
 	FindByCharacterIDs(ctx context.Context, characterIDs []string) ([]entity.Task, error)
@@ -175,8 +180,8 @@ type ITaskRepo interface {
 
 type ITaskSessionRepo interface {
 	base.IBaseRepo[entity.TaskSession]
-	FindByTaskID(ctx context.Context, taskID string) ([]entity.TaskSession, error)
-	FindByTaskIDs(ctx context.Context, taskIDs []string) ([]entity.TaskSession, error)
+	FindByTaskID(ctx context.Context, taskID string, timeFilter *types.TimeFilter) ([]entity.TaskSession, error)
+	FindByTaskIDs(ctx context.Context, taskIDs []string, timeFilter *types.TimeFilter) ([]entity.TaskSession, error)
 	DeleteByTaskID(ctx context.Context, taskID string) error
 	DeleteByTaskIDs(ctx context.Context, taskIDs []string) error
 }

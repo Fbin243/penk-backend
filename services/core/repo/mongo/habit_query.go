@@ -13,6 +13,17 @@ func (r *HabitRepo) CountByCharacterID(ctx context.Context, characterID string) 
 	return r.Count(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
 }
 
+func (r *HabitRepo) CountByCategoryID(ctx context.Context, categoryID string) (int, error) {
+	return r.Count(ctx, bson.M{"category_id": mongodb.ToObjectID(categoryID)})
+}
+
+func (r *HabitRepo) CountUnassigned(ctx context.Context, characterID string) (int, error) {
+	return r.Count(ctx, bson.M{
+		"character_id": mongodb.ToObjectID(characterID),
+		"category_id":  nil,
+	})
+}
+
 func (r *HabitRepo) Exist(ctx context.Context, characterID, habitID string) error {
 	return r.Exists(ctx, bson.M{
 		"_id":          mongodb.ToObjectID(habitID),

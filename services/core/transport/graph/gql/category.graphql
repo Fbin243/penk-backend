@@ -6,6 +6,8 @@ type Category {
   style: CategoryStyle!
   time: Int!
   metricCount: Int!
+  habitCount: Int!
+  taskCount: Int!
 }
 
 type CategoryStyle {

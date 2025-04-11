@@ -10,7 +10,7 @@ type Query {
   currentTimeTracking: TimeTracking
   totalCurrentTimeTracking(timestamp: Time!): Int!
   tasks: [Task!]!
-  taskSessions(taskID: ID): [TaskSession!]!
+  taskSessions(taskID: ID, startTime: Time!, endTime: Time!): [TaskSession!]!
 }
 
 type Mutation {
