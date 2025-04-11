@@ -18,7 +18,7 @@ func main() {
 	r, _ := rrule.NewRRule(rrule.ROption{
 		Freq:    rrule.DAILY,
 		Count:   10,
-		Dtstart: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+		Dtstart: time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC),
 		Until:   time.Date(2025, 12, 31, 0, 0, 0, 0, time.UTC),
 	})
 

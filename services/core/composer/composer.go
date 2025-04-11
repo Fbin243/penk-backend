@@ -6,6 +6,7 @@ import (
 	"tenkhours/services/core/business"
 	mongorepo "tenkhours/services/core/repo/mongo"
 	redisrepo "tenkhours/services/core/repo/redis"
+	rewardrepo "tenkhours/services/currency/repo/mongo"
 
 	"google.golang.org/grpc"
 )
@@ -32,6 +33,8 @@ type Composer struct {
 	CurrencyConn *grpc.ClientConn
 	AnalyticConn *grpc.ClientConn
 	NotiConn     *grpc.ClientConn
+
+	RewardRepo business.IRewardRepo
 }
 
 var composer *Composer
@@ -57,6 +60,7 @@ func GetComposer() *Composer {
 	habitLogRepo := mongorepo.NewHabitLogRepo(mongodb)
 	taskRepo := mongorepo.NewTaskRepo(mongodb)
 	taskSessionRepo := mongorepo.NewTaskSessionRepo(mongodb)
+	rewardRepo := rewardrepo.NewRewardRepo(mongodb)
 
 	// RPC Clients
 	currencyClient, currencyConn := ComposeCurrencyClient()
@@ -64,7 +68,7 @@ func GetComposer() *Composer {
 
 	// Business
 	permBiz := business.NewPermissionBusiness(profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, habitRepo, timetrackingRepo, taskRepo)
-	profileBiz := business.NewProfileBusiness(permBiz, profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, habitRepo, habitLogRepo, timetrackingRepo, taskRepo, taskSessionRepo, currencyClient, redisRepo)
+	profileBiz := business.NewProfileBusiness(permBiz, profileRepo, characterRepo, categoryRepo, metricRepo, goalRepo, habitRepo, habitLogRepo, timetrackingRepo, taskRepo, taskSessionRepo, currencyClient, redisRepo, rewardRepo)
 	characterBiz := business.NewCharacterBusiness(characterRepo, profileRepo, goalRepo, metricRepo, categoryRepo, timetrackingRepo, habitRepo, habitLogRepo, taskRepo, taskSessionRepo, redisRepo)
 	goalBiz := business.NewGoalBusiness(permBiz, goalRepo, characterRepo, categoryRepo, metricRepo)
 	catgoryBiz := business.NewCategoryBusiness(permBiz, categoryRepo, metricRepo, timetrackingRepo, habitRepo, taskRepo)

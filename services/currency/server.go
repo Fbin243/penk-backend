@@ -51,8 +51,6 @@ func main() {
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 
-	defer composer.GetComposer().CoreClientConn.Close()
-
 	port, found := os.LookupEnv("CURRENCY_PORT")
 	if !found {
 		port = "8085"

@@ -16,6 +16,7 @@ type IRewardRepo interface {
 	base.IBaseRepo[entity.Reward]
 	GetRewardByProfileID(ctx context.Context, profileID string) (*entity.Reward, error)
 	UpdateReward(ctx context.Context, profileID string, streakCount, fishCount int32) (*entity.Reward, error)
+	DeleteReward(ctx context.Context, profileID string) error
 }
 
 type ICoreClient interface{}

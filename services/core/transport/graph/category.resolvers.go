@@ -6,12 +6,13 @@ package graph
 
 import (
 	"context"
+	gql "tenkhours/pkg/graphql"
 	"tenkhours/services/core/entity"
 )
 
 // Time is the resolver for the time field.
 func (r *categoryResolver) Time(ctx context.Context, obj *entity.Category) (int, error) {
-	if obj.ID == "unassigned" {
+	if obj.ID == gql.UnassignedID {
 		return r.TimeTrackingRepo.GetTotalTimeOfUnassigned(ctx, obj.CharacterID)
 	}
 
@@ -20,11 +21,29 @@ func (r *categoryResolver) Time(ctx context.Context, obj *entity.Category) (int,
 
 // MetricCount is the resolver for the metricCount field.
 func (r *categoryResolver) MetricCount(ctx context.Context, obj *entity.Category) (int, error) {
-	if obj.ID == "unassigned" {
+	if obj.ID == gql.UnassignedID {
 		return r.MetricRepo.CountUnassigned(ctx, obj.CharacterID)
 	}
 
 	return r.MetricRepo.CountByCategoryID(ctx, obj.ID)
+}
+
+// HabitCount is the resolver for the habitCount field.
+func (r *categoryResolver) HabitCount(ctx context.Context, obj *entity.Category) (int, error) {
+	if obj.ID == gql.UnassignedID {
+		return r.HabitRepo.CountUnassigned(ctx, obj.CharacterID)
+	}
+
+	return r.HabitRepo.CountByCategoryID(ctx, obj.ID)
+}
+
+// TaskCount is the resolver for the taskCount field.
+func (r *categoryResolver) TaskCount(ctx context.Context, obj *entity.Category) (int, error) {
+	if obj.ID == gql.UnassignedID {
+		return r.TaskRepo.CountUnassigned(ctx, obj.CharacterID)
+	}
+
+	return r.TaskRepo.CountByCategoryID(ctx, obj.ID)
 }
 
 // Category returns CategoryResolver implementation.

@@ -68,10 +68,12 @@ type ComplexityRoot struct {
 	Category struct {
 		CharacterID func(childComplexity int) int
 		Description func(childComplexity int) int
+		HabitCount  func(childComplexity int) int
 		ID          func(childComplexity int) int
 		MetricCount func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Style       func(childComplexity int) int
+		TaskCount   func(childComplexity int) int
 		Time        func(childComplexity int) int
 	}
 
@@ -198,7 +200,7 @@ type ComplexityRoot struct {
 		Habits                   func(childComplexity int) int
 		Metrics                  func(childComplexity int) int
 		Profile                  func(childComplexity int) int
-		TaskSessions             func(childComplexity int, taskID *string) int
+		TaskSessions             func(childComplexity int, taskID *string, startTime time.Time, endTime time.Time) int
 		Tasks                    func(childComplexity int) int
 		TotalCurrentTimeTracking func(childComplexity int, timestamp time.Time) int
 		__resolve__service       func(childComplexity int) int
@@ -250,6 +252,8 @@ type ComplexityRoot struct {
 type CategoryResolver interface {
 	Time(ctx context.Context, obj *entity.Category) (int, error)
 	MetricCount(ctx context.Context, obj *entity.Category) (int, error)
+	HabitCount(ctx context.Context, obj *entity.Category) (int, error)
+	TaskCount(ctx context.Context, obj *entity.Category) (int, error)
 }
 type CharacterResolver interface {
 	Time(ctx context.Context, obj *entity.Character) (int, error)
@@ -305,7 +309,7 @@ type QueryResolver interface {
 	CurrentTimeTracking(ctx context.Context) (*entity.TimeTracking, error)
 	TotalCurrentTimeTracking(ctx context.Context, timestamp time.Time) (int, error)
 	Tasks(ctx context.Context) ([]entity.Task, error)
-	TaskSessions(ctx context.Context, taskID *string) ([]entity.TaskSession, error)
+	TaskSessions(ctx context.Context, taskID *string, startTime time.Time, endTime time.Time) ([]entity.TaskSession, error)
 }
 
 type executableSchema struct {
@@ -376,6 +380,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Category.Description(childComplexity), true
 
+	case "Category.habitCount":
+		if e.complexity.Category.HabitCount == nil {
+			break
+		}
+
+		return e.complexity.Category.HabitCount(childComplexity), true
+
 	case "Category.id":
 		if e.complexity.Category.ID == nil {
 			break
@@ -403,6 +414,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Category.Style(childComplexity), true
+
+	case "Category.taskCount":
+		if e.complexity.Category.TaskCount == nil {
+			break
+		}
+
+		return e.complexity.Category.TaskCount(childComplexity), true
 
 	case "Category.time":
 		if e.complexity.Category.Time == nil {
@@ -1139,7 +1157,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.TaskSessions(childComplexity, args["taskID"].(*string)), true
+		return e.complexity.Query.TaskSessions(childComplexity, args["taskID"].(*string), args["startTime"].(time.Time), args["endTime"].(time.Time)), true
 
 	case "Query.tasks":
 		if e.complexity.Query.Tasks == nil {
@@ -1922,6 +1940,24 @@ func (ec *executionContext) field_Query_taskSessions_args(ctx context.Context, r
 		}
 	}
 	args["taskID"] = arg0
+	var arg1 time.Time
+	if tmp, ok := rawArgs["startTime"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
+		arg1, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["startTime"] = arg1
+	var arg2 time.Time
+	if tmp, ok := rawArgs["endTime"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endTime"))
+		arg2, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["endTime"] = arg2
 	return args, nil
 }
 
@@ -2500,6 +2536,94 @@ func (ec *executionContext) _Category_metricCount(ctx context.Context, field gra
 }
 
 func (ec *executionContext) fieldContext_Category_metricCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Category_habitCount(ctx context.Context, field graphql.CollectedField, obj *entity.Category) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Category_habitCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Category().HabitCount(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Category_habitCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Category_taskCount(ctx context.Context, field graphql.CollectedField, obj *entity.Category) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Category_taskCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Category().TaskCount(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Category_taskCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Category",
 		Field:      field,
@@ -4082,6 +4206,10 @@ func (ec *executionContext) fieldContext_Habit_category(_ context.Context, field
 				return ec.fieldContext_Category_time(ctx, field)
 			case "metricCount":
 				return ec.fieldContext_Category_metricCount(ctx, field)
+			case "habitCount":
+				return ec.fieldContext_Category_habitCount(ctx, field)
+			case "taskCount":
+				return ec.fieldContext_Category_taskCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -4655,6 +4783,10 @@ func (ec *executionContext) fieldContext_Metric_category(_ context.Context, fiel
 				return ec.fieldContext_Category_time(ctx, field)
 			case "metricCount":
 				return ec.fieldContext_Category_metricCount(ctx, field)
+			case "habitCount":
+				return ec.fieldContext_Category_habitCount(ctx, field)
+			case "taskCount":
+				return ec.fieldContext_Category_taskCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -5432,6 +5564,10 @@ func (ec *executionContext) fieldContext_Mutation_upsertCategory(ctx context.Con
 				return ec.fieldContext_Category_time(ctx, field)
 			case "metricCount":
 				return ec.fieldContext_Category_metricCount(ctx, field)
+			case "habitCount":
+				return ec.fieldContext_Category_habitCount(ctx, field)
+			case "taskCount":
+				return ec.fieldContext_Category_taskCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -5503,6 +5639,10 @@ func (ec *executionContext) fieldContext_Mutation_deleteCategory(ctx context.Con
 				return ec.fieldContext_Category_time(ctx, field)
 			case "metricCount":
 				return ec.fieldContext_Category_metricCount(ctx, field)
+			case "habitCount":
+				return ec.fieldContext_Category_habitCount(ctx, field)
+			case "taskCount":
+				return ec.fieldContext_Category_taskCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -6996,6 +7136,10 @@ func (ec *executionContext) fieldContext_Query_categories(_ context.Context, fie
 				return ec.fieldContext_Category_time(ctx, field)
 			case "metricCount":
 				return ec.fieldContext_Category_metricCount(ctx, field)
+			case "habitCount":
+				return ec.fieldContext_Category_habitCount(ctx, field)
+			case "taskCount":
+				return ec.fieldContext_Category_taskCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -7330,7 +7474,7 @@ func (ec *executionContext) _Query_taskSessions(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().TaskSessions(rctx, fc.Args["taskID"].(*string))
+		return ec.resolvers.Query().TaskSessions(rctx, fc.Args["taskID"].(*string), fc.Args["startTime"].(time.Time), fc.Args["endTime"].(time.Time))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11361,6 +11505,78 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 					}
 				}()
 				res = ec._Category_metricCount(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "habitCount":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Category_habitCount(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "taskCount":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Category_taskCount(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
