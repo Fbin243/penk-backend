@@ -11,27 +11,15 @@ import (
 )
 
 func (r *TaskSessionRepo) FindByTaskID(ctx context.Context, taskID string, timeFilter *types.TimeFilter) ([]entity.TaskSession, error) {
-	filter := bson.M{"task_id": mongodb.ToObjectID(taskID)}
-	if timeFilter != nil {
-		if timeFilter.StartTime != nil {
-			filter["timestamp"] = bson.M{"$gte": *timeFilter.StartTime}
-		}
-		if timeFilter.EndTime != nil {
-			filter["timestamp"] = bson.M{"$lte": *timeFilter.EndTime}
-		}
-	}
-	return r.FindMany(ctx, filter)
+	return r.FindMany(ctx, bson.M{
+		"task_id":    mongodb.ToObjectID(taskID),
+		"start_time": mongodb.MakeTimeFilter(timeFilter),
+	})
 }
 
 func (r *TaskSessionRepo) FindByTaskIDs(ctx context.Context, taskIDs []string, timeFilter *types.TimeFilter) ([]entity.TaskSession, error) {
-	filter := bson.M{"task_id": bson.M{"$in": mongodb.ToObjectIDs(taskIDs)}}
-	if timeFilter != nil {
-		if timeFilter.StartTime != nil {
-			filter["timestamp"] = bson.M{"$gte": *timeFilter.StartTime}
-		}
-		if timeFilter.EndTime != nil {
-			filter["timestamp"] = bson.M{"$lte": *timeFilter.EndTime}
-		}
-	}
-	return r.FindMany(ctx, filter)
+	return r.FindMany(ctx, bson.M{
+		"task_id":    bson.M{"$in": mongodb.ToObjectIDs(taskIDs)},
+		"start_time": mongodb.MakeTimeFilter(timeFilter),
+	})
 }
