@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"tenkhours/pkg/db/base"
+	"tenkhours/pkg/types"
 
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -42,4 +43,18 @@ func addMissingFields[M base.IBaseEntity](m M, withTimestamp bool) {
 			m.SetUpdatedAtByNow()
 		}
 	}
+}
+
+func MakeTimeFilter(timeFilter *types.TimeFilter) map[string]any {
+	filter := make(map[string]any)
+	if timeFilter != nil {
+		if timeFilter.StartTime != nil {
+			filter["$gte"] = *timeFilter.StartTime
+		}
+		if timeFilter.EndTime != nil {
+			filter["$lte"] = *timeFilter.EndTime
+		}
+	}
+
+	return filter
 }
