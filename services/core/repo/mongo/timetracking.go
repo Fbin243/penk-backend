@@ -37,7 +37,7 @@ func NewTimeTrackingRepo(db *mongo.Database) *TimeTrackingRepo {
 			},
 			{
 				Keys: bson.M{
-					"end_time": 1,
+					"timestamp": 1,
 				},
 			},
 		})

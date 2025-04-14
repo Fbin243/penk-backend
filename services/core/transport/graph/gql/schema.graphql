@@ -7,8 +7,6 @@ type Query {
   categories: [Category!]!
   habits: [Habit!]!
   habitLogs(habitID: ID, startTime: Time!, endTime: Time!): [HabitLog!]!
-  currentTimeTracking: TimeTracking
-  totalCurrentTimeTracking(timestamp: Time!): Int!
   tasks: [Task!]!
   taskSessions(taskID: ID, startTime: Time!, endTime: Time!): [TaskSession!]!
 }
@@ -27,10 +25,9 @@ type Mutation {
   upsertHabit(input: HabitInput!): Habit!
   deleteHabit(id: ID!): Habit!
   upsertHabitLog(input: HabitLogInput!): HabitLog!  
-  createTimeTracking(input: TimeTrackingInput): TimeTracking!
-  updateTimeTracking: TimeTracking!
   upsertTask(input: TaskInput!): Task!
   deleteTask(id: ID!): Task!
   upsertTaskSession(input: TaskSessionInput!): TaskSession!
   deleteTaskSession(id: ID!): TaskSession!
+  upsertTimeTracking(input: TimeTrackingInput!): TimeTracking!
 }

@@ -7,12 +7,13 @@ package graph
 import (
 	"context"
 	"fmt"
+	"time"
+
 	errs "tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 	"tenkhours/services/core/transport/graph/model"
 	"tenkhours/services/core/transport/graph/validations"
-	"time"
 
 	rrule "github.com/teambition/rrule-go"
 )
@@ -118,20 +119,6 @@ func (r *mutationResolver) UpsertHabitLog(ctx context.Context, input entity.Habi
 	return r.HabitBusiness.UpsertHabitLog(ctx, &input)
 }
 
-// CreateTimeTracking is the resolver for the createTimeTracking field.
-func (r *mutationResolver) CreateTimeTracking(ctx context.Context, input *entity.TimeTrackingInput) (*entity.TimeTracking, error) {
-	if (input.ReferenceType == nil) != (input.ReferenceID == nil) {
-		return nil, errs.NewGQLError(errs.ErrCodeBadRequest, "ReferenceType and ReferenceID must be both null or both not null")
-	}
-
-	return r.TimeTrackingBusiness.CreateTimeTracking(ctx, input)
-}
-
-// UpdateTimeTracking is the resolver for the updateTimeTracking field.
-func (r *mutationResolver) UpdateTimeTracking(ctx context.Context) (*entity.TimeTracking, error) {
-	return r.TimeTrackingBusiness.UpdateTimeTracking(ctx)
-}
-
 // UpsertTask is the resolver for the upsertTask field.
 func (r *mutationResolver) UpsertTask(ctx context.Context, input entity.TaskInput) (*entity.Task, error) {
 	return r.TaskBusiness.UpsertTask(ctx, &input)
@@ -150,6 +137,11 @@ func (r *mutationResolver) UpsertTaskSession(ctx context.Context, input entity.T
 // DeleteTaskSession is the resolver for the deleteTaskSession field.
 func (r *mutationResolver) DeleteTaskSession(ctx context.Context, id string) (*entity.TaskSession, error) {
 	return r.TaskBusiness.DeleteTaskSession(ctx, id)
+}
+
+// UpsertTimeTracking is the resolver for the upsertTimeTracking field.
+func (r *mutationResolver) UpsertTimeTracking(ctx context.Context, input entity.TimeTrackingInput) (*entity.TimeTracking, error) {
+	return r.TimeTrackingBusiness.UpsertTimeTracking(ctx, &input)
 }
 
 // Characters is the resolver for the characters field.
@@ -202,16 +194,6 @@ func (r *queryResolver) HabitLogs(ctx context.Context, habitID *string, startTim
 	return r.HabitBusiness.GetHabitLogs(ctx, habitID, startTime, endTime)
 }
 
-// CurrentTimeTracking is the resolver for the currentTimeTracking field.
-func (r *queryResolver) CurrentTimeTracking(ctx context.Context) (*entity.TimeTracking, error) {
-	return r.TimeTrackingBusiness.GetCurrentTimeTracking(ctx)
-}
-
-// TotalCurrentTimeTracking is the resolver for the totalCurrentTimeTracking field.
-func (r *queryResolver) TotalCurrentTimeTracking(ctx context.Context, timestamp time.Time) (int, error) {
-	return r.TimeTrackingBusiness.GetTotalCurrentTimeTracking(ctx, timestamp)
-}
-
 // Tasks is the resolver for the tasks field.
 func (r *queryResolver) Tasks(ctx context.Context) ([]entity.Task, error) {
 	return r.TaskBusiness.GetTasks(ctx)
@@ -232,5 +214,7 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)

@@ -37,3 +37,7 @@ func (r *TimeTrackingRepo) DeleteByCharacterID(ctx context.Context, characterID 
 func (r TimeTrackingRepo) DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error {
 	return r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
 }
+
+func (r TimeTrackingRepo) DeleteByIDs(ctx context.Context, ids []string) error {
+	return r.DeleteMany(ctx, bson.M{"_id": bson.M{"$in": mongodb.ToObjectIDs(ids)}})
+}

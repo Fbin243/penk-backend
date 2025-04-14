@@ -74,7 +74,7 @@ func GetComposer() *Composer {
 	catgoryBiz := business.NewCategoryBusiness(permBiz, categoryRepo, metricRepo, timetrackingRepo, habitRepo, taskRepo)
 	metricBiz := business.NewMetricBusiness(permBiz, metricRepo, categoryRepo)
 	habitBiz := business.NewHabitBusiness(permBiz, habitRepo, habitLogRepo, categoryRepo, timetrackingRepo)
-	timetrackingBiz := business.NewTimeTrackingBusiness(permBiz, notiClient, redisRepo, habitRepo, habitLogRepo, timetrackingRepo)
+	timetrackingBiz := business.NewTimeTrackingBusiness(permBiz, notiClient, habitRepo, habitLogRepo, timetrackingRepo)
 	taskBiz := business.NewTaskBusiness(permBiz, taskRepo, taskSessionRepo, timetrackingRepo)
 
 	return &Composer{

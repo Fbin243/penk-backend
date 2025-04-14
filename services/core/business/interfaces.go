@@ -57,10 +57,7 @@ type IHabitBusiness interface {
 }
 
 type ITimeTrackingBusiness interface {
-	GetCurrentTimeTracking(ctx context.Context) (*entity.TimeTracking, error)
-	GetTotalCurrentTimeTracking(ctx context.Context, timestamp time.Time) (int, error)
-	CreateTimeTracking(ctx context.Context, input *entity.TimeTrackingInput) (*entity.TimeTracking, error)
-	UpdateTimeTracking(ctx context.Context) (*entity.TimeTracking, error)
+	UpsertTimeTracking(ctx context.Context, input *entity.TimeTrackingInput) (*entity.TimeTracking, error)
 }
 
 type ITaskBusiness interface {
@@ -124,9 +121,6 @@ type ICache interface {
 	SetAuthSession(ctx context.Context, profile *entity.Profile, session *rdb.AuthSession) error
 	DeleteAuthSession(ctx context.Context, firebaseUID string) error
 	DeleteProfileData(ctx context.Context, profile *entity.Profile) error
-	GetCurrentTimeTracking(ctx context.Context, profileID string) (*entity.TimeTracking, error)
-	DeleteCurrentTimeTracking(ctx context.Context, profileID string) error
-	CreateTimeTracking(ctx context.Context, profileID string, timeTracking *entity.TimeTracking) error
 }
 
 type IHabitRepo interface {
@@ -163,6 +157,9 @@ type ITimeTrackingRepo interface {
 	UpdateCategoryByReferenceID(ctx context.Context, referenceID string, categoryID *string) error
 	DeleteByCharacterID(ctx context.Context, characterID string) error
 	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
+	FindByReferenceIDAndTimestamp(ctx context.Context, refID string, timestamp time.Time) (*entity.TimeTracking, error)
+	FindByReferenceID(ctx context.Context, referenceID string) ([]entity.TimeTracking, error)
+	DeleteByIDs(ctx context.Context, ids []string) error
 }
 
 type ITaskRepo interface {
