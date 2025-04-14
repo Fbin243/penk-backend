@@ -22,7 +22,7 @@ func ValidateTag(fl validator.FieldLevel) bool {
 
 func ValidateCharacterInput(characterInput entity.CharacterInput) error {
 	validate := GetValidator()
-	validate.RegisterValidation("tags_valid", ValidateTag)
+	_ = validate.RegisterValidation("tags_valid", ValidateTag)
 	if err := validate.Struct(characterInput); err != nil {
 		return err
 	}
