@@ -67,7 +67,7 @@ type ITaskBusiness interface {
 	GetTasks(ctx context.Context) ([]entity.Task, error)
 	UpsertTask(ctx context.Context, input *entity.TaskInput) (*entity.Task, error)
 	DeleteTask(ctx context.Context, id string) (*entity.Task, error)
-	GetTaskSessions(ctx context.Context, taskID *string, startTime time.Time, endTime time.Time) ([]entity.TaskSession, error)
+	GetTaskSessions(ctx context.Context, taskID *string, startTime, endTime time.Time) ([]entity.TaskSession, error)
 	UpsertTaskSession(ctx context.Context, input *entity.TaskSessionInput) (*entity.TaskSession, error)
 	DeleteTaskSession(ctx context.Context, id string) (*entity.TaskSession, error)
 }

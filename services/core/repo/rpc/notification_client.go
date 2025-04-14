@@ -21,9 +21,12 @@ func NewNotificationClient(notiClient notification.NotificationClient) *Notifica
 func (c *NotificationClient) SendNotification(ctx context.Context, req *entity.SendNotiReq) (bool, error) {
 	log.Print("Send request to Notification to send notification ...")
 	notiReq := &notification.SendPushNotificationReq{}
-	copier.Copy(notiReq, req)
+	err := copier.Copy(notiReq, req)
+	if err != nil {
+		return false, err
+	}
 
-	_, err := c.notiClient.SendPushNotification(ctx, notiReq)
+	_, err = c.notiClient.SendPushNotification(ctx, notiReq)
 	if err != nil {
 		return false, err
 	}

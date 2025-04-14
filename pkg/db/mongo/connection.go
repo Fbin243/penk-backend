@@ -28,6 +28,7 @@ var (
 	HabitLogsCollection       = "habit_logs"
 	TasksCollection           = "tasks"
 	TaskSessionsCollection    = "task_sessions"
+	StreamEventsCollection    = "stream_events"
 	FindOneAndUpdateOptions   = options.FindOneAndUpdate().SetReturnDocument(options.After)
 )
 

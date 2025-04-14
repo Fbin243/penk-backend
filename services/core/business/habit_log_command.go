@@ -6,10 +6,11 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
-	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
-	rrulex "tenkhours/pkg/rrule"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
+
+	rdb "tenkhours/pkg/db/redis"
 
 	"github.com/teambition/rrule-go"
 )
@@ -37,7 +38,7 @@ func (b *HabitBusiness) UpsertHabitLog(ctx context.Context, habitLogInput *entit
 
 	// Check if today matches the habit's RRule
 	rule, _ := rrule.StrToRRule(habit.RRule)
-	_, found := rrulex.FindTimestamp(rule, time.Now())
+	_, found := utils.FindTimestamp(rule, time.Now())
 	if !found {
 		return nil, errors.NewGQLError(errors.ErrCodeBadRequest, "habit log is not valid for today")
 	}

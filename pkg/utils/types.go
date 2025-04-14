@@ -5,4 +5,3 @@ type GraphqlQueryData struct {
 	Operation string                 `json:"operationName"`
 	Variables map[string]interface{} `json:"variables"`
 }
-

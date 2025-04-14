@@ -1,4 +1,4 @@
-package rrulex
+package utils
 
 import (
 	"slices"
