@@ -60,7 +60,10 @@ const PenKMessageSchema = new Schema(
 
 PenKMessageSchema.index(
   { timestamp: 1 },
-  { expireAfterSeconds: 60 * 60 * 24, partialFilterExpression: { profile_id: { $exists: true } } },
+  {
+    expireAfterSeconds: 60 * 60 * 24 * 3,
+    partialFilterExpression: { profile_id: { $exists: true } },
+  },
 );
 
 export const PenKMessageModel = conn.model("penk_messages", PenKMessageSchema);
