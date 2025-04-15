@@ -61,6 +61,14 @@ export const initializeWebSocketServer = (): void => {
     setupAuthentication(ws, context, endpoint, endpointHandlers);
   });
 
+  wss.on("close", (code, reason) => {
+    console.log(`🔌 WebSocket closed | code: ${code} | reason: ${reason.toString()}`);
+  });
+
+  wss.on("error", (err) => {
+    console.error("❌ WebSocket error:", err);
+  });
+
   // Start the server
   server.listen(PORT);
 };
