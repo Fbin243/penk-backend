@@ -10,6 +10,7 @@ type Habit {
   value: Float!
   unit: String
   rrule: String
+  reset: HabitReset!
 }
 
 enum CompletionType {
@@ -25,4 +26,11 @@ input HabitInput {
   value: Float!
   unit: String
   rrule: String!
+  reset: HabitReset!
+}
+
+enum HabitReset {
+  Daily
+  Weekly
+  Monthly
 }

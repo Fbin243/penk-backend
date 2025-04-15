@@ -134,6 +134,7 @@ type ComplexityRoot struct {
 		ID             func(childComplexity int) int
 		Name           func(childComplexity int) int
 		RRule          func(childComplexity int) int
+		Reset          func(childComplexity int) int
 		Unit           func(childComplexity int) int
 		UpdatedAt      func(childComplexity int) int
 		Value          func(childComplexity int) int
@@ -682,6 +683,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Habit.RRule(childComplexity), true
+
+	case "Habit.reset":
+		if e.complexity.Habit.Reset == nil {
+			break
+		}
+
+		return e.complexity.Habit.Reset(childComplexity), true
 
 	case "Habit.unit":
 		if e.complexity.Habit.Unit == nil {
@@ -4376,6 +4384,50 @@ func (ec *executionContext) fieldContext_Habit_rrule(_ context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Habit_reset(ctx context.Context, field graphql.CollectedField, obj *entity.Habit) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Habit_reset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Reset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(entity.HabitReset)
+	fc.Result = res
+	return ec.marshalNHabitReset2tenkhoursᚋservicesᚋcoreᚋentityᚐHabitReset(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Habit_reset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Habit",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type HabitReset does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _HabitLog_id(ctx context.Context, field graphql.CollectedField, obj *entity.HabitLog) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_HabitLog_id(ctx, field)
 	if err != nil {
@@ -4408,50 +4460,6 @@ func (ec *executionContext) _HabitLog_id(ctx context.Context, field graphql.Coll
 }
 
 func (ec *executionContext) fieldContext_HabitLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "HabitLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _HabitLog_habitID(ctx context.Context, field graphql.CollectedField, obj *entity.HabitLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_HabitLog_habitID(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.HabitID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_HabitLog_habitID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "HabitLog",
 		Field:      field,
@@ -4503,6 +4511,50 @@ func (ec *executionContext) fieldContext_HabitLog_timestamp(_ context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _HabitLog_habitID(ctx context.Context, field graphql.CollectedField, obj *entity.HabitLog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_HabitLog_habitID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HabitID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_HabitLog_habitID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "HabitLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5670,6 +5722,8 @@ func (ec *executionContext) fieldContext_Mutation_upsertHabit(ctx context.Contex
 				return ec.fieldContext_Habit_unit(ctx, field)
 			case "rrule":
 				return ec.fieldContext_Habit_rrule(ctx, field)
+			case "reset":
+				return ec.fieldContext_Habit_reset(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Habit", field.Name)
 		},
@@ -5749,6 +5803,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteHabit(ctx context.Contex
 				return ec.fieldContext_Habit_unit(ctx, field)
 			case "rrule":
 				return ec.fieldContext_Habit_rrule(ctx, field)
+			case "reset":
+				return ec.fieldContext_Habit_reset(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Habit", field.Name)
 		},
@@ -5808,10 +5864,10 @@ func (ec *executionContext) fieldContext_Mutation_upsertHabitLog(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_HabitLog_id(ctx, field)
-			case "habitID":
-				return ec.fieldContext_HabitLog_habitID(ctx, field)
 			case "timestamp":
 				return ec.fieldContext_HabitLog_timestamp(ctx, field)
+			case "habitID":
+				return ec.fieldContext_HabitLog_habitID(ctx, field)
 			case "value":
 				return ec.fieldContext_HabitLog_value(ctx, field)
 			}
@@ -7096,6 +7152,8 @@ func (ec *executionContext) fieldContext_Query_habits(_ context.Context, field g
 				return ec.fieldContext_Habit_unit(ctx, field)
 			case "rrule":
 				return ec.fieldContext_Habit_rrule(ctx, field)
+			case "reset":
+				return ec.fieldContext_Habit_reset(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Habit", field.Name)
 		},
@@ -7144,10 +7202,10 @@ func (ec *executionContext) fieldContext_Query_habitLogs(ctx context.Context, fi
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_HabitLog_id(ctx, field)
-			case "habitID":
-				return ec.fieldContext_HabitLog_habitID(ctx, field)
 			case "timestamp":
 				return ec.fieldContext_HabitLog_timestamp(ctx, field)
+			case "habitID":
+				return ec.fieldContext_HabitLog_habitID(ctx, field)
 			case "value":
 				return ec.fieldContext_HabitLog_value(ctx, field)
 			}
@@ -10714,7 +10772,7 @@ func (ec *executionContext) unmarshalInputHabitInput(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "categoryID", "completionType", "name", "value", "unit", "rrule"}
+	fieldsInOrder := [...]string{"id", "categoryID", "completionType", "name", "value", "unit", "rrule", "reset"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10770,6 +10828,13 @@ func (ec *executionContext) unmarshalInputHabitInput(ctx context.Context, obj in
 				return it, err
 			}
 			it.RRule = data
+		case "reset":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reset"))
+			data, err := ec.unmarshalNHabitReset2tenkhoursᚋservicesᚋcoreᚋentityᚐHabitReset(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Reset = data
 		}
 	}
 
@@ -10824,13 +10889,20 @@ func (ec *executionContext) unmarshalInputHabitLogInput(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"habitID", "value"}
+	fieldsInOrder := [...]string{"timestamp", "habitID", "value"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "timestamp":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
+			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Timestamp = data
 		case "habitID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("habitID"))
 			data, err := ec.unmarshalNID2string(ctx, v)
@@ -12054,6 +12126,11 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = ec._Habit_unit(ctx, field, obj)
 		case "rrule":
 			out.Values[i] = ec._Habit_rrule(ctx, field, obj)
+		case "reset":
+			out.Values[i] = ec._Habit_reset(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12093,13 +12170,13 @@ func (ec *executionContext) _HabitLog(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "habitID":
-			out.Values[i] = ec._HabitLog_habitID(ctx, field, obj)
+		case "timestamp":
+			out.Values[i] = ec._HabitLog_timestamp(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "timestamp":
-			out.Values[i] = ec._HabitLog_timestamp(ctx, field, obj)
+		case "habitID":
+			out.Values[i] = ec._HabitLog_habitID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -14029,6 +14106,22 @@ func (ec *executionContext) marshalNHabitLog2ᚖtenkhoursᚋservicesᚋcoreᚋen
 func (ec *executionContext) unmarshalNHabitLogInput2tenkhoursᚋservicesᚋcoreᚋentityᚐHabitLogInput(ctx context.Context, v interface{}) (entity.HabitLogInput, error) {
 	res, err := ec.unmarshalInputHabitLogInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNHabitReset2tenkhoursᚋservicesᚋcoreᚋentityᚐHabitReset(ctx context.Context, v interface{}) (entity.HabitReset, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := entity.HabitReset(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNHabitReset2tenkhoursᚋservicesᚋcoreᚋentityᚐHabitReset(ctx context.Context, sel ast.SelectionSet, v entity.HabitReset) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {

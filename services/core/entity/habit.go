@@ -20,4 +20,13 @@ type Habit struct {
 	Value            float64        `json:"value,omitempty" bson:"value"`
 	Unit             *string        `json:"unit,omitempty"  bson:"unit"`
 	RRule            string         `json:"rrule"           bson:"rrule"`
+	Reset            HabitReset     `json:"reset"           bson:"reset"`
 }
+
+type HabitReset string
+
+const (
+	HabitResetDaily   HabitReset = "Daily"
+	HabitResetWeekly  HabitReset = "Weekly"
+	HabitResetMonthly HabitReset = "Monthly"
+)

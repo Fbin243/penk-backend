@@ -2,7 +2,6 @@ package business
 
 import (
 	"context"
-	"time"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
@@ -13,7 +12,6 @@ import (
 	rdb "tenkhours/pkg/db/redis"
 
 	"github.com/samber/lo"
-	"github.com/teambition/rrule-go"
 )
 
 func (b *HabitBusiness) UpsertHabitLog(ctx context.Context, habitLogInput *entity.HabitLogInput) (*entity.HabitLog, error) {
@@ -41,17 +39,10 @@ func (b *HabitBusiness) UpsertHabitLog(ctx context.Context, habitLogInput *entit
 		return nil, err
 	}
 
-	// Check if today matches the habit's RRule
-	rule, _ := rrule.StrToRRule(habit.RRule)
-	_, found := utils.FindTimestamp(rule, time.Now())
-	if !found {
-		return nil, errors.NewGQLError(errors.ErrCodeBadRequest, "habit log is not valid for today")
-	}
-
 	// Check if the habit log already exists for today
 	habitLogs, err := b.habitLogRepo.FindByHabitID(ctx, habitLogInput.HabitID, &entity.HabitLogFilter{
-		StartTime: lo.ToPtr(utils.StartOfDay(time.Now())),
-		EndTime:   lo.ToPtr(utils.EndOfDay(time.Now())),
+		StartTime: lo.ToPtr(utils.StartOfDay(habitLogInput.Timestamp)),
+		EndTime:   lo.ToPtr(utils.EndOfDay(habitLogInput.Timestamp)),
 	}, nil, nil, nil)
 	if err != nil {
 		return nil, err
@@ -62,7 +53,7 @@ func (b *HabitBusiness) UpsertHabitLog(ctx context.Context, habitLogInput *entit
 		habitLog := &entity.HabitLog{
 			BaseEntity: &base.BaseEntity{},
 			HabitID:    habitLogInput.HabitID,
-			Timestamp:  utils.StartOfDay(time.Now()),
+			Timestamp:  utils.StartOfDay(habitLogInput.Timestamp),
 			Value:      habitLogInput.Value,
 		}
 
