@@ -6,6 +6,7 @@ import (
 	"tenkhours/pkg/errors"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Count returns the number of documents in the collection that match the filter.
@@ -54,11 +55,11 @@ func (r *BaseRepo[M, N]) FindOne(ctx context.Context, filter any) (*M, error) {
 }
 
 // FindMany retrieves multiple documents from the collection based on the provided filter.
-func (r *BaseRepo[M, N]) FindMany(ctx context.Context, filter any) ([]M, error) {
+func (r *BaseRepo[M, N]) FindMany(ctx context.Context, filter any, opts ...*options.FindOptions) ([]M, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.Timeout)
 	defer cancel()
 
-	cursor, err := r.Collection.Find(ctx, filter)
+	cursor, err := r.Collection.Find(ctx, filter, opts...)
 	if err != nil {
 		return nil, err
 	}

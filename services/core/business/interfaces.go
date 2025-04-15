@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"tenkhours/pkg/db/base"
-	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 
 	rdb "tenkhours/pkg/db/redis"
@@ -52,22 +51,19 @@ type IHabitBusiness interface {
 	GetHabits(ctx context.Context) ([]entity.Habit, error)
 	UpsertHabit(ctx context.Context, input *entity.HabitInput) (*entity.Habit, error)
 	DeleteHabit(ctx context.Context, id string) (*entity.Habit, error)
-	GetHabitLogs(ctx context.Context, habitID *string, startTime, endTime time.Time) ([]entity.HabitLog, error)
+	GetHabitLogs(ctx context.Context, filter *entity.HabitLogFilter, sort *entity.HabitLogOrderBy, limit, offset *int) ([]entity.HabitLog, error)
 	UpsertHabitLog(ctx context.Context, input *entity.HabitLogInput) (*entity.HabitLog, error)
 }
 
 type ITimeTrackingBusiness interface {
-	GetCurrentTimeTracking(ctx context.Context) (*entity.TimeTracking, error)
-	GetTotalCurrentTimeTracking(ctx context.Context, timestamp time.Time) (int, error)
-	CreateTimeTracking(ctx context.Context, input *entity.TimeTrackingInput) (*entity.TimeTracking, error)
-	UpdateTimeTracking(ctx context.Context) (*entity.TimeTracking, error)
+	UpsertTimeTracking(ctx context.Context, input *entity.TimeTrackingInput) (*entity.TimeTracking, error)
 }
 
 type ITaskBusiness interface {
 	GetTasks(ctx context.Context) ([]entity.Task, error)
 	UpsertTask(ctx context.Context, input *entity.TaskInput) (*entity.Task, error)
 	DeleteTask(ctx context.Context, id string) (*entity.Task, error)
-	GetTaskSessions(ctx context.Context, taskID *string, startTime time.Time, endTime time.Time) ([]entity.TaskSession, error)
+	GetTaskSessions(ctx context.Context, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error)
 	UpsertTaskSession(ctx context.Context, input *entity.TaskSessionInput) (*entity.TaskSession, error)
 	DeleteTaskSession(ctx context.Context, id string) (*entity.TaskSession, error)
 }
@@ -124,9 +120,6 @@ type ICache interface {
 	SetAuthSession(ctx context.Context, profile *entity.Profile, session *rdb.AuthSession) error
 	DeleteAuthSession(ctx context.Context, firebaseUID string) error
 	DeleteProfileData(ctx context.Context, profile *entity.Profile) error
-	GetCurrentTimeTracking(ctx context.Context, profileID string) (*entity.TimeTracking, error)
-	DeleteCurrentTimeTracking(ctx context.Context, profileID string) error
-	CreateTimeTracking(ctx context.Context, profileID string, timeTracking *entity.TimeTracking) error
 }
 
 type IHabitRepo interface {
@@ -144,8 +137,8 @@ type IHabitRepo interface {
 
 type IHabitLogRepo interface {
 	base.IBaseRepo[entity.HabitLog]
-	FindByHabitID(ctx context.Context, habitID string, timeFilter *types.TimeFilter) ([]entity.HabitLog, error)
-	FindByHabitIDs(ctx context.Context, habitIDs []string, timeFilter *types.TimeFilter) ([]entity.HabitLog, error)
+	FindByHabitID(ctx context.Context, habitID string, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit, offset *int) ([]entity.HabitLog, error)
+	FindByHabitIDs(ctx context.Context, habitIDs []string, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit, offset *int) ([]entity.HabitLog, error)
 	UpsertByTimestamp(ctx context.Context, timestamp time.Time, habit *entity.HabitLog) error
 	DeleteByHabitID(ctx context.Context, habitID string) error
 	DeleteByHabitIDs(ctx context.Context, habitIDs []string) error
@@ -163,6 +156,9 @@ type ITimeTrackingRepo interface {
 	UpdateCategoryByReferenceID(ctx context.Context, referenceID string, categoryID *string) error
 	DeleteByCharacterID(ctx context.Context, characterID string) error
 	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
+	FindByReferenceIDAndTimestamp(ctx context.Context, refID string, timestamp time.Time) (*entity.TimeTracking, error)
+	FindByReferenceID(ctx context.Context, referenceID string) ([]entity.TimeTracking, error)
+	DeleteByIDs(ctx context.Context, ids []string) error
 }
 
 type ITaskRepo interface {
@@ -180,8 +176,8 @@ type ITaskRepo interface {
 
 type ITaskSessionRepo interface {
 	base.IBaseRepo[entity.TaskSession]
-	FindByTaskID(ctx context.Context, taskID string, timeFilter *types.TimeFilter) ([]entity.TaskSession, error)
-	FindByTaskIDs(ctx context.Context, taskIDs []string, timeFilter *types.TimeFilter) ([]entity.TaskSession, error)
+	FindByTaskID(ctx context.Context, taskID string, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error)
+	FindByTaskIDs(ctx context.Context, taskIDs []string, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error)
 	DeleteByTaskID(ctx context.Context, taskID string) error
 	DeleteByTaskIDs(ctx context.Context, taskIDs []string) error
 }

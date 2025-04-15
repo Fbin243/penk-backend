@@ -16,8 +16,8 @@ type TimeTracking struct {
 	CategoryOID         *primitive.ObjectID `json:"categoryID,omitempty"    bson:"category_id"`
 	ReferenceOID        *primitive.ObjectID `json:"referenceID,omitempty"   bson:"reference_id"`
 	ReferenceType       *entity.EntityType  `json:"referenceType,omitempty" bson:"reference_type"`
-	StartTime           time.Time           `json:"startTime,omitempty"     bson:"start_time"`
-	EndTime             time.Time           `json:"endTime,omitempty"       bson:"end_time"`
+	Timestamp           time.Time           `json:"timestamp"               bson:"timestamp"`
+	Duration            int                 `json:"duration"                bson:"duration"`
 }
 
 func (t *TimeTracking) CharacterID(id string) {

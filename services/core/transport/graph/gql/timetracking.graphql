@@ -4,8 +4,8 @@ type TimeTracking {
   categoryID: ID
   referenceID: ID
   referenceType: EntityType
-  startTime: Time!
-  endTime: Time
+  timestamp: Time!
+  duration: Int!
 }
 
 enum EntityType {
@@ -14,8 +14,8 @@ enum EntityType {
 }
 
 input TimeTrackingInput {
-  categoryID: ID
-  referenceID: ID
-  referenceType: EntityType
-  startTime: Time!
+  referenceID: ID!
+  referenceType: EntityType!
+  timestamp: Time!
+  duration: Int!
 }

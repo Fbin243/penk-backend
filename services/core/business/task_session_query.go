@@ -2,21 +2,24 @@ package business
 
 import (
 	"context"
-	"time"
 
 	"tenkhours/pkg/auth"
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
-	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 
 	"github.com/samber/lo"
 )
 
-func (b *TaskBusiness) GetTaskSessions(ctx context.Context, taskID *string, startTime, endTime time.Time) ([]entity.TaskSession, error) {
+func (b *TaskBusiness) GetTaskSessions(ctx context.Context, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
+	}
+
+	var taskID *string
+	if filter != nil {
+		taskID = filter.TaskID
 	}
 
 	var taskSessions []entity.TaskSession
@@ -31,10 +34,7 @@ func (b *TaskBusiness) GetTaskSessions(ctx context.Context, taskID *string, star
 			return task.ID
 		})
 
-		taskSessions, err = b.taskSessionRepo.FindByTaskIDs(ctx, taskIDs, &types.TimeFilter{
-			StartTime: lo.ToPtr(startTime),
-			EndTime:   lo.ToPtr(endTime),
-		})
+		taskSessions, err = b.taskSessionRepo.FindByTaskIDs(ctx, taskIDs, filter)
 		if err != nil {
 			return nil, err
 		}
@@ -50,10 +50,7 @@ func (b *TaskBusiness) GetTaskSessions(ctx context.Context, taskID *string, star
 			return nil, err
 		}
 
-		taskSessions, err = b.taskSessionRepo.FindByTaskID(ctx, *taskID, &types.TimeFilter{
-			StartTime: lo.ToPtr(startTime),
-			EndTime:   lo.ToPtr(endTime),
-		})
+		taskSessions, err = b.taskSessionRepo.FindByTaskID(ctx, *taskID, filter)
 		if err != nil {
 			return nil, err
 		}

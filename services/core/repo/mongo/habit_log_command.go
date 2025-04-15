@@ -17,7 +17,7 @@ func (r *HabitLogRepo) UpsertByTimestamp(ctx context.Context, timestamp time.Tim
 
 	err := r.DeleteMany(ctx, bson.M{
 		"habit_id":  mongodb.ToObjectID(habitLog.HabitID),
-		"timestamp": bson.M{"$gte": utils.ResetTimeToBeginningOfDay(timestamp)},
+		"timestamp": bson.M{"$gte": utils.StartOfDay(timestamp)},
 	})
 	if err != nil {
 		return err

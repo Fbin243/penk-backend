@@ -7,9 +7,8 @@ import (
 type CompletionType string
 
 const (
-	CompletionTypeMetric   CompletionType = "Metric"
-	CompletionTypeCheckbox CompletionType = "Checkbox"
-	CompletionTypeTime     CompletionType = "Time"
+	CompletionTypeNumber CompletionType = "Number"
+	CompletionTypeTime   CompletionType = "Time"
 )
 
 type Habit struct {

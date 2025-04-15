@@ -1,6 +1,8 @@
 package mongodb
 
 import (
+	"log"
+
 	"tenkhours/pkg/db/base"
 
 	"github.com/jinzhu/copier"
@@ -8,12 +10,19 @@ import (
 
 func ToMongoEntity[M base.IBaseEntity, N any](entity *M) *N {
 	mongoEntity := new(N)
-	copier.Copy(mongoEntity, entity)
+	err := copier.Copy(mongoEntity, entity)
+	if err != nil {
+		log.Printf("Error copying entity: %v", err)
+	}
+
 	return mongoEntity
 }
 
 func ToEntity[N any, M base.IBaseEntity](mongoEntity *N) *M {
 	entity := new(M)
-	copier.Copy(entity, mongoEntity)
+	err := copier.Copy(entity, mongoEntity)
+	if err != nil {
+		log.Printf("Error copying entity: %v", err)
+	}
 	return entity
 }

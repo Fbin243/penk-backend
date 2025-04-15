@@ -2,10 +2,7 @@ module tenkhours/pkg/graphql
 
 go 1.22.3
 
-require (
-	github.com/99designs/gqlgen v0.17.49
-	go.mongodb.org/mongo-driver v1.17.1
-)
+require github.com/99designs/gqlgen v0.17.49
 
 require (
 	github.com/agnivade/levenshtein v1.2.0 // indirect

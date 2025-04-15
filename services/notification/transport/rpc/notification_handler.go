@@ -25,8 +25,12 @@ func (h *NotificationHandler) SendPushNotification(ctx context.Context, req *not
 	res := &noti.SendPushNotificationResp{Success: false}
 
 	notiReq := &entity.SendNotiReq{}
-	copier.Copy(notiReq, req)
-	_, err := h.notificationBusiness.SendPushNotification(ctx, notiReq)
+	err := copier.Copy(notiReq, req)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = h.notificationBusiness.SendPushNotification(ctx, notiReq)
 	if err != nil {
 		return res, err
 	}

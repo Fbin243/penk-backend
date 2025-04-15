@@ -5,10 +5,36 @@ import (
 	"time"
 
 	mongodb "tenkhours/pkg/db/mongo"
+	"tenkhours/pkg/errors"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+func (r *TimeTrackingRepo) FindByReferenceID(ctx context.Context, referenceID string) ([]entity.TimeTracking, error) {
+	return r.FindMany(ctx, bson.M{
+		"reference_id": mongodb.ToObjectID(referenceID),
+	}, &options.FindOptions{
+		Sort: bson.M{
+			"timestamp": -1,
+		},
+	})
+}
+
+func (r *TimeTrackingRepo) FindByReferenceIDAndTimestamp(ctx context.Context, refID string, timestamp time.Time) (*entity.TimeTracking, error) {
+	timetrack, err := r.FindOne(ctx, bson.M{
+		"reference_id": mongodb.ToObjectID(refID),
+		"timestamp":    bson.M{"$gte": utils.StartOfDay(timestamp), "$lt": utils.EndOfDay(timestamp)},
+	})
+	if err == mongo.ErrNoDocuments {
+		return nil, errors.ErrMongoNotFound
+	}
+
+	return timetrack, err
+}
 
 func (r *TimeTrackingRepo) FindByCharacterID(ctx context.Context, characterID string) ([]entity.TimeTracking, error) {
 	return r.FindMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})

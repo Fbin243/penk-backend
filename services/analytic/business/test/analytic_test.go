@@ -55,8 +55,8 @@ func (s *GetAnalyticResultsSuite) SetupSuite() {
 	})
 	s.filter = entity.GetCapturedRecordFilter{
 		CharacterID: s.characterID,
-		StartTime:   utils.ResetTimeToBeginningOfDay(s.startTime),
-		EndTime:     utils.ResetTimeToBeginningOfDay(s.endTime),
+		StartTime:   utils.StartOfDay(s.startTime),
+		EndTime:     utils.StartOfDay(s.endTime),
 	}
 	s.sections = []entity.AnalyticSection{
 		entity.AnalyticSectionDistribution,

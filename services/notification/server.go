@@ -57,7 +57,9 @@ func main() {
 		port = "8084"
 	}
 
-	app.Run(":" + port)
+	if err := app.Run(":" + port); err != nil {
+		log.Fatalf("failed to run server: %v", err)
+	}
 }
 
 func startRPCServer() {

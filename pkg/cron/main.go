@@ -15,11 +15,11 @@ func NewCron() *Cron {
 }
 
 func (c *Cron) RunDaily(task func()) {
-	c.AddFunc("@daily", task)
+	_, _ = c.AddFunc("@daily", task)
 	c.Start()
 }
 
 func (c *Cron) RunEverySeconds(task func(), seconds int) {
-	c.AddFunc(fmt.Sprintf("@every %ds", seconds), task)
+	_, _ = c.AddFunc(fmt.Sprintf("@every %ds", seconds), task)
 	c.Start()
 }

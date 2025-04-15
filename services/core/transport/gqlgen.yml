@@ -87,6 +87,8 @@ models:
     - github.com/99designs/gqlgen/graphql.Int32
   ErrorCode:
     model: tenkhours/pkg/errors.ErrorCode
+  SortOrder:
+    model: tenkhours/pkg/types.SortOrder
   Profile:
     model: tenkhours/services/core/entity.Profile
   ProfileInput:
@@ -143,6 +145,10 @@ models:
     model: tenkhours/services/core/entity.HabitLog
   HabitLogInput:
     model: tenkhours/services/core/entity.HabitLogInput
+  HabitLogFilter:
+    model: tenkhours/services/core/entity.HabitLogFilter
+  HabitLogOrderBy:
+    model: tenkhours/services/core/entity.HabitLogOrderBy
   TimeTracking:
     model: tenkhours/services/core/entity.TimeTracking
   EntityType:
@@ -157,3 +163,5 @@ models:
     model: tenkhours/services/core/entity.TaskSession
   TaskSessionInput:
     model: tenkhours/services/core/entity.TaskSessionInput
+  TaskSessionFilter:
+    model: tenkhours/services/core/entity.TaskSessionFilter

@@ -1,10 +1,12 @@
 package entity
 
-import "time"
+import (
+	"time"
+)
 
 type TimeTrackingInput struct {
-	CategoryID    *string     `json:"categoryID,omitempty"`
-	ReferenceID   *string     `json:"referenceID,omitempty"`
-	ReferenceType *EntityType `json:"referenceType,omitempty"`
-	StartTime     time.Time   `json:"startTime"`
+	ReferenceID   string     `json:"referenceID,omitempty"`
+	ReferenceType EntityType `json:"referenceType,omitempty"`
+	Timestamp     time.Time  `json:"timestamp,omitempty"`
+	Duration      int        `json:"duration,omitempty"`
 }
