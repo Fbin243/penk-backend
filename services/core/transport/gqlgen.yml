@@ -137,6 +137,8 @@ models:
     fields:
       categoryID:
         resolver: true
+  HabitReset:
+    model: tenkhours/services/core/entity.HabitReset
   CompletionType:
     model: tenkhours/services/core/entity.CompletionType
   HabitInput:
