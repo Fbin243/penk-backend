@@ -7,8 +7,9 @@ import (
 )
 
 type HabitLogInput struct {
-	HabitID string  `json:"habitID"`
-	Value   float64 `json:"value"`
+	Timestamp time.Time `json:"timestamp"`
+	HabitID   string    `json:"habitID"`
+	Value     float64   `json:"value"`
 }
 
 type HabitLogFilter struct {

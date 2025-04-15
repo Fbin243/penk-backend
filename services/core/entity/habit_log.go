@@ -11,5 +11,4 @@ type HabitLog struct {
 	Timestamp        time.Time `json:"timestamp" bson:"timestamp"`
 	HabitID          string    `json:"habitID"   bson:"habit_id"`
 	Value            float64   `json:"value"     bson:"value"`
-	Percent          float64   `json:"percent"   bson:"percent"`
 }
