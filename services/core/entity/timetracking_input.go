@@ -8,5 +8,5 @@ type TimeTrackingInput struct {
 	ReferenceID   string     `json:"referenceID,omitempty"`
 	ReferenceType EntityType `json:"referenceType,omitempty"`
 	Timestamp     time.Time  `json:"timestamp,omitempty"`
-	Duration      int64      `json:"duration,omitempty"`
+	Duration      int        `json:"duration,omitempty"`
 }

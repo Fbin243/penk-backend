@@ -35,11 +35,11 @@ func (biz *analyticBusiness) GetStatAnalytic(ctx context.Context, characterID st
 	}
 
 	if startTime != nil {
-		capturedRecordFilter.StartTime = utils.ResetTimeToBeginningOfDay(*startTime)
+		capturedRecordFilter.StartTime = utils.StartOfDay(*startTime)
 	}
 
 	if endTime != nil {
-		capturedRecordFilter.EndTime = utils.ResetTimeToBeginningOfDay(*endTime)
+		capturedRecordFilter.EndTime = utils.StartOfDay(*endTime)
 	}
 
 	capturedRecords, err := biz.timetrackingRepo.AggregateDailyCapturedRecord(ctx, capturedRecordFilter)

@@ -29,7 +29,7 @@ func (biz *TimeTrackingBusiness) UpsertTimeTracking(ctx context.Context, input *
 		return nil, err
 	}
 
-	// Check if there is a time tracking for today
+	// Check if there is a time tracking in timestamp
 	currentTimeTracking, err := biz.timetrackingRepo.FindByReferenceIDAndTimestamp(ctx, input.ReferenceID, input.Timestamp)
 
 	if err == errors.ErrMongoNotFound {

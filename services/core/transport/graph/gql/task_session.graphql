@@ -13,3 +13,9 @@ input TaskSessionInput {
   endTime: Time!
   completedTime: Time
 }
+
+input TaskSessionFilter {
+  taskID: ID
+  startTime: Time
+  endTime: Time
+}

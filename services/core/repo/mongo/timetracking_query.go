@@ -27,7 +27,7 @@ func (r *TimeTrackingRepo) FindByReferenceID(ctx context.Context, referenceID st
 func (r *TimeTrackingRepo) FindByReferenceIDAndTimestamp(ctx context.Context, refID string, timestamp time.Time) (*entity.TimeTracking, error) {
 	timetrack, err := r.FindOne(ctx, bson.M{
 		"reference_id": mongodb.ToObjectID(refID),
-		"timestamp":    utils.ResetTimeToBeginningOfDay(timestamp),
+		"timestamp":    bson.M{"$gte": utils.StartOfDay(timestamp), "$lt": utils.EndOfDay(timestamp)},
 	})
 	if err == mongo.ErrNoDocuments {
 		return nil, errors.ErrMongoNotFound

@@ -7,7 +7,6 @@ import (
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
 	"tenkhours/pkg/errors"
-	"tenkhours/pkg/types"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 
@@ -33,6 +32,10 @@ func (b *HabitBusiness) UpsertHabitLog(ctx context.Context, habitLogInput *entit
 		return nil, err
 	}
 
+	if habitLogInput.Value < 0 {
+		return nil, errors.NewGQLError(errors.ErrCodeBadRequest, "habit log value must be greater than or equal to 0")
+	}
+
 	habit, err := b.habitRepo.FindByID(ctx, habitLogInput.HabitID)
 	if err != nil {
 		return nil, err
@@ -46,10 +49,10 @@ func (b *HabitBusiness) UpsertHabitLog(ctx context.Context, habitLogInput *entit
 	}
 
 	// Check if the habit log already exists for today
-	habitLogs, err := b.habitLogRepo.FindByHabitID(ctx, habitLogInput.HabitID, &types.TimeFilter{
-		StartTime: lo.ToPtr(utils.ResetTimeToBeginningOfDay(time.Now())),
-		EndTime:   lo.ToPtr(utils.ResetTimeToBeginningOfDay(time.Now())),
-	})
+	habitLogs, err := b.habitLogRepo.FindByHabitID(ctx, habitLogInput.HabitID, &entity.HabitLogFilter{
+		StartTime: lo.ToPtr(utils.StartOfDay(time.Now())),
+		EndTime:   lo.ToPtr(utils.EndOfDay(time.Now())),
+	}, nil, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +62,7 @@ func (b *HabitBusiness) UpsertHabitLog(ctx context.Context, habitLogInput *entit
 		habitLog := &entity.HabitLog{
 			BaseEntity: &base.BaseEntity{},
 			HabitID:    habitLogInput.HabitID,
-			Timestamp:  time.Now(),
+			Timestamp:  utils.StartOfDay(time.Now()),
 			Value:      habitLogInput.Value,
 		}
 
@@ -69,10 +72,10 @@ func (b *HabitBusiness) UpsertHabitLog(ctx context.Context, habitLogInput *entit
 	// Habit log already exists, update the existing one
 	habitLog := habitLogs[0]
 
-	if habitLogInput.Value < habitLog.Value {
-		reduceAmount := int64(habitLog.Value - habitLogInput.Value)
-
-		// Reduce timetrackings duration of this habit
+	// Reduce timetrackings duration of this habit
+	if habit.CompletionType == entity.CompletionTypeTime &&
+		habitLogInput.Value < habitLog.Value {
+		reduceAmount := int(habitLog.Value - habitLogInput.Value)
 		timetrackings, err := b.timetrackingRepo.FindByReferenceID(ctx, habitLog.HabitID)
 		if err != nil {
 			return nil, err
@@ -81,13 +84,12 @@ func (b *HabitBusiness) UpsertHabitLog(ctx context.Context, habitLogInput *entit
 		i := 0
 		removeTimeTrackingIDs := []string{}
 		for i < len(timetrackings) {
-			timetracking := timetrackings[i]
-			if timetracking.Duration > reduceAmount {
-				timetracking.Duration -= reduceAmount
+			if timetrackings[i].Duration > reduceAmount {
+				timetrackings[i].Duration -= reduceAmount
 				break
 			} else {
-				removeTimeTrackingIDs = append(removeTimeTrackingIDs, timetracking.ID)
-				reduceAmount -= timetracking.Duration
+				removeTimeTrackingIDs = append(removeTimeTrackingIDs, timetrackings[i].ID)
+				reduceAmount -= timetrackings[i].Duration
 			}
 			i++
 		}

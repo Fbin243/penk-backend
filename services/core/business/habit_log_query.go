@@ -2,21 +2,24 @@ package business
 
 import (
 	"context"
-	"time"
 
 	"tenkhours/pkg/auth"
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
-	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 
 	"github.com/samber/lo"
 )
 
-func (b *HabitBusiness) GetHabitLogs(ctx context.Context, habitID *string, startTime, endTime time.Time) ([]entity.HabitLog, error) {
+func (b *HabitBusiness) GetHabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit, offset *int) ([]entity.HabitLog, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
+	}
+
+	var habitID *string
+	if filter != nil {
+		habitID = filter.HabitID
 	}
 
 	var habitLogs []entity.HabitLog
@@ -31,10 +34,7 @@ func (b *HabitBusiness) GetHabitLogs(ctx context.Context, habitID *string, start
 			return habit.ID
 		})
 
-		habitLogs, err = b.habitLogRepo.FindByHabitIDs(ctx, habitIDs, &types.TimeFilter{
-			StartTime: lo.ToPtr(startTime),
-			EndTime:   lo.ToPtr(endTime),
-		})
+		habitLogs, err = b.habitLogRepo.FindByHabitIDs(ctx, habitIDs, filter, orderBy, limit, offset)
 		if err != nil {
 			return nil, err
 		}
@@ -50,10 +50,7 @@ func (b *HabitBusiness) GetHabitLogs(ctx context.Context, habitID *string, start
 			return nil, err
 		}
 
-		habitLogs, err = b.habitLogRepo.FindByHabitID(ctx, *habitID, &types.TimeFilter{
-			StartTime: lo.ToPtr(startTime),
-			EndTime:   lo.ToPtr(endTime),
-		})
+		habitLogs, err = b.habitLogRepo.FindByHabitID(ctx, *habitID, filter, orderBy, limit, offset)
 		if err != nil {
 			return nil, err
 		}

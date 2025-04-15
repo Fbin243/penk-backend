@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 	"tenkhours/services/core/transport/graph/model"
 	"time"
@@ -194,11 +195,11 @@ type ComplexityRoot struct {
 		Categories         func(childComplexity int) int
 		Characters         func(childComplexity int) int
 		Goals              func(childComplexity int, status *entity.GoalStatus) int
-		HabitLogs          func(childComplexity int, habitID *string, startTime time.Time, endTime time.Time) int
+		HabitLogs          func(childComplexity int, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit *int, offset *int) int
 		Habits             func(childComplexity int) int
 		Metrics            func(childComplexity int) int
 		Profile            func(childComplexity int) int
-		TaskSessions       func(childComplexity int, taskID *string, startTime time.Time, endTime time.Time) int
+		TaskSessions       func(childComplexity int, filter *entity.TaskSessionFilter) int
 		Tasks              func(childComplexity int) int
 		__resolve__service func(childComplexity int) int
 		__resolve_entities func(childComplexity int, representations []map[string]interface{}) int
@@ -301,9 +302,9 @@ type QueryResolver interface {
 	Metrics(ctx context.Context) ([]entity.Metric, error)
 	Categories(ctx context.Context) ([]entity.Category, error)
 	Habits(ctx context.Context) ([]entity.Habit, error)
-	HabitLogs(ctx context.Context, habitID *string, startTime time.Time, endTime time.Time) ([]entity.HabitLog, error)
+	HabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit *int, offset *int) ([]entity.HabitLog, error)
 	Tasks(ctx context.Context) ([]entity.Task, error)
-	TaskSessions(ctx context.Context, taskID *string, startTime time.Time, endTime time.Time) ([]entity.TaskSession, error)
+	TaskSessions(ctx context.Context, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error)
 }
 
 type executableSchema struct {
@@ -1104,7 +1105,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.HabitLogs(childComplexity, args["habitID"].(*string), args["startTime"].(time.Time), args["endTime"].(time.Time)), true
+		return e.complexity.Query.HabitLogs(childComplexity, args["filter"].(*entity.HabitLogFilter), args["orderBy"].(*entity.HabitLogOrderBy), args["limit"].(*int), args["offset"].(*int)), true
 
 	case "Query.habits":
 		if e.complexity.Query.Habits == nil {
@@ -1137,7 +1138,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.TaskSessions(childComplexity, args["taskID"].(*string), args["startTime"].(time.Time), args["endTime"].(time.Time)), true
+		return e.complexity.Query.TaskSessions(childComplexity, args["filter"].(*entity.TaskSessionFilter)), true
 
 	case "Query.tasks":
 		if e.complexity.Query.Tasks == nil {
@@ -1362,11 +1363,14 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputGoalInput,
 		ec.unmarshalInputGoalMetricInput,
 		ec.unmarshalInputHabitInput,
+		ec.unmarshalInputHabitLogFilter,
 		ec.unmarshalInputHabitLogInput,
+		ec.unmarshalInputHabitLogOrderBy,
 		ec.unmarshalInputMetricInput,
 		ec.unmarshalInputProfileInput,
 		ec.unmarshalInputRangeInput,
 		ec.unmarshalInputTaskInput,
+		ec.unmarshalInputTaskSessionFilter,
 		ec.unmarshalInputTaskSessionInput,
 		ec.unmarshalInputTimeTrackingInput,
 	)
@@ -1866,66 +1870,57 @@ func (ec *executionContext) field_Query_goals_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Query_habitLogs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["habitID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("habitID"))
-		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+	var arg0 *entity.HabitLogFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOHabitLogFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐHabitLogFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["habitID"] = arg0
-	var arg1 time.Time
-	if tmp, ok := rawArgs["startTime"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
-		arg1, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
+	args["filter"] = arg0
+	var arg1 *entity.HabitLogOrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg1, err = ec.unmarshalOHabitLogOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐHabitLogOrderBy(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["startTime"] = arg1
-	var arg2 time.Time
-	if tmp, ok := rawArgs["endTime"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endTime"))
-		arg2, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
+	args["orderBy"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["endTime"] = arg2
+	args["limit"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg3
 	return args, nil
 }
 
 func (ec *executionContext) field_Query_taskSessions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["taskID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("taskID"))
-		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+	var arg0 *entity.TaskSessionFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOTaskSessionFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTaskSessionFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["taskID"] = arg0
-	var arg1 time.Time
-	if tmp, ok := rawArgs["startTime"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
-		arg1, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["startTime"] = arg1
-	var arg2 time.Time
-	if tmp, ok := rawArgs["endTime"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endTime"))
-		arg2, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["endTime"] = arg2
+	args["filter"] = arg0
 	return args, nil
 }
 
@@ -7122,7 +7117,7 @@ func (ec *executionContext) _Query_habitLogs(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().HabitLogs(rctx, fc.Args["habitID"].(*string), fc.Args["startTime"].(time.Time), fc.Args["endTime"].(time.Time))
+		return ec.resolvers.Query().HabitLogs(rctx, fc.Args["filter"].(*entity.HabitLogFilter), fc.Args["orderBy"].(*entity.HabitLogOrderBy), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7255,7 +7250,7 @@ func (ec *executionContext) _Query_taskSessions(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().TaskSessions(rctx, fc.Args["taskID"].(*string), fc.Args["startTime"].(time.Time), fc.Args["endTime"].(time.Time))
+		return ec.resolvers.Query().TaskSessions(rctx, fc.Args["filter"].(*entity.TaskSessionFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8606,9 +8601,9 @@ func (ec *executionContext) _TimeTracking_duration(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int64)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNInt2int64(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TimeTracking_duration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10781,6 +10776,47 @@ func (ec *executionContext) unmarshalInputHabitInput(ctx context.Context, obj in
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputHabitLogFilter(ctx context.Context, obj interface{}) (entity.HabitLogFilter, error) {
+	var it entity.HabitLogFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"habitID", "startTime", "endTime"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "habitID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("habitID"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HabitID = data
+		case "startTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StartTime = data
+		case "endTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endTime"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EndTime = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputHabitLogInput(ctx context.Context, obj interface{}) (entity.HabitLogInput, error) {
 	var it entity.HabitLogInput
 	asMap := map[string]interface{}{}
@@ -10809,6 +10845,33 @@ func (ec *executionContext) unmarshalInputHabitLogInput(ctx context.Context, obj
 				return it, err
 			}
 			it.Value = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputHabitLogOrderBy(ctx context.Context, obj interface{}) (entity.HabitLogOrderBy, error) {
+	var it entity.HabitLogOrderBy
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"timestamp"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "timestamp":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
+			data, err := ec.unmarshalOSortOrder2ᚖtenkhoursᚋpkgᚋtypesᚐSortOrder(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Timestamp = data
 		}
 	}
 
@@ -11021,6 +11084,47 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTaskSessionFilter(ctx context.Context, obj interface{}) (entity.TaskSessionFilter, error) {
+	var it entity.TaskSessionFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"taskID", "startTime", "endTime"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "taskID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("taskID"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TaskID = data
+		case "startTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StartTime = data
+		case "endTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endTime"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EndTime = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTaskSessionInput(ctx context.Context, obj interface{}) (entity.TaskSessionInput, error) {
 	var it entity.TaskSessionInput
 	asMap := map[string]interface{}{}
@@ -11113,7 +11217,7 @@ func (ec *executionContext) unmarshalInputTimeTrackingInput(ctx context.Context,
 			it.Timestamp = data
 		case "duration":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("duration"))
-			data, err := ec.unmarshalNInt2int64(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -13957,21 +14061,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNInt2int64(ctx context.Context, v interface{}) (int64, error) {
-	res, err := graphql.UnmarshalInt64(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNInt2int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
-	res := graphql.MarshalInt64(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
 func (ec *executionContext) marshalNMetric2tenkhoursᚋservicesᚋcoreᚋentityᚐMetric(ctx context.Context, sel ast.SelectionSet, v entity.Metric) graphql.Marshaler {
 	return ec._Metric(ctx, sel, &v)
 }
@@ -14885,6 +14974,22 @@ func (ec *executionContext) marshalOGoalStatus2ᚖtenkhoursᚋservicesᚋcoreᚋ
 	return res
 }
 
+func (ec *executionContext) unmarshalOHabitLogFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐHabitLogFilter(ctx context.Context, v interface{}) (*entity.HabitLogFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputHabitLogFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOHabitLogOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐHabitLogOrderBy(ctx context.Context, v interface{}) (*entity.HabitLogOrderBy, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputHabitLogOrderBy(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -14911,6 +15016,22 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
+}
+
 func (ec *executionContext) marshalORange2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐRange(ctx context.Context, sel ast.SelectionSet, v *entity.Range) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -14924,6 +15045,23 @@ func (ec *executionContext) unmarshalORangeInput2ᚖtenkhoursᚋservicesᚋcore�
 	}
 	res, err := ec.unmarshalInputRangeInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOSortOrder2ᚖtenkhoursᚋpkgᚋtypesᚐSortOrder(ctx context.Context, v interface{}) (*types.SortOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	tmp, err := graphql.UnmarshalString(v)
+	res := types.SortOrder(tmp)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOSortOrder2ᚖtenkhoursᚋpkgᚋtypesᚐSortOrder(ctx context.Context, sel ast.SelectionSet, v *types.SortOrder) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalString(string(*v))
+	return res
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
@@ -14988,6 +15126,14 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOTaskSessionFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTaskSessionFilter(ctx context.Context, v interface{}) (*entity.TaskSessionFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTaskSessionFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {

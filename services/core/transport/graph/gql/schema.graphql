@@ -6,9 +6,9 @@ type Query {
   metrics: [Metric!]!
   categories: [Category!]!
   habits: [Habit!]!
-  habitLogs(habitID: ID, startTime: Time!, endTime: Time!): [HabitLog!]!
+  habitLogs(filter: HabitLogFilter, orderBy: HabitLogOrderBy, limit: Int, offset: Int): [HabitLog!]!
   tasks: [Task!]!
-  taskSessions(taskID: ID, startTime: Time!, endTime: Time!): [TaskSession!]!
+  taskSessions(filter: TaskSessionFilter): [TaskSession!]!
 }
 
 type Mutation {

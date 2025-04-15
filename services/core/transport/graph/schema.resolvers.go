@@ -7,8 +7,6 @@ package graph
 import (
 	"context"
 	"fmt"
-	"time"
-
 	errs "tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
@@ -186,12 +184,8 @@ func (r *queryResolver) Habits(ctx context.Context) ([]entity.Habit, error) {
 }
 
 // HabitLogs is the resolver for the habitLogs field.
-func (r *queryResolver) HabitLogs(ctx context.Context, habitID *string, startTime time.Time, endTime time.Time) ([]entity.HabitLog, error) {
-	if startTime.After(endTime) {
-		return nil, errs.NewGQLError(errs.ErrCodeBadRequest, "startTime must be before endTime")
-	}
-
-	return r.HabitBusiness.GetHabitLogs(ctx, habitID, startTime, endTime)
+func (r *queryResolver) HabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit *int, offset *int) ([]entity.HabitLog, error) {
+	return r.HabitBusiness.GetHabitLogs(ctx, filter, orderBy, limit, offset)
 }
 
 // Tasks is the resolver for the tasks field.
@@ -200,12 +194,8 @@ func (r *queryResolver) Tasks(ctx context.Context) ([]entity.Task, error) {
 }
 
 // TaskSessions is the resolver for the taskSessions field.
-func (r *queryResolver) TaskSessions(ctx context.Context, taskID *string, startTime time.Time, endTime time.Time) ([]entity.TaskSession, error) {
-	if startTime.After(endTime) {
-		return nil, errs.NewGQLError(errs.ErrCodeBadRequest, "startTime must be before endTime")
-	}
-
-	return r.TaskBusiness.GetTaskSessions(ctx, taskID, startTime, endTime)
+func (r *queryResolver) TaskSessions(ctx context.Context, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error) {
+	return r.TaskBusiness.GetTaskSessions(ctx, filter)
 }
 
 // Mutation returns MutationResolver implementation.
@@ -214,7 +204,5 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type (
-	mutationResolver struct{ *Resolver }
-	queryResolver    struct{ *Resolver }
-)
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

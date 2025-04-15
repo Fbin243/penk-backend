@@ -13,5 +13,5 @@ type TimeTracking struct {
 	ReferenceID      *string     `json:"referenceID,omitempty"   bson:"reference_id,omitempty"`
 	ReferenceType    *EntityType `json:"referenceType,omitempty" bson:"reference_type,omitempty"`
 	Timestamp        time.Time   `json:"timestamp,omitempty"     bson:"timestamp"`
-	Duration         int64       `json:"duration,omitempty"      bson:"duration"`
+	Duration         int         `json:"duration,omitempty"      bson:"duration"`
 }
