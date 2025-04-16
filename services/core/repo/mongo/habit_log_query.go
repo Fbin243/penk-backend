@@ -2,6 +2,7 @@ package mongorepo
 
 import (
 	"context"
+	"time"
 
 	mongodb "tenkhours/pkg/db/mongo"
 	"tenkhours/services/core/entity"
@@ -19,10 +20,10 @@ func (r *HabitLogRepo) FindByHabitID(ctx context.Context, habitID string, filter
 		mongoFilter["timestamp"] = bson.M{}
 
 		if filter.StartTime != nil {
-			mongoFilter["timestamp"].(bson.M)["$gte"] = filter.StartTime
+			mongoFilter["timestamp"].(bson.M)["$gte"] = filter.StartTime.Format(time.DateOnly)
 		}
 		if filter.EndTime != nil {
-			mongoFilter["timestamp"].(bson.M)["$lte"] = filter.EndTime
+			mongoFilter["timestamp"].(bson.M)["$lte"] = filter.EndTime.Format(time.DateOnly)
 		}
 	}
 
@@ -53,10 +54,10 @@ func (r *HabitLogRepo) FindByHabitIDs(ctx context.Context, habitIDs []string, fi
 		mongoFilter["timestamp"] = bson.M{}
 
 		if filter.StartTime != nil {
-			mongoFilter["timestamp"].(bson.M)["$gte"] = filter.StartTime
+			mongoFilter["timestamp"].(bson.M)["$gte"] = filter.StartTime.Format(time.DateOnly)
 		}
 		if filter.EndTime != nil {
-			mongoFilter["timestamp"].(bson.M)["$lte"] = filter.EndTime
+			mongoFilter["timestamp"].(bson.M)["$lte"] = filter.EndTime.Format(time.DateOnly)
 		}
 	}
 
