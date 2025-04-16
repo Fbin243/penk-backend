@@ -1,8 +1,6 @@
 package mongomodel
 
 import (
-	"time"
-
 	mongodb "tenkhours/pkg/db/mongo"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -10,7 +8,7 @@ import (
 
 type HabitLog struct {
 	*mongodb.BaseEntity `                 bson:",inline"`
-	Timestamp           time.Time          `json:"timestamp" bson:"timestamp"`
+	Timestamp           string             `json:"timestamp" bson:"timestamp"`
 	HabitOID            primitive.ObjectID `json:"habitID"   bson:"habit_id"`
 	Value               float64            `json:"value"     bson:"value"`
 }

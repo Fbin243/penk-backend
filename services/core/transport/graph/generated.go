@@ -4498,9 +4498,9 @@ func (ec *executionContext) _HabitLog_timestamp(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_HabitLog_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4510,7 +4510,7 @@ func (ec *executionContext) fieldContext_HabitLog_timestamp(_ context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10898,7 +10898,7 @@ func (ec *executionContext) unmarshalInputHabitLogInput(ctx context.Context, obj
 		switch k {
 		case "timestamp":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
-			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}

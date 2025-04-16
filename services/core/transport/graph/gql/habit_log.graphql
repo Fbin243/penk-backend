@@ -1,12 +1,12 @@
 type HabitLog {
   id: ID!
-  timestamp: Time!
+  timestamp: String!  
   habitID: ID!
   value: Float!
 }
 
 input HabitLogInput {
-  timestamp: Time!
+  timestamp: String!
   habitID: ID!
   value: Float!
 }
