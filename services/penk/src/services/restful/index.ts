@@ -25,8 +25,12 @@ const getTypeFromScope = (scope: string) => {
   throw new Error(`Invalid scope: ${scope}`);
 };
 
+app.get("/", (_, res) => {
+  res.send("PenK Assistant - OAuth server is running");
+});
+
 // Route to handle OAuth redirect from Google
-app.get("/oauth_redirect", async (req, res) => {
+app.get("/redirect", async (req, res) => {
   const { state, code, scope } = req.query;
 
   if (!code) {
