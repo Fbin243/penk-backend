@@ -2,7 +2,6 @@ package business
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"tenkhours/pkg/auth"
@@ -46,11 +45,14 @@ func (b *HabitBusiness) UpsertHabitLog(ctx context.Context, habitLogInput *entit
 	if err != nil {
 		return nil, errors.NewGQLError(errors.ErrCodeBadRequest, "invalid timestamp format")
 	}
-	log.Printf("timestamp: %s", timestamp)
-	habitLogs, err := b.habitLogRepo.FindByHabitID(ctx, habitLogInput.HabitID, &entity.HabitLogFilter{
-		StartTime: lo.ToPtr(utils.StartOfDay(timestamp)),
-		EndTime:   lo.ToPtr(utils.EndOfDay(timestamp)),
-	}, nil, nil, nil)
+
+	habitLogs, err := b.habitLogRepo.FindByPineline(ctx, entity.HabitLogPineline{
+		Filter: &entity.HabitLogFilter{
+			HabitID:   &habitLogInput.HabitID,
+			StartTime: lo.ToPtr(utils.StartOfDay(timestamp)),
+			EndTime:   lo.ToPtr(utils.EndOfDay(timestamp)),
+		},
+	})
 	if err != nil {
 		return nil, err
 	}

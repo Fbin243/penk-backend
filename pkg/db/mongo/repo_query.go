@@ -69,3 +69,19 @@ func (r *BaseRepo[M, N]) FindMany(ctx context.Context, filter any, opts ...*opti
 	err = cursor.All(ctx, &ms)
 	return ms, err
 }
+
+// AggregateQuery performs an aggregation operation on the collection using the provided pipeline.
+func (r *BaseRepo[M, N]) AggregateQuery(ctx context.Context, pipeline any) ([]M, error) {
+	ctx, cancel := context.WithTimeout(ctx, r.Timeout)
+	defer cancel()
+
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var ms []M
+	err = cursor.All(ctx, &ms)
+	return ms, err
+}
