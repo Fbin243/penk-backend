@@ -34,7 +34,13 @@ func (b *HabitBusiness) GetHabitLogs(ctx context.Context, filter *entity.HabitLo
 			return habit.ID
 		})
 
-		habitLogs, err = b.habitLogRepo.FindByHabitIDs(ctx, habitIDs, filter, orderBy, limit, offset)
+		filter.HabitIDs = habitIDs
+		habitLogs, err = b.habitLogRepo.FindByPineline(ctx, entity.HabitLogPineline{
+			Filter:  filter,
+			OrderBy: orderBy,
+			Limit:   limit,
+			Offset:  offset,
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -50,7 +56,12 @@ func (b *HabitBusiness) GetHabitLogs(ctx context.Context, filter *entity.HabitLo
 			return nil, err
 		}
 
-		habitLogs, err = b.habitLogRepo.FindByHabitID(ctx, *habitID, filter, orderBy, limit, offset)
+		habitLogs, err = b.habitLogRepo.FindByPineline(ctx, entity.HabitLogPineline{
+			Filter:  filter,
+			OrderBy: orderBy,
+			Limit:   limit,
+			Offset:  offset,
+		})
 		if err != nil {
 			return nil, err
 		}

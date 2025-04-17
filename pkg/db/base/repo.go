@@ -23,4 +23,6 @@ type IBaseRepo[M any] interface {
 	DeleteByID(ctx context.Context, id string) error
 	// DeleteOne(ctx context.Context, filter any) error
 	// DeleteMany(ctx context.Context, filter any) error
+
+	// AggregateQuery(ctx context.Context, pipeline any) ([]M, error)
 }

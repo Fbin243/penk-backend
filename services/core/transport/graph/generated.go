@@ -10848,7 +10848,7 @@ func (ec *executionContext) unmarshalInputHabitLogFilter(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"habitID", "startTime", "endTime"}
+	fieldsInOrder := [...]string{"habitID", "startTime", "endTime", "reset"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10876,6 +10876,13 @@ func (ec *executionContext) unmarshalInputHabitLogFilter(ctx context.Context, ob
 				return it, err
 			}
 			it.EndTime = data
+		case "reset":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reset"))
+			data, err := ec.unmarshalOHabitReset2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐHabitReset(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Reset = data
 		}
 	}
 
@@ -15081,6 +15088,23 @@ func (ec *executionContext) unmarshalOHabitLogOrderBy2ᚖtenkhoursᚋservicesᚋ
 	}
 	res, err := ec.unmarshalInputHabitLogOrderBy(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOHabitReset2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐHabitReset(ctx context.Context, v interface{}) (*entity.HabitReset, error) {
+	if v == nil {
+		return nil, nil
+	}
+	tmp, err := graphql.UnmarshalString(v)
+	res := entity.HabitReset(tmp)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOHabitReset2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐHabitReset(ctx context.Context, sel ast.SelectionSet, v *entity.HabitReset) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalString(string(*v))
+	return res
 }
 
 func (ec *executionContext) unmarshalOID2string(ctx context.Context, v interface{}) (string, error) {

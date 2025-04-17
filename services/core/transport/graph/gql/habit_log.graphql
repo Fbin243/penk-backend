@@ -15,6 +15,7 @@ input HabitLogFilter {
   habitID: ID
   startTime: Time
   endTime: Time
+  reset: HabitReset
 }
 
 input HabitLogOrderBy {
