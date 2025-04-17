@@ -201,7 +201,7 @@ type ComplexityRoot struct {
 		Metrics            func(childComplexity int) int
 		Profile            func(childComplexity int) int
 		TaskSessions       func(childComplexity int, filter *entity.TaskSessionFilter) int
-		Tasks              func(childComplexity int) int
+		Tasks              func(childComplexity int, filter *entity.TaskFilter) int
 		__resolve__service func(childComplexity int) int
 		__resolve_entities func(childComplexity int, representations []map[string]interface{}) int
 	}
@@ -304,7 +304,7 @@ type QueryResolver interface {
 	Categories(ctx context.Context) ([]entity.Category, error)
 	Habits(ctx context.Context) ([]entity.Habit, error)
 	HabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit *int, offset *int) ([]entity.HabitLog, error)
-	Tasks(ctx context.Context) ([]entity.Task, error)
+	Tasks(ctx context.Context, filter *entity.TaskFilter) ([]entity.Task, error)
 	TaskSessions(ctx context.Context, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error)
 }
 
@@ -1153,7 +1153,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Tasks(childComplexity), true
+		args, err := ec.field_Query_tasks_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Tasks(childComplexity, args["filter"].(*entity.TaskFilter)), true
 
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
@@ -1377,6 +1382,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputMetricInput,
 		ec.unmarshalInputProfileInput,
 		ec.unmarshalInputRangeInput,
+		ec.unmarshalInputTaskFilter,
 		ec.unmarshalInputTaskInput,
 		ec.unmarshalInputTaskSessionFilter,
 		ec.unmarshalInputTaskSessionInput,
@@ -1924,6 +1930,21 @@ func (ec *executionContext) field_Query_taskSessions_args(ctx context.Context, r
 	if tmp, ok := rawArgs["filter"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
 		arg0, err = ec.unmarshalOTaskSessionFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTaskSessionFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_tasks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *entity.TaskFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOTaskFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTaskFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7240,7 +7261,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Tasks(rctx)
+		return ec.resolvers.Query().Tasks(rctx, fc.Args["filter"].(*entity.TaskFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7257,7 +7278,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 	return ec.marshalNTask2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐTaskᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_tasks(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_tasks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -7290,6 +7311,17 @@ func (ec *executionContext) fieldContext_Query_tasks(_ context.Context, field gr
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_tasks_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -11087,6 +11119,33 @@ func (ec *executionContext) unmarshalInputRangeInput(ctx context.Context, obj in
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTaskFilter(ctx context.Context, obj interface{}) (entity.TaskFilter, error) {
+	var it entity.TaskFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"isCompleted"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "isCompleted":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isCompleted"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsCompleted = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj interface{}) (entity.TaskInput, error) {
 	var it entity.TaskInput
 	asMap := map[string]interface{}{}
@@ -11170,7 +11229,7 @@ func (ec *executionContext) unmarshalInputTaskSessionFilter(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"taskID", "startTime", "endTime"}
+	fieldsInOrder := [...]string{"taskID", "startTime", "endTime", "isCompleted"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11198,6 +11257,13 @@ func (ec *executionContext) unmarshalInputTaskSessionFilter(ctx context.Context,
 				return it, err
 			}
 			it.EndTime = data
+		case "isCompleted":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isCompleted"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsCompleted = data
 		}
 	}
 
@@ -15243,6 +15309,14 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOTaskFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTaskFilter(ctx context.Context, v interface{}) (*entity.TaskFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTaskFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOTaskSessionFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTaskSessionFilter(ctx context.Context, v interface{}) (*entity.TaskSessionFilter, error) {

@@ -68,6 +68,6 @@ func buildHabitLogPipeline(p *entity.HabitLogPineline) []bson.M {
 	return pipeline
 }
 
-func (r *HabitLogRepo) FindByPineline(ctx context.Context, pineline entity.HabitLogPineline) ([]entity.HabitLog, error) {
+func (r *HabitLogRepo) Find(ctx context.Context, pineline entity.HabitLogPineline) ([]entity.HabitLog, error) {
 	return r.AggregateQuery(ctx, buildHabitLogPipeline(&pineline))
 }

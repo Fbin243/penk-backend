@@ -189,8 +189,8 @@ func (r *queryResolver) HabitLogs(ctx context.Context, filter *entity.HabitLogFi
 }
 
 // Tasks is the resolver for the tasks field.
-func (r *queryResolver) Tasks(ctx context.Context) ([]entity.Task, error) {
-	return r.TaskBusiness.GetTasks(ctx)
+func (r *queryResolver) Tasks(ctx context.Context, filter *entity.TaskFilter) ([]entity.Task, error) {
+	return r.TaskBusiness.GetTasks(ctx, filter)
 }
 
 // TaskSessions is the resolver for the taskSessions field.

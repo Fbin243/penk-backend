@@ -7,7 +7,7 @@ type Query {
   categories: [Category!]!
   habits: [Habit!]!
   habitLogs(filter: HabitLogFilter, orderBy: HabitLogOrderBy, limit: Int, offset: Int): [HabitLog!]!
-  tasks: [Task!]!
+  tasks(filter: TaskFilter): [Task!]!
   taskSessions(filter: TaskSessionFilter): [TaskSession!]!
 }
 

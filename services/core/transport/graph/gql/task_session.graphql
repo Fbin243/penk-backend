@@ -18,4 +18,5 @@ input TaskSessionFilter {
   taskID: ID
   startTime: Time
   endTime: Time
+  isCompleted: Boolean
 }

@@ -35,7 +35,7 @@ func (b *HabitBusiness) GetHabitLogs(ctx context.Context, filter *entity.HabitLo
 		})
 
 		filter.HabitIDs = habitIDs
-		habitLogs, err = b.habitLogRepo.FindByPineline(ctx, entity.HabitLogPineline{
+		habitLogs, err = b.habitLogRepo.Find(ctx, entity.HabitLogPineline{
 			Filter:  filter,
 			OrderBy: orderBy,
 			Limit:   limit,
@@ -56,7 +56,7 @@ func (b *HabitBusiness) GetHabitLogs(ctx context.Context, filter *entity.HabitLo
 			return nil, err
 		}
 
-		habitLogs, err = b.habitLogRepo.FindByPineline(ctx, entity.HabitLogPineline{
+		habitLogs, err = b.habitLogRepo.Find(ctx, entity.HabitLogPineline{
 			Filter:  filter,
 			OrderBy: orderBy,
 			Limit:   limit,

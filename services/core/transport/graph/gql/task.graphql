@@ -22,3 +22,7 @@ input TaskInput {
   description: String
   deadline: Time
 }
+
+input TaskFilter {
+  isCompleted: Boolean
+}

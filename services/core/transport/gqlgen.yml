@@ -161,6 +161,8 @@ models:
     model: tenkhours/services/core/entity.Task
   TaskInput:
     model: tenkhours/services/core/entity.TaskInput
+  TaskFilter:
+    model: tenkhours/services/core/entity.TaskFilter
   TaskSession:
     model: tenkhours/services/core/entity.TaskSession
   TaskSessionInput:
