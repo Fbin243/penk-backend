@@ -31,10 +31,34 @@ func (r *TaskRepo) Exist(ctx context.Context, characterID, taskID string) error 
 	})
 }
 
-func (r *TaskRepo) FindByCharacterID(ctx context.Context, characterID string) ([]entity.Task, error) {
-	return r.FindMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
+func buildTaskPipeline(p *entity.TaskPineline) []bson.M {
+	pipeline := []bson.M{}
+
+	// Add match stage
+	if p.Filter != nil {
+		matchStage := bson.M{}
+		if p.Filter.CharacterID != nil {
+			matchStage["character_id"] = mongodb.ToObjectID(*p.Filter.CharacterID)
+		} else if p.Filter.CharacterIDs != nil {
+			matchStage["character_id"] = bson.M{
+				"$in": mongodb.ToObjectIDs(p.Filter.CharacterIDs),
+			}
+		}
+
+		if p.Filter.IsCompleted != nil {
+			if *p.Filter.IsCompleted {
+				matchStage["completed_time"] = bson.M{"$ne": nil}
+			} else {
+				matchStage["completed_time"] = nil
+			}
+		}
+
+		pipeline = append(pipeline, bson.M{"$match": matchStage})
+	}
+
+	return pipeline
 }
 
-func (r *TaskRepo) FindByCharacterIDs(ctx context.Context, characterIDs []string) ([]entity.Task, error) {
-	return r.FindMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
+func (r *TaskRepo) Find(ctx context.Context, pineline entity.TaskPineline) ([]entity.Task, error) {
+	return r.AggregateQuery(ctx, buildTaskPipeline(&pineline))
 }

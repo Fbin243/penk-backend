@@ -25,7 +25,11 @@ func (b *TaskBusiness) GetTaskSessions(ctx context.Context, filter *entity.TaskS
 	var taskSessions []entity.TaskSession
 	if taskID == nil {
 		// Query all task sessions of the current character
-		tasks, err := b.taskRepo.FindByCharacterID(ctx, authSession.CurrentCharacterID)
+		tasks, err := b.taskRepo.Find(ctx, entity.TaskPineline{
+			Filter: &entity.TaskFilter{
+				CharacterID: &authSession.CurrentCharacterID,
+			},
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -34,7 +38,10 @@ func (b *TaskBusiness) GetTaskSessions(ctx context.Context, filter *entity.TaskS
 			return task.ID
 		})
 
-		taskSessions, err = b.taskSessionRepo.FindByTaskIDs(ctx, taskIDs, filter)
+		filter.TaskIDs = taskIDs
+		taskSessions, err = b.taskSessionRepo.Find(ctx, entity.TaskSessionPineline{
+			Filter: filter,
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -50,7 +57,9 @@ func (b *TaskBusiness) GetTaskSessions(ctx context.Context, filter *entity.TaskS
 			return nil, err
 		}
 
-		taskSessions, err = b.taskSessionRepo.FindByTaskID(ctx, *taskID, filter)
+		taskSessions, err = b.taskSessionRepo.Find(ctx, entity.TaskSessionPineline{
+			Filter: filter,
+		})
 		if err != nil {
 			return nil, err
 		}

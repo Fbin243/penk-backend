@@ -60,7 +60,7 @@ type ITimeTrackingBusiness interface {
 }
 
 type ITaskBusiness interface {
-	GetTasks(ctx context.Context) ([]entity.Task, error)
+	GetTasks(ctx context.Context, filter *entity.TaskFilter) ([]entity.Task, error)
 	UpsertTask(ctx context.Context, input *entity.TaskInput) (*entity.Task, error)
 	DeleteTask(ctx context.Context, id string) (*entity.Task, error)
 	GetTaskSessions(ctx context.Context, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error)
@@ -137,7 +137,7 @@ type IHabitRepo interface {
 
 type IHabitLogRepo interface {
 	base.IBaseRepo[entity.HabitLog]
-	FindByPineline(ctx context.Context, pineline entity.HabitLogPineline) ([]entity.HabitLog, error)
+	Find(ctx context.Context, pineline entity.HabitLogPineline) ([]entity.HabitLog, error)
 	UpsertByTimestamp(ctx context.Context, timestamp time.Time, habit *entity.HabitLog) error
 	DeleteByHabitID(ctx context.Context, habitID string) error
 	DeleteByHabitIDs(ctx context.Context, habitIDs []string) error
@@ -166,8 +166,7 @@ type ITaskRepo interface {
 	CountByCategoryID(ctx context.Context, categoryID string) (int, error)
 	CountUnassigned(ctx context.Context, characterID string) (int, error)
 	Exist(ctx context.Context, characterID, taskID string) error
-	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Task, error)
-	FindByCharacterIDs(ctx context.Context, characterIDs []string) ([]entity.Task, error)
+	Find(ctx context.Context, pineline entity.TaskPineline) ([]entity.Task, error)
 	DeleteByCharacterID(ctx context.Context, characterID string) error
 	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
 	UnassignCategory(ctx context.Context, categoryID string) error
@@ -175,8 +174,7 @@ type ITaskRepo interface {
 
 type ITaskSessionRepo interface {
 	base.IBaseRepo[entity.TaskSession]
-	FindByTaskID(ctx context.Context, taskID string, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error)
-	FindByTaskIDs(ctx context.Context, taskIDs []string, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error)
+	Find(ctx context.Context, pineline entity.TaskSessionPineline) ([]entity.TaskSession, error)
 	DeleteByTaskID(ctx context.Context, taskID string) error
 	DeleteByTaskIDs(ctx context.Context, taskIDs []string) error
 }

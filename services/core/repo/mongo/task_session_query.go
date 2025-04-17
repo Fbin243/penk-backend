@@ -9,42 +9,42 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (r *TaskSessionRepo) FindByTaskID(ctx context.Context, taskID string, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error) {
-	mongoFilter := bson.M{
-		"task_id": mongodb.ToObjectID(taskID),
+func buildTaskSessionPipeline(p *entity.TaskSessionPineline) []bson.M {
+	pipeline := []bson.M{}
+
+	// Add match stage
+	if p.Filter != nil {
+		matchStage := bson.M{}
+		if p.Filter.TaskID != nil {
+			matchStage["task_id"] = mongodb.ToObjectID(*p.Filter.TaskID)
+		} else if p.Filter.TaskIDs != nil {
+			matchStage["task_id"] = bson.M{
+				"$in": mongodb.ToObjectIDs(p.Filter.TaskIDs),
+			}
+		}
+
+		matchStage["start_time"] = bson.M{}
+		if p.Filter.StartTime != nil {
+			matchStage["start_time"].(bson.M)["$gte"] = p.Filter.StartTime
+		}
+		if p.Filter.EndTime != nil {
+			matchStage["start_time"].(bson.M)["$lte"] = p.Filter.EndTime
+		}
+
+		if p.Filter.IsCompleted != nil {
+			if *p.Filter.IsCompleted {
+				matchStage["completed_time"] = bson.M{"$ne": nil}
+			} else {
+				matchStage["completed_time"] = nil
+			}
+		}
+
+		pipeline = append(pipeline, bson.M{"$match": matchStage})
 	}
 
-	if filter != nil {
-		mongoFilter["start_time"] = bson.M{}
-
-		if filter.StartTime != nil {
-			mongoFilter["start_time"].(bson.M)["$gte"] = filter.StartTime
-		}
-		if filter.EndTime != nil {
-			mongoFilter["start_time"].(bson.M)["$lte"] = filter.EndTime
-		}
-	}
-
-	return r.FindMany(ctx, mongoFilter)
+	return pipeline
 }
 
-func (r *TaskSessionRepo) FindByTaskIDs(ctx context.Context, taskIDs []string, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error) {
-	mongoFilter := bson.M{
-		"task_id": bson.M{
-			"$in": mongodb.ToObjectIDs(taskIDs),
-		},
-	}
-
-	if filter != nil {
-		mongoFilter["start_time"] = bson.M{}
-
-		if filter.StartTime != nil {
-			mongoFilter["start_time"].(bson.M)["$gte"] = filter.StartTime
-		}
-		if filter.EndTime != nil {
-			mongoFilter["start_time"].(bson.M)["$lte"] = filter.EndTime
-		}
-	}
-
-	return r.FindMany(ctx, mongoFilter)
+func (r *TaskSessionRepo) Find(ctx context.Context, pineline entity.TaskSessionPineline) ([]entity.TaskSession, error) {
+	return r.AggregateQuery(ctx, buildTaskSessionPipeline(&pineline))
 }
