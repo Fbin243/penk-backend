@@ -80,6 +80,7 @@ const resolvers: Resolvers = {
         await redisClient.set(
           `linked_accounts:${context.profileId}`,
           JSON.stringify(updatedAccounts),
+          { KEEPTTL: true },
         );
       }
 

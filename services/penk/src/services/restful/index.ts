@@ -69,7 +69,9 @@ app.get("/redirect", async (req, res) => {
         type: newAccount.type,
         accessToken: authResult.accessToken || "",
       });
-      await redisClient.set(`linked_accounts:${state}`, JSON.stringify(linkedAccounts));
+      await redisClient.set(`linked_accounts:${state}`, JSON.stringify(linkedAccounts), {
+        KEEPTTL: true,
+      });
     }
 
     res.send(authSuccessHtml);
