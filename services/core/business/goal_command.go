@@ -6,7 +6,6 @@ import (
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
 	mongodb "tenkhours/pkg/db/mongo"
-	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
@@ -15,9 +14,9 @@ import (
 )
 
 func (biz *GoalBusiness) Upsert(ctx context.Context, input *entity.GoalInput) (*entity.Goal, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	goal := &entity.Goal{
@@ -189,12 +188,12 @@ func (biz *GoalBusiness) upsertCheckboxesInGoal(_ context.Context, goal *entity.
 }
 
 func (biz *GoalBusiness) Delete(ctx context.Context, goalID string) (*entity.Goal, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	err := biz.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
+	err = biz.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
 		{
 			ID:   goalID,
 			Type: entity.EntityTypeGoal,

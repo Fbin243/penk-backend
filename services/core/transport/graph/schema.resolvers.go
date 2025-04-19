@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"fmt"
+
 	errs "tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
@@ -164,8 +165,16 @@ func (r *queryResolver) AppSettings(ctx context.Context) (*model.AppSettings, er
 }
 
 // Goals is the resolver for the goals field.
-func (r *queryResolver) Goals(ctx context.Context, filter *entity.GoalFilter, orderBy *entity.GoalOrderBy, limit *int, offset *int) ([]entity.Goal, error) {
-	return r.GoalBusiness.Get(ctx, filter, orderBy, limit, offset)
+func (r *queryResolver) Goals(ctx context.Context, filter *entity.GoalFilter, orderBy *entity.GoalOrderBy, limit *int, offset *int) (*model.GoalConnection, error) {
+	goals, err := r.GoalBusiness.Get(ctx, filter, orderBy, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.GoalConnection{
+		TotalCount: 0,
+		Edges:      goals,
+	}, nil
 }
 
 // Metrics is the resolver for the metrics field.
@@ -204,5 +213,7 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)

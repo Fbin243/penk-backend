@@ -4,16 +4,14 @@ import (
 	"context"
 
 	"tenkhours/pkg/auth"
-	rdb "tenkhours/pkg/db/redis"
-	"tenkhours/pkg/errors"
 	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 )
 
 func (b *HabitBusiness) Get(ctx context.Context, filter *entity.HabitFilter, orderBy *entity.HabitOrderBy, limit, offset *int) ([]entity.Habit, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if filter == nil {

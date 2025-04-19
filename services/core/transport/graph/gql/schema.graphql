@@ -2,7 +2,7 @@ type Query {
   characters: [Character!]!
   profile: Profile!
   appSettings: AppSettings!
-  goals(filter: GoalFilter, orderBy: GoalOrderBy, limit: Int, offset: Int): [Goal!]!
+  goals(filter: GoalFilter, orderBy: GoalOrderBy, limit: Int, offset: Int): GoalConnection!
   metrics(filter: MetricFilter, orderBy: MetricOrderBy, limit: Int, offset: Int): [Metric!]!
   categories(filter: CategoryFilter, orderBy: CategoryOrderBy, limit: Int, offset: Int): [Category!]!
   habits(filter: HabitFilter, orderBy: HabitOrderBy, limit: Int, offset: Int): [Habit!]!

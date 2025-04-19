@@ -127,6 +127,11 @@ type ComplexityRoot struct {
 		UpdatedAt     func(childComplexity int) int
 	}
 
+	GoalConnection struct {
+		Edges      func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
 	GoalMetric struct {
 		Condition   func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -309,7 +314,7 @@ type QueryResolver interface {
 	Characters(ctx context.Context) ([]entity.Character, error)
 	Profile(ctx context.Context) (*entity.Profile, error)
 	AppSettings(ctx context.Context) (*model.AppSettings, error)
-	Goals(ctx context.Context, filter *entity.GoalFilter, orderBy *entity.GoalOrderBy, limit *int, offset *int) ([]entity.Goal, error)
+	Goals(ctx context.Context, filter *entity.GoalFilter, orderBy *entity.GoalOrderBy, limit *int, offset *int) (*model.GoalConnection, error)
 	Metrics(ctx context.Context, filter *entity.MetricFilter, orderBy *entity.MetricOrderBy, limit *int, offset *int) ([]entity.Metric, error)
 	Categories(ctx context.Context, filter *entity.CategoryFilter, orderBy *entity.CategoryOrderBy, limit *int, offset *int) ([]entity.Category, error)
 	Habits(ctx context.Context, filter *entity.HabitFilter, orderBy *entity.HabitOrderBy, limit *int, offset *int) ([]entity.Habit, error)
@@ -641,6 +646,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Goal.UpdatedAt(childComplexity), true
+
+	case "GoalConnection.edges":
+		if e.complexity.GoalConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.GoalConnection.Edges(childComplexity), true
+
+	case "GoalConnection.totalCount":
+		if e.complexity.GoalConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.GoalConnection.TotalCount(childComplexity), true
 
 	case "GoalMetric.condition":
 		if e.complexity.GoalMetric.Condition == nil {
@@ -4049,6 +4068,120 @@ func (ec *executionContext) fieldContext_Goal_checkboxes(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _GoalConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.GoalConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GoalConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GoalConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GoalConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GoalConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.GoalConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GoalConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]entity.Goal)
+	fc.Result = res
+	return ec.marshalNGoal2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐGoalᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GoalConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GoalConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Goal_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Goal_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Goal_updatedAt(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Goal_characterID(ctx, field)
+			case "name":
+				return ec.fieldContext_Goal_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Goal_description(ctx, field)
+			case "startTime":
+				return ec.fieldContext_Goal_startTime(ctx, field)
+			case "endTime":
+				return ec.fieldContext_Goal_endTime(ctx, field)
+			case "completedTime":
+				return ec.fieldContext_Goal_completedTime(ctx, field)
+			case "status":
+				return ec.fieldContext_Goal_status(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Goal_metrics(ctx, field)
+			case "checkboxes":
+				return ec.fieldContext_Goal_checkboxes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Goal", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _GoalMetric_id(ctx context.Context, field graphql.CollectedField, obj *entity.GoalMetric) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GoalMetric_id(ctx, field)
 	if err != nil {
@@ -7318,9 +7451,9 @@ func (ec *executionContext) _Query_goals(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]entity.Goal)
+	res := resTmp.(*model.GoalConnection)
 	fc.Result = res
-	return ec.marshalNGoal2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐGoalᚄ(ctx, field.Selections, res)
+	return ec.marshalNGoalConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐGoalConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_goals(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7331,32 +7464,12 @@ func (ec *executionContext) fieldContext_Query_goals(ctx context.Context, field 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Goal_id(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Goal_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Goal_updatedAt(ctx, field)
-			case "characterID":
-				return ec.fieldContext_Goal_characterID(ctx, field)
-			case "name":
-				return ec.fieldContext_Goal_name(ctx, field)
-			case "description":
-				return ec.fieldContext_Goal_description(ctx, field)
-			case "startTime":
-				return ec.fieldContext_Goal_startTime(ctx, field)
-			case "endTime":
-				return ec.fieldContext_Goal_endTime(ctx, field)
-			case "completedTime":
-				return ec.fieldContext_Goal_completedTime(ctx, field)
-			case "status":
-				return ec.fieldContext_Goal_status(ctx, field)
-			case "metrics":
-				return ec.fieldContext_Goal_metrics(ctx, field)
-			case "checkboxes":
-				return ec.fieldContext_Goal_checkboxes(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_GoalConnection_totalCount(ctx, field)
+			case "edges":
+				return ec.fieldContext_GoalConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Goal", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type GoalConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -12720,6 +12833,50 @@ func (ec *executionContext) _Goal(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var goalConnectionImplementors = []string{"GoalConnection"}
+
+func (ec *executionContext) _GoalConnection(ctx context.Context, sel ast.SelectionSet, obj *model.GoalConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, goalConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GoalConnection")
+		case "totalCount":
+			out.Values[i] = ec._GoalConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._GoalConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var goalMetricImplementors = []string{"GoalMetric"}
 
 func (ec *executionContext) _GoalMetric(ctx context.Context, sel ast.SelectionSet, obj *entity.GoalMetric) graphql.Marshaler {
@@ -14697,6 +14854,20 @@ func (ec *executionContext) marshalNGoal2ᚖtenkhoursᚋservicesᚋcoreᚋentity
 		return graphql.Null
 	}
 	return ec._Goal(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNGoalConnection2tenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐGoalConnection(ctx context.Context, sel ast.SelectionSet, v model.GoalConnection) graphql.Marshaler {
+	return ec._GoalConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGoalConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐGoalConnection(ctx context.Context, sel ast.SelectionSet, v *model.GoalConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GoalConnection(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNGoalInput2tenkhoursᚋservicesᚋcoreᚋentityᚐGoalInput(ctx context.Context, v interface{}) (entity.GoalInput, error) {

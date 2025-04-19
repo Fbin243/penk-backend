@@ -5,7 +5,6 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
-	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
@@ -14,9 +13,9 @@ import (
 )
 
 func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.CharacterInput) (*entity.Character, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	profile, err := biz.ProfileRepo.FindByID(ctx, authSession.ProfileID)
@@ -81,12 +80,12 @@ func (biz *CharacterBusiness) UpsertCharacter(ctx context.Context, input entity.
 }
 
 func (biz *CharacterBusiness) DeleteCharacter(ctx context.Context, id string) (*entity.Character, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	err := biz.CharacterRepo.Exist(ctx, authSession.ProfileID, id)
+	err = biz.CharacterRepo.Exist(ctx, authSession.ProfileID, id)
 	if err != nil {
 		return nil, err
 	}

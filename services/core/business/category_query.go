@@ -5,20 +5,18 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
-	rdb "tenkhours/pkg/db/redis"
-	"tenkhours/pkg/errors"
 	"tenkhours/pkg/graphql"
 	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 )
 
 func (b *CategoryBusiness) Get(ctx context.Context, filter *entity.CategoryFilter, orderBy *entity.CategoryOrderBy, limit, offset *int) ([]entity.Category, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	err := b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{})
+	err = b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{})
 	if err != nil {
 		return nil, err
 	}

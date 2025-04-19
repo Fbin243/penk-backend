@@ -5,11 +5,8 @@ import (
 	"time"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/analytic/entity"
-
-	rdb "tenkhours/pkg/db/redis"
 )
 
 type analyticBusiness struct {
@@ -24,9 +21,9 @@ func NewAnalyticBusiness(timetrackingRepo ITimeTrackingRepo) *analyticBusiness {
 
 // Get analytic results from the captured records from the database
 func (biz *analyticBusiness) GetStatAnalytic(ctx context.Context, characterID string, startTime, endTime *time.Time, analyticSections []entity.AnalyticSection) (map[string]interface{}, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	capturedRecordFilter := entity.GetCapturedRecordFilter{

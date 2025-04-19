@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"tenkhours/services/core/entity"
 )
 
 type AppSettings struct {
@@ -21,6 +22,11 @@ type Fish struct {
 }
 
 func (Fish) IsEntity() {}
+
+type GoalConnection struct {
+	TotalCount int           `json:"totalCount"`
+	Edges      []entity.Goal `json:"edges"`
+}
 
 type Mutation struct {
 }
