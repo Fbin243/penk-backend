@@ -14,7 +14,11 @@ func (b *TaskBusiness) Get(ctx context.Context, filter *entity.TaskFilter, order
 		return nil, err
 	}
 
+	if filter == nil {
+		filter = &entity.TaskFilter{}
+	}
 	filter.CharacterID = &authSession.CurrentCharacterID
+
 	tasks, err := b.taskRepo.Find(ctx, entity.TaskPineline{
 		Filter:  filter,
 		OrderBy: orderBy,

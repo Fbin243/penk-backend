@@ -14,7 +14,11 @@ func (b *MetricBusiness) Get(ctx context.Context, filter *entity.MetricFilter, o
 		return nil, err
 	}
 
+	if filter == nil {
+		filter = &entity.MetricFilter{}
+	}
 	filter.CharacterID = &authSession.CurrentCharacterID
+
 	return b.metricRepo.Find(ctx, entity.MetricPipeline{
 		Filter:  filter,
 		OrderBy: orderBy,
