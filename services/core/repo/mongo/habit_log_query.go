@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func buildHabitLogPipeline(p *entity.HabitLogPipeline) []bson.M {
+func (r *HabitLogRepo) Find(ctx context.Context, p entity.HabitLogPipeline) ([]entity.HabitLog, error) {
 	pipeline := []bson.M{}
 
 	// Add match stage
@@ -61,9 +61,51 @@ func buildHabitLogPipeline(p *entity.HabitLogPipeline) []bson.M {
 	// Add pagination stage
 	pipeline = append(pipeline, mongodb.ToPaginationPineline(p.Pagination)...)
 
-	return pipeline
+	return r.AggregateQuery(ctx, pipeline)
 }
 
-func (r *HabitLogRepo) Find(ctx context.Context, pineline entity.HabitLogPipeline) ([]entity.HabitLog, error) {
-	return r.AggregateQuery(ctx, buildHabitLogPipeline(&pineline))
+func (r *HabitLogRepo) CountByHabitID(ctx context.Context, habitID string) (int, error) {
+	return r.Count(ctx, bson.M{"habit_id": mongodb.ToObjectID(habitID)})
+}
+
+func (r *HabitLogRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
+	pipeline := []bson.M{
+		{
+			"$lookup": bson.M{
+				"from":         mongodb.HabitsCollection,
+				"localField":   "habit_id",
+				"foreignField": "_id",
+				"as":           "habit",
+			},
+		},
+		{
+			"$match": bson.M{
+				"habit.character_id": mongodb.ToObjectID(characterID),
+			},
+		},
+		{
+			"$count": "count",
+		},
+	}
+
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return 0, err
+	}
+
+	defer cursor.Close(ctx)
+
+	var result []struct {
+		Count int `bson:"count"`
+	}
+
+	if err := cursor.All(ctx, &result); err != nil {
+		return 0, err
+	}
+
+	if len(result) == 0 {
+		return 0, nil
+	}
+
+	return result[0].Count, nil
 }

@@ -2,13 +2,13 @@ type Query {
   characters: [Character!]!
   profile: Profile!
   appSettings: AppSettings!
-  goals(filter: GoalFilter, orderBy: GoalOrderBy, limit: Int, offset: Int): [Goal!]!
-  metrics(filter: MetricFilter, orderBy: MetricOrderBy, limit: Int, offset: Int): [Metric!]!
-  categories(filter: CategoryFilter, orderBy: CategoryOrderBy, limit: Int, offset: Int): [Category!]!
-  habits(filter: HabitFilter, orderBy: HabitOrderBy, limit: Int, offset: Int): [Habit!]!
-  habitLogs(filter: HabitLogFilter, orderBy: HabitLogOrderBy, limit: Int, offset: Int): [HabitLog!]!
-  tasks(filter: TaskFilter, orderBy: TaskOrderBy, limit: Int, offset: Int): [Task!]!
-  taskSessions(filter: TaskSessionFilter, orderBy: TaskSessionOrderBy, limit: Int, offset: Int): [TaskSession!]!
+  goals(filter: GoalFilter, orderBy: GoalOrderBy, limit: Int, offset: Int): GoalConnection!
+  metrics(filter: MetricFilter, orderBy: MetricOrderBy, limit: Int, offset: Int): MetricConnection!
+  categories(filter: CategoryFilter, orderBy: CategoryOrderBy, limit: Int, offset: Int): CategoryConnection!
+  habits(filter: HabitFilter, orderBy: HabitOrderBy, limit: Int, offset: Int): HabitConnection!
+  habitLogs(filter: HabitLogFilter, orderBy: HabitLogOrderBy, limit: Int, offset: Int): HabitLogConnection!
+  tasks(filter: TaskFilter, orderBy: TaskOrderBy, limit: Int, offset: Int): TaskConnection!
+  taskSessions(filter: TaskSessionFilter, orderBy: TaskSessionOrderBy, limit: Int, offset: Int): TaskSessionConnection!
 }
 
 type Mutation {

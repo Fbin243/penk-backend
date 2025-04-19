@@ -4,17 +4,16 @@ import (
 	"context"
 
 	"tenkhours/pkg/auth"
-	rdb "tenkhours/pkg/db/redis"
-	"tenkhours/pkg/errors"
+	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 
 	"github.com/samber/lo"
 )
 
-func (b *TaskBusiness) GetTaskSessions(ctx context.Context, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+func (b *TaskBusiness) GetTaskSessions(ctx context.Context, filter *entity.TaskSessionFilter, orderBy *entity.TaskSessionOrderBy, limit, offset *int) ([]entity.TaskSession, error) {
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	var taskID *string
@@ -39,8 +38,13 @@ func (b *TaskBusiness) GetTaskSessions(ctx context.Context, filter *entity.TaskS
 		})
 
 		filter.TaskIDs = taskIDs
-		taskSessions, err = b.taskSessionRepo.Find(ctx, entity.TaskSessionPineline{
-			Filter: filter,
+		taskSessions, err = b.taskSessionRepo.Find(ctx, entity.TaskSessionPipeline{
+			Filter:  filter,
+			OrderBy: orderBy,
+			Pagination: &types.Pagination{
+				Limit:  limit,
+				Offset: offset,
+			},
 		})
 		if err != nil {
 			return nil, err
@@ -57,8 +61,13 @@ func (b *TaskBusiness) GetTaskSessions(ctx context.Context, filter *entity.TaskS
 			return nil, err
 		}
 
-		taskSessions, err = b.taskSessionRepo.Find(ctx, entity.TaskSessionPineline{
-			Filter: filter,
+		taskSessions, err = b.taskSessionRepo.Find(ctx, entity.TaskSessionPipeline{
+			Filter:  filter,
+			OrderBy: orderBy,
+			Pagination: &types.Pagination{
+				Limit:  limit,
+				Offset: offset,
+			},
 		})
 		if err != nil {
 			return nil, err

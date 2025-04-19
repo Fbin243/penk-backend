@@ -5,7 +5,6 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
-	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
@@ -14,9 +13,9 @@ import (
 )
 
 func (b *MetricBusiness) Upsert(ctx context.Context, metricInput *entity.MetricInput) (*entity.Metric, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	permEntities := []PermissionEntity{}
@@ -34,7 +33,7 @@ func (b *MetricBusiness) Upsert(ctx context.Context, metricInput *entity.MetricI
 		})
 	}
 
-	err := b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, permEntities)
+	err = b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, permEntities)
 	if err != nil {
 		return nil, err
 	}
@@ -71,12 +70,12 @@ func (b *MetricBusiness) Upsert(ctx context.Context, metricInput *entity.MetricI
 }
 
 func (b *MetricBusiness) Delete(ctx context.Context, metricID string) (*entity.Metric, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	err := b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
+	err = b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
 		{
 			ID:   metricID,
 			Type: entity.EntityTypeMetric,

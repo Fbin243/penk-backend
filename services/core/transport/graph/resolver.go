@@ -26,4 +26,6 @@ type Resolver struct {
 	HabitRepo        business.IHabitRepo
 	HabitLogRepo     business.IHabitLogRepo
 	TaskRepo         business.ITaskRepo
+	TaskSessionRepo  business.ITaskSessionRepo
+	GoalRepo         business.IGoalRepo
 }

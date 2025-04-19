@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"tenkhours/pkg/auth"
-	rdb "tenkhours/pkg/db/redis"
-	"tenkhours/pkg/errors"
 	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 
@@ -13,9 +11,9 @@ import (
 )
 
 func (b *HabitBusiness) GetHabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit, offset *int) ([]entity.HabitLog, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	var habitID *string

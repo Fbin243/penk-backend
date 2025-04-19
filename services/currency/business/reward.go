@@ -6,10 +6,7 @@ import (
 	"time"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/errors"
 	"tenkhours/services/currency/entity"
-
-	rdb "tenkhours/pkg/db/redis"
 )
 
 type RewardBusiness struct {
@@ -23,9 +20,9 @@ func NewRewardBusiness(RewardRepo IRewardRepo) *RewardBusiness {
 }
 
 func (biz *RewardBusiness) GetRewardByProfileID(ctx context.Context) (*entity.Reward, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	reward, err := biz.RewardRepo.GetRewardByProfileID(ctx, authSession.ProfileID)
@@ -37,9 +34,9 @@ func (biz *RewardBusiness) GetRewardByProfileID(ctx context.Context) (*entity.Re
 }
 
 func (biz *RewardBusiness) ClaimDailyReward(ctx context.Context) (*entity.Reward, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	reward, err := biz.RewardRepo.GetRewardByProfileID(ctx, authSession.ProfileID)

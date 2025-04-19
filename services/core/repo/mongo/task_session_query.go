@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func buildTaskSessionPipeline(p *entity.TaskSessionPineline) []bson.M {
+func (r *TaskSessionRepo) Find(ctx context.Context, p entity.TaskSessionPipeline) ([]entity.TaskSession, error) {
 	pipeline := []bson.M{}
 
 	// Add match stage
@@ -45,9 +45,51 @@ func buildTaskSessionPipeline(p *entity.TaskSessionPineline) []bson.M {
 		pipeline = append(pipeline, bson.M{"$match": matchStage})
 	}
 
-	return pipeline
+	return r.AggregateQuery(ctx, pipeline)
 }
 
-func (r *TaskSessionRepo) Find(ctx context.Context, pineline entity.TaskSessionPineline) ([]entity.TaskSession, error) {
-	return r.AggregateQuery(ctx, buildTaskSessionPipeline(&pineline))
+func (r *TaskSessionRepo) CountByTaskID(ctx context.Context, taskID string) (int, error) {
+	return r.Count(ctx, bson.M{"task_id": mongodb.ToObjectID(taskID)})
+}
+
+func (r *TaskSessionRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
+	pipeline := []bson.M{
+		{
+			"$lookup": bson.M{
+				"from":         "tasks",
+				"localField":   "task_id",
+				"foreignField": "_id",
+				"as":           "task",
+			},
+		},
+		{
+			"$match": bson.M{
+				"task.character_id": mongodb.ToObjectID(characterID),
+			},
+		},
+		{
+			"$count": "count",
+		},
+	}
+
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return 0, err
+	}
+
+	defer cursor.Close(ctx)
+
+	var result []struct {
+		Count int `bson:"count"`
+	}
+
+	if err := cursor.All(ctx, &result); err != nil {
+		return 0, err
+	}
+
+	if len(result) == 0 {
+		return 0, nil
+	}
+
+	return result[0].Count, nil
 }

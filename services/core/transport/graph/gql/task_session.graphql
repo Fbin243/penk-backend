@@ -24,3 +24,8 @@ input TaskSessionFilter {
 input TaskSessionOrderBy {
   _keep: Boolean
 }
+
+type TaskSessionConnection {
+  totalCount: Int!
+  edges: [TaskSession!]!
+}

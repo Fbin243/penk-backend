@@ -37,3 +37,8 @@ input CategoryFilter {
 input CategoryOrderBy {
   _keep: Boolean
 }
+
+type CategoryConnection {
+  totalCount: Int!
+  edges: [Category!]!
+}

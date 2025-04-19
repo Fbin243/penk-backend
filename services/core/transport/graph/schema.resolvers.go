@@ -7,12 +7,15 @@ package graph
 import (
 	"context"
 	"fmt"
+	"tenkhours/pkg/auth"
 	errs "tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 	"tenkhours/services/core/transport/graph/model"
 	"tenkhours/services/core/transport/graph/validations"
 
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/samber/lo"
 	rrule "github.com/teambition/rrule-go"
 )
 
@@ -164,38 +167,244 @@ func (r *queryResolver) AppSettings(ctx context.Context) (*model.AppSettings, er
 }
 
 // Goals is the resolver for the goals field.
-func (r *queryResolver) Goals(ctx context.Context, filter *entity.GoalFilter, orderBy *entity.GoalOrderBy, limit *int, offset *int) ([]entity.Goal, error) {
-	return r.GoalBusiness.Get(ctx, filter, orderBy, limit, offset)
+func (r *queryResolver) Goals(ctx context.Context, filter *entity.GoalFilter, orderBy *entity.GoalOrderBy, limit *int, offset *int) (*model.GoalConnection, error) {
+	session, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	fields := graphql.CollectAllFields(ctx)
+
+	var totalCount int
+	if lo.Contains(fields, "totalCount") {
+		totalCount, err = r.GoalRepo.CountByCharacterID(ctx, session.CurrentCharacterID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var goals []entity.Goal
+	if lo.Contains(fields, "edges") {
+		goals, err = r.GoalBusiness.Get(ctx, filter, orderBy, limit, offset)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &model.GoalConnection{
+		TotalCount: totalCount,
+		Edges:      goals,
+	}, nil
 }
 
 // Metrics is the resolver for the metrics field.
-func (r *queryResolver) Metrics(ctx context.Context, filter *entity.MetricFilter, orderBy *entity.MetricOrderBy, limit *int, offset *int) ([]entity.Metric, error) {
-	return r.MetricBusiness.Get(ctx, filter, orderBy, limit, offset)
+func (r *queryResolver) Metrics(ctx context.Context, filter *entity.MetricFilter, orderBy *entity.MetricOrderBy, limit *int, offset *int) (*model.MetricConnection, error) {
+	session, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	fields := graphql.CollectAllFields(ctx)
+
+	var totalCount int
+	if lo.Contains(fields, "totalCount") {
+		totalCount, err = r.MetricRepo.CountByCharacterID(ctx, session.CurrentCharacterID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var metrics []entity.Metric
+	if lo.Contains(fields, "edges") {
+		metrics, err = r.MetricBusiness.Get(ctx, filter, orderBy, limit, offset)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &model.MetricConnection{
+		TotalCount: totalCount,
+		Edges:      metrics,
+	}, nil
 }
 
 // Categories is the resolver for the categories field.
-func (r *queryResolver) Categories(ctx context.Context, filter *entity.CategoryFilter, orderBy *entity.CategoryOrderBy, limit *int, offset *int) ([]entity.Category, error) {
-	return r.CategoryBusiness.Get(ctx, filter, orderBy, limit, offset)
+func (r *queryResolver) Categories(ctx context.Context, filter *entity.CategoryFilter, orderBy *entity.CategoryOrderBy, limit *int, offset *int) (*model.CategoryConnection, error) {
+	session, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	fields := graphql.CollectAllFields(ctx)
+
+	var totalCount int
+	if lo.Contains(fields, "totalCount") {
+		totalCount, err = r.CategoryRepo.CountByCharacterID(ctx, session.CurrentCharacterID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var categories []entity.Category
+	if lo.Contains(fields, "edges") {
+		categories, err = r.CategoryBusiness.Get(ctx, filter, orderBy, limit, offset)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &model.CategoryConnection{
+		TotalCount: totalCount,
+		Edges:      categories,
+	}, nil
 }
 
 // Habits is the resolver for the habits field.
-func (r *queryResolver) Habits(ctx context.Context, filter *entity.HabitFilter, orderBy *entity.HabitOrderBy, limit *int, offset *int) ([]entity.Habit, error) {
-	return r.HabitBusiness.Get(ctx, filter, orderBy, limit, offset)
+func (r *queryResolver) Habits(ctx context.Context, filter *entity.HabitFilter, orderBy *entity.HabitOrderBy, limit *int, offset *int) (*model.HabitConnection, error) {
+	session, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	fields := graphql.CollectAllFields(ctx)
+
+	var totalCount int
+	if lo.Contains(fields, "totalCount") {
+		totalCount, err = r.HabitRepo.CountByCharacterID(ctx, session.CurrentCharacterID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var habits []entity.Habit
+	if lo.Contains(fields, "edges") {
+		habits, err = r.HabitBusiness.Get(ctx, filter, orderBy, limit, offset)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &model.HabitConnection{
+		TotalCount: totalCount,
+		Edges:      habits,
+	}, nil
 }
 
 // HabitLogs is the resolver for the habitLogs field.
-func (r *queryResolver) HabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit *int, offset *int) ([]entity.HabitLog, error) {
-	return r.HabitBusiness.GetHabitLogs(ctx, filter, orderBy, limit, offset)
+func (r *queryResolver) HabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit *int, offset *int) (*model.HabitLogConnection, error) {
+	session, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	fields := graphql.CollectAllFields(ctx)
+
+	var totalCount int
+	if lo.Contains(fields, "totalCount") {
+		if filter != nil && filter.HabitID != nil {
+			err := r.HabitRepo.Exist(ctx, session.CurrentCharacterID, *filter.HabitID)
+			if err != nil {
+				return nil, err
+			}
+
+			totalCount, err = r.HabitLogRepo.CountByHabitID(ctx, *filter.HabitID)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			totalCount, err = r.HabitLogRepo.CountByCharacterID(ctx, session.CurrentCharacterID)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	var habitLogs []entity.HabitLog
+	if lo.Contains(fields, "edges") {
+		habitLogs, err = r.HabitBusiness.GetHabitLogs(ctx, filter, orderBy, limit, offset)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &model.HabitLogConnection{
+		TotalCount: totalCount,
+		Edges:      habitLogs,
+	}, nil
 }
 
 // Tasks is the resolver for the tasks field.
-func (r *queryResolver) Tasks(ctx context.Context, filter *entity.TaskFilter, orderBy *entity.TaskOrderBy, limit *int, offset *int) ([]entity.Task, error) {
-	return r.TaskBusiness.Get(ctx, filter, orderBy, limit, offset)
+func (r *queryResolver) Tasks(ctx context.Context, filter *entity.TaskFilter, orderBy *entity.TaskOrderBy, limit *int, offset *int) (*model.TaskConnection, error) {
+	session, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	fields := graphql.CollectAllFields(ctx)
+
+	var totalCount int
+	if lo.Contains(fields, "totalCount") {
+		totalCount, err = r.TaskRepo.CountByCharacterID(ctx, session.CurrentCharacterID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var tasks []entity.Task
+	if lo.Contains(fields, "edges") {
+		tasks, err = r.TaskBusiness.Get(ctx, filter, orderBy, limit, offset)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &model.TaskConnection{
+		TotalCount: totalCount,
+		Edges:      tasks,
+	}, nil
 }
 
 // TaskSessions is the resolver for the taskSessions field.
-func (r *queryResolver) TaskSessions(ctx context.Context, filter *entity.TaskSessionFilter, orderBy *entity.TaskSessionOrderBy, limit *int, offset *int) ([]entity.TaskSession, error) {
-	return r.TaskBusiness.GetTaskSessions(ctx, filter)
+func (r *queryResolver) TaskSessions(ctx context.Context, filter *entity.TaskSessionFilter, orderBy *entity.TaskSessionOrderBy, limit *int, offset *int) (*model.TaskSessionConnection, error) {
+	session, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	fields := graphql.CollectAllFields(ctx)
+
+	var totalCount int
+	if lo.Contains(fields, "totalCount") {
+		if filter != nil && filter.TaskID != nil {
+			err := r.TaskRepo.Exist(ctx, session.CurrentCharacterID, *filter.TaskID)
+			if err != nil {
+				return nil, err
+			}
+
+			totalCount, err = r.TaskSessionRepo.CountByTaskID(ctx, *filter.TaskID)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			totalCount, err = r.TaskSessionRepo.CountByCharacterID(ctx, session.CurrentCharacterID)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	var taskSessions []entity.TaskSession
+	if lo.Contains(fields, "edges") {
+		taskSessions, err = r.TaskBusiness.GetTaskSessions(ctx, filter, orderBy, limit, offset)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &model.TaskSessionConnection{
+		TotalCount: totalCount,
+		Edges:      taskSessions,
+	}, nil
 }
 
 // Mutation returns MutationResolver implementation.

@@ -10,18 +10,16 @@ import (
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 
-	rdb "tenkhours/pkg/db/redis"
-
 	"github.com/samber/lo"
 )
 
 func (b *HabitBusiness) UpsertHabitLog(ctx context.Context, habitLogInput *entity.HabitLogInput) (*entity.HabitLog, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	err := b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
+	err = b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
 		{
 			ID:   habitLogInput.HabitID,
 			Type: entity.EntityTypeHabit,

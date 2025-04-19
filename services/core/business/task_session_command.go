@@ -5,20 +5,18 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
-	rdb "tenkhours/pkg/db/redis"
-	"tenkhours/pkg/errors"
 	"tenkhours/services/core/entity"
 
 	"github.com/jinzhu/copier"
 )
 
 func (b *TaskBusiness) UpsertTaskSession(ctx context.Context, input *entity.TaskSessionInput) (*entity.TaskSession, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	err := b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
+	err = b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
 		{
 			ID:   input.TaskID,
 			Type: entity.EntityTypeTask,
@@ -60,9 +58,9 @@ func (b *TaskBusiness) UpsertTaskSession(ctx context.Context, input *entity.Task
 }
 
 func (b *TaskBusiness) DeleteTaskSession(ctx context.Context, id string) (*entity.TaskSession, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	taskSession, err := b.taskSessionRepo.FindByID(ctx, id)

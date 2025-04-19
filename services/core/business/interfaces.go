@@ -43,7 +43,7 @@ type ICategoryBusiness interface {
 
 type IHabitBusiness interface {
 	base.IBaseBusiness[entity.Habit, entity.HabitInput, entity.HabitFilter, entity.HabitOrderBy]
-	GetHabitLogs(ctx context.Context, filter *entity.HabitLogFilter, sort *entity.HabitLogOrderBy, limit, offset *int) ([]entity.HabitLog, error)
+	GetHabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit, offset *int) ([]entity.HabitLog, error)
 	UpsertHabitLog(ctx context.Context, input *entity.HabitLogInput) (*entity.HabitLog, error)
 }
 
@@ -53,7 +53,7 @@ type ITimeTrackingBusiness interface {
 
 type ITaskBusiness interface {
 	base.IBaseBusiness[entity.Task, entity.TaskInput, entity.TaskFilter, entity.TaskOrderBy]
-	GetTaskSessions(ctx context.Context, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error)
+	GetTaskSessions(ctx context.Context, filter *entity.TaskSessionFilter, orderBy *entity.TaskSessionOrderBy, limit, offset *int) ([]entity.TaskSession, error)
 	UpsertTaskSession(ctx context.Context, input *entity.TaskSessionInput) (*entity.TaskSession, error)
 	DeleteTaskSession(ctx context.Context, id string) (*entity.TaskSession, error)
 }
@@ -130,6 +130,8 @@ type IHabitLogRepo interface {
 	UpsertByTimestamp(ctx context.Context, timestamp time.Time, habit *entity.HabitLog) error
 	DeleteByHabitID(ctx context.Context, habitID string) error
 	DeleteByHabitIDs(ctx context.Context, habitIDs []string) error
+	CountByCharacterID(ctx context.Context, characterID string) (int, error)
+	CountByHabitID(ctx context.Context, habitID string) (int, error)
 }
 
 type ITimeTrackingRepo interface {
@@ -163,9 +165,11 @@ type ITaskRepo interface {
 
 type ITaskSessionRepo interface {
 	base.IBaseRepo[entity.TaskSession]
-	Find(ctx context.Context, pineline entity.TaskSessionPineline) ([]entity.TaskSession, error)
+	Find(ctx context.Context, pineline entity.TaskSessionPipeline) ([]entity.TaskSession, error)
 	DeleteByTaskID(ctx context.Context, taskID string) error
 	DeleteByTaskIDs(ctx context.Context, taskIDs []string) error
+	CountByCharacterID(ctx context.Context, characterID string) (int, error)
+	CountByTaskID(ctx context.Context, taskID string) (int, error)
 }
 
 // RPCs

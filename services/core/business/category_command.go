@@ -5,16 +5,15 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
-	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 )
 
 func (b *CategoryBusiness) Upsert(ctx context.Context, input *entity.CategoryInput) (*entity.Category, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	cate := &entity.Category{
@@ -65,12 +64,12 @@ func (b *CategoryBusiness) Upsert(ctx context.Context, input *entity.CategoryInp
 }
 
 func (b *CategoryBusiness) Delete(ctx context.Context, categoryID string) (*entity.Category, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	err := b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{})
+	err = b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{})
 	if err != nil {
 		return nil, err
 	}

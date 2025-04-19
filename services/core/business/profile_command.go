@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"tenkhours/pkg/auth"
-	rdb "tenkhours/pkg/db/redis"
-	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 
@@ -14,9 +12,9 @@ import (
 
 // Update the user's profile
 func (biz *ProfileBusiness) UpdateProfile(ctx context.Context, input entity.ProfileInput) (*entity.Profile, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	profile, err := biz.ProfileRepo.FindByID(ctx, authSession.ProfileID)
@@ -52,9 +50,9 @@ func (biz *ProfileBusiness) UpdateProfile(ctx context.Context, input entity.Prof
 
 // Delete the user's profile and all related data
 func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	var profile *entity.Profile

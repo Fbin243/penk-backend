@@ -88,6 +88,11 @@ type ComplexityRoot struct {
 		UpdatedAt   func(childComplexity int) int
 	}
 
+	CategoryConnection struct {
+		Edges      func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
 	CategoryStyle struct {
 		Color func(childComplexity int) int
 		Icon  func(childComplexity int) int
@@ -127,6 +132,11 @@ type ComplexityRoot struct {
 		UpdatedAt     func(childComplexity int) int
 	}
 
+	GoalConnection struct {
+		Edges      func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
 	GoalMetric struct {
 		Condition   func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -150,11 +160,21 @@ type ComplexityRoot struct {
 		Value          func(childComplexity int) int
 	}
 
+	HabitConnection struct {
+		Edges      func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
 	HabitLog struct {
 		HabitID   func(childComplexity int) int
 		ID        func(childComplexity int) int
 		Timestamp func(childComplexity int) int
 		Value     func(childComplexity int) int
+	}
+
+	HabitLogConnection struct {
+		Edges      func(childComplexity int) int
+		TotalCount func(childComplexity int) int
 	}
 
 	Metric struct {
@@ -165,6 +185,11 @@ type ComplexityRoot struct {
 		Name        func(childComplexity int) int
 		Unit        func(childComplexity int) int
 		Value       func(childComplexity int) int
+	}
+
+	MetricConnection struct {
+		Edges      func(childComplexity int) int
+		TotalCount func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -235,12 +260,22 @@ type ComplexityRoot struct {
 		UpdatedAt     func(childComplexity int) int
 	}
 
+	TaskConnection struct {
+		Edges      func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
 	TaskSession struct {
 		CompletedTime func(childComplexity int) int
 		EndTime       func(childComplexity int) int
 		ID            func(childComplexity int) int
 		StartTime     func(childComplexity int) int
 		TaskID        func(childComplexity int) int
+	}
+
+	TaskSessionConnection struct {
+		Edges      func(childComplexity int) int
+		TotalCount func(childComplexity int) int
 	}
 
 	TimeTracking struct {
@@ -309,13 +344,13 @@ type QueryResolver interface {
 	Characters(ctx context.Context) ([]entity.Character, error)
 	Profile(ctx context.Context) (*entity.Profile, error)
 	AppSettings(ctx context.Context) (*model.AppSettings, error)
-	Goals(ctx context.Context, filter *entity.GoalFilter, orderBy *entity.GoalOrderBy, limit *int, offset *int) ([]entity.Goal, error)
-	Metrics(ctx context.Context, filter *entity.MetricFilter, orderBy *entity.MetricOrderBy, limit *int, offset *int) ([]entity.Metric, error)
-	Categories(ctx context.Context, filter *entity.CategoryFilter, orderBy *entity.CategoryOrderBy, limit *int, offset *int) ([]entity.Category, error)
-	Habits(ctx context.Context, filter *entity.HabitFilter, orderBy *entity.HabitOrderBy, limit *int, offset *int) ([]entity.Habit, error)
-	HabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit *int, offset *int) ([]entity.HabitLog, error)
-	Tasks(ctx context.Context, filter *entity.TaskFilter, orderBy *entity.TaskOrderBy, limit *int, offset *int) ([]entity.Task, error)
-	TaskSessions(ctx context.Context, filter *entity.TaskSessionFilter, orderBy *entity.TaskSessionOrderBy, limit *int, offset *int) ([]entity.TaskSession, error)
+	Goals(ctx context.Context, filter *entity.GoalFilter, orderBy *entity.GoalOrderBy, limit *int, offset *int) (*model.GoalConnection, error)
+	Metrics(ctx context.Context, filter *entity.MetricFilter, orderBy *entity.MetricOrderBy, limit *int, offset *int) (*model.MetricConnection, error)
+	Categories(ctx context.Context, filter *entity.CategoryFilter, orderBy *entity.CategoryOrderBy, limit *int, offset *int) (*model.CategoryConnection, error)
+	Habits(ctx context.Context, filter *entity.HabitFilter, orderBy *entity.HabitOrderBy, limit *int, offset *int) (*model.HabitConnection, error)
+	HabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit *int, offset *int) (*model.HabitLogConnection, error)
+	Tasks(ctx context.Context, filter *entity.TaskFilter, orderBy *entity.TaskOrderBy, limit *int, offset *int) (*model.TaskConnection, error)
+	TaskSessions(ctx context.Context, filter *entity.TaskSessionFilter, orderBy *entity.TaskSessionOrderBy, limit *int, offset *int) (*model.TaskSessionConnection, error)
 }
 
 type CategoryFilterResolver interface {
@@ -473,6 +508,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Category.UpdatedAt(childComplexity), true
+
+	case "CategoryConnection.edges":
+		if e.complexity.CategoryConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.CategoryConnection.Edges(childComplexity), true
+
+	case "CategoryConnection.totalCount":
+		if e.complexity.CategoryConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.CategoryConnection.TotalCount(childComplexity), true
 
 	case "CategoryStyle.color":
 		if e.complexity.CategoryStyle.Color == nil {
@@ -642,6 +691,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Goal.UpdatedAt(childComplexity), true
 
+	case "GoalConnection.edges":
+		if e.complexity.GoalConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.GoalConnection.Edges(childComplexity), true
+
+	case "GoalConnection.totalCount":
+		if e.complexity.GoalConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.GoalConnection.TotalCount(childComplexity), true
+
 	case "GoalMetric.condition":
 		if e.complexity.GoalMetric.Condition == nil {
 			break
@@ -761,6 +824,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Habit.Value(childComplexity), true
 
+	case "HabitConnection.edges":
+		if e.complexity.HabitConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.HabitConnection.Edges(childComplexity), true
+
+	case "HabitConnection.totalCount":
+		if e.complexity.HabitConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.HabitConnection.TotalCount(childComplexity), true
+
 	case "HabitLog.habitID":
 		if e.complexity.HabitLog.HabitID == nil {
 			break
@@ -788,6 +865,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.HabitLog.Value(childComplexity), true
+
+	case "HabitLogConnection.edges":
+		if e.complexity.HabitLogConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.HabitLogConnection.Edges(childComplexity), true
+
+	case "HabitLogConnection.totalCount":
+		if e.complexity.HabitLogConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.HabitLogConnection.TotalCount(childComplexity), true
 
 	case "Metric.category":
 		if e.complexity.Metric.Category == nil {
@@ -837,6 +928,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Metric.Value(childComplexity), true
+
+	case "MetricConnection.edges":
+		if e.complexity.MetricConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.MetricConnection.Edges(childComplexity), true
+
+	case "MetricConnection.totalCount":
+		if e.complexity.MetricConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.MetricConnection.TotalCount(childComplexity), true
 
 	case "Mutation.deleteCategory":
 		if e.complexity.Mutation.DeleteCategory == nil {
@@ -1334,6 +1439,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Task.UpdatedAt(childComplexity), true
 
+	case "TaskConnection.edges":
+		if e.complexity.TaskConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.TaskConnection.Edges(childComplexity), true
+
+	case "TaskConnection.totalCount":
+		if e.complexity.TaskConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.TaskConnection.TotalCount(childComplexity), true
+
 	case "TaskSession.completedTime":
 		if e.complexity.TaskSession.CompletedTime == nil {
 			break
@@ -1368,6 +1487,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TaskSession.TaskID(childComplexity), true
+
+	case "TaskSessionConnection.edges":
+		if e.complexity.TaskSessionConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.TaskSessionConnection.Edges(childComplexity), true
+
+	case "TaskSessionConnection.totalCount":
+		if e.complexity.TaskSessionConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.TaskSessionConnection.TotalCount(childComplexity), true
 
 	case "TimeTracking.categoryID":
 		if e.complexity.TimeTracking.CategoryID == nil {
@@ -2982,6 +3115,118 @@ func (ec *executionContext) fieldContext_Category_taskCount(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _CategoryConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.CategoryConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CategoryConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CategoryConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CategoryConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CategoryConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.CategoryConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CategoryConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]entity.Category)
+	fc.Result = res
+	return ec.marshalNCategory2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐCategoryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CategoryConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CategoryConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Category_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Category_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Category_updatedAt(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Category_characterID(ctx, field)
+			case "name":
+				return ec.fieldContext_Category_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Category_description(ctx, field)
+			case "style":
+				return ec.fieldContext_Category_style(ctx, field)
+			case "time":
+				return ec.fieldContext_Category_time(ctx, field)
+			case "metricCount":
+				return ec.fieldContext_Category_metricCount(ctx, field)
+			case "habitCount":
+				return ec.fieldContext_Category_habitCount(ctx, field)
+			case "taskCount":
+				return ec.fieldContext_Category_taskCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CategoryStyle_color(ctx context.Context, field graphql.CollectedField, obj *entity.CategoryStyle) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CategoryStyle_color(ctx, field)
 	if err != nil {
@@ -4049,6 +4294,120 @@ func (ec *executionContext) fieldContext_Goal_checkboxes(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _GoalConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.GoalConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GoalConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GoalConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GoalConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GoalConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.GoalConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GoalConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]entity.Goal)
+	fc.Result = res
+	return ec.marshalNGoal2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐGoalᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GoalConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GoalConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Goal_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Goal_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Goal_updatedAt(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Goal_characterID(ctx, field)
+			case "name":
+				return ec.fieldContext_Goal_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Goal_description(ctx, field)
+			case "startTime":
+				return ec.fieldContext_Goal_startTime(ctx, field)
+			case "endTime":
+				return ec.fieldContext_Goal_endTime(ctx, field)
+			case "completedTime":
+				return ec.fieldContext_Goal_completedTime(ctx, field)
+			case "status":
+				return ec.fieldContext_Goal_status(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Goal_metrics(ctx, field)
+			case "checkboxes":
+				return ec.fieldContext_Goal_checkboxes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Goal", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _GoalMetric_id(ctx context.Context, field graphql.CollectedField, obj *entity.GoalMetric) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GoalMetric_id(ctx, field)
 	if err != nil {
@@ -4822,6 +5181,120 @@ func (ec *executionContext) fieldContext_Habit_reset(_ context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _HabitConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.HabitConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_HabitConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_HabitConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "HabitConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _HabitConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.HabitConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_HabitConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]entity.Habit)
+	fc.Result = res
+	return ec.marshalNHabit2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐHabitᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_HabitConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "HabitConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Habit_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Habit_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Habit_updatedAt(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Habit_characterID(ctx, field)
+			case "categoryID":
+				return ec.fieldContext_Habit_categoryID(ctx, field)
+			case "category":
+				return ec.fieldContext_Habit_category(ctx, field)
+			case "completionType":
+				return ec.fieldContext_Habit_completionType(ctx, field)
+			case "name":
+				return ec.fieldContext_Habit_name(ctx, field)
+			case "value":
+				return ec.fieldContext_Habit_value(ctx, field)
+			case "unit":
+				return ec.fieldContext_Habit_unit(ctx, field)
+			case "rrule":
+				return ec.fieldContext_Habit_rrule(ctx, field)
+			case "reset":
+				return ec.fieldContext_Habit_reset(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Habit", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _HabitLog_id(ctx context.Context, field graphql.CollectedField, obj *entity.HabitLog) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_HabitLog_id(ctx, field)
 	if err != nil {
@@ -4993,6 +5466,104 @@ func (ec *executionContext) fieldContext_HabitLog_value(_ context.Context, field
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _HabitLogConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.HabitLogConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_HabitLogConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_HabitLogConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "HabitLogConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _HabitLogConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.HabitLogConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_HabitLogConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]entity.HabitLog)
+	fc.Result = res
+	return ec.marshalNHabitLog2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐHabitLogᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_HabitLogConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "HabitLogConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_HabitLog_id(ctx, field)
+			case "timestamp":
+				return ec.fieldContext_HabitLog_timestamp(ctx, field)
+			case "habitID":
+				return ec.fieldContext_HabitLog_habitID(ctx, field)
+			case "value":
+				return ec.fieldContext_HabitLog_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type HabitLog", field.Name)
 		},
 	}
 	return fc, nil
@@ -5319,6 +5890,110 @@ func (ec *executionContext) fieldContext_Metric_unit(_ context.Context, field gr
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MetricConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.MetricConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MetricConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MetricConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MetricConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MetricConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.MetricConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MetricConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]entity.Metric)
+	fc.Result = res
+	return ec.marshalNMetric2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐMetricᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MetricConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MetricConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Metric_id(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Metric_characterID(ctx, field)
+			case "categoryID":
+				return ec.fieldContext_Metric_categoryID(ctx, field)
+			case "category":
+				return ec.fieldContext_Metric_category(ctx, field)
+			case "name":
+				return ec.fieldContext_Metric_name(ctx, field)
+			case "value":
+				return ec.fieldContext_Metric_value(ctx, field)
+			case "unit":
+				return ec.fieldContext_Metric_unit(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Metric", field.Name)
 		},
 	}
 	return fc, nil
@@ -7318,9 +7993,9 @@ func (ec *executionContext) _Query_goals(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]entity.Goal)
+	res := resTmp.(*model.GoalConnection)
 	fc.Result = res
-	return ec.marshalNGoal2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐGoalᚄ(ctx, field.Selections, res)
+	return ec.marshalNGoalConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐGoalConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_goals(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7331,32 +8006,12 @@ func (ec *executionContext) fieldContext_Query_goals(ctx context.Context, field 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Goal_id(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Goal_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Goal_updatedAt(ctx, field)
-			case "characterID":
-				return ec.fieldContext_Goal_characterID(ctx, field)
-			case "name":
-				return ec.fieldContext_Goal_name(ctx, field)
-			case "description":
-				return ec.fieldContext_Goal_description(ctx, field)
-			case "startTime":
-				return ec.fieldContext_Goal_startTime(ctx, field)
-			case "endTime":
-				return ec.fieldContext_Goal_endTime(ctx, field)
-			case "completedTime":
-				return ec.fieldContext_Goal_completedTime(ctx, field)
-			case "status":
-				return ec.fieldContext_Goal_status(ctx, field)
-			case "metrics":
-				return ec.fieldContext_Goal_metrics(ctx, field)
-			case "checkboxes":
-				return ec.fieldContext_Goal_checkboxes(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_GoalConnection_totalCount(ctx, field)
+			case "edges":
+				return ec.fieldContext_GoalConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Goal", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type GoalConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -7399,9 +8054,9 @@ func (ec *executionContext) _Query_metrics(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]entity.Metric)
+	res := resTmp.(*model.MetricConnection)
 	fc.Result = res
-	return ec.marshalNMetric2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐMetricᚄ(ctx, field.Selections, res)
+	return ec.marshalNMetricConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐMetricConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7412,22 +8067,12 @@ func (ec *executionContext) fieldContext_Query_metrics(ctx context.Context, fiel
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Metric_id(ctx, field)
-			case "characterID":
-				return ec.fieldContext_Metric_characterID(ctx, field)
-			case "categoryID":
-				return ec.fieldContext_Metric_categoryID(ctx, field)
-			case "category":
-				return ec.fieldContext_Metric_category(ctx, field)
-			case "name":
-				return ec.fieldContext_Metric_name(ctx, field)
-			case "value":
-				return ec.fieldContext_Metric_value(ctx, field)
-			case "unit":
-				return ec.fieldContext_Metric_unit(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_MetricConnection_totalCount(ctx, field)
+			case "edges":
+				return ec.fieldContext_MetricConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Metric", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type MetricConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -7470,9 +8115,9 @@ func (ec *executionContext) _Query_categories(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]entity.Category)
+	res := resTmp.(*model.CategoryConnection)
 	fc.Result = res
-	return ec.marshalNCategory2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐCategoryᚄ(ctx, field.Selections, res)
+	return ec.marshalNCategoryConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐCategoryConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_categories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7483,30 +8128,12 @@ func (ec *executionContext) fieldContext_Query_categories(ctx context.Context, f
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Category_id(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Category_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Category_updatedAt(ctx, field)
-			case "characterID":
-				return ec.fieldContext_Category_characterID(ctx, field)
-			case "name":
-				return ec.fieldContext_Category_name(ctx, field)
-			case "description":
-				return ec.fieldContext_Category_description(ctx, field)
-			case "style":
-				return ec.fieldContext_Category_style(ctx, field)
-			case "time":
-				return ec.fieldContext_Category_time(ctx, field)
-			case "metricCount":
-				return ec.fieldContext_Category_metricCount(ctx, field)
-			case "habitCount":
-				return ec.fieldContext_Category_habitCount(ctx, field)
-			case "taskCount":
-				return ec.fieldContext_Category_taskCount(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_CategoryConnection_totalCount(ctx, field)
+			case "edges":
+				return ec.fieldContext_CategoryConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CategoryConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -7549,9 +8176,9 @@ func (ec *executionContext) _Query_habits(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]entity.Habit)
+	res := resTmp.(*model.HabitConnection)
 	fc.Result = res
-	return ec.marshalNHabit2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐHabitᚄ(ctx, field.Selections, res)
+	return ec.marshalNHabitConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐHabitConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_habits(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7562,32 +8189,12 @@ func (ec *executionContext) fieldContext_Query_habits(ctx context.Context, field
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Habit_id(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Habit_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Habit_updatedAt(ctx, field)
-			case "characterID":
-				return ec.fieldContext_Habit_characterID(ctx, field)
-			case "categoryID":
-				return ec.fieldContext_Habit_categoryID(ctx, field)
-			case "category":
-				return ec.fieldContext_Habit_category(ctx, field)
-			case "completionType":
-				return ec.fieldContext_Habit_completionType(ctx, field)
-			case "name":
-				return ec.fieldContext_Habit_name(ctx, field)
-			case "value":
-				return ec.fieldContext_Habit_value(ctx, field)
-			case "unit":
-				return ec.fieldContext_Habit_unit(ctx, field)
-			case "rrule":
-				return ec.fieldContext_Habit_rrule(ctx, field)
-			case "reset":
-				return ec.fieldContext_Habit_reset(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_HabitConnection_totalCount(ctx, field)
+			case "edges":
+				return ec.fieldContext_HabitConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Habit", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type HabitConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -7630,9 +8237,9 @@ func (ec *executionContext) _Query_habitLogs(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]entity.HabitLog)
+	res := resTmp.(*model.HabitLogConnection)
 	fc.Result = res
-	return ec.marshalNHabitLog2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐHabitLogᚄ(ctx, field.Selections, res)
+	return ec.marshalNHabitLogConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐHabitLogConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_habitLogs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7643,16 +8250,12 @@ func (ec *executionContext) fieldContext_Query_habitLogs(ctx context.Context, fi
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_HabitLog_id(ctx, field)
-			case "timestamp":
-				return ec.fieldContext_HabitLog_timestamp(ctx, field)
-			case "habitID":
-				return ec.fieldContext_HabitLog_habitID(ctx, field)
-			case "value":
-				return ec.fieldContext_HabitLog_value(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_HabitLogConnection_totalCount(ctx, field)
+			case "edges":
+				return ec.fieldContext_HabitLogConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type HabitLog", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type HabitLogConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -7695,9 +8298,9 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]entity.Task)
+	res := resTmp.(*model.TaskConnection)
 	fc.Result = res
-	return ec.marshalNTask2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐTaskᚄ(ctx, field.Selections, res)
+	return ec.marshalNTaskConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐTaskConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_tasks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7708,30 +8311,12 @@ func (ec *executionContext) fieldContext_Query_tasks(ctx context.Context, field 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Task_id(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Task_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Task_updatedAt(ctx, field)
-			case "characterID":
-				return ec.fieldContext_Task_characterID(ctx, field)
-			case "categoryID":
-				return ec.fieldContext_Task_categoryID(ctx, field)
-			case "name":
-				return ec.fieldContext_Task_name(ctx, field)
-			case "priority":
-				return ec.fieldContext_Task_priority(ctx, field)
-			case "completedTime":
-				return ec.fieldContext_Task_completedTime(ctx, field)
-			case "subtasks":
-				return ec.fieldContext_Task_subtasks(ctx, field)
-			case "description":
-				return ec.fieldContext_Task_description(ctx, field)
-			case "deadline":
-				return ec.fieldContext_Task_deadline(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_TaskConnection_totalCount(ctx, field)
+			case "edges":
+				return ec.fieldContext_TaskConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TaskConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -7774,9 +8359,9 @@ func (ec *executionContext) _Query_taskSessions(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]entity.TaskSession)
+	res := resTmp.(*model.TaskSessionConnection)
 	fc.Result = res
-	return ec.marshalNTaskSession2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐTaskSessionᚄ(ctx, field.Selections, res)
+	return ec.marshalNTaskSessionConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐTaskSessionConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_taskSessions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7787,18 +8372,12 @@ func (ec *executionContext) fieldContext_Query_taskSessions(ctx context.Context,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_TaskSession_id(ctx, field)
-			case "taskID":
-				return ec.fieldContext_TaskSession_taskID(ctx, field)
-			case "startTime":
-				return ec.fieldContext_TaskSession_startTime(ctx, field)
-			case "endTime":
-				return ec.fieldContext_TaskSession_endTime(ctx, field)
-			case "completedTime":
-				return ec.fieldContext_TaskSession_completedTime(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_TaskSessionConnection_totalCount(ctx, field)
+			case "edges":
+				return ec.fieldContext_TaskSessionConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TaskSession", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TaskSessionConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -8615,6 +9194,118 @@ func (ec *executionContext) fieldContext_Task_deadline(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _TaskConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.TaskConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TaskConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TaskConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TaskConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TaskConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.TaskConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TaskConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]entity.Task)
+	fc.Result = res
+	return ec.marshalNTask2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐTaskᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TaskConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TaskConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Task_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Task_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Task_updatedAt(ctx, field)
+			case "characterID":
+				return ec.fieldContext_Task_characterID(ctx, field)
+			case "categoryID":
+				return ec.fieldContext_Task_categoryID(ctx, field)
+			case "name":
+				return ec.fieldContext_Task_name(ctx, field)
+			case "priority":
+				return ec.fieldContext_Task_priority(ctx, field)
+			case "completedTime":
+				return ec.fieldContext_Task_completedTime(ctx, field)
+			case "subtasks":
+				return ec.fieldContext_Task_subtasks(ctx, field)
+			case "description":
+				return ec.fieldContext_Task_description(ctx, field)
+			case "deadline":
+				return ec.fieldContext_Task_deadline(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TaskSession_id(ctx context.Context, field graphql.CollectedField, obj *entity.TaskSession) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TaskSession_id(ctx, field)
 	if err != nil {
@@ -8827,6 +9518,106 @@ func (ec *executionContext) fieldContext_TaskSession_completedTime(_ context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TaskSessionConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.TaskSessionConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TaskSessionConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TaskSessionConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TaskSessionConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TaskSessionConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.TaskSessionConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TaskSessionConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]entity.TaskSession)
+	fc.Result = res
+	return ec.marshalNTaskSession2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐTaskSessionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TaskSessionConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TaskSessionConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TaskSession_id(ctx, field)
+			case "taskID":
+				return ec.fieldContext_TaskSession_taskID(ctx, field)
+			case "startTime":
+				return ec.fieldContext_TaskSession_startTime(ctx, field)
+			case "endTime":
+				return ec.fieldContext_TaskSession_endTime(ctx, field)
+			case "completedTime":
+				return ec.fieldContext_TaskSession_completedTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TaskSession", field.Name)
 		},
 	}
 	return fc, nil
@@ -12377,6 +13168,50 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var categoryConnectionImplementors = []string{"CategoryConnection"}
+
+func (ec *executionContext) _CategoryConnection(ctx context.Context, sel ast.SelectionSet, obj *model.CategoryConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, categoryConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CategoryConnection")
+		case "totalCount":
+			out.Values[i] = ec._CategoryConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._CategoryConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var categoryStyleImplementors = []string{"CategoryStyle"}
 
 func (ec *executionContext) _CategoryStyle(ctx context.Context, sel ast.SelectionSet, obj *entity.CategoryStyle) graphql.Marshaler {
@@ -12720,6 +13555,50 @@ func (ec *executionContext) _Goal(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var goalConnectionImplementors = []string{"GoalConnection"}
+
+func (ec *executionContext) _GoalConnection(ctx context.Context, sel ast.SelectionSet, obj *model.GoalConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, goalConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GoalConnection")
+		case "totalCount":
+			out.Values[i] = ec._GoalConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._GoalConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var goalMetricImplementors = []string{"GoalMetric"}
 
 func (ec *executionContext) _GoalMetric(ctx context.Context, sel ast.SelectionSet, obj *entity.GoalMetric) graphql.Marshaler {
@@ -12945,6 +13824,50 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
+var habitConnectionImplementors = []string{"HabitConnection"}
+
+func (ec *executionContext) _HabitConnection(ctx context.Context, sel ast.SelectionSet, obj *model.HabitConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, habitConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("HabitConnection")
+		case "totalCount":
+			out.Values[i] = ec._HabitConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._HabitConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var habitLogImplementors = []string{"HabitLog"}
 
 func (ec *executionContext) _HabitLog(ctx context.Context, sel ast.SelectionSet, obj *entity.HabitLog) graphql.Marshaler {
@@ -12973,6 +13896,50 @@ func (ec *executionContext) _HabitLog(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "value":
 			out.Values[i] = ec._HabitLog_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var habitLogConnectionImplementors = []string{"HabitLogConnection"}
+
+func (ec *executionContext) _HabitLogConnection(ctx context.Context, sel ast.SelectionSet, obj *model.HabitLogConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, habitLogConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("HabitLogConnection")
+		case "totalCount":
+			out.Values[i] = ec._HabitLogConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._HabitLogConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -13100,6 +14067,50 @@ func (ec *executionContext) _Metric(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Metric_unit(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var metricConnectionImplementors = []string{"MetricConnection"}
+
+func (ec *executionContext) _MetricConnection(ctx context.Context, sel ast.SelectionSet, obj *model.MetricConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, metricConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MetricConnection")
+		case "totalCount":
+			out.Values[i] = ec._MetricConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._MetricConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -13870,6 +14881,50 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var taskConnectionImplementors = []string{"TaskConnection"}
+
+func (ec *executionContext) _TaskConnection(ctx context.Context, sel ast.SelectionSet, obj *model.TaskConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, taskConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TaskConnection")
+		case "totalCount":
+			out.Values[i] = ec._TaskConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._TaskConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var taskSessionImplementors = []string{"TaskSession"}
 
 func (ec *executionContext) _TaskSession(ctx context.Context, sel ast.SelectionSet, obj *entity.TaskSession) graphql.Marshaler {
@@ -13903,6 +14958,50 @@ func (ec *executionContext) _TaskSession(ctx context.Context, sel ast.SelectionS
 			}
 		case "completedTime":
 			out.Values[i] = ec._TaskSession_completedTime(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var taskSessionConnectionImplementors = []string{"TaskSessionConnection"}
+
+func (ec *executionContext) _TaskSessionConnection(ctx context.Context, sel ast.SelectionSet, obj *model.TaskSessionConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, taskSessionConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TaskSessionConnection")
+		case "totalCount":
+			out.Values[i] = ec._TaskSessionConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._TaskSessionConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -14435,6 +15534,20 @@ func (ec *executionContext) marshalNCategory2ᚖtenkhoursᚋservicesᚋcoreᚋen
 	return ec._Category(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNCategoryConnection2tenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐCategoryConnection(ctx context.Context, sel ast.SelectionSet, v model.CategoryConnection) graphql.Marshaler {
+	return ec._CategoryConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCategoryConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐCategoryConnection(ctx context.Context, sel ast.SelectionSet, v *model.CategoryConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CategoryConnection(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNCategoryInput2tenkhoursᚋservicesᚋcoreᚋentityᚐCategoryInput(ctx context.Context, v interface{}) (entity.CategoryInput, error) {
 	res, err := ec.unmarshalInputCategoryInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -14699,6 +15812,20 @@ func (ec *executionContext) marshalNGoal2ᚖtenkhoursᚋservicesᚋcoreᚋentity
 	return ec._Goal(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNGoalConnection2tenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐGoalConnection(ctx context.Context, sel ast.SelectionSet, v model.GoalConnection) graphql.Marshaler {
+	return ec._GoalConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGoalConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐGoalConnection(ctx context.Context, sel ast.SelectionSet, v *model.GoalConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GoalConnection(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNGoalInput2tenkhoursᚋservicesᚋcoreᚋentityᚐGoalInput(ctx context.Context, v interface{}) (entity.GoalInput, error) {
 	res, err := ec.unmarshalInputGoalInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -14831,6 +15958,20 @@ func (ec *executionContext) marshalNHabit2ᚖtenkhoursᚋservicesᚋcoreᚋentit
 	return ec._Habit(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNHabitConnection2tenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐHabitConnection(ctx context.Context, sel ast.SelectionSet, v model.HabitConnection) graphql.Marshaler {
+	return ec._HabitConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNHabitConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐHabitConnection(ctx context.Context, sel ast.SelectionSet, v *model.HabitConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._HabitConnection(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNHabitInput2tenkhoursᚋservicesᚋcoreᚋentityᚐHabitInput(ctx context.Context, v interface{}) (entity.HabitInput, error) {
 	res, err := ec.unmarshalInputHabitInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -14892,6 +16033,20 @@ func (ec *executionContext) marshalNHabitLog2ᚖtenkhoursᚋservicesᚋcoreᚋen
 		return graphql.Null
 	}
 	return ec._HabitLog(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNHabitLogConnection2tenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐHabitLogConnection(ctx context.Context, sel ast.SelectionSet, v model.HabitLogConnection) graphql.Marshaler {
+	return ec._HabitLogConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNHabitLogConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐHabitLogConnection(ctx context.Context, sel ast.SelectionSet, v *model.HabitLogConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._HabitLogConnection(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNHabitLogInput2tenkhoursᚋservicesᚋcoreᚋentityᚐHabitLogInput(ctx context.Context, v interface{}) (entity.HabitLogInput, error) {
@@ -15019,6 +16174,20 @@ func (ec *executionContext) marshalNMetricCondition2tenkhoursᚋservicesᚋcore�
 	return res
 }
 
+func (ec *executionContext) marshalNMetricConnection2tenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐMetricConnection(ctx context.Context, sel ast.SelectionSet, v model.MetricConnection) graphql.Marshaler {
+	return ec._MetricConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNMetricConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐMetricConnection(ctx context.Context, sel ast.SelectionSet, v *model.MetricConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._MetricConnection(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNMetricInput2tenkhoursᚋservicesᚋcoreᚋentityᚐMetricInput(ctx context.Context, v interface{}) (entity.MetricInput, error) {
 	res, err := ec.unmarshalInputMetricInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -15116,6 +16285,20 @@ func (ec *executionContext) marshalNTask2ᚖtenkhoursᚋservicesᚋcoreᚋentity
 	return ec._Task(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNTaskConnection2tenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐTaskConnection(ctx context.Context, sel ast.SelectionSet, v model.TaskConnection) graphql.Marshaler {
+	return ec._TaskConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTaskConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐTaskConnection(ctx context.Context, sel ast.SelectionSet, v *model.TaskConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TaskConnection(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNTaskInput2tenkhoursᚋservicesᚋcoreᚋentityᚐTaskInput(ctx context.Context, v interface{}) (entity.TaskInput, error) {
 	res, err := ec.unmarshalInputTaskInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -15177,6 +16360,20 @@ func (ec *executionContext) marshalNTaskSession2ᚖtenkhoursᚋservicesᚋcore�
 		return graphql.Null
 	}
 	return ec._TaskSession(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTaskSessionConnection2tenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐTaskSessionConnection(ctx context.Context, sel ast.SelectionSet, v model.TaskSessionConnection) graphql.Marshaler {
+	return ec._TaskSessionConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTaskSessionConnection2ᚖtenkhoursᚋservicesᚋcoreᚋtransportᚋgraphᚋmodelᚐTaskSessionConnection(ctx context.Context, sel ast.SelectionSet, v *model.TaskSessionConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TaskSessionConnection(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTaskSessionInput2tenkhoursᚋservicesᚋcoreᚋentityᚐTaskSessionInput(ctx context.Context, v interface{}) (entity.TaskSessionInput, error) {
