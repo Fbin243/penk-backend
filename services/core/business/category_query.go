@@ -7,6 +7,7 @@ import (
 	"tenkhours/pkg/db/base"
 	"tenkhours/pkg/graphql"
 	"tenkhours/pkg/types"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 )
 
@@ -38,7 +39,9 @@ func (b *CategoryBusiness) Get(ctx context.Context, filter *entity.CategoryFilte
 	// Add the default category with id = "unassigned"
 	cates = append(cates, entity.Category{
 		BaseEntity: &base.BaseEntity{
-			ID: graphql.UnassignedID,
+			ID:        graphql.UnassignedID,
+			CreatedAt: utils.Now(),
+			UpdatedAt: utils.Now(),
 		},
 		CharacterID: authSession.CurrentCharacterID,
 	})
