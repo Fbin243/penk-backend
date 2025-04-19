@@ -29,6 +29,7 @@ type Composer struct {
 	HabitLogRepo     business.IHabitLogRepo
 	TaskRepo         business.ITaskRepo
 	TaskSessionRepo  business.ITaskSessionRepo
+	GoalRepo         business.IGoalRepo
 
 	CurrencyConn *grpc.ClientConn
 	AnalyticConn *grpc.ClientConn
@@ -95,6 +96,7 @@ func GetComposer() *Composer {
 		HabitLogRepo:     habitLogRepo,
 		TaskRepo:         taskRepo,
 		TaskSessionRepo:  taskSessionRepo,
+		GoalRepo:         goalRepo,
 
 		CurrencyConn: currencyConn,
 		AnalyticConn: notiConn,

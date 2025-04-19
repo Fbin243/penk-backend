@@ -23,3 +23,8 @@ input MetricFilter {
 input MetricOrderBy {
   _keep: Boolean
 }
+
+type MetricConnection {
+  totalCount: Int!
+  edges: [Metric!]!
+}

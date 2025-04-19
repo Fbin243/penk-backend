@@ -30,3 +30,8 @@ input TaskFilter {
 input TaskOrderBy {
   priority: SortOrder
 }
+
+type TaskConnection {
+  totalCount: Int!
+  edges: [Task!]!
+}

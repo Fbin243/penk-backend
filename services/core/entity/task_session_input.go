@@ -1,6 +1,10 @@
 package entity
 
-import "time"
+import (
+	"time"
+
+	"tenkhours/pkg/types"
+)
 
 type TaskSessionInput struct {
 	ID            *string    `json:"id,omitempty"`
@@ -10,11 +14,10 @@ type TaskSessionInput struct {
 	CompletedTime *time.Time `json:"completedTime"`
 }
 
-type TaskSessionPineline struct {
+type TaskSessionPipeline struct {
 	Filter  *TaskSessionFilter
 	OrderBy *TaskSessionOrderBy
-	Limit   *int
-	Offset  *int
+	*types.Pagination
 }
 
 type TaskSessionFilter struct {

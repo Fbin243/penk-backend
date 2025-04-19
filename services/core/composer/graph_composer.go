@@ -23,5 +23,7 @@ func ComposeGraphQLResolver() *graph.Resolver {
 		HabitRepo:        composer.HabitRepo,
 		HabitLogRepo:     composer.HabitLogRepo,
 		TaskRepo:         composer.TaskRepo,
+		TaskSessionRepo:  composer.TaskSessionRepo,
+		GoalRepo:         composer.GoalRepo,
 	}
 }

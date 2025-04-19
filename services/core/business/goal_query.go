@@ -15,7 +15,6 @@ func (biz *GoalBusiness) Get(ctx context.Context, filter *entity.GoalFilter, ord
 	if err != nil {
 		return nil, err
 	}
-
 	if filter == nil {
 		filter = &entity.GoalFilter{}
 	}

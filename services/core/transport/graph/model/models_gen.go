@@ -17,6 +17,11 @@ type AppSettings struct {
 	LimitedMetricNumber    int `json:"limitedMetricNumber"`
 }
 
+type CategoryConnection struct {
+	TotalCount int               `json:"totalCount"`
+	Edges      []entity.Category `json:"edges"`
+}
+
 type Fish struct {
 	ProfileID string `json:"profileID"`
 }
@@ -28,10 +33,35 @@ type GoalConnection struct {
 	Edges      []entity.Goal `json:"edges"`
 }
 
+type HabitConnection struct {
+	TotalCount int            `json:"totalCount"`
+	Edges      []entity.Habit `json:"edges"`
+}
+
+type HabitLogConnection struct {
+	TotalCount int               `json:"totalCount"`
+	Edges      []entity.HabitLog `json:"edges"`
+}
+
+type MetricConnection struct {
+	TotalCount int             `json:"totalCount"`
+	Edges      []entity.Metric `json:"edges"`
+}
+
 type Mutation struct {
 }
 
 type Query struct {
+}
+
+type TaskConnection struct {
+	TotalCount int           `json:"totalCount"`
+	Edges      []entity.Task `json:"edges"`
+}
+
+type TaskSessionConnection struct {
+	TotalCount int                  `json:"totalCount"`
+	Edges      []entity.TaskSession `json:"edges"`
 }
 
 type Month string

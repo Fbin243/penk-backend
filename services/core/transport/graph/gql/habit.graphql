@@ -43,3 +43,8 @@ input HabitFilter {
 input HabitOrderBy {
   _keep: Boolean
 }
+
+type HabitConnection {
+  totalCount: Int!
+  edges: [Habit!]!
+}

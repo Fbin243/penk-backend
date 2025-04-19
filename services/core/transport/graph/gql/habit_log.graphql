@@ -26,3 +26,8 @@ enum SortOrder {
   ASC
   DESC
 }
+
+type HabitLogConnection {
+  totalCount: Int!
+  edges: [HabitLog!]!
+}
