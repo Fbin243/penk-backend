@@ -116,7 +116,11 @@ func (biz *CharacterBusiness) DeleteCharacter(ctx context.Context, id string) (*
 	}
 
 	// Habit
-	habits, err := biz.HabitRepo.FindByCharacterID(ctx, id)
+	habits, err := biz.HabitRepo.Find(ctx, entity.HabitPipeline{
+		Filter: &entity.HabitFilter{
+			CharacterID: &id,
+		},
+	})
 	if err != nil {
 		return nil, err
 	}

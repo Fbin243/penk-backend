@@ -61,7 +61,11 @@ func TestGetGoalsByCharacterID(t *testing.T) {
 		assert.Nil(t, err)
 	}
 
-	goals, err := goalRepo.GetGoalsByCharacterID(context.Background(), goal.CharacterID)
+	goals, err := goalRepo.Find(context.Background(), entity.GoalPipeline{
+		Filter: &entity.GoalFilter{
+			CharacterID: &goal.CharacterID,
+		},
+	})
 	assert.Nil(t, err)
 	assert.Equal(t, 3, len(goals))
 	for _, g := range goals {

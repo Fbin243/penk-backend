@@ -1,5 +1,7 @@
 type Category {
   id: ID!
+  createdAt: Time!
+  updatedAt: Time!
   characterID: ID!
   name: String!
   description: String!
@@ -15,6 +17,7 @@ type CategoryStyle {
   icon: String!
 }
 
+# Inputs
 input CategoryInput {
   id: ID
   name: String!
@@ -25,4 +28,12 @@ input CategoryInput {
 input CategoryStyleInput {
   color: String!
   icon: String!
+}
+
+input CategoryFilter {
+  _keep: Boolean
+}
+
+input CategoryOrderBy {
+  _keep: Boolean
 }

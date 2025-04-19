@@ -9,26 +9,18 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (r *MetricRepo) Exist(ctx context.Context, characterID, metricID string) error {
+func (r *GoalRepo) Exist(ctx context.Context, characterID, goalID string) error {
 	return r.Exists(ctx, bson.M{
-		"_id":          mongodb.ToObjectID(metricID),
+		"_id":          mongodb.ToObjectID(goalID),
 		"character_id": mongodb.ToObjectID(characterID),
 	})
 }
 
-func (r *MetricRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
+func (r *GoalRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
 	return r.Count(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
 }
 
-func (r *MetricRepo) CountByCategoryID(ctx context.Context, categoryID string) (int, error) {
-	return r.Count(ctx, bson.M{"category_id": mongodb.ToObjectID(categoryID)})
-}
-
-func (r *MetricRepo) CountUnassigned(ctx context.Context, characterID string) (int, error) {
-	return r.Count(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID), "category_id": nil})
-}
-
-func (r *MetricRepo) Find(ctx context.Context, p entity.MetricPipeline) ([]entity.Metric, error) {
+func (r *GoalRepo) Find(ctx context.Context, p entity.GoalPipeline) ([]entity.Goal, error) {
 	pipeline := []bson.M{}
 
 	// Add match stage
@@ -37,6 +29,7 @@ func (r *MetricRepo) Find(ctx context.Context, p entity.MetricPipeline) ([]entit
 		if p.Filter.CharacterID != nil {
 			matchStage["character_id"] = mongodb.ToObjectID(*p.Filter.CharacterID)
 		}
+
 		pipeline = append(pipeline, bson.M{"$match": matchStage})
 	}
 

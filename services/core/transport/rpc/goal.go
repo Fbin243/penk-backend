@@ -13,7 +13,7 @@ func (hdl *CoreHandler) UpsertGoal(ctx context.Context, req *core.GoalInput) (*c
 		return nil, err
 	}
 
-	goal, err := hdl.goalBiz.UpsertGoal(ctx, goalInput)
+	goal, err := hdl.goalBiz.Upsert(ctx, goalInput)
 	if err != nil {
 		return nil, err
 	}

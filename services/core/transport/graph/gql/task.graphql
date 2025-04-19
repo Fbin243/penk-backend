@@ -26,3 +26,7 @@ input TaskInput {
 input TaskFilter {
   isCompleted: Boolean
 }
+
+input TaskOrderBy {
+  priority: SortOrder
+}

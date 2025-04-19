@@ -64,3 +64,12 @@ enum GoalStatus {
   Completed
   Overdue
 }
+
+input GoalFilter {
+  status: GoalStatus
+}
+
+input GoalOrderBy {
+  _keep: Boolean
+}
+

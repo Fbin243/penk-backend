@@ -8,10 +8,11 @@ import (
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/graphql"
+	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 )
 
-func (b *CategoryBusiness) GetCategories(ctx context.Context) ([]entity.Category, error) {
+func (b *CategoryBusiness) Get(ctx context.Context, filter *entity.CategoryFilter, orderBy *entity.CategoryOrderBy, limit, offset *int) ([]entity.Category, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
@@ -22,7 +23,19 @@ func (b *CategoryBusiness) GetCategories(ctx context.Context) ([]entity.Category
 		return nil, err
 	}
 
-	cates, err := b.cateRepo.FindByCharacterID(ctx, authSession.CurrentCharacterID)
+	if filter == nil {
+		filter = &entity.CategoryFilter{}
+	}
+	filter.CharacterID = &authSession.CurrentCharacterID
+
+	cates, err := b.cateRepo.Find(ctx, entity.CategoryPipeline{
+		Filter:  filter,
+		OrderBy: orderBy,
+		Pagination: &types.Pagination{
+			Limit:  limit,
+			Offset: offset,
+		},
+	})
 
 	// Add the default category with id = "unassigned"
 	cates = append(cates, entity.Category{

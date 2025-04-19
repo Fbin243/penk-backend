@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	gql "tenkhours/pkg/graphql"
 	"tenkhours/services/core/entity"
 )
@@ -46,7 +47,25 @@ func (r *categoryResolver) TaskCount(ctx context.Context, obj *entity.Category) 
 	return r.TaskRepo.CountByCategoryID(ctx, obj.ID)
 }
 
+// Keep is the resolver for the _keep field.
+func (r *categoryFilterResolver) Keep(ctx context.Context, obj *entity.CategoryFilter, data *bool) error {
+	panic(fmt.Errorf("not implemented: Keep - _keep"))
+}
+
+// Keep is the resolver for the _keep field.
+func (r *categoryOrderByResolver) Keep(ctx context.Context, obj *entity.CategoryOrderBy, data *bool) error {
+	panic(fmt.Errorf("not implemented: Keep - _keep"))
+}
+
 // Category returns CategoryResolver implementation.
 func (r *Resolver) Category() CategoryResolver { return &categoryResolver{r} }
 
+// CategoryFilter returns CategoryFilterResolver implementation.
+func (r *Resolver) CategoryFilter() CategoryFilterResolver { return &categoryFilterResolver{r} }
+
+// CategoryOrderBy returns CategoryOrderByResolver implementation.
+func (r *Resolver) CategoryOrderBy() CategoryOrderByResolver { return &categoryOrderByResolver{r} }
+
 type categoryResolver struct{ *Resolver }
+type categoryFilterResolver struct{ *Resolver }
+type categoryOrderByResolver struct{ *Resolver }

@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	gql "tenkhours/pkg/graphql"
 	"tenkhours/services/core/entity"
 
@@ -28,7 +29,25 @@ func (r *metricResolver) Category(ctx context.Context, obj *entity.Metric) (*ent
 	return r.CategoryRepo.FindByID(ctx, *obj.CategoryID)
 }
 
+// Keep is the resolver for the _keep field.
+func (r *metricFilterResolver) Keep(ctx context.Context, obj *entity.MetricFilter, data *bool) error {
+	panic(fmt.Errorf("not implemented: Keep - _keep"))
+}
+
+// Keep is the resolver for the _keep field.
+func (r *metricOrderByResolver) Keep(ctx context.Context, obj *entity.MetricOrderBy, data *bool) error {
+	panic(fmt.Errorf("not implemented: Keep - _keep"))
+}
+
 // Metric returns MetricResolver implementation.
 func (r *Resolver) Metric() MetricResolver { return &metricResolver{r} }
 
+// MetricFilter returns MetricFilterResolver implementation.
+func (r *Resolver) MetricFilter() MetricFilterResolver { return &metricFilterResolver{r} }
+
+// MetricOrderBy returns MetricOrderByResolver implementation.
+func (r *Resolver) MetricOrderBy() MetricOrderByResolver { return &metricOrderByResolver{r} }
+
 type metricResolver struct{ *Resolver }
+type metricFilterResolver struct{ *Resolver }
+type metricOrderByResolver struct{ *Resolver }

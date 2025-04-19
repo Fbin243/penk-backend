@@ -1,6 +1,10 @@
 package entity
 
-import "time"
+import (
+	"time"
+
+	"tenkhours/pkg/types"
+)
 
 type TaskInput struct {
 	ID            *string         `json:"id,omitempty"`
@@ -16,8 +20,7 @@ type TaskInput struct {
 type TaskPineline struct {
 	Filter  *TaskFilter
 	OrderBy *TaskOrderBy
-	Limit   *int
-	Offset  *int
+	*types.Pagination
 }
 
 type TaskFilter struct {
@@ -26,4 +29,6 @@ type TaskFilter struct {
 	IsCompleted  *bool    `json:"is_completed"`
 }
 
-type TaskOrderBy struct{}
+type TaskOrderBy struct {
+	Priority *types.SortOrder `json:"priority"`
+}

@@ -1,5 +1,7 @@
 package entity
 
+import "tenkhours/pkg/types"
+
 type HabitInput struct {
 	ID             *string        `json:"id,omitempty"`
 	CategoryID     *string        `json:"categoryID"`
@@ -10,3 +12,16 @@ type HabitInput struct {
 	RRule          string         `json:"rrule"`
 	Reset          HabitReset     `json:"reset"`
 }
+
+type HabitPipeline struct {
+	Filter  *HabitFilter
+	OrderBy *HabitOrderBy
+	*types.Pagination
+}
+
+type HabitFilter struct {
+	CharacterID  *string  `json:"character_id"`
+	CharacterIDs []string `json:"character_ids"`
+}
+
+type HabitOrderBy struct{}

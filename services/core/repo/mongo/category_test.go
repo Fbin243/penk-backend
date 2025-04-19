@@ -54,7 +54,11 @@ func TestCategoryRepo(t *testing.T) {
 	}
 
 	// Find all categories of a character
-	categories, err := categoryRepo.FindByCharacterID(context.Background(), characterID)
+	categories, err := categoryRepo.Find(context.Background(), entity.CategoryPipeline{
+		Filter: &entity.CategoryFilter{
+			CharacterID: &characterID,
+		},
+	})
 	assert.Nil(t, err)
 	assert.Len(t, categories, 3)
 

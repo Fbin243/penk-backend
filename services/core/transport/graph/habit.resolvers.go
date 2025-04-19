@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	gql "tenkhours/pkg/graphql"
 	"tenkhours/services/core/entity"
 
@@ -28,7 +29,25 @@ func (r *habitResolver) Category(ctx context.Context, obj *entity.Habit) (*entit
 	return r.CategoryRepo.FindByID(ctx, *obj.CategoryID)
 }
 
+// Keep is the resolver for the _keep field.
+func (r *habitFilterResolver) Keep(ctx context.Context, obj *entity.HabitFilter, data *bool) error {
+	panic(fmt.Errorf("not implemented: Keep - _keep"))
+}
+
+// Keep is the resolver for the _keep field.
+func (r *habitOrderByResolver) Keep(ctx context.Context, obj *entity.HabitOrderBy, data *bool) error {
+	panic(fmt.Errorf("not implemented: Keep - _keep"))
+}
+
 // Habit returns HabitResolver implementation.
 func (r *Resolver) Habit() HabitResolver { return &habitResolver{r} }
 
+// HabitFilter returns HabitFilterResolver implementation.
+func (r *Resolver) HabitFilter() HabitFilterResolver { return &habitFilterResolver{r} }
+
+// HabitOrderBy returns HabitOrderByResolver implementation.
+func (r *Resolver) HabitOrderBy() HabitOrderByResolver { return &habitOrderByResolver{r} }
+
 type habitResolver struct{ *Resolver }
+type habitFilterResolver struct{ *Resolver }
+type habitOrderByResolver struct{ *Resolver }

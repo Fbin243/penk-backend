@@ -52,6 +52,14 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	Profile() ProfileResolver
 	Query() QueryResolver
+	CategoryFilter() CategoryFilterResolver
+	CategoryOrderBy() CategoryOrderByResolver
+	GoalOrderBy() GoalOrderByResolver
+	HabitFilter() HabitFilterResolver
+	HabitOrderBy() HabitOrderByResolver
+	MetricFilter() MetricFilterResolver
+	MetricOrderBy() MetricOrderByResolver
+	TaskSessionOrderBy() TaskSessionOrderByResolver
 }
 
 type DirectiveRoot struct {
@@ -68,6 +76,7 @@ type ComplexityRoot struct {
 
 	Category struct {
 		CharacterID func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
 		Description func(childComplexity int) int
 		HabitCount  func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -76,6 +85,7 @@ type ComplexityRoot struct {
 		Style       func(childComplexity int) int
 		TaskCount   func(childComplexity int) int
 		Time        func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
 	}
 
 	CategoryStyle struct {
@@ -193,15 +203,15 @@ type ComplexityRoot struct {
 
 	Query struct {
 		AppSettings        func(childComplexity int) int
-		Categories         func(childComplexity int) int
+		Categories         func(childComplexity int, filter *entity.CategoryFilter, orderBy *entity.CategoryOrderBy, limit *int, offset *int) int
 		Characters         func(childComplexity int) int
-		Goals              func(childComplexity int, status *entity.GoalStatus) int
+		Goals              func(childComplexity int, filter *entity.GoalFilter, orderBy *entity.GoalOrderBy, limit *int, offset *int) int
 		HabitLogs          func(childComplexity int, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit *int, offset *int) int
-		Habits             func(childComplexity int) int
-		Metrics            func(childComplexity int) int
+		Habits             func(childComplexity int, filter *entity.HabitFilter, orderBy *entity.HabitOrderBy, limit *int, offset *int) int
+		Metrics            func(childComplexity int, filter *entity.MetricFilter, orderBy *entity.MetricOrderBy, limit *int, offset *int) int
 		Profile            func(childComplexity int) int
-		TaskSessions       func(childComplexity int, filter *entity.TaskSessionFilter) int
-		Tasks              func(childComplexity int, filter *entity.TaskFilter) int
+		TaskSessions       func(childComplexity int, filter *entity.TaskSessionFilter, orderBy *entity.TaskSessionOrderBy, limit *int, offset *int) int
+		Tasks              func(childComplexity int, filter *entity.TaskFilter, orderBy *entity.TaskOrderBy, limit *int, offset *int) int
 		__resolve__service func(childComplexity int) int
 		__resolve_entities func(childComplexity int, representations []map[string]interface{}) int
 	}
@@ -299,13 +309,38 @@ type QueryResolver interface {
 	Characters(ctx context.Context) ([]entity.Character, error)
 	Profile(ctx context.Context) (*entity.Profile, error)
 	AppSettings(ctx context.Context) (*model.AppSettings, error)
-	Goals(ctx context.Context, status *entity.GoalStatus) ([]entity.Goal, error)
-	Metrics(ctx context.Context) ([]entity.Metric, error)
-	Categories(ctx context.Context) ([]entity.Category, error)
-	Habits(ctx context.Context) ([]entity.Habit, error)
+	Goals(ctx context.Context, filter *entity.GoalFilter, orderBy *entity.GoalOrderBy, limit *int, offset *int) ([]entity.Goal, error)
+	Metrics(ctx context.Context, filter *entity.MetricFilter, orderBy *entity.MetricOrderBy, limit *int, offset *int) ([]entity.Metric, error)
+	Categories(ctx context.Context, filter *entity.CategoryFilter, orderBy *entity.CategoryOrderBy, limit *int, offset *int) ([]entity.Category, error)
+	Habits(ctx context.Context, filter *entity.HabitFilter, orderBy *entity.HabitOrderBy, limit *int, offset *int) ([]entity.Habit, error)
 	HabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit *int, offset *int) ([]entity.HabitLog, error)
-	Tasks(ctx context.Context, filter *entity.TaskFilter) ([]entity.Task, error)
-	TaskSessions(ctx context.Context, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error)
+	Tasks(ctx context.Context, filter *entity.TaskFilter, orderBy *entity.TaskOrderBy, limit *int, offset *int) ([]entity.Task, error)
+	TaskSessions(ctx context.Context, filter *entity.TaskSessionFilter, orderBy *entity.TaskSessionOrderBy, limit *int, offset *int) ([]entity.TaskSession, error)
+}
+
+type CategoryFilterResolver interface {
+	Keep(ctx context.Context, obj *entity.CategoryFilter, data *bool) error
+}
+type CategoryOrderByResolver interface {
+	Keep(ctx context.Context, obj *entity.CategoryOrderBy, data *bool) error
+}
+type GoalOrderByResolver interface {
+	Keep(ctx context.Context, obj *entity.GoalOrderBy, data *bool) error
+}
+type HabitFilterResolver interface {
+	Keep(ctx context.Context, obj *entity.HabitFilter, data *bool) error
+}
+type HabitOrderByResolver interface {
+	Keep(ctx context.Context, obj *entity.HabitOrderBy, data *bool) error
+}
+type MetricFilterResolver interface {
+	Keep(ctx context.Context, obj *entity.MetricFilter, data *bool) error
+}
+type MetricOrderByResolver interface {
+	Keep(ctx context.Context, obj *entity.MetricOrderBy, data *bool) error
+}
+type TaskSessionOrderByResolver interface {
+	Keep(ctx context.Context, obj *entity.TaskSessionOrderBy, data *bool) error
 }
 
 type executableSchema struct {
@@ -369,6 +404,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Category.CharacterID(childComplexity), true
 
+	case "Category.createdAt":
+		if e.complexity.Category.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Category.CreatedAt(childComplexity), true
+
 	case "Category.description":
 		if e.complexity.Category.Description == nil {
 			break
@@ -424,6 +466,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Category.Time(childComplexity), true
+
+	case "Category.updatedAt":
+		if e.complexity.Category.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Category.UpdatedAt(childComplexity), true
 
 	case "CategoryStyle.color":
 		if e.complexity.CategoryStyle.Color == nil {
@@ -1082,7 +1131,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Categories(childComplexity), true
+		args, err := ec.field_Query_categories_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Categories(childComplexity, args["filter"].(*entity.CategoryFilter), args["orderBy"].(*entity.CategoryOrderBy), args["limit"].(*int), args["offset"].(*int)), true
 
 	case "Query.characters":
 		if e.complexity.Query.Characters == nil {
@@ -1101,7 +1155,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Goals(childComplexity, args["status"].(*entity.GoalStatus)), true
+		return e.complexity.Query.Goals(childComplexity, args["filter"].(*entity.GoalFilter), args["orderBy"].(*entity.GoalOrderBy), args["limit"].(*int), args["offset"].(*int)), true
 
 	case "Query.habitLogs":
 		if e.complexity.Query.HabitLogs == nil {
@@ -1120,14 +1174,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Habits(childComplexity), true
+		args, err := ec.field_Query_habits_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Habits(childComplexity, args["filter"].(*entity.HabitFilter), args["orderBy"].(*entity.HabitOrderBy), args["limit"].(*int), args["offset"].(*int)), true
 
 	case "Query.metrics":
 		if e.complexity.Query.Metrics == nil {
 			break
 		}
 
-		return e.complexity.Query.Metrics(childComplexity), true
+		args, err := ec.field_Query_metrics_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Metrics(childComplexity, args["filter"].(*entity.MetricFilter), args["orderBy"].(*entity.MetricOrderBy), args["limit"].(*int), args["offset"].(*int)), true
 
 	case "Query.profile":
 		if e.complexity.Query.Profile == nil {
@@ -1146,7 +1210,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.TaskSessions(childComplexity, args["filter"].(*entity.TaskSessionFilter)), true
+		return e.complexity.Query.TaskSessions(childComplexity, args["filter"].(*entity.TaskSessionFilter), args["orderBy"].(*entity.TaskSessionOrderBy), args["limit"].(*int), args["offset"].(*int)), true
 
 	case "Query.tasks":
 		if e.complexity.Query.Tasks == nil {
@@ -1158,7 +1222,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Tasks(childComplexity, args["filter"].(*entity.TaskFilter)), true
+		return e.complexity.Query.Tasks(childComplexity, args["filter"].(*entity.TaskFilter), args["orderBy"].(*entity.TaskOrderBy), args["limit"].(*int), args["offset"].(*int)), true
 
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
@@ -1369,23 +1433,33 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCategoryFilter,
 		ec.unmarshalInputCategoryInput,
+		ec.unmarshalInputCategoryOrderBy,
 		ec.unmarshalInputCategoryStyleInput,
 		ec.unmarshalInputCharacterInput,
 		ec.unmarshalInputCheckboxInput,
+		ec.unmarshalInputGoalFilter,
 		ec.unmarshalInputGoalInput,
 		ec.unmarshalInputGoalMetricInput,
+		ec.unmarshalInputGoalOrderBy,
+		ec.unmarshalInputHabitFilter,
 		ec.unmarshalInputHabitInput,
 		ec.unmarshalInputHabitLogFilter,
 		ec.unmarshalInputHabitLogInput,
 		ec.unmarshalInputHabitLogOrderBy,
+		ec.unmarshalInputHabitOrderBy,
+		ec.unmarshalInputMetricFilter,
 		ec.unmarshalInputMetricInput,
+		ec.unmarshalInputMetricOrderBy,
 		ec.unmarshalInputProfileInput,
 		ec.unmarshalInputRangeInput,
 		ec.unmarshalInputTaskFilter,
 		ec.unmarshalInputTaskInput,
+		ec.unmarshalInputTaskOrderBy,
 		ec.unmarshalInputTaskSessionFilter,
 		ec.unmarshalInputTaskSessionInput,
+		ec.unmarshalInputTaskSessionOrderBy,
 		ec.unmarshalInputTimeTrackingInput,
 	)
 	first := true
@@ -1866,18 +1940,87 @@ func (ec *executionContext) field_Query__entities_args(ctx context.Context, rawA
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_goals_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_categories_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *entity.GoalStatus
-	if tmp, ok := rawArgs["status"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-		arg0, err = ec.unmarshalOGoalStatus2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐGoalStatus(ctx, tmp)
+	var arg0 *entity.CategoryFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOCategoryFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐCategoryFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["status"] = arg0
+	args["filter"] = arg0
+	var arg1 *entity.CategoryOrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg1, err = ec.unmarshalOCategoryOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐCategoryOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_goals_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *entity.GoalFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOGoalFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐGoalFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
+	var arg1 *entity.GoalOrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg1, err = ec.unmarshalOGoalOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐGoalOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg3
 	return args, nil
 }
 
@@ -1923,6 +2066,90 @@ func (ec *executionContext) field_Query_habitLogs_args(ctx context.Context, rawA
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_habits_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *entity.HabitFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOHabitFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐHabitFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
+	var arg1 *entity.HabitOrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg1, err = ec.unmarshalOHabitOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐHabitOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_metrics_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *entity.MetricFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOMetricFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐMetricFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
+	var arg1 *entity.MetricOrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg1, err = ec.unmarshalOMetricOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐMetricOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg3
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_taskSessions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1935,6 +2162,33 @@ func (ec *executionContext) field_Query_taskSessions_args(ctx context.Context, r
 		}
 	}
 	args["filter"] = arg0
+	var arg1 *entity.TaskSessionOrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg1, err = ec.unmarshalOTaskSessionOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTaskSessionOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg3
 	return args, nil
 }
 
@@ -1950,6 +2204,33 @@ func (ec *executionContext) field_Query_tasks_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["filter"] = arg0
+	var arg1 *entity.TaskOrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg1, err = ec.unmarshalOTaskOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTaskOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg3
 	return args, nil
 }
 
@@ -2250,6 +2531,94 @@ func (ec *executionContext) fieldContext_Category_id(_ context.Context, field gr
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Category_createdAt(ctx context.Context, field graphql.CollectedField, obj *entity.Category) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Category_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Category_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Category_updatedAt(ctx context.Context, field graphql.CollectedField, obj *entity.Category) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Category_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Category_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4171,6 +4540,10 @@ func (ec *executionContext) fieldContext_Habit_category(_ context.Context, field
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Category_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Category_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "characterID":
 				return ec.fieldContext_Category_characterID(ctx, field)
 			case "name":
@@ -4792,6 +5165,10 @@ func (ec *executionContext) fieldContext_Metric_category(_ context.Context, fiel
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Category_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Category_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "characterID":
 				return ec.fieldContext_Category_characterID(ctx, field)
 			case "name":
@@ -5573,6 +5950,10 @@ func (ec *executionContext) fieldContext_Mutation_upsertCategory(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Category_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Category_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "characterID":
 				return ec.fieldContext_Category_characterID(ctx, field)
 			case "name":
@@ -5648,6 +6029,10 @@ func (ec *executionContext) fieldContext_Mutation_deleteCategory(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Category_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Category_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "characterID":
 				return ec.fieldContext_Category_characterID(ctx, field)
 			case "name":
@@ -6921,7 +7306,7 @@ func (ec *executionContext) _Query_goals(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Goals(rctx, fc.Args["status"].(*entity.GoalStatus))
+		return ec.resolvers.Query().Goals(rctx, fc.Args["filter"].(*entity.GoalFilter), fc.Args["orderBy"].(*entity.GoalOrderBy), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7002,7 +7387,7 @@ func (ec *executionContext) _Query_metrics(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Metrics(rctx)
+		return ec.resolvers.Query().Metrics(rctx, fc.Args["filter"].(*entity.MetricFilter), fc.Args["orderBy"].(*entity.MetricOrderBy), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7019,7 +7404,7 @@ func (ec *executionContext) _Query_metrics(ctx context.Context, field graphql.Co
 	return ec.marshalNMetric2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐMetricᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_metrics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -7045,6 +7430,17 @@ func (ec *executionContext) fieldContext_Query_metrics(_ context.Context, field 
 			return nil, fmt.Errorf("no field named %q was found under type Metric", field.Name)
 		},
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_metrics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
 	return fc, nil
 }
 
@@ -7062,7 +7458,7 @@ func (ec *executionContext) _Query_categories(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Categories(rctx)
+		return ec.resolvers.Query().Categories(rctx, fc.Args["filter"].(*entity.CategoryFilter), fc.Args["orderBy"].(*entity.CategoryOrderBy), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7079,7 +7475,7 @@ func (ec *executionContext) _Query_categories(ctx context.Context, field graphql
 	return ec.marshalNCategory2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐCategoryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_categories(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_categories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -7089,6 +7485,10 @@ func (ec *executionContext) fieldContext_Query_categories(_ context.Context, fie
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Category_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Category_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "characterID":
 				return ec.fieldContext_Category_characterID(ctx, field)
 			case "name":
@@ -7109,6 +7509,17 @@ func (ec *executionContext) fieldContext_Query_categories(_ context.Context, fie
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_categories_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
 	return fc, nil
 }
 
@@ -7126,7 +7537,7 @@ func (ec *executionContext) _Query_habits(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Habits(rctx)
+		return ec.resolvers.Query().Habits(rctx, fc.Args["filter"].(*entity.HabitFilter), fc.Args["orderBy"].(*entity.HabitOrderBy), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7143,7 +7554,7 @@ func (ec *executionContext) _Query_habits(ctx context.Context, field graphql.Col
 	return ec.marshalNHabit2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐHabitᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_habits(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_habits(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -7178,6 +7589,17 @@ func (ec *executionContext) fieldContext_Query_habits(_ context.Context, field g
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Habit", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_habits_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -7261,7 +7683,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Tasks(rctx, fc.Args["filter"].(*entity.TaskFilter))
+		return ec.resolvers.Query().Tasks(rctx, fc.Args["filter"].(*entity.TaskFilter), fc.Args["orderBy"].(*entity.TaskOrderBy), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7340,7 +7762,7 @@ func (ec *executionContext) _Query_taskSessions(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().TaskSessions(rctx, fc.Args["filter"].(*entity.TaskSessionFilter))
+		return ec.resolvers.Query().TaskSessions(rctx, fc.Args["filter"].(*entity.TaskSessionFilter), fc.Args["orderBy"].(*entity.TaskSessionOrderBy), fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10523,6 +10945,35 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCategoryFilter(ctx context.Context, obj interface{}) (entity.CategoryFilter, error) {
+	var it entity.CategoryFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"_keep"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "_keep":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("_keep"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.CategoryFilter().Keep(ctx, &it, data); err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCategoryInput(ctx context.Context, obj interface{}) (entity.CategoryInput, error) {
 	var it entity.CategoryInput
 	asMap := map[string]interface{}{}
@@ -10565,6 +11016,35 @@ func (ec *executionContext) unmarshalInputCategoryInput(ctx context.Context, obj
 				return it, err
 			}
 			it.Style = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCategoryOrderBy(ctx context.Context, obj interface{}) (entity.CategoryOrderBy, error) {
+	var it entity.CategoryOrderBy
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"_keep"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "_keep":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("_keep"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.CategoryOrderBy().Keep(ctx, &it, data); err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -10674,6 +11154,33 @@ func (ec *executionContext) unmarshalInputCheckboxInput(ctx context.Context, obj
 				return it, err
 			}
 			it.Value = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGoalFilter(ctx context.Context, obj interface{}) (entity.GoalFilter, error) {
+	var it entity.GoalFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"status"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "status":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalOGoalStatus2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐGoalStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
 		}
 	}
 
@@ -10791,6 +11298,64 @@ func (ec *executionContext) unmarshalInputGoalMetricInput(ctx context.Context, o
 				return it, err
 			}
 			it.RangeValue = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGoalOrderBy(ctx context.Context, obj interface{}) (entity.GoalOrderBy, error) {
+	var it entity.GoalOrderBy
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"_keep"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "_keep":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("_keep"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.GoalOrderBy().Keep(ctx, &it, data); err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputHabitFilter(ctx context.Context, obj interface{}) (entity.HabitFilter, error) {
+	var it entity.HabitFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"_keep"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "_keep":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("_keep"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.HabitFilter().Keep(ctx, &it, data); err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -10989,6 +11554,64 @@ func (ec *executionContext) unmarshalInputHabitLogOrderBy(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputHabitOrderBy(ctx context.Context, obj interface{}) (entity.HabitOrderBy, error) {
+	var it entity.HabitOrderBy
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"_keep"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "_keep":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("_keep"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.HabitOrderBy().Keep(ctx, &it, data); err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputMetricFilter(ctx context.Context, obj interface{}) (entity.MetricFilter, error) {
+	var it entity.MetricFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"_keep"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "_keep":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("_keep"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.MetricFilter().Keep(ctx, &it, data); err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputMetricInput(ctx context.Context, obj interface{}) (entity.MetricInput, error) {
 	var it entity.MetricInput
 	asMap := map[string]interface{}{}
@@ -11038,6 +11661,35 @@ func (ec *executionContext) unmarshalInputMetricInput(ctx context.Context, obj i
 				return it, err
 			}
 			it.Unit = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputMetricOrderBy(ctx context.Context, obj interface{}) (entity.MetricOrderBy, error) {
+	var it entity.MetricOrderBy
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"_keep"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "_keep":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("_keep"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.MetricOrderBy().Keep(ctx, &it, data); err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -11222,6 +11874,33 @@ func (ec *executionContext) unmarshalInputTaskInput(ctx context.Context, obj int
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTaskOrderBy(ctx context.Context, obj interface{}) (entity.TaskOrderBy, error) {
+	var it entity.TaskOrderBy
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"priority"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "priority":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("priority"))
+			data, err := ec.unmarshalOSortOrder2ᚖtenkhoursᚋpkgᚋtypesᚐSortOrder(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Priority = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTaskSessionFilter(ctx context.Context, obj interface{}) (entity.TaskSessionFilter, error) {
 	var it entity.TaskSessionFilter
 	asMap := map[string]interface{}{}
@@ -11319,6 +11998,35 @@ func (ec *executionContext) unmarshalInputTaskSessionInput(ctx context.Context, 
 				return it, err
 			}
 			it.CompletedTime = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTaskSessionOrderBy(ctx context.Context, obj interface{}) (entity.TaskSessionOrderBy, error) {
+	var it entity.TaskSessionOrderBy
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"_keep"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "_keep":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("_keep"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.TaskSessionOrderBy().Keep(ctx, &it, data); err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -11469,6 +12177,16 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = graphql.MarshalString("Category")
 		case "id":
 			out.Values[i] = ec._Category_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._Category_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Category_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -15039,6 +15757,22 @@ func (ec *executionContext) marshalOCategory2ᚖtenkhoursᚋservicesᚋcoreᚋen
 	return ec._Category(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOCategoryFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐCategoryFilter(ctx context.Context, v interface{}) (*entity.CategoryFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCategoryFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOCategoryOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐCategoryOrderBy(ctx context.Context, v interface{}) (*entity.CategoryOrderBy, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCategoryOrderBy(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOCheckboxInput2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐCheckboxInputᚄ(ctx context.Context, v interface{}) ([]entity.CheckboxInput, error) {
 	if v == nil {
 		return nil, nil
@@ -15103,6 +15837,14 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
+func (ec *executionContext) unmarshalOGoalFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐGoalFilter(ctx context.Context, v interface{}) (*entity.GoalFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputGoalFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOGoalMetricInput2ᚕtenkhoursᚋservicesᚋcoreᚋentityᚐGoalMetricInputᚄ(ctx context.Context, v interface{}) ([]entity.GoalMetricInput, error) {
 	if v == nil {
 		return nil, nil
@@ -15123,6 +15865,14 @@ func (ec *executionContext) unmarshalOGoalMetricInput2ᚕtenkhoursᚋservicesᚋ
 	return res, nil
 }
 
+func (ec *executionContext) unmarshalOGoalOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐGoalOrderBy(ctx context.Context, v interface{}) (*entity.GoalOrderBy, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputGoalOrderBy(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOGoalStatus2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐGoalStatus(ctx context.Context, v interface{}) (*entity.GoalStatus, error) {
 	if v == nil {
 		return nil, nil
@@ -15140,6 +15890,14 @@ func (ec *executionContext) marshalOGoalStatus2ᚖtenkhoursᚋservicesᚋcoreᚋ
 	return res
 }
 
+func (ec *executionContext) unmarshalOHabitFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐHabitFilter(ctx context.Context, v interface{}) (*entity.HabitFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputHabitFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOHabitLogFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐHabitLogFilter(ctx context.Context, v interface{}) (*entity.HabitLogFilter, error) {
 	if v == nil {
 		return nil, nil
@@ -15153,6 +15911,14 @@ func (ec *executionContext) unmarshalOHabitLogOrderBy2ᚖtenkhoursᚋservicesᚋ
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputHabitLogOrderBy(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOHabitOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐHabitOrderBy(ctx context.Context, v interface{}) (*entity.HabitOrderBy, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputHabitOrderBy(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -15213,6 +15979,22 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOMetricFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐMetricFilter(ctx context.Context, v interface{}) (*entity.MetricFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputMetricFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOMetricOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐMetricOrderBy(ctx context.Context, v interface{}) (*entity.MetricOrderBy, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputMetricOrderBy(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalORange2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐRange(ctx context.Context, sel ast.SelectionSet, v *entity.Range) graphql.Marshaler {
@@ -15319,11 +16101,27 @@ func (ec *executionContext) unmarshalOTaskFilter2ᚖtenkhoursᚋservicesᚋcore�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOTaskOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTaskOrderBy(ctx context.Context, v interface{}) (*entity.TaskOrderBy, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTaskOrderBy(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOTaskSessionFilter2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTaskSessionFilter(ctx context.Context, v interface{}) (*entity.TaskSessionFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputTaskSessionFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOTaskSessionOrderBy2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐTaskSessionOrderBy(ctx context.Context, v interface{}) (*entity.TaskSessionOrderBy, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTaskSessionOrderBy(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

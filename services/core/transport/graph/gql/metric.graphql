@@ -15,3 +15,11 @@ input MetricInput {
   value: Float!
   unit: String!
 }
+
+input MetricFilter {
+  _keep: Boolean
+}
+
+input MetricOrderBy {
+  _keep: Boolean
+}

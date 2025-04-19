@@ -12,11 +12,10 @@ type HabitLogInput struct {
 	Value     float64 `json:"value"`
 }
 
-type HabitLogPineline struct {
+type HabitLogPipeline struct {
 	Filter  *HabitLogFilter
 	OrderBy *HabitLogOrderBy
-	Limit   *int
-	Offset  *int
+	*types.Pagination
 }
 
 type HabitLogFilter struct {

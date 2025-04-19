@@ -28,26 +28,3 @@ func NewCategoryRepo(db *mongo.Database) *CategoryRepo {
 
 	return &CategoryRepo{mongodb.NewBaseRepo[entity.Category, mongomodel.Category](cateColl, true)}
 }
-
-func (r *CategoryRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
-	return r.Count(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-}
-
-func (r *CategoryRepo) Exist(ctx context.Context, characterID, categoryID string) error {
-	return r.Exists(ctx, bson.M{
-		"_id":          mongodb.ToObjectID(categoryID),
-		"character_id": mongodb.ToObjectID(characterID),
-	})
-}
-
-func (r *CategoryRepo) FindByCharacterID(ctx context.Context, characterID string) ([]entity.Category, error) {
-	return r.FindMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-}
-
-func (r *CategoryRepo) DeleteByCharacterID(ctx context.Context, characterID string) error {
-	return r.DeleteMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-}
-
-func (r *CategoryRepo) DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error {
-	return r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
-}

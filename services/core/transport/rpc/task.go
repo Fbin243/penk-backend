@@ -13,7 +13,7 @@ func (hdl *CoreHandler) UpsertTask(ctx context.Context, req *core.TaskInput) (*c
 		return nil, err
 	}
 
-	task, err := hdl.taskBiz.UpsertTask(ctx, taskInput)
+	task, err := hdl.taskBiz.Upsert(ctx, taskInput)
 	if err != nil {
 		return nil, err
 	}

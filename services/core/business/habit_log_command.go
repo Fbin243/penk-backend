@@ -46,7 +46,7 @@ func (b *HabitBusiness) UpsertHabitLog(ctx context.Context, habitLogInput *entit
 		return nil, errors.NewGQLError(errors.ErrCodeBadRequest, "invalid timestamp format")
 	}
 
-	habitLogs, err := b.habitLogRepo.Find(ctx, entity.HabitLogPineline{
+	habitLogs, err := b.habitLogRepo.Find(ctx, entity.HabitLogPipeline{
 		Filter: &entity.HabitLogFilter{
 			HabitID:   &habitLogInput.HabitID,
 			StartTime: lo.ToPtr(utils.StartOfDay(timestamp)),

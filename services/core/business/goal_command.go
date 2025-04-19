@@ -14,7 +14,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input *entity.GoalInput) (*entity.Goal, error) {
+func (biz *GoalBusiness) Upsert(ctx context.Context, input *entity.GoalInput) (*entity.Goal, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
@@ -59,7 +59,11 @@ func (biz *GoalBusiness) UpsertGoal(ctx context.Context, input *entity.GoalInput
 	}
 
 	// Get currrent metrics
-	metrics, err := biz.metricRepo.FindByCharacterID(ctx, goal.CharacterID)
+	metrics, err := biz.metricRepo.Find(ctx, entity.MetricPipeline{
+		Filter: &entity.MetricFilter{
+			CharacterID: &authSession.CurrentCharacterID,
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +188,7 @@ func (biz *GoalBusiness) upsertCheckboxesInGoal(_ context.Context, goal *entity.
 	return nil
 }
 
-func (biz *GoalBusiness) DeleteGoal(ctx context.Context, goalID string) (*entity.Goal, error) {
+func (biz *GoalBusiness) Delete(ctx context.Context, goalID string) (*entity.Goal, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
