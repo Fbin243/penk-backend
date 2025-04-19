@@ -13,7 +13,7 @@ import (
 	"github.com/jinzhu/copier"
 )
 
-func (b *MetricBusiness) UpsertMetric(ctx context.Context, metricInput *entity.MetricInput) (*entity.Metric, error) {
+func (b *MetricBusiness) Upsert(ctx context.Context, metricInput *entity.MetricInput) (*entity.Metric, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
@@ -70,7 +70,7 @@ func (b *MetricBusiness) UpsertMetric(ctx context.Context, metricInput *entity.M
 	return b.metricRepo.InsertOne(ctx, metric)
 }
 
-func (b *MetricBusiness) DeleteMetric(ctx context.Context, metricID string) (*entity.Metric, error) {
+func (b *MetricBusiness) Delete(ctx context.Context, metricID string) (*entity.Metric, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized

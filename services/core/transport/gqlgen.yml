@@ -101,6 +101,10 @@ models:
     model: tenkhours/services/core/entity.Category
   CategoryInput:
     model: tenkhours/services/core/entity.CategoryInput
+  CategoryFilter:
+    model: tenkhours/services/core/entity.CategoryFilter
+  CategoryOrderBy:
+    model: tenkhours/services/core/entity.CategoryOrderBy
   Metric:
     model: tenkhours/services/core/entity.Metric
     fields:
@@ -108,6 +112,10 @@ models:
         resolver: true
   MetricInput:
     model: tenkhours/services/core/entity.MetricInput
+  MetricFilter:
+    model: tenkhours/services/core/entity.MetricFilter
+  MetricOrderBy:
+    model: tenkhours/services/core/entity.MetricOrderBy
   CategoryStyle:
     model: tenkhours/services/core/entity.CategoryStyle
   CategoryStyleInput:
@@ -126,6 +134,10 @@ models:
     model: tenkhours/services/core/entity.GoalStatus
   GoalInput:
     model: tenkhours/services/core/entity.GoalInput
+  GoalFilter:
+    model: tenkhours/services/core/entity.GoalFilter
+  GoalOrderBy:
+    model: tenkhours/services/core/entity.GoalOrderBy
   GoalMetricInput:
     model: tenkhours/services/core/entity.GoalMetricInput
   CheckboxInput:
@@ -143,6 +155,10 @@ models:
     model: tenkhours/services/core/entity.CompletionType
   HabitInput:
     model: tenkhours/services/core/entity.HabitInput
+  HabitFilter:
+    model: tenkhours/services/core/entity.HabitFilter
+  HabitOrderBy:
+    model: tenkhours/services/core/entity.HabitOrderBy
   HabitLog:
     model: tenkhours/services/core/entity.HabitLog
   HabitLogInput:
@@ -163,9 +179,13 @@ models:
     model: tenkhours/services/core/entity.TaskInput
   TaskFilter:
     model: tenkhours/services/core/entity.TaskFilter
+  TaskOrderBy:
+    model: tenkhours/services/core/entity.TaskOrderBy
   TaskSession:
     model: tenkhours/services/core/entity.TaskSession
   TaskSessionInput:
     model: tenkhours/services/core/entity.TaskSessionInput
   TaskSessionFilter:
     model: tenkhours/services/core/entity.TaskSessionFilter
+  TaskSessionOrderBy:
+    model: tenkhours/services/core/entity.TaskSessionOrderBy

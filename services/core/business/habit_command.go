@@ -13,7 +13,7 @@ import (
 	"github.com/jinzhu/copier"
 )
 
-func (b *HabitBusiness) UpsertHabit(ctx context.Context, habitInput *entity.HabitInput) (*entity.Habit, error) {
+func (b *HabitBusiness) Upsert(ctx context.Context, habitInput *entity.HabitInput) (*entity.Habit, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
@@ -95,7 +95,7 @@ func (b *HabitBusiness) UpsertHabit(ctx context.Context, habitInput *entity.Habi
 	return habit, nil
 }
 
-func (b *HabitBusiness) DeleteHabit(ctx context.Context, habitID string) (*entity.Habit, error) {
+func (b *HabitBusiness) Delete(ctx context.Context, habitID string) (*entity.Habit, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized

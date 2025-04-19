@@ -6,25 +6,38 @@ import (
 	"tenkhours/pkg/auth"
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 
 	"github.com/samber/lo"
 )
 
-func (biz *GoalBusiness) GetGoals(ctx context.Context, status *entity.GoalStatus) ([]entity.Goal, error) {
+func (biz *GoalBusiness) Get(ctx context.Context, filter *entity.GoalFilter, orderBy *entity.GoalOrderBy, limit, offset *int) ([]entity.Goal, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
 	}
 
-	goals, err := biz.goalRepo.GetGoalsByCharacterID(ctx, authSession.CurrentCharacterID)
+	if filter == nil {
+		filter = &entity.GoalFilter{}
+	}
+	filter.CharacterID = &authSession.CurrentCharacterID
+
+	goals, err := biz.goalRepo.Find(ctx, entity.GoalPipeline{
+		Filter:  filter,
+		OrderBy: orderBy,
+		Pagination: &types.Pagination{
+			Limit:  limit,
+			Offset: offset,
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	if status != nil {
+	if filter != nil && filter.Status != nil {
 		goals = lo.Filter(goals, func(goal entity.Goal, _ int) bool {
-			return goal.EvaluateStatus() == *status
+			return goal.EvaluateStatus() == *filter.Status
 		})
 	}
 

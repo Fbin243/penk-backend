@@ -18,6 +18,7 @@ enum CompletionType {
   Time
 }
 
+# Inputs
 input HabitInput {
   id: ID
   categoryID: ID
@@ -33,4 +34,12 @@ enum HabitReset {
   Daily
   Weekly
   Monthly
+}
+
+input HabitFilter {
+  _keep: Boolean
+}
+
+input HabitOrderBy {
+  _keep: Boolean
 }

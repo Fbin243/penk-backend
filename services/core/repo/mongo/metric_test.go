@@ -51,7 +51,11 @@ func TestMetricRepo(t *testing.T) {
 		assertMetric(t, *metric, *createdMetric)
 	}
 
-	metrics, err := metricRepo.FindByCharacterID(context.Background(), characterID)
+	metrics, err := metricRepo.Find(context.Background(), entity.MetricPipeline{
+		Filter: &entity.MetricFilter{
+			CharacterID: &characterID,
+		},
+	})
 	assert.Nil(t, err)
 	assert.Len(t, metrics, 3)
 

@@ -7,14 +7,11 @@ package graph
 import (
 	"context"
 	"fmt"
-	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
 )
 
 // Status is the resolver for the status field.
 func (r *goalResolver) Status(ctx context.Context, obj *entity.Goal) (entity.GoalStatus, error) {
-	fmt.Printf("goalResolver.Status: %v\n", utils.PrettyJSON(obj))
-	fmt.Printf("goalResolver.Status: %v\n", obj.EvaluateStatus())
 	return obj.EvaluateStatus(), nil
 }
 
@@ -23,11 +20,20 @@ func (r *goalMetricResolver) Metric(ctx context.Context, obj *entity.GoalMetric)
 	return r.MetricRepo.FindByID(ctx, obj.ID)
 }
 
+// Keep is the resolver for the _keep field.
+func (r *goalOrderByResolver) Keep(ctx context.Context, obj *entity.GoalOrderBy, data *bool) error {
+	panic(fmt.Errorf("not implemented: Keep - _keep"))
+}
+
 // Goal returns GoalResolver implementation.
 func (r *Resolver) Goal() GoalResolver { return &goalResolver{r} }
 
 // GoalMetric returns GoalMetricResolver implementation.
 func (r *Resolver) GoalMetric() GoalMetricResolver { return &goalMetricResolver{r} }
 
+// GoalOrderBy returns GoalOrderByResolver implementation.
+func (r *Resolver) GoalOrderBy() GoalOrderByResolver { return &goalOrderByResolver{r} }
+
 type goalResolver struct{ *Resolver }
 type goalMetricResolver struct{ *Resolver }
+type goalOrderByResolver struct{ *Resolver }

@@ -56,6 +56,19 @@ func buildTaskPipeline(p *entity.TaskPineline) []bson.M {
 		pipeline = append(pipeline, bson.M{"$match": matchStage})
 	}
 
+	// Add sorting stage
+	if p.OrderBy != nil {
+		sortStage := bson.M{}
+		if p.OrderBy.Priority != nil {
+			sortStage["priority"] = p.OrderBy.Priority.ToInt()
+		}
+
+		pipeline = append(pipeline, bson.M{"$sort": sortStage})
+	}
+
+	// Add pagination stage
+	pipeline = append(pipeline, mongodb.ToPaginationPineline(p.Pagination)...)
+
 	return pipeline
 }
 

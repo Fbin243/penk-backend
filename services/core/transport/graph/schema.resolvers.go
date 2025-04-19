@@ -53,12 +53,12 @@ func (r *mutationResolver) UpsertGoal(ctx context.Context, input entity.GoalInpu
 		return nil, err
 	}
 
-	return r.GoalBusiness.UpsertGoal(ctx, &input)
+	return r.GoalBusiness.Upsert(ctx, &input)
 }
 
 // DeleteGoal is the resolver for the deleteGoal field.
 func (r *mutationResolver) DeleteGoal(ctx context.Context, id string) (*entity.Goal, error) {
-	return r.GoalBusiness.DeleteGoal(ctx, id)
+	return r.GoalBusiness.Delete(ctx, id)
 }
 
 // UpsertMetric is the resolver for the upsertMetric field.
@@ -67,12 +67,12 @@ func (r *mutationResolver) UpsertMetric(ctx context.Context, input entity.Metric
 		return nil, err
 	}
 
-	return r.MetricBusiness.UpsertMetric(ctx, &input)
+	return r.MetricBusiness.Upsert(ctx, &input)
 }
 
 // DeleteMetric is the resolver for the deleteMetric field.
 func (r *mutationResolver) DeleteMetric(ctx context.Context, id string) (*entity.Metric, error) {
-	return r.MetricBusiness.DeleteMetric(ctx, id)
+	return r.MetricBusiness.Delete(ctx, id)
 }
 
 // UpsertCategory is the resolver for the upsertCategory field.
@@ -81,12 +81,12 @@ func (r *mutationResolver) UpsertCategory(ctx context.Context, input entity.Cate
 		return nil, err
 	}
 
-	return r.CategoryBusiness.UpsertCategory(ctx, input)
+	return r.CategoryBusiness.Upsert(ctx, &input)
 }
 
 // DeleteCategory is the resolver for the deleteCategory field.
 func (r *mutationResolver) DeleteCategory(ctx context.Context, id string) (*entity.Category, error) {
-	return r.CategoryBusiness.DeleteCategory(ctx, id)
+	return r.CategoryBusiness.Delete(ctx, id)
 }
 
 // UpsertHabit is the resolver for the upsertHabit field.
@@ -104,12 +104,12 @@ func (r *mutationResolver) UpsertHabit(ctx context.Context, input entity.HabitIn
 			"DTSTART is required in frequency")
 	}
 
-	return r.HabitBusiness.UpsertHabit(ctx, &input)
+	return r.HabitBusiness.Upsert(ctx, &input)
 }
 
 // DeleteHabit is the resolver for the deleteHabit field.
 func (r *mutationResolver) DeleteHabit(ctx context.Context, id string) (*entity.Habit, error) {
-	return r.HabitBusiness.DeleteHabit(ctx, id)
+	return r.HabitBusiness.Delete(ctx, id)
 }
 
 // UpsertHabitLog is the resolver for the upsertHabitLog field.
@@ -119,12 +119,12 @@ func (r *mutationResolver) UpsertHabitLog(ctx context.Context, input entity.Habi
 
 // UpsertTask is the resolver for the upsertTask field.
 func (r *mutationResolver) UpsertTask(ctx context.Context, input entity.TaskInput) (*entity.Task, error) {
-	return r.TaskBusiness.UpsertTask(ctx, &input)
+	return r.TaskBusiness.Upsert(ctx, &input)
 }
 
 // DeleteTask is the resolver for the deleteTask field.
 func (r *mutationResolver) DeleteTask(ctx context.Context, id string) (*entity.Task, error) {
-	return r.TaskBusiness.DeleteTask(ctx, id)
+	return r.TaskBusiness.Delete(ctx, id)
 }
 
 // UpsertTaskSession is the resolver for the upsertTaskSession field.
@@ -164,23 +164,23 @@ func (r *queryResolver) AppSettings(ctx context.Context) (*model.AppSettings, er
 }
 
 // Goals is the resolver for the goals field.
-func (r *queryResolver) Goals(ctx context.Context, status *entity.GoalStatus) ([]entity.Goal, error) {
-	return r.GoalBusiness.GetGoals(ctx, status)
+func (r *queryResolver) Goals(ctx context.Context, filter *entity.GoalFilter, orderBy *entity.GoalOrderBy, limit *int, offset *int) ([]entity.Goal, error) {
+	return r.GoalBusiness.Get(ctx, filter, orderBy, limit, offset)
 }
 
 // Metrics is the resolver for the metrics field.
-func (r *queryResolver) Metrics(ctx context.Context) ([]entity.Metric, error) {
-	return r.MetricBusiness.GetMetrics(ctx)
+func (r *queryResolver) Metrics(ctx context.Context, filter *entity.MetricFilter, orderBy *entity.MetricOrderBy, limit *int, offset *int) ([]entity.Metric, error) {
+	return r.MetricBusiness.Get(ctx, filter, orderBy, limit, offset)
 }
 
 // Categories is the resolver for the categories field.
-func (r *queryResolver) Categories(ctx context.Context) ([]entity.Category, error) {
-	return r.CategoryBusiness.GetCategories(ctx)
+func (r *queryResolver) Categories(ctx context.Context, filter *entity.CategoryFilter, orderBy *entity.CategoryOrderBy, limit *int, offset *int) ([]entity.Category, error) {
+	return r.CategoryBusiness.Get(ctx, filter, orderBy, limit, offset)
 }
 
 // Habits is the resolver for the habits field.
-func (r *queryResolver) Habits(ctx context.Context) ([]entity.Habit, error) {
-	return r.HabitBusiness.GetHabits(ctx)
+func (r *queryResolver) Habits(ctx context.Context, filter *entity.HabitFilter, orderBy *entity.HabitOrderBy, limit *int, offset *int) ([]entity.Habit, error) {
+	return r.HabitBusiness.Get(ctx, filter, orderBy, limit, offset)
 }
 
 // HabitLogs is the resolver for the habitLogs field.
@@ -189,12 +189,12 @@ func (r *queryResolver) HabitLogs(ctx context.Context, filter *entity.HabitLogFi
 }
 
 // Tasks is the resolver for the tasks field.
-func (r *queryResolver) Tasks(ctx context.Context, filter *entity.TaskFilter) ([]entity.Task, error) {
-	return r.TaskBusiness.GetTasks(ctx, filter)
+func (r *queryResolver) Tasks(ctx context.Context, filter *entity.TaskFilter, orderBy *entity.TaskOrderBy, limit *int, offset *int) ([]entity.Task, error) {
+	return r.TaskBusiness.Get(ctx, filter, orderBy, limit, offset)
 }
 
 // TaskSessions is the resolver for the taskSessions field.
-func (r *queryResolver) TaskSessions(ctx context.Context, filter *entity.TaskSessionFilter) ([]entity.TaskSession, error) {
+func (r *queryResolver) TaskSessions(ctx context.Context, filter *entity.TaskSessionFilter, orderBy *entity.TaskSessionOrderBy, limit *int, offset *int) ([]entity.TaskSession, error) {
 	return r.TaskBusiness.GetTaskSessions(ctx, filter)
 }
 

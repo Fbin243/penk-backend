@@ -6,14 +6,23 @@ import (
 	"tenkhours/pkg/auth"
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 )
 
-func (b *MetricBusiness) GetMetrics(ctx context.Context) ([]entity.Metric, error) {
+func (b *MetricBusiness) Get(ctx context.Context, filter *entity.MetricFilter, orderBy *entity.MetricOrderBy, limit, offset *int) ([]entity.Metric, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
 	}
 
-	return b.metricRepo.FindByCharacterID(ctx, authSession.CurrentCharacterID)
+	filter.CharacterID = &authSession.CurrentCharacterID
+	return b.metricRepo.Find(ctx, entity.MetricPipeline{
+		Filter:  filter,
+		OrderBy: orderBy,
+		Pagination: &types.Pagination{
+			Limit:  limit,
+			Offset: offset,
+		},
+	})
 }

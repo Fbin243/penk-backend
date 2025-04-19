@@ -11,7 +11,7 @@ import (
 	"tenkhours/services/core/entity"
 )
 
-func (b *CategoryBusiness) UpsertCategory(ctx context.Context, cateInput entity.CategoryInput) (*entity.Category, error) {
+func (b *CategoryBusiness) Upsert(ctx context.Context, input *entity.CategoryInput) (*entity.Category, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
@@ -21,7 +21,7 @@ func (b *CategoryBusiness) UpsertCategory(ctx context.Context, cateInput entity.
 		BaseEntity:  &base.BaseEntity{},
 		CharacterID: authSession.CurrentCharacterID,
 	}
-	if cateInput.ID == nil {
+	if input.ID == nil {
 		count, err := b.cateRepo.CountByCharacterID(ctx, authSession.CurrentCharacterID)
 		if err != nil {
 			return nil, err
@@ -32,7 +32,7 @@ func (b *CategoryBusiness) UpsertCategory(ctx context.Context, cateInput entity.
 	} else {
 		err := b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
 			{
-				ID:   *cateInput.ID,
+				ID:   *input.ID,
 				Type: entity.EntityTypeCategory,
 			},
 		})
@@ -40,31 +40,31 @@ func (b *CategoryBusiness) UpsertCategory(ctx context.Context, cateInput entity.
 			return nil, err
 		}
 
-		cate, err = b.cateRepo.FindByID(ctx, *cateInput.ID)
+		cate, err = b.cateRepo.FindByID(ctx, *input.ID)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	cate.Name = cateInput.Name
-	if cateInput.Description != nil {
-		cate.Description = *cateInput.Description
+	cate.Name = input.Name
+	if input.Description != nil {
+		cate.Description = *input.Description
 	}
-	if cateInput.Style != nil {
+	if input.Style != nil {
 		cate.Style = entity.CategoryStyle{
-			Color: cateInput.Style.Color,
-			Icon:  cateInput.Style.Icon,
+			Color: input.Style.Color,
+			Icon:  input.Style.Icon,
 		}
 	}
 
-	if cateInput.ID != nil {
-		return b.cateRepo.FindAndUpdateByID(ctx, *cateInput.ID, cate)
+	if input.ID != nil {
+		return b.cateRepo.FindAndUpdateByID(ctx, *input.ID, cate)
 	}
 
 	return b.cateRepo.InsertOne(ctx, cate)
 }
 
-func (b *CategoryBusiness) DeleteCategory(ctx context.Context, categoryID string) (*entity.Category, error) {
+func (b *CategoryBusiness) Delete(ctx context.Context, categoryID string) (*entity.Category, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized

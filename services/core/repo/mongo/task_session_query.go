@@ -23,12 +23,15 @@ func buildTaskSessionPipeline(p *entity.TaskSessionPineline) []bson.M {
 			}
 		}
 
-		matchStage["start_time"] = bson.M{}
+		timeRange := bson.M{}
 		if p.Filter.StartTime != nil {
-			matchStage["start_time"].(bson.M)["$gte"] = p.Filter.StartTime
+			timeRange["$gte"] = p.Filter.StartTime
 		}
 		if p.Filter.EndTime != nil {
-			matchStage["start_time"].(bson.M)["$lte"] = p.Filter.EndTime
+			timeRange["$lte"] = p.Filter.EndTime
+		}
+		if len(timeRange) > 0 {
+			matchStage["start_time"] = timeRange
 		}
 
 		if p.Filter.IsCompleted != nil {

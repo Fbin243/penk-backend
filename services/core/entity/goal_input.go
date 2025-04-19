@@ -1,6 +1,10 @@
 package entity
 
-import "time"
+import (
+	"time"
+
+	"tenkhours/pkg/types"
+)
 
 type GoalInput struct {
 	ID          *string           `json:"id,omitempty"`
@@ -40,3 +44,16 @@ const (
 	MetricConditionGreaterThanEqual MetricCondition = "gte"
 	MetricConditionInRange          MetricCondition = "ir"
 )
+
+type GoalPipeline struct {
+	Filter  *GoalFilter
+	OrderBy *GoalOrderBy
+	*types.Pagination
+}
+
+type GoalFilter struct {
+	CharacterID *string     `json:"character_id"`
+	Status      *GoalStatus `json:"status"`
+}
+
+type GoalOrderBy struct{}

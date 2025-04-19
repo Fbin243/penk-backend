@@ -15,7 +15,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (b *TaskBusiness) UpsertTask(ctx context.Context, input *entity.TaskInput) (*entity.Task, error) {
+func (b *TaskBusiness) Upsert(ctx context.Context, input *entity.TaskInput) (*entity.Task, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized
@@ -117,7 +117,7 @@ func (b *TaskBusiness) UpsertTask(ctx context.Context, input *entity.TaskInput) 
 	return task, nil
 }
 
-func (b *TaskBusiness) DeleteTask(ctx context.Context, id string) (*entity.Task, error) {
+func (b *TaskBusiness) Delete(ctx context.Context, id string) (*entity.Task, error) {
 	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
 	if !ok {
 		return nil, errors.ErrUnauthorized

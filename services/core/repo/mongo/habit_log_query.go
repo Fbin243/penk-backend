@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func buildHabitLogPipeline(p *entity.HabitLogPineline) []bson.M {
+func buildHabitLogPipeline(p *entity.HabitLogPipeline) []bson.M {
 	pipeline := []bson.M{}
 
 	// Add match stage
@@ -24,12 +24,15 @@ func buildHabitLogPipeline(p *entity.HabitLogPineline) []bson.M {
 			}
 		}
 
-		matchStage["timestamp"] = bson.M{}
+		timeRange := bson.M{}
 		if p.Filter.StartTime != nil {
-			matchStage["timestamp"].(bson.M)["$gte"] = p.Filter.StartTime.Format(time.DateOnly)
+			timeRange["$gte"] = p.Filter.StartTime.Format(time.DateOnly)
 		}
 		if p.Filter.EndTime != nil {
-			matchStage["timestamp"].(bson.M)["$lte"] = p.Filter.EndTime.Format(time.DateOnly)
+			timeRange["$lte"] = p.Filter.EndTime.Format(time.DateOnly)
+		}
+		if len(timeRange) > 0 {
+			matchStage["timestamp"] = timeRange
 		}
 
 		if p.Filter.Reset != nil {
@@ -55,19 +58,12 @@ func buildHabitLogPipeline(p *entity.HabitLogPineline) []bson.M {
 		pipeline = append(pipeline, bson.M{"$sort": sortStage})
 	}
 
-	// Add limit stage
-	if p.Limit != nil {
-		pipeline = append(pipeline, bson.M{"$limit": *p.Limit})
-	}
-
-	// Add skip stage
-	if p.Offset != nil {
-		pipeline = append(pipeline, bson.M{"$skip": *p.Offset})
-	}
+	// Add pagination stage
+	pipeline = append(pipeline, mongodb.ToPaginationPineline(p.Pagination)...)
 
 	return pipeline
 }
 
-func (r *HabitLogRepo) Find(ctx context.Context, pineline entity.HabitLogPineline) ([]entity.HabitLog, error) {
+func (r *HabitLogRepo) Find(ctx context.Context, pineline entity.HabitLogPipeline) ([]entity.HabitLog, error) {
 	return r.AggregateQuery(ctx, buildHabitLogPipeline(&pineline))
 }

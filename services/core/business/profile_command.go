@@ -92,7 +92,11 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 	}
 
 	// Habit
-	habits, err := biz.HabitRepo.FindByCharacterIDs(ctx, characterIDs)
+	habits, err := biz.HabitRepo.Find(ctx, entity.HabitPipeline{
+		Filter: &entity.HabitFilter{
+			CharacterIDs: characterIDs,
+		},
+	})
 	if err != nil {
 		return nil, err
 	}

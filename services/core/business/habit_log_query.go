@@ -6,6 +6,7 @@ import (
 	"tenkhours/pkg/auth"
 	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 
 	"github.com/samber/lo"
@@ -20,12 +21,18 @@ func (b *HabitBusiness) GetHabitLogs(ctx context.Context, filter *entity.HabitLo
 	var habitID *string
 	if filter != nil {
 		habitID = filter.HabitID
+	} else {
+		filter = &entity.HabitLogFilter{}
 	}
 
 	var habitLogs []entity.HabitLog
 	if habitID == nil {
 		// Get habit logs of the current character
-		habits, err := b.habitRepo.FindByCharacterID(ctx, authSession.CurrentCharacterID)
+		habits, err := b.habitRepo.Find(ctx, entity.HabitPipeline{
+			Filter: &entity.HabitFilter{
+				CharacterID: &authSession.CurrentCharacterID,
+			},
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -35,11 +42,13 @@ func (b *HabitBusiness) GetHabitLogs(ctx context.Context, filter *entity.HabitLo
 		})
 
 		filter.HabitIDs = habitIDs
-		habitLogs, err = b.habitLogRepo.Find(ctx, entity.HabitLogPineline{
+		habitLogs, err = b.habitLogRepo.Find(ctx, entity.HabitLogPipeline{
 			Filter:  filter,
 			OrderBy: orderBy,
-			Limit:   limit,
-			Offset:  offset,
+			Pagination: &types.Pagination{
+				Limit:  limit,
+				Offset: offset,
+			},
 		})
 		if err != nil {
 			return nil, err
@@ -56,11 +65,13 @@ func (b *HabitBusiness) GetHabitLogs(ctx context.Context, filter *entity.HabitLo
 			return nil, err
 		}
 
-		habitLogs, err = b.habitLogRepo.Find(ctx, entity.HabitLogPineline{
+		habitLogs, err = b.habitLogRepo.Find(ctx, entity.HabitLogPipeline{
 			Filter:  filter,
 			OrderBy: orderBy,
-			Limit:   limit,
-			Offset:  offset,
+			Pagination: &types.Pagination{
+				Limit:  limit,
+				Offset: offset,
+			},
 		})
 		if err != nil {
 			return nil, err

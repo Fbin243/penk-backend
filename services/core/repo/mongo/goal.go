@@ -32,26 +32,3 @@ func NewGoalRepo(db *mongo.Database) *GoalRepo {
 		true,
 	)}
 }
-
-func (r *GoalRepo) GetGoalsByCharacterID(ctx context.Context, characterID string) ([]entity.Goal, error) {
-	return r.FindMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-}
-
-func (r *GoalRepo) DeleteByCharacterID(ctx context.Context, characterID string) error {
-	return r.DeleteMany(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-}
-
-func (r *GoalRepo) DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error {
-	return r.DeleteMany(ctx, bson.M{"character_id": bson.M{"$in": mongodb.ToObjectIDs(characterIDs)}})
-}
-
-func (r *GoalRepo) Exist(ctx context.Context, characterID, goalID string) error {
-	return r.Exists(ctx, bson.M{
-		"_id":          mongodb.ToObjectID(goalID),
-		"character_id": mongodb.ToObjectID(characterID),
-	})
-}
-
-func (r *GoalRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
-	return r.Count(ctx, bson.M{"character_id": mongodb.ToObjectID(characterID)})
-}
