@@ -57,5 +57,5 @@ func (b *CategoryBusiness) Count(ctx context.Context, filter *entity.CategoryFil
 
 	count, err := b.cateRepo.CountByFilter(ctx, filter)
 
-	return count + 1, err
+	return count, err
 }
