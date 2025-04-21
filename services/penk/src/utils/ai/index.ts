@@ -23,11 +23,7 @@ const client = new OpenAI({
 
 const voiceModeInstruction = readFileSync("resources/instructions/voice-mode.md", "utf8");
 
-export const base64ToUploadable = (
-  base64: string,
-  filename: string,
-  mimeType: string = "audio/mpeg",
-): File => {
+export const base64ToUploadable = (base64: string, filename: string, mimeType: string): File => {
   // Remove the Base64 prefix if it exists
   const base64Data = base64.split(",")[1] || base64;
 

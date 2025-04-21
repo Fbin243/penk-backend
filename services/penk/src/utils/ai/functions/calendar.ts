@@ -27,12 +27,16 @@ const getCalendarEventsDefinition: FunctionDefinition = {
         type: "string",
         description: "End time (ISO 8601 format)",
       },
+      timezone: {
+        type: "string",
+        description: "Timezone of the user",
+      },
       locale: {
         type: "string",
         description: "Locale of the user",
       },
     },
-    required: ["profileId", "timeMin", "timeMax", "locale"],
+    required: ["profileId", "timeMin", "timeMax", "timezone", "locale"],
     additionalProperties: false,
   },
   strict: true,
@@ -42,6 +46,7 @@ export const functionGetCalendarEvents = async (props: {
   profileId: string;
   timeMin: string;
   timeMax: string;
+  timezone: string;
   locale: string;
 }) => {
   console.log(chalk.cyan(`[Tool: ${FunctionName.GetCalendarEvents}]`));
@@ -107,12 +112,26 @@ export const functionGetCalendarEvents = async (props: {
     return [event]; // Return one-time events as-is
   });
 
-  return rruleResolvedEvents.map((e) => ({
+  const result = rruleResolvedEvents.map((e) => ({
     title: e.summary,
     description: e.description,
-    start: e.start ? new Date(e.start).toLocaleString(props.locale) : undefined,
-    end: e.end ? new Date(e.end).toLocaleString(props.locale) : undefined,
+    start: e.start
+      ? new Date(e.start).toLocaleString(props.locale, {
+          timeZone: props.timezone,
+        })
+      : undefined,
+    end: e.end
+      ? new Date(e.end).toLocaleString(props.locale, {
+          timeZone: props.timezone,
+        })
+      : undefined,
   }));
+
+  // console.log(chalk.cyan(`[Tool: ${FunctionName.GetCalendarEvents}]`));
+  // console.dir(result, { depth: null, colors: true });
+  // console.log();
+
+  return result;
 };
 
 export const toolGetCalendarEvents: ChatCompletionTool = {

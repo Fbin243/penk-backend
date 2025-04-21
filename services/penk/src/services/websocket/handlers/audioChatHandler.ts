@@ -35,7 +35,7 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
 
         const filename = `audio-${context.profileId}`;
 
-        let uploadableAudio;
+        let uploadableAudio: File;
         try {
           // Convert to MP3 if needed for transcription (OpenAI doesn't support m4a)
           if (clientAudioFormat === "m4a") {
@@ -43,7 +43,9 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
             const mp3File = await convertAudioFormatToMp3(m4aFile);
             uploadableAudio = mp3File;
           } else {
-            uploadableAudio = base64ToUploadable(data, `${filename}.mp3`, "audio/mpeg");
+            const mp4File = base64ToUploadable(data, `${filename}.mp4`, "audio/mp4");
+            const mp3File = await convertAudioFormatToMp3(mp4File);
+            uploadableAudio = mp3File;
           }
           console.log(`Audio format processing completed in ${Date.now() - uploadStartTime}ms`);
         } catch (error) {
