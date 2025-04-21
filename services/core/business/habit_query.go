@@ -28,3 +28,17 @@ func (b *HabitBusiness) Get(ctx context.Context, filter *entity.HabitFilter, ord
 		},
 	})
 }
+
+func (b *HabitBusiness) Count(ctx context.Context, filter *entity.HabitFilter) (int, error) {
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	if filter == nil {
+		filter = &entity.HabitFilter{}
+	}
+	filter.CharacterID = &authSession.CurrentCharacterID
+
+	return b.habitRepo.CountByFilter(ctx, filter)
+}

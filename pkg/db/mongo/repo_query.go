@@ -85,3 +85,29 @@ func (r *BaseRepo[M, N]) AggregateQuery(ctx context.Context, pipeline any) ([]M,
 	err = cursor.All(ctx, &ms)
 	return ms, err
 }
+
+// AggregateCount performs an aggregation operation on the collection using the provided pipeline and returns the count.
+func (r *BaseRepo[M, N]) AggregateCount(ctx context.Context, pipeline any) (int, error) {
+	ctx, cancel := context.WithTimeout(ctx, r.Timeout)
+	defer cancel()
+
+	cursor, err := r.Collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return 0, err
+	}
+	defer cursor.Close(ctx)
+
+	var result []struct {
+		Count int `bson:"count"`
+	}
+	err = cursor.All(ctx, &result)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(result) == 0 {
+		return 0, nil
+	}
+
+	return result[0].Count, nil
+}

@@ -16,6 +16,40 @@ func (b *HabitBusiness) GetHabitLogs(ctx context.Context, filter *entity.HabitLo
 		return nil, err
 	}
 
+	processedFilter, err := b.processFilter(ctx, authSession.CurrentCharacterID, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	return b.habitLogRepo.Find(ctx, entity.HabitLogPipeline{
+		Filter:  processedFilter,
+		OrderBy: orderBy,
+		Pagination: &types.Pagination{
+			Limit:  limit,
+			Offset: offset,
+		},
+	})
+}
+
+func (b *HabitBusiness) CountHabitLog(ctx context.Context, filter *entity.HabitLogFilter) (int, error) {
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	processedFilter, err := b.processFilter(ctx, authSession.CurrentCharacterID, filter)
+	if err != nil {
+		return 0, err
+	}
+
+	return b.habitLogRepo.CountByFilter(ctx, processedFilter)
+}
+
+func (b *HabitBusiness) processFilter(
+	ctx context.Context,
+	characterID string,
+	filter *entity.HabitLogFilter,
+) (*entity.HabitLogFilter, error) {
 	var habitID *string
 	if filter != nil {
 		habitID = filter.HabitID
@@ -23,37 +57,23 @@ func (b *HabitBusiness) GetHabitLogs(ctx context.Context, filter *entity.HabitLo
 		filter = &entity.HabitLogFilter{}
 	}
 
-	var habitLogs []entity.HabitLog
 	if habitID == nil {
 		// Get habit logs of the current character
 		habits, err := b.habitRepo.Find(ctx, entity.HabitPipeline{
 			Filter: &entity.HabitFilter{
-				CharacterID: &authSession.CurrentCharacterID,
+				CharacterID: &characterID,
 			},
 		})
 		if err != nil {
 			return nil, err
 		}
-
 		habitIDs := lo.Map(habits, func(habit entity.Habit, _ int) string {
 			return habit.ID
 		})
-
 		filter.HabitIDs = habitIDs
-		habitLogs, err = b.habitLogRepo.Find(ctx, entity.HabitLogPipeline{
-			Filter:  filter,
-			OrderBy: orderBy,
-			Pagination: &types.Pagination{
-				Limit:  limit,
-				Offset: offset,
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
 	} else {
 		// Get habit logs of the habit
-		err := b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
+		err := b.permBiz.CheckOwnEntities(ctx, characterID, []PermissionEntity{
 			{
 				ID:   *habitID,
 				Type: entity.EntityTypeHabit,
@@ -62,19 +82,7 @@ func (b *HabitBusiness) GetHabitLogs(ctx context.Context, filter *entity.HabitLo
 		if err != nil {
 			return nil, err
 		}
-
-		habitLogs, err = b.habitLogRepo.Find(ctx, entity.HabitLogPipeline{
-			Filter:  filter,
-			OrderBy: orderBy,
-			Pagination: &types.Pagination{
-				Limit:  limit,
-				Offset: offset,
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
 	}
 
-	return habitLogs, nil
+	return filter, nil
 }

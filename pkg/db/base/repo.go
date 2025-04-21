@@ -25,4 +25,5 @@ type IBaseRepo[M any] interface {
 	// DeleteMany(ctx context.Context, filter any) error
 
 	// AggregateQuery(ctx context.Context, pipeline any) ([]M, error)
+	// AggregateCount(ctx context.Context, pipeline any) (int, error)
 }

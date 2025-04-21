@@ -52,6 +52,7 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	Profile() ProfileResolver
 	Query() QueryResolver
+	Task() TaskResolver
 	CategoryFilter() CategoryFilterResolver
 	CategoryOrderBy() CategoryOrderByResolver
 	GoalOrderBy() GoalOrderByResolver
@@ -351,6 +352,9 @@ type QueryResolver interface {
 	HabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit *int, offset *int) (*model.HabitLogConnection, error)
 	Tasks(ctx context.Context, filter *entity.TaskFilter, orderBy *entity.TaskOrderBy, limit *int, offset *int) (*model.TaskConnection, error)
 	TaskSessions(ctx context.Context, filter *entity.TaskSessionFilter, orderBy *entity.TaskSessionOrderBy, limit *int, offset *int) (*model.TaskSessionConnection, error)
+}
+type TaskResolver interface {
+	CategoryID(ctx context.Context, obj *entity.Task) (*string, error)
 }
 
 type CategoryFilterResolver interface {
@@ -8904,7 +8908,7 @@ func (ec *executionContext) _Task_categoryID(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CategoryID, nil
+		return ec.resolvers.Task().CategoryID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8922,8 +8926,8 @@ func (ec *executionContext) fieldContext_Task_categoryID(_ context.Context, fiel
 	fc = &graphql.FieldContext{
 		Object:     "Task",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -14818,41 +14822,72 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 		case "id":
 			out.Values[i] = ec._Task_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
 			out.Values[i] = ec._Task_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "updatedAt":
 			out.Values[i] = ec._Task_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "characterID":
 			out.Values[i] = ec._Task_characterID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "categoryID":
-			out.Values[i] = ec._Task_categoryID(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Task_categoryID(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "name":
 			out.Values[i] = ec._Task_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "priority":
 			out.Values[i] = ec._Task_priority(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "completedTime":
 			out.Values[i] = ec._Task_completedTime(ctx, field, obj)
 		case "subtasks":
 			out.Values[i] = ec._Task_subtasks(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "description":
 			out.Values[i] = ec._Task_description(ctx, field, obj)

@@ -5,107 +5,103 @@ import (
 	"time"
 
 	mongodb "tenkhours/pkg/db/mongo"
+	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (r *HabitLogRepo) Find(ctx context.Context, p entity.HabitLogPipeline) ([]entity.HabitLog, error) {
-	pipeline := []bson.M{}
-
-	// Add match stage
-	if p.Filter != nil {
-		matchStage := bson.M{}
-		if p.Filter.HabitID != nil {
-			matchStage["habit_id"] = mongodb.ToObjectID(*p.Filter.HabitID)
-		} else if p.Filter.HabitIDs != nil {
-			matchStage["habit_id"] = bson.M{
-				"$in": mongodb.ToObjectIDs(p.Filter.HabitIDs),
-			}
-		}
-
-		timeRange := bson.M{}
-		if p.Filter.StartTime != nil {
-			timeRange["$gte"] = p.Filter.StartTime.Format(time.DateOnly)
-		}
-		if p.Filter.EndTime != nil {
-			timeRange["$lte"] = p.Filter.EndTime.Format(time.DateOnly)
-		}
-		if len(timeRange) > 0 {
-			matchStage["timestamp"] = timeRange
-		}
-
-		if p.Filter.Reset != nil {
-			// Get all habit logs of a habit has this reset
-			pipeline = append(pipeline, bson.M{"$lookup": bson.M{
-				"from":         mongodb.HabitsCollection,
-				"localField":   "habit_id",
-				"foreignField": "_id",
-				"as":           "habit",
-			}})
-			pipeline = append(pipeline, bson.M{"$unwind": "$habit"})
-			matchStage["habit.reset"] = *p.Filter.Reset
-		}
-		pipeline = append(pipeline, bson.M{"$match": matchStage})
-	}
-
-	// Add sorting stage
-	if p.OrderBy != nil {
-		sortStage := bson.M{}
-		if p.OrderBy.Timestamp != nil {
-			sortStage["timestamp"] = p.OrderBy.Timestamp.ToInt()
-		}
-		pipeline = append(pipeline, bson.M{"$sort": sortStage})
-	}
-
-	// Add pagination stage
-	pipeline = append(pipeline, mongodb.ToPaginationPineline(p.Pagination)...)
-
-	return r.AggregateQuery(ctx, pipeline)
+	return r.AggregateQuery(ctx,
+		r.addPaginationStage(
+			r.addSortStage(
+				r.addMatchStage(
+					[]bson.M{},
+					p.Filter,
+				),
+				p.OrderBy,
+			),
+			p.Pagination,
+		),
+	)
 }
 
 func (r *HabitLogRepo) CountByHabitID(ctx context.Context, habitID string) (int, error) {
 	return r.Count(ctx, bson.M{"habit_id": mongodb.ToObjectID(habitID)})
 }
 
-func (r *HabitLogRepo) CountByCharacterID(ctx context.Context, characterID string) (int, error) {
-	pipeline := []bson.M{
-		{
-			"$lookup": bson.M{
-				"from":         mongodb.HabitsCollection,
-				"localField":   "habit_id",
-				"foreignField": "_id",
-				"as":           "habit",
-			},
-		},
-		{
-			"$match": bson.M{
-				"habit.character_id": mongodb.ToObjectID(characterID),
-			},
-		},
-		{
-			"$count": "count",
-		},
+func (r *HabitLogRepo) CountByFilter(ctx context.Context, filter *entity.HabitLogFilter) (int, error) {
+	return r.AggregateCount(ctx,
+		r.addCountStage(
+			r.addMatchStage(
+				[]bson.M{},
+				filter,
+			),
+		),
+	)
+}
+
+func (r *HabitLogRepo) addMatchStage(p []bson.M, filter *entity.HabitLogFilter) []bson.M {
+	if filter == nil {
+		return p
 	}
 
-	cursor, err := r.Collection.Aggregate(ctx, pipeline)
-	if err != nil {
-		return 0, err
+	matchStage := bson.M{}
+	if filter.HabitID != nil {
+		matchStage["habit_id"] = mongodb.ToObjectID(*filter.HabitID)
+	} else if filter.HabitIDs != nil {
+		matchStage["habit_id"] = bson.M{
+			"$in": mongodb.ToObjectIDs(filter.HabitIDs),
+		}
 	}
 
-	defer cursor.Close(ctx)
-
-	var result []struct {
-		Count int `bson:"count"`
+	timeRange := bson.M{}
+	if filter.StartTime != nil {
+		timeRange["$gte"] = filter.StartTime.Format(time.DateOnly)
+	}
+	if filter.EndTime != nil {
+		timeRange["$lte"] = filter.EndTime.Format(time.DateOnly)
+	}
+	if len(timeRange) > 0 {
+		matchStage["timestamp"] = timeRange
 	}
 
-	if err := cursor.All(ctx, &result); err != nil {
-		return 0, err
+	if filter.Reset != nil {
+		// Get all habit logs of a habit has this reset
+		p = append(p, bson.M{"$lookup": bson.M{
+			"from":         mongodb.HabitsCollection,
+			"localField":   "habit_id",
+			"foreignField": "_id",
+			"as":           "habit",
+		}})
+		p = append(p, bson.M{"$unwind": "$habit"})
+		matchStage["habit.reset"] = *filter.Reset
 	}
 
-	if len(result) == 0 {
-		return 0, nil
+	return append(p, bson.M{"$match": matchStage})
+}
+
+func (r *HabitLogRepo) addSortStage(p []bson.M, orderBy *entity.HabitLogOrderBy) []bson.M {
+	if orderBy == nil {
+		return p
 	}
 
-	return result[0].Count, nil
+	sortStage := bson.M{}
+	if orderBy.Timestamp != nil {
+		sortStage["timestamp"] = orderBy.Timestamp.ToInt()
+	}
+
+	return append(p, bson.M{"$sort": sortStage})
+}
+
+func (r *HabitLogRepo) addPaginationStage(p []bson.M, pagination *types.Pagination) []bson.M {
+	if pagination == nil {
+		return p
+	}
+
+	return append(p, mongodb.ToPaginationPineline(pagination)...)
+}
+
+func (r *HabitLogRepo) addCountStage(p []bson.M) []bson.M {
+	return append(p, bson.M{"$count": "count"})
 }

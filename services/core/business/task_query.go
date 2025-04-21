@@ -19,7 +19,7 @@ func (b *TaskBusiness) Get(ctx context.Context, filter *entity.TaskFilter, order
 	}
 	filter.CharacterID = &authSession.CurrentCharacterID
 
-	tasks, err := b.taskRepo.Find(ctx, entity.TaskPineline{
+	return b.taskRepo.Find(ctx, entity.TaskPipeline{
 		Filter:  filter,
 		OrderBy: orderBy,
 		Pagination: &types.Pagination{
@@ -27,9 +27,18 @@ func (b *TaskBusiness) Get(ctx context.Context, filter *entity.TaskFilter, order
 			Offset: offset,
 		},
 	})
+}
+
+func (b *TaskBusiness) Count(ctx context.Context, filter *entity.TaskFilter) (int, error) {
+	authSession, err := auth.GetAuthSession(ctx)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	return tasks, nil
+	if filter == nil {
+		filter = &entity.TaskFilter{}
+	}
+	filter.CharacterID = &authSession.CurrentCharacterID
+
+	return b.taskRepo.CountByFilter(ctx, filter)
 }

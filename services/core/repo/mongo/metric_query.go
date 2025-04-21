@@ -4,6 +4,7 @@ import (
 	"context"
 
 	mongodb "tenkhours/pkg/db/mongo"
+	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -29,19 +30,56 @@ func (r *MetricRepo) CountUnassigned(ctx context.Context, characterID string) (i
 }
 
 func (r *MetricRepo) Find(ctx context.Context, p entity.MetricPipeline) ([]entity.Metric, error) {
-	pipeline := []bson.M{}
+	return r.AggregateQuery(ctx,
+		r.addPaginationStage(
+			r.addSortStage(
+				r.addMatchStage(
+					[]bson.M{},
+					p.Filter,
+				),
+				p.OrderBy,
+			),
+			p.Pagination,
+		),
+	)
+}
 
-	// Add match stage
-	if p.Filter != nil {
-		matchStage := bson.M{}
-		if p.Filter.CharacterID != nil {
-			matchStage["character_id"] = mongodb.ToObjectID(*p.Filter.CharacterID)
-		}
-		pipeline = append(pipeline, bson.M{"$match": matchStage})
+func (r *MetricRepo) CountByFilter(ctx context.Context, filter *entity.MetricFilter) (int, error) {
+	return r.AggregateCount(ctx,
+		r.addCountStage(
+			r.addMatchStage(
+				[]bson.M{},
+				filter,
+			),
+		),
+	)
+}
+
+func (r *MetricRepo) addMatchStage(p []bson.M, filter *entity.MetricFilter) []bson.M {
+	if filter == nil {
+		return p
 	}
 
-	// Add pagination stage
-	pipeline = append(pipeline, mongodb.ToPaginationPineline(p.Pagination)...)
+	matchStage := bson.M{}
+	if filter.CharacterID != nil {
+		matchStage["character_id"] = mongodb.ToObjectID(*filter.CharacterID)
+	}
 
-	return r.AggregateQuery(ctx, pipeline)
+	return append(p, bson.M{"$match": matchStage})
+}
+
+func (r *MetricRepo) addSortStage(p []bson.M, orderBy *entity.MetricOrderBy) []bson.M {
+	return p
+}
+
+func (r *MetricRepo) addPaginationStage(p []bson.M, pagination *types.Pagination) []bson.M {
+	if pagination == nil {
+		return p
+	}
+
+	return append(p, mongodb.ToPaginationPineline(pagination)...)
+}
+
+func (r *MetricRepo) addCountStage(p []bson.M) []bson.M {
+	return append(p, bson.M{"$count": "count"})
 }

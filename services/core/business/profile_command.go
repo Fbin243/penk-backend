@@ -114,7 +114,7 @@ func (biz *ProfileBusiness) DeleteProfile(ctx context.Context) (*entity.Profile,
 	}
 
 	// Task
-	tasks, err := biz.TaskRepo.Find(ctx, entity.TaskPineline{
+	tasks, err := biz.TaskRepo.Find(ctx, entity.TaskPipeline{
 		Filter: &entity.TaskFilter{
 			CharacterIDs: characterIDs,
 		},
