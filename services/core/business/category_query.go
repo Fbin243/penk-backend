@@ -17,11 +17,6 @@ func (b *CategoryBusiness) Get(ctx context.Context, filter *entity.CategoryFilte
 		return nil, err
 	}
 
-	err = b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{})
-	if err != nil {
-		return nil, err
-	}
-
 	if filter == nil {
 		filter = &entity.CategoryFilter{}
 	}
@@ -47,4 +42,20 @@ func (b *CategoryBusiness) Get(ctx context.Context, filter *entity.CategoryFilte
 	})
 
 	return cates, err
+}
+
+func (b *CategoryBusiness) Count(ctx context.Context, filter *entity.CategoryFilter) (int, error) {
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	if filter == nil {
+		filter = &entity.CategoryFilter{}
+	}
+	filter.CharacterID = &authSession.CurrentCharacterID
+
+	count, err := b.cateRepo.CountByFilter(ctx, filter)
+
+	return count + 1, err
 }

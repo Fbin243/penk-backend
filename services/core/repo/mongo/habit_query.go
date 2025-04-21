@@ -36,20 +36,38 @@ func (r *HabitRepo) Find(ctx context.Context, p entity.HabitPipeline) ([]entity.
 
 	// Add match stage
 	if p.Filter != nil {
-		matchStage := bson.M{}
-		if p.Filter.CharacterID != nil {
-			matchStage["character_id"] = mongodb.ToObjectID(*p.Filter.CharacterID)
-		} else if p.Filter.CharacterIDs != nil {
-			matchStage["character_id"] = bson.M{
-				"$in": mongodb.ToObjectIDs(p.Filter.CharacterIDs),
-			}
-		}
-
-		pipeline = append(pipeline, bson.M{"$match": matchStage})
+		pipeline = append(pipeline, bson.M{"$match": r.buildMatchStage(*p.Filter)})
 	}
 
 	// Add pagination stage
 	pipeline = append(pipeline, mongodb.ToPaginationPineline(p.Pagination)...)
 
 	return r.AggregateQuery(ctx, pipeline)
+}
+
+func (r *HabitRepo) CountByFilter(ctx context.Context, filter *entity.HabitFilter) (int, error) {
+	pipeline := []bson.M{}
+
+	// Add match stage
+	if filter != nil {
+		pipeline = append(pipeline, bson.M{"$match": r.buildMatchStage(*filter)})
+	}
+
+	// Add count stage
+	pipeline = append(pipeline, bson.M{"$count": "count"})
+
+	return r.AggregateCount(ctx, pipeline)
+}
+
+func (r *HabitRepo) buildMatchStage(filter entity.HabitFilter) bson.M {
+	matchStage := bson.M{}
+	if filter.CharacterID != nil {
+		matchStage["character_id"] = mongodb.ToObjectID(*filter.CharacterID)
+	} else if filter.CharacterIDs != nil {
+		matchStage["character_id"] = bson.M{
+			"$in": mongodb.ToObjectIDs(filter.CharacterIDs),
+		}
+	}
+
+	return matchStage
 }

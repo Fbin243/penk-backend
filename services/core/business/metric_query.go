@@ -28,3 +28,17 @@ func (b *MetricBusiness) Get(ctx context.Context, filter *entity.MetricFilter, o
 		},
 	})
 }
+
+func (b *MetricBusiness) Count(ctx context.Context, filter *entity.MetricFilter) (int, error) {
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	if filter == nil {
+		filter = &entity.MetricFilter{}
+	}
+	filter.CharacterID = &authSession.CurrentCharacterID
+
+	return b.metricRepo.CountByFilter(ctx, filter)
+}

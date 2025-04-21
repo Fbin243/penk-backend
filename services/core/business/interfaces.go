@@ -43,6 +43,7 @@ type ICategoryBusiness interface {
 
 type IHabitBusiness interface {
 	base.IBaseBusiness[entity.Habit, entity.HabitInput, entity.HabitFilter, entity.HabitOrderBy]
+	CountHabitLog(ctx context.Context, filter *entity.HabitLogFilter) (int, error)
 	GetHabitLogs(ctx context.Context, filter *entity.HabitLogFilter, orderBy *entity.HabitLogOrderBy, limit, offset *int) ([]entity.HabitLog, error)
 	UpsertHabitLog(ctx context.Context, input *entity.HabitLogInput) (*entity.HabitLog, error)
 }
@@ -53,6 +54,7 @@ type ITimeTrackingBusiness interface {
 
 type ITaskBusiness interface {
 	base.IBaseBusiness[entity.Task, entity.TaskInput, entity.TaskFilter, entity.TaskOrderBy]
+	CountTaskSession(ctx context.Context, filter *entity.TaskSessionFilter) (int, error)
 	GetTaskSessions(ctx context.Context, filter *entity.TaskSessionFilter, orderBy *entity.TaskSessionOrderBy, limit, offset *int) ([]entity.TaskSession, error)
 	UpsertTaskSession(ctx context.Context, input *entity.TaskSessionInput) (*entity.TaskSession, error)
 	DeleteTaskSession(ctx context.Context, id string) (*entity.TaskSession, error)
@@ -78,6 +80,7 @@ type ICharacterRepo interface {
 type ICategoryRepo interface {
 	base.IBaseRepo[entity.Category]
 	Find(ctx context.Context, p entity.CategoryPipeline) ([]entity.Category, error)
+	CountByFilter(ctx context.Context, filter *entity.CategoryFilter) (int, error)
 	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 	Exist(ctx context.Context, characterID, categoryID string) error
 	DeleteByCharacterID(ctx context.Context, characterID string) error
@@ -87,6 +90,7 @@ type ICategoryRepo interface {
 type IMetricRepo interface {
 	base.IBaseRepo[entity.Metric]
 	Find(ctx context.Context, p entity.MetricPipeline) ([]entity.Metric, error)
+	CountByFilter(ctx context.Context, filter *entity.MetricFilter) (int, error)
 	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 	CountByCategoryID(ctx context.Context, categoryID string) (int, error)
 	CountUnassigned(ctx context.Context, characterID string) (int, error)
@@ -99,10 +103,11 @@ type IMetricRepo interface {
 type IGoalRepo interface {
 	base.IBaseRepo[entity.Goal]
 	Find(ctx context.Context, p entity.GoalPipeline) ([]entity.Goal, error)
+	CountByFilter(ctx context.Context, filter *entity.GoalFilter) (int, error)
 	DeleteByCharacterID(ctx context.Context, characterID string) error
 	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
-	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 	Exist(ctx context.Context, characterID, goalID string) error
+	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 }
 
 type ICache interface {
@@ -114,7 +119,8 @@ type ICache interface {
 
 type IHabitRepo interface {
 	base.IBaseRepo[entity.Habit]
-	Find(ctx context.Context, pineline entity.HabitPipeline) ([]entity.Habit, error)
+	Find(ctx context.Context, pipeline entity.HabitPipeline) ([]entity.Habit, error)
+	CountByFilter(ctx context.Context, filter *entity.HabitFilter) (int, error)
 	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 	CountByCategoryID(ctx context.Context, categoryID string) (int, error)
 	CountUnassigned(ctx context.Context, characterID string) (int, error)
@@ -126,11 +132,11 @@ type IHabitRepo interface {
 
 type IHabitLogRepo interface {
 	base.IBaseRepo[entity.HabitLog]
-	Find(ctx context.Context, pineline entity.HabitLogPipeline) ([]entity.HabitLog, error)
+	Find(ctx context.Context, pipeline entity.HabitLogPipeline) ([]entity.HabitLog, error)
+	CountByFilter(ctx context.Context, filter *entity.HabitLogFilter) (int, error)
 	UpsertByTimestamp(ctx context.Context, timestamp time.Time, habit *entity.HabitLog) error
 	DeleteByHabitID(ctx context.Context, habitID string) error
 	DeleteByHabitIDs(ctx context.Context, habitIDs []string) error
-	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 	CountByHabitID(ctx context.Context, habitID string) (int, error)
 }
 
@@ -153,11 +159,12 @@ type ITimeTrackingRepo interface {
 
 type ITaskRepo interface {
 	base.IBaseRepo[entity.Task]
+	Find(ctx context.Context, pipeline entity.TaskPipeline) ([]entity.Task, error)
+	CountByFilter(ctx context.Context, filter *entity.TaskFilter) (int, error)
 	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 	CountByCategoryID(ctx context.Context, categoryID string) (int, error)
 	CountUnassigned(ctx context.Context, characterID string) (int, error)
 	Exist(ctx context.Context, characterID, taskID string) error
-	Find(ctx context.Context, pineline entity.TaskPineline) ([]entity.Task, error)
 	DeleteByCharacterID(ctx context.Context, characterID string) error
 	DeleteByCharacterIDs(ctx context.Context, characterIDs []string) error
 	UnassignCategory(ctx context.Context, categoryID string) error
@@ -165,10 +172,10 @@ type ITaskRepo interface {
 
 type ITaskSessionRepo interface {
 	base.IBaseRepo[entity.TaskSession]
-	Find(ctx context.Context, pineline entity.TaskSessionPipeline) ([]entity.TaskSession, error)
+	Find(ctx context.Context, pipeline entity.TaskSessionPipeline) ([]entity.TaskSession, error)
+	CountByFilter(ctx context.Context, filter *entity.TaskSessionFilter) (int, error)
 	DeleteByTaskID(ctx context.Context, taskID string) error
 	DeleteByTaskIDs(ctx context.Context, taskIDs []string) error
-	CountByCharacterID(ctx context.Context, characterID string) (int, error)
 	CountByTaskID(ctx context.Context, taskID string) (int, error)
 }
 

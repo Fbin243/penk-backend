@@ -15,6 +15,7 @@ func (biz *GoalBusiness) Get(ctx context.Context, filter *entity.GoalFilter, ord
 	if err != nil {
 		return nil, err
 	}
+
 	if filter == nil {
 		filter = &entity.GoalFilter{}
 	}
@@ -39,4 +40,18 @@ func (biz *GoalBusiness) Get(ctx context.Context, filter *entity.GoalFilter, ord
 	}
 
 	return goals, nil
+}
+
+func (biz *GoalBusiness) Count(ctx context.Context, filter *entity.GoalFilter) (int, error) {
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	if filter == nil {
+		filter = &entity.GoalFilter{}
+	}
+	filter.CharacterID = &authSession.CurrentCharacterID
+
+	return biz.goalRepo.CountByFilter(ctx, filter)
 }

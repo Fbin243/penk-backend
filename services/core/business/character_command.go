@@ -139,7 +139,7 @@ func (biz *CharacterBusiness) DeleteCharacter(ctx context.Context, id string) (*
 	}
 
 	// Task
-	tasks, err := biz.TaskRepo.Find(ctx, entity.TaskPineline{
+	tasks, err := biz.TaskRepo.Find(ctx, entity.TaskPipeline{
 		Filter: &entity.TaskFilter{
 			CharacterID: &id,
 		},

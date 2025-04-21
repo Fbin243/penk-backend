@@ -17,7 +17,7 @@ type TaskInput struct {
 	Deadline      *time.Time      `json:"deadline"`
 }
 
-type TaskPineline struct {
+type TaskPipeline struct {
 	Filter  *TaskFilter
 	OrderBy *TaskOrderBy
 	*types.Pagination

@@ -16,42 +16,64 @@ func (b *TaskBusiness) GetTaskSessions(ctx context.Context, filter *entity.TaskS
 		return nil, err
 	}
 
+	processedFilter, err := b.processFilter(ctx, authSession.CurrentCharacterID, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	return b.taskSessionRepo.Find(ctx, entity.TaskSessionPipeline{
+		Filter:  processedFilter,
+		OrderBy: orderBy,
+		Pagination: &types.Pagination{
+			Limit:  limit,
+			Offset: offset,
+		},
+	})
+}
+
+func (b *TaskBusiness) CountTaskSession(ctx context.Context, filter *entity.TaskSessionFilter) (int, error) {
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	processedFilter, err := b.processFilter(ctx, authSession.CurrentCharacterID, filter)
+	if err != nil {
+		return 0, err
+	}
+
+	return b.taskSessionRepo.CountByFilter(ctx, processedFilter)
+}
+
+func (b *TaskBusiness) processFilter(
+	ctx context.Context,
+	characterID string,
+	filter *entity.TaskSessionFilter,
+) (*entity.TaskSessionFilter, error) {
 	var taskID *string
 	if filter != nil {
 		taskID = filter.TaskID
+	} else {
+		filter = &entity.TaskSessionFilter{}
 	}
 
-	var taskSessions []entity.TaskSession
 	if taskID == nil {
-		// Query all task sessions of the current character
-		tasks, err := b.taskRepo.Find(ctx, entity.TaskPineline{
+		// Get task sessions of the current character
+		tasks, err := b.taskRepo.Find(ctx, entity.TaskPipeline{
 			Filter: &entity.TaskFilter{
-				CharacterID: &authSession.CurrentCharacterID,
+				CharacterID: &characterID,
 			},
 		})
 		if err != nil {
 			return nil, err
 		}
-
 		taskIDs := lo.Map(tasks, func(task entity.Task, _ int) string {
 			return task.ID
 		})
-
 		filter.TaskIDs = taskIDs
-		taskSessions, err = b.taskSessionRepo.Find(ctx, entity.TaskSessionPipeline{
-			Filter:  filter,
-			OrderBy: orderBy,
-			Pagination: &types.Pagination{
-				Limit:  limit,
-				Offset: offset,
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
 	} else {
-		// Query task sessions by task ID
-		err := b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
+		// Get task sessions of the task
+		err := b.permBiz.CheckOwnEntities(ctx, characterID, []PermissionEntity{
 			{
 				ID:   *taskID,
 				Type: entity.EntityTypeTask,
@@ -60,19 +82,7 @@ func (b *TaskBusiness) GetTaskSessions(ctx context.Context, filter *entity.TaskS
 		if err != nil {
 			return nil, err
 		}
-
-		taskSessions, err = b.taskSessionRepo.Find(ctx, entity.TaskSessionPipeline{
-			Filter:  filter,
-			OrderBy: orderBy,
-			Pagination: &types.Pagination{
-				Limit:  limit,
-				Offset: offset,
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
 	}
 
-	return taskSessions, nil
+	return filter, nil
 }

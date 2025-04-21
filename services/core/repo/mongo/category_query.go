@@ -4,6 +4,7 @@ import (
 	"context"
 
 	mongodb "tenkhours/pkg/db/mongo"
+	"tenkhours/pkg/types"
 	"tenkhours/services/core/entity"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,19 +22,56 @@ func (r *CategoryRepo) Exist(ctx context.Context, characterID, categoryID string
 }
 
 func (r *CategoryRepo) Find(ctx context.Context, pineline entity.CategoryPipeline) ([]entity.Category, error) {
-	pipeline := []bson.M{}
+	return r.AggregateQuery(ctx,
+		r.addPaginationStage(
+			r.addSortStage(
+				r.addMatchStage(
+					[]bson.M{},
+					pineline.Filter,
+				),
+				pineline.OrderBy,
+			),
+			pineline.Pagination,
+		),
+	)
+}
 
-	// Add match stage
-	if pineline.Filter != nil {
-		matchStage := bson.M{}
-		if pineline.Filter.CharacterID != nil {
-			matchStage["character_id"] = mongodb.ToObjectID(*pineline.Filter.CharacterID)
-		}
-		pipeline = append(pipeline, bson.M{"$match": matchStage})
+func (r *CategoryRepo) CountByFilter(ctx context.Context, filter *entity.CategoryFilter) (int, error) {
+	return r.AggregateCount(ctx,
+		r.addCountStage(
+			r.addMatchStage(
+				[]bson.M{},
+				filter,
+			),
+		),
+	)
+}
+
+func (r *CategoryRepo) addMatchStage(p []bson.M, filter *entity.CategoryFilter) []bson.M {
+	if filter == nil {
+		return p
 	}
 
-	// Add pagination stage
-	pipeline = append(pipeline, mongodb.ToPaginationPineline(pineline.Pagination)...)
+	matchStage := bson.M{}
+	if filter.CharacterID != nil {
+		matchStage["character_id"] = mongodb.ToObjectID(*filter.CharacterID)
+	}
 
-	return r.AggregateQuery(ctx, pipeline)
+	return append(p, bson.M{"$match": matchStage})
+}
+
+func (r *CategoryRepo) addCountStage(p []bson.M) []bson.M {
+	return append(p, bson.M{"$count": "count"})
+}
+
+func (r *CategoryRepo) addSortStage(p []bson.M, _ *entity.CategoryOrderBy) []bson.M {
+	return p
+}
+
+func (r *CategoryRepo) addPaginationStage(p []bson.M, pagination *types.Pagination) []bson.M {
+	if pagination == nil {
+		return p
+	}
+
+	return append(p, mongodb.ToPaginationPineline(pagination)...)
 }
