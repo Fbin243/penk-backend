@@ -24,10 +24,6 @@ export const setupInitialMessages = (
     },
     {
       role: "user",
-      content: `Current date and time: ${new Date().toISOString()}`,
-    },
-    {
-      role: "user",
       content: `My data: ${userData}`,
     },
     ...history.map((message) => {
@@ -62,7 +58,7 @@ export const streamAssistantResponse = async (props: {
   const finalToolCalls: Record<number, ChatCompletionChunk.Choice.Delta.ToolCall> = {};
 
   const stream = await client.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-4.1-nano",
     messages,
     stream: true,
     stream_options: { include_usage: true },

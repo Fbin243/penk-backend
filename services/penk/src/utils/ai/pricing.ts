@@ -6,16 +6,18 @@ export interface CompletionPricingModel {
   pricePer1MPromptTextTokens: number;
   pricePer1MPromptTextTokensCached: number;
   pricePer1MCompletionTextTokens: number;
-  pricePer1MPromptAudioTokens: number;
-  pricePer1MCompletionAudioTokens: number;
 }
 
 export const gpt4oMiniPricingModel: CompletionPricingModel = {
   pricePer1MPromptTextTokens: 0.15,
   pricePer1MPromptTextTokensCached: 0.075,
   pricePer1MCompletionTextTokens: 0.6,
-  pricePer1MPromptAudioTokens: 10,
-  pricePer1MCompletionAudioTokens: 20,
+};
+
+export const gpt4dot1NanoPricingModel: CompletionPricingModel = {
+  pricePer1MPromptTextTokens: 0.1,
+  pricePer1MPromptTextTokensCached: 0.025,
+  pricePer1MCompletionTextTokens: 0.4,
 };
 
 export const calculateCompletionUsage = (
@@ -25,21 +27,16 @@ export const calculateCompletionUsage = (
   const textInputTokens =
     usage.prompt_tokens - (usage.prompt_tokens_details?.cached_tokens ?? 0) || 0;
   const cachedTextTokens = usage.prompt_tokens_details?.cached_tokens || 0;
-  const audioInputTokens = usage.prompt_tokens_details?.audio_tokens || 0;
 
-  const textOutputTokens = usage.completion_tokens || 0;
-  const audioOutputTokens = usage.completion_tokens_details?.audio_tokens || 0;
+  const textOutputTokens = usage.completion_tokens;
 
   const textInputCost =
     (textInputTokens * pricingModel.pricePer1MPromptTextTokens +
       cachedTextTokens * pricingModel.pricePer1MPromptTextTokensCached) /
     1000000;
-  const audioInputCost = audioInputTokens / 1000000;
   const textOutputCost = (textOutputTokens * pricingModel.pricePer1MCompletionTextTokens) / 1000000;
-  const audioOutputCost =
-    (audioOutputTokens * pricingModel.pricePer1MCompletionAudioTokens) / 1000000;
 
-  const totalCost = textInputCost + audioInputCost + textOutputCost + audioOutputCost;
+  const totalCost = textInputCost + textOutputCost;
 
   return totalCost;
 };

@@ -13,7 +13,7 @@ import {
   calculateCompletionUsage,
   calculateTranscriptionCost,
   calculateTtsCost,
-  gpt4oMiniPricingModel,
+  gpt4dot1NanoPricingModel,
 } from "./pricing";
 import { setupInitialMessages, streamAssistantResponse } from "./utils";
 
@@ -75,7 +75,7 @@ export const textChatStream = async (
       onChunk,
     });
     fullContent += content;
-    if (usage) cost += calculateCompletionUsage(usage, gpt4oMiniPricingModel);
+    if (usage) cost += calculateCompletionUsage(usage, gpt4dot1NanoPricingModel);
 
     let currentToolCalls = toolCalls;
 
@@ -123,7 +123,8 @@ export const textChatStream = async (
         onChunk,
       });
       fullContent += followup.content;
-      if (followup.usage) cost += calculateCompletionUsage(followup.usage, gpt4oMiniPricingModel);
+      if (followup.usage)
+        cost += calculateCompletionUsage(followup.usage, gpt4dot1NanoPricingModel);
       currentToolCalls = followup.toolCalls;
     }
 
@@ -162,7 +163,7 @@ export const audioChat = async (
 
   while (true) {
     const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4.1-nano",
       messages: openAiMessages,
       modalities: ["text"],
       tools,
@@ -172,7 +173,7 @@ export const audioChat = async (
 
     const choice = completion.choices[0].message;
     totalCost += completion.usage
-      ? calculateCompletionUsage(completion.usage, gpt4oMiniPricingModel)
+      ? calculateCompletionUsage(completion.usage, gpt4dot1NanoPricingModel)
       : 0;
 
     // If tool calls exist, call them and loop again

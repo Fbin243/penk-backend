@@ -47,11 +47,3 @@ export const getMails = async (props: { accessToken: string; q: string }) => {
 
   return messageDetails.filter((m) => m !== null);
 };
-
-export const getMailBody = async (props: { accessToken: string; messageId: string }) => {
-  oauth2Client.setCredentials({ access_token: props.accessToken });
-  const gmail = google.gmail({ version: "v1", auth: oauth2Client });
-  const res = await gmail.users.messages.get({ userId: "me", id: props.messageId });
-  const body = res.data.payload?.parts?.map((part) => part.body?.data).join("");
-  return body;
-};

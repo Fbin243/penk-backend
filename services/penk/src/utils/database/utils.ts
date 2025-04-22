@@ -72,8 +72,19 @@ export const getPenKData = async (userId: string) => {
     {
       $lookup: {
         from: "tasks",
-        localField: "profile.current_character_id",
-        foreignField: "character_id",
+        let: { characterId: "$profile.current_character_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$character_id", "$$characterId"] },
+                  { $eq: ["$completed_time", null] },
+                ],
+              },
+            },
+          },
+        ],
         as: "tasks",
       },
     },
@@ -130,7 +141,6 @@ export const getPenKData = async (userId: string) => {
               category_id: "$$task.category_id",
               priority: "$$task.priority",
               deadline: "$$task.deadline",
-              completed_time: "$$task.completed_time",
               subtasks: {
                 $map: {
                   input: "$$task.subtasks",
