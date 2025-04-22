@@ -2,10 +2,11 @@ syntax = "proto3";
 
 package core;
 
-import "common/common_message.proto";
 import "core/character_message.proto";
 import "core/goal_message.proto";
 import "core/profile_message.proto";
+import "core/task_message.proto";
+import "core/task_session_message.proto";
 import "core/timetracking_message.proto";
 
 option go_package = "tenkhours/proto/pb/core";
@@ -14,8 +15,7 @@ service Core {
   rpc IntrospectToken(IntrospectReq) returns (IntrospectResp);
   rpc UpsertCharacter(CharacterInput) returns (Character);
   rpc UpsertGoal(GoalInput) returns (Goal);
-  rpc GetCurrentTimeTracking (common.EmptyReq) returns (TimeTracking);
-  rpc GetTotalCurrentTimeTracking (TotalTimeTrackingReq) returns (TotalTimeTrackingResp);
-  rpc CreateTimeTracking (CreateTimeTrackingReq) returns (TimeTracking);
-  rpc UpdateTimeTracking (common.EmptyReq) returns (TimeTracking);
+  rpc UpsertTimeTracking(TimeTrackingInput) returns (TimeTracking);
+  rpc UpsertTask(TaskInput) returns (TaskMsg);
+  rpc UpsertTaskSession(TaskSessionInput) returns (TaskSession);
 }

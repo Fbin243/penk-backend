@@ -12,23 +12,13 @@ message TimeTracking {
   optional string category_id = 3;
   optional string reference_id = 4;
   optional EntityType reference_type = 5;
-  int64 start_time = 6;
-  optional int64 end_time = 7;
+  int64 timestamp = 6;
+  int64 duration = 7;
 }
 
-message TotalTimeTrackingReq {
-  string character_id = 1;
-  int64 timestamp = 2;
-}
-
-message TotalTimeTrackingResp {
-  int32 total_time = 1;
-}
-
-message CreateTimeTrackingReq {
-  string character_id = 1;
-  optional string category_id = 2;
-  optional string reference_id = 3;
-  optional EntityType reference_type = 4;
-  int64 start_time = 5;
+message TimeTrackingInput {
+  optional string reference_id = 1;
+  optional EntityType reference_type = 2;
+  int64 timestamp = 3;
+  int64 duration = 4;
 }

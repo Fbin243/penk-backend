@@ -102,3 +102,54 @@ func TestMapTaskInput(t *testing.T) {
 		assertCheckboxInput(t, expectedCheckbox, taskInput.Subtasks[i])
 	}
 }
+
+// -------------------- Task session --------------------
+// Entity
+var taskSession = entity.TaskSession{
+	BaseEntity: &base.BaseEntity{
+		ID:        mongodb.GenObjectID(),
+		CreatedAt: utils.Now(),
+		UpdatedAt: utils.Now(),
+	},
+	TaskID:        mongodb.GenObjectID(),
+	StartTime:     utils.Now(),
+	EndTime:       utils.Now(),
+	CompletedTime: lo.ToPtr(utils.Now()),
+}
+
+func TestMapTaskSession(t *testing.T) {
+	rpcTaskSession, err := rpc.MapEntityToRPC[entity.TaskSession, core.TaskSession](&taskSession, rpc.UnixTimeConverter)
+	assert.NoError(t, err)
+
+	log.Printf("Entity Task Session: %+v", utils.PrettyJSON(taskSession))
+	log.Printf("RPC Task Session: %+v", utils.PrettyJSON(rpcTaskSession))
+
+	assert.Equal(t, taskSession.ID, rpcTaskSession.Id)
+	assert.Equal(t, taskSession.TaskID, rpcTaskSession.TaskId)
+	assert.Equal(t, taskSession.StartTime.Unix(), rpcTaskSession.StartTime)
+	assert.Equal(t, taskSession.EndTime.Unix(), rpcTaskSession.EndTime)
+	assert.Equal(t, taskSession.CompletedTime.Unix(), *rpcTaskSession.CompletedTime)
+}
+
+// RPC Input
+var rpcTaskSessionInput = &core.TaskSessionInput{
+	Id:            lo.ToPtr(mongodb.GenObjectID()),
+	TaskId:        mongodb.GenObjectID(),
+	StartTime:     utils.Now().Unix(),
+	EndTime:       utils.Now().Unix(),
+	CompletedTime: lo.ToPtr(utils.Now().Unix()),
+}
+
+func TestMapTaskSessionInput(t *testing.T) {
+	taskSessionInput, err := rpc.MapRPCInputToEntityInput[core.TaskSessionInput, entity.TaskSessionInput](rpcTaskSessionInput, rpc.UnixTimeConverter)
+	assert.NoError(t, err)
+
+	log.Printf("RPC Task Session Input: %+v", utils.PrettyJSON(rpcTaskSessionInput))
+	log.Printf("Entity Task Session Input: %+v", utils.PrettyJSON(taskSessionInput))
+
+	assert.Equal(t, rpcTaskSessionInput.Id, taskSessionInput.ID)
+	assert.Equal(t, rpcTaskSessionInput.TaskId, taskSessionInput.TaskID)
+	assert.Equal(t, rpcTaskSessionInput.StartTime, taskSessionInput.StartTime.Unix())
+	assert.Equal(t, rpcTaskSessionInput.EndTime, taskSessionInput.EndTime.Unix())
+	assert.Equal(t, *rpcTaskSessionInput.CompletedTime, taskSessionInput.CompletedTime.Unix())
+}
