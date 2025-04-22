@@ -71,6 +71,14 @@ export const getPenKData = async (userId: string) => {
     },
     {
       $lookup: {
+        from: "tasks",
+        localField: "profile.current_character_id",
+        foreignField: "character_id",
+        as: "tasks",
+      },
+    },
+    {
+      $lookup: {
         from: "metrics",
         localField: "profile.current_character_id",
         foreignField: "character_id",
@@ -108,6 +116,32 @@ export const getPenKData = async (userId: string) => {
               id: "$$category._id",
               name: "$$category.name",
               description: "$$category.description",
+            },
+          },
+        },
+        tasks: {
+          $map: {
+            input: "$tasks",
+            as: "task",
+            in: {
+              id: "$$task._id",
+              name: "$$task.name",
+              description: "$$task.description",
+              category_id: "$$task.category_id",
+              priority: "$$task.priority",
+              deadline: "$$task.deadline",
+              completed_time: "$$task.completed_time",
+              subtasks: {
+                $map: {
+                  input: "$$task.subtasks",
+                  as: "subtask",
+                  in: {
+                    id: "$$subtask.id",
+                    name: "$$subtask.name",
+                    value: "$$subtask.value",
+                  },
+                },
+              },
             },
           },
         },
