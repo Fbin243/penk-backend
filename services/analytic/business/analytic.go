@@ -2,10 +2,8 @@ package business
 
 import (
 	"context"
-	"time"
 
 	"tenkhours/pkg/auth"
-	"tenkhours/pkg/utils"
 	"tenkhours/services/analytic/entity"
 )
 
@@ -20,38 +18,30 @@ func NewAnalyticBusiness(timetrackingRepo ITimeTrackingRepo) *analyticBusiness {
 }
 
 // Get analytic results from the captured records from the database
-func (biz *analyticBusiness) GetStatAnalytic(ctx context.Context, characterID string, startTime, endTime *time.Time, analyticSections []entity.AnalyticSection) (map[string]interface{}, error) {
+func (biz *analyticBusiness) GetStatAnalytic(ctx context.Context, filter *entity.StatAnalyticFilter) (map[string]interface{}, error) {
 	authSession, err := auth.GetAuthSession(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	capturedRecordFilter := entity.GetCapturedRecordFilter{
-		CharacterID: authSession.CurrentCharacterID,
-		EndTime:     time.Now(),
+	if filter == nil {
+		filter = &entity.StatAnalyticFilter{}
 	}
+	filter.CharacterID = authSession.CurrentCharacterID
 
-	if startTime != nil {
-		capturedRecordFilter.StartTime = utils.StartOfDay(*startTime)
-	}
-
-	if endTime != nil {
-		capturedRecordFilter.EndTime = utils.StartOfDay(*endTime)
-	}
-
-	capturedRecords, err := biz.timetrackingRepo.AggregateDailyCapturedRecord(ctx, capturedRecordFilter)
+	capturedRecords, err := biz.timetrackingRepo.AggregateDailyCapturedRecord(ctx, *filter)
 	if err != nil {
 		return nil, err
 	}
 
 	analyticsProcessor := &AnalyticsProcessor{
-		AnalyticSections: analyticSections,
-		CharacterID:      characterID,
+		AnalyticSections: filter.AnalyticSections,
+		CharacterID:      authSession.CurrentCharacterID,
 		AnalyticResults:  make(map[string]any),
 		CapturedRecords:  capturedRecords,
-		StartTime:        capturedRecordFilter.StartTime,
-		EndTime:          capturedRecordFilter.EndTime,
+		StartTime:        filter.StartTime,
+		EndTime:          filter.EndTime,
 	}
 
-	return analyticsProcessor.ProcessCapturedRecords(), nil
+	return analyticsProcessor.ProcessCapturedRecords()
 }

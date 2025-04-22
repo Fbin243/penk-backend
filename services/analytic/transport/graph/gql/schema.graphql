@@ -1,17 +1,5 @@
 type Query {
   statAnalytic(
-    characterID: ID!
-    """
-    Start time in RFC3339Nano format.
-    """
-    startTime: Time
-    """
-    End time in RFC3339Nano format.
-    """
-    endTime: Time
-    """
-    The analytic sections that the client wants to retrieve.
-    """
-    analyticSections: [AnalyticSection!]!
+    filter: StatAnalyticFilter
   ): JSON!
 }

@@ -12,6 +12,7 @@ import (
 	"tenkhours/services/analytic/business"
 	"tenkhours/services/analytic/entity"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -20,7 +21,7 @@ type MockTimeTrackingRepo struct {
 	mock.Mock
 }
 
-func (m *MockTimeTrackingRepo) AggregateDailyCapturedRecord(ctx context.Context, filter entity.GetCapturedRecordFilter) ([]entity.CapturedRecord, error) {
+func (m *MockTimeTrackingRepo) AggregateDailyCapturedRecord(ctx context.Context, filter entity.StatAnalyticFilter) ([]entity.CapturedRecord, error) {
 	args := m.Called(ctx, filter)
 	return args.Get(0).([]entity.CapturedRecord), args.Error(1)
 }
@@ -39,8 +40,7 @@ type GetAnalyticResultsSuite struct {
 	startTime   time.Time
 	endTime     time.Time
 	ctx         context.Context
-	filter      entity.GetCapturedRecordFilter
-	sections    []entity.AnalyticSection
+	filter      entity.StatAnalyticFilter
 }
 
 func (s *GetAnalyticResultsSuite) SetupSuite() {
@@ -53,23 +53,23 @@ func (s *GetAnalyticResultsSuite) SetupSuite() {
 	s.ctx = context.WithValue(context.Background(), auth.AuthSessionKey, rdb.AuthSession{
 		ProfileID: s.profileID,
 	})
-	s.filter = entity.GetCapturedRecordFilter{
+	s.filter = entity.StatAnalyticFilter{
 		CharacterID: s.characterID,
-		StartTime:   utils.StartOfDay(s.startTime),
-		EndTime:     utils.StartOfDay(s.endTime),
-	}
-	s.sections = []entity.AnalyticSection{
-		entity.AnalyticSectionDistribution,
-		entity.AnalyticSectionFrequency,
-		entity.AnalyticSectionOverall,
-		entity.AnalyticSectionTimeline,
+		StartTime:   lo.ToPtr(utils.StartOfDay(s.startTime)),
+		EndTime:     lo.ToPtr(utils.StartOfDay(s.endTime)),
+		AnalyticSections: []entity.AnalyticSection{
+			entity.AnalyticSectionDistribution,
+			entity.AnalyticSectionFrequency,
+			entity.AnalyticSectionOverall,
+			entity.AnalyticSectionTimeline,
+		},
 	}
 }
 
 func (s *GetAnalyticResultsSuite) TestGetAnalyticResultsForCharacter() {
 	s.mockRepo.On("AggregateDailyCapturedRecord", s.ctx, s.filter).Return(capturedRecords, nil)
 
-	result, err := s.biz.GetStatAnalytic(s.ctx, s.characterID, &s.startTime, &s.endTime, s.sections)
+	result, err := s.biz.GetStatAnalytic(s.ctx, &s.filter)
 
 	s.NoError(err)
 	s.NotNil(result)

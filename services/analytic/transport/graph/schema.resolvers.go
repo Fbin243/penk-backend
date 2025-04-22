@@ -6,18 +6,12 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"tenkhours/services/analytic/entity"
-	"time"
 )
 
 // StatAnalytic is the resolver for the statAnalytic field.
-func (r *queryResolver) StatAnalytic(ctx context.Context, characterID string, startTime *time.Time, endTime *time.Time, analyticSections []entity.AnalyticSection) (map[string]interface{}, error) {
-	if startTime != nil && endTime != nil && startTime.After(*endTime) {
-		return nil, fmt.Errorf("start time must be before end time")
-	}
-
-	return r.AnalyticBusiness.GetStatAnalytic(ctx, characterID, startTime, endTime, analyticSections)
+func (r *queryResolver) StatAnalytic(ctx context.Context, filter *entity.StatAnalyticFilter) (map[string]interface{}, error) {
+	return r.AnalyticBusiness.GetStatAnalytic(ctx, filter)
 }
 
 // Query returns QueryResolver implementation.

@@ -82,3 +82,5 @@ models:
     model: github.com/99designs/gqlgen/graphql.Map
   AnalyticSection:
     model: tenkhours/services/analytic/entity.AnalyticSection
+  StatAnalyticFilter:
+    model: tenkhours/services/analytic/entity.StatAnalyticFilter
