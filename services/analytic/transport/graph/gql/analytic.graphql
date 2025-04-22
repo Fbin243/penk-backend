@@ -9,3 +9,9 @@ enum AnalyticSection {
   Timeline
   Frequency
 }
+
+input StatAnalyticFilter {
+  startTime: Time
+  endTime: Time
+  analyticSections: [AnalyticSection!]
+}

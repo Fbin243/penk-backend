@@ -2,14 +2,13 @@ package business
 
 import (
 	"context"
-	"time"
 
 	"tenkhours/services/analytic/entity"
 )
 
 // Business
 type IAnalyticBusiness interface {
-	GetStatAnalytic(ctx context.Context, characterID string, startTime, endTime *time.Time, analyticSections []entity.AnalyticSection) (map[string]any, error)
+	GetStatAnalytic(ctx context.Context, filter *entity.StatAnalyticFilter) (map[string]any, error)
 }
 
 // RPC client
@@ -18,5 +17,5 @@ type ICoreClient interface {
 }
 
 type ITimeTrackingRepo interface {
-	AggregateDailyCapturedRecord(ctx context.Context, filter entity.GetCapturedRecordFilter) ([]entity.CapturedRecord, error)
+	AggregateDailyCapturedRecord(ctx context.Context, filter entity.StatAnalyticFilter) ([]entity.CapturedRecord, error)
 }

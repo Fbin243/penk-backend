@@ -4,6 +4,8 @@ import (
 	"math"
 	"time"
 
+	"tenkhours/pkg/errors"
+	"tenkhours/pkg/utils"
 	"tenkhours/services/analytic/entity"
 
 	"github.com/go-gota/gota/dataframe"
@@ -22,12 +24,12 @@ type AnalyticsProcessor struct {
 	AnalyticResults  map[string]any
 	CapturedRecords  []entity.CapturedRecord
 	CharacterID      string
-	StartTime        time.Time
-	EndTime          time.Time
+	StartTime        *time.Time
+	EndTime          *time.Time
 }
 
 // ProcessCapturedRecords processes the captured records and returns the analytic results
-func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]any {
+func (ap *AnalyticsProcessor) ProcessCapturedRecords() (map[string]any, error) {
 	capturedRecordsNum := len(ap.CapturedRecords)
 	dfCapturedRecords := dataframe.LoadStructs(ap.CapturedRecords)
 	// PrintDF(&dfCapturedRecords)
@@ -78,7 +80,7 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]any {
 		analyticResultsOverall["bestStreakEndDate"] = bestStreakStartDate.AddDate(0, 0, bestStreak-1)
 
 		currentStreakEndDate := currentStreakStartDate.AddDate(0, 0, currentStreak-1)
-		if ap.EndTime.Sub(currentStreakEndDate) > 24*time.Hour {
+		if utils.Now().Sub(currentStreakEndDate) > 24*time.Hour {
 			analyticResultsOverall["currentStreak"] = 0
 			analyticResultsOverall["currentStreakStartDate"] = nil
 			analyticResultsOverall["currentStreakEndDate"] = nil
@@ -121,6 +123,10 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]any {
 
 	// ---------------------------- FREQUENCY ----------------------------------
 	if lo.Contains(ap.AnalyticSections, entity.AnalyticSectionFrequency) {
+		if ap.StartTime == nil || ap.EndTime == nil {
+			return nil, errors.NewGQLError(errors.ErrCodeBadRequest, "Start and end time are required for frequency analysis")
+		}
+
 		maxTime := float64(0)
 		dfFrequency := dfCapturedRecords.GroupBy("character_id", "year", "month", "week", "day", "date").Aggregation([]dataframe.AggregationType{dataframe.Aggregation_SUM}, []string{"time"})
 		timeCol := dfFrequency.Col("time_SUM")
@@ -130,7 +136,7 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]any {
 		unitRange := math.Ceil(maxTime / NUMBER_OF_FREQUENCY_RANGE)
 
 		// Calculate number of days between the start and end time
-		numberOfDays := ap.EndTime.Sub(ap.StartTime).Hours()/float64(NUMBER_OF_HOUR_IN_A_DAY) + 1
+		numberOfDays := ap.EndTime.Sub(*ap.StartTime).Hours()/float64(NUMBER_OF_HOUR_IN_A_DAY) + 1
 		startWeekDay := int(ap.StartTime.Weekday())
 		endWeekDay := int(ap.EndTime.Weekday())
 		numberOfDays += float64(startWeekDay)
@@ -155,7 +161,7 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]any {
 		for i := range dfFrequency.Nrow() {
 			date, _ := time.Parse(time.DateOnly, dfFrequency.Col("date").Elem(i).String())
 			time, _ := dfFrequency.Col("time_SUM").Elem(i).Int()
-			dayIndex := math.Floor(date.Sub(ap.StartTime).Hours()/float64(NUMBER_OF_HOUR_IN_A_DAY)) + float64(startWeekDay)
+			dayIndex := math.Floor(date.Sub(*ap.StartTime).Hours()/float64(NUMBER_OF_HOUR_IN_A_DAY)) + float64(startWeekDay)
 			dayRow := int(math.Floor(dayIndex / float64(NUMBER_OF_DAYS_IN_A_WEEK)))
 			dayCol := int(math.Mod(dayIndex, float64(NUMBER_OF_DAYS_IN_A_WEEK)))
 			frequencyMatrix[dayRow][dayCol] = int(math.Ceil(float64(time) / unitRange))
@@ -169,5 +175,5 @@ func (ap *AnalyticsProcessor) ProcessCapturedRecords() map[string]any {
 		ap.AnalyticResults["frequency"] = frequencyMatrix
 	}
 
-	return ap.AnalyticResults
+	return ap.AnalyticResults, nil
 }

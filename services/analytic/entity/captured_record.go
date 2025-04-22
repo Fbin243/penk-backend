@@ -2,10 +2,11 @@ package entity
 
 import "time"
 
-type GetCapturedRecordFilter struct {
-	CharacterID string
-	StartTime   time.Time
-	EndTime     time.Time
+type StatAnalyticFilter struct {
+	CharacterID      string            `json:"characterID"`
+	StartTime        *time.Time        `json:"startTime,omitempty"`
+	EndTime          *time.Time        `json:"endTime,omitempty"`
+	AnalyticSections []AnalyticSection `json:"analyticSections"`
 }
 
 type CapturedRecord struct {
