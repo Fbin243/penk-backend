@@ -17,6 +17,10 @@ export const setupInitialMessages = (
   userData: string,
   history: Message[],
 ): ChatCompletionMessageParam[] => {
+  const parsedUserData = JSON.parse(userData);
+  const locale = parsedUserData["locale"] || "en";
+  const timezone = parsedUserData["timezone"] || "UTC";
+
   return [
     {
       role: "system",
@@ -24,7 +28,11 @@ export const setupInitialMessages = (
     },
     {
       role: "user",
-      content: `My data: ${userData}`,
+      content: `
+      - My local time: ${new Date().toLocaleString(locale, { timeZone: timezone })}
+      - My UTC time: ${new Date().toUTCString()}
+      - My app data: ${userData}
+      `,
     },
     ...history.map((message) => {
       if (message.type === MessageType.UserMessage) {
@@ -58,7 +66,7 @@ export const streamAssistantResponse = async (props: {
   const finalToolCalls: Record<number, ChatCompletionChunk.Choice.Delta.ToolCall> = {};
 
   const stream = await client.chat.completions.create({
-    model: "gpt-4.1-nano",
+    model: "gpt-4.1-mini",
     messages,
     stream: true,
     stream_options: { include_usage: true },

@@ -13,7 +13,7 @@ import {
   calculateCompletionUsage,
   calculateTranscriptionCost,
   calculateTtsCost,
-  gpt4dot1NanoPricingModel,
+  gpt4dot1MiniPricingModel,
 } from "./pricing";
 import { setupInitialMessages, streamAssistantResponse } from "./utils";
 
@@ -75,7 +75,7 @@ export const textChatStream = async (
       onChunk,
     });
     fullContent += content;
-    if (usage) cost += calculateCompletionUsage(usage, gpt4dot1NanoPricingModel);
+    if (usage) cost += calculateCompletionUsage(usage, gpt4dot1MiniPricingModel);
 
     let currentToolCalls = toolCalls;
 
@@ -124,7 +124,7 @@ export const textChatStream = async (
       });
       fullContent += followup.content;
       if (followup.usage)
-        cost += calculateCompletionUsage(followup.usage, gpt4dot1NanoPricingModel);
+        cost += calculateCompletionUsage(followup.usage, gpt4dot1MiniPricingModel);
       currentToolCalls = followup.toolCalls;
     }
 
@@ -163,7 +163,7 @@ export const audioChat = async (
 
   while (true) {
     const completion = await client.chat.completions.create({
-      model: "gpt-4.1-nano",
+      model: "gpt-4.1-mini",
       messages: openAiMessages,
       modalities: ["text"],
       tools,
@@ -173,7 +173,7 @@ export const audioChat = async (
 
     const choice = completion.choices[0].message;
     totalCost += completion.usage
-      ? calculateCompletionUsage(completion.usage, gpt4dot1NanoPricingModel)
+      ? calculateCompletionUsage(completion.usage, gpt4dot1MiniPricingModel)
       : 0;
 
     // If tool calls exist, call them and loop again

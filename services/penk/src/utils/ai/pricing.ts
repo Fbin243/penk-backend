@@ -20,6 +20,12 @@ export const gpt4dot1NanoPricingModel: CompletionPricingModel = {
   pricePer1MCompletionTextTokens: 0.4,
 };
 
+export const gpt4dot1MiniPricingModel: CompletionPricingModel = {
+  pricePer1MPromptTextTokens: 0.4,
+  pricePer1MPromptTextTokensCached: 0.1,
+  pricePer1MCompletionTextTokens: 1.6,
+};
+
 export const calculateCompletionUsage = (
   usage: CompletionUsage,
   pricingModel: CompletionPricingModel,
