@@ -37,6 +37,14 @@ enum MessageType {
 enum Tool {
   GET_CALENDAR_EVENTS
   GET_EMAILS
+
+  # Tasks & Planner
+  CREATE_TASK
+  UPDATE_TASK
+  DELETE_TASK
+  CREATE_TASK_SESSION
+  UPDATE_TASK_SESSION
+  DELETE_TASK_SESSION
 }
 
 type Context {

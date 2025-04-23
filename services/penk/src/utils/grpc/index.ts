@@ -4,7 +4,9 @@ import * as protoLoader from "@grpc/proto-loader";
 import type { ProtoGrpcType as CoreGrpcType } from "./proto/core_service";
 
 const coreService = grpc.loadPackageDefinition(
-  protoLoader.loadSync("../../proto/core/core_service.proto"),
+  protoLoader.loadSync("../../proto/core/core_service.proto", {
+    includeDirs: ["../../proto"],
+  }),
 ) as unknown as CoreGrpcType;
 
 export const coreClient = new coreService.core.Core(

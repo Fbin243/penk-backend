@@ -124,6 +124,7 @@ export const getPenKData = async (userId: string) => {
         timezone: 1,
         locale: 1,
         context: 1,
+        firebase_uid: "$profile.firebase_uid",
         profile_id: "$profile.current_character_id",
         categories: {
           $map: {

@@ -86,8 +86,14 @@ export type QueryGoogleAuthUrlArgs = {
 };
 
 export enum Tool {
+  CreateTask = 'CREATE_TASK',
+  CreateTaskSession = 'CREATE_TASK_SESSION',
+  DeleteTask = 'DELETE_TASK',
+  DeleteTaskSession = 'DELETE_TASK_SESSION',
   GetCalendarEvents = 'GET_CALENDAR_EVENTS',
-  GetEmails = 'GET_EMAILS'
+  GetEmails = 'GET_EMAILS',
+  UpdateTask = 'UPDATE_TASK',
+  UpdateTaskSession = 'UPDATE_TASK_SESSION'
 }
 
 export enum Ws_InfoType {
