@@ -20,7 +20,7 @@ type IProfileBusiness interface {
 	GetProfile(ctx context.Context) (*entity.Profile, error)
 	UpdateProfile(ctx context.Context, input entity.ProfileInput) (*entity.Profile, error)
 	DeleteProfile(ctx context.Context) (*entity.Profile, error)
-	IntrospectToken(ctx context.Context, token, deviceID string) (*rdb.AuthSession, error)
+	IntrospectUser(ctx context.Context, token, userID, deviceID string) (*rdb.AuthSession, error)
 }
 
 type ICharacterBusiness interface {

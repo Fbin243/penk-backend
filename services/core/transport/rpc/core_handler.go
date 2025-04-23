@@ -32,10 +32,10 @@ func NewCoreHandler(
 	}
 }
 
-func (hdl *CoreHandler) IntrospectToken(ctx context.Context, req *core.IntrospectReq) (*core.IntrospectResp, error) {
+func (hdl *CoreHandler) IntrospectUser(ctx context.Context, req *core.IntrospectReq) (*core.IntrospectResp, error) {
 	resp := &core.IntrospectResp{Success: false}
 
-	authSession, err := hdl.profileBiz.IntrospectToken(ctx, req.Token, req.DeviceId)
+	authSession, err := hdl.profileBiz.IntrospectUser(ctx, req.Token, req.UserId, req.DeviceId)
 	if err != nil {
 		return resp, err
 	}
