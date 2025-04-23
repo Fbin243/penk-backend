@@ -7,13 +7,13 @@ import {
 } from "openai/resources/index.mjs";
 
 import { getAudioDuration } from "../audio";
-import { Message, MessageType } from "../types";
-import { callFunction, FunctionName, tools } from "./functions";
+import { Message, MessageType, Tool } from "../types";
+import { callFunction, tools } from "./functions";
 import {
   calculateCompletionUsage,
   calculateTranscriptionCost,
   calculateTtsCost,
-  gpt4dot1NanoPricingModel,
+  gpt4dot1MiniPricingModel,
 } from "./pricing";
 import { setupInitialMessages, streamAssistantResponse } from "./utils";
 
@@ -52,49 +52,61 @@ export const transcribeAudio = async (audio: Uploadable) => {
   };
 };
 
-export const textChatStream = async (
+export const textStream = async (
   props: {
     userData: string;
     history: Message[];
     newMessage: string;
   },
   onChunk: (chunk: string, timestamp: string) => void,
-  onComplete?: (fullMessage: Message) => void,
+  onToolCall?: (toolName: string) => void,
+  onComplete?: (response: string) => void,
 ) => {
-  const aiTimestamp = new Date().toISOString();
-  let fullContent = "";
-  let chatCompletionCost = 0;
+  const newPenKMessages: Message[] = [
+    {
+      type: MessageType.UserMessage,
+      content: props.newMessage,
+      timestamp: new Date().toISOString(),
+    },
+  ];
 
   const openAiMessages = setupInitialMessages(props.userData, props.history);
   openAiMessages.push({ role: "user", content: props.newMessage });
 
+  const aiTimestamp = new Date().toISOString();
+  let fullContent = "";
+  let chatCompletionCost = 0;
+
   try {
-    const { content, toolCalls, usage } = await streamAssistantResponse({
+    const { content, toolCalls, cost } = await streamAssistantResponse({
       client,
       messages: openAiMessages,
       aiTimestamp,
       onChunk,
     });
+
     fullContent += content;
-    if (usage) chatCompletionCost += calculateCompletionUsage(usage, gpt4dot1NanoPricingModel);
+    chatCompletionCost += cost;
 
     let currentToolCalls = toolCalls;
 
     while (Object.keys(currentToolCalls).length > 0) {
-      const newMessages: ChatCompletionMessageParam[] = [];
+      const newOpenAiMessages: ChatCompletionMessageParam[] = [];
 
       for (const toolCall of Object.values(currentToolCalls)) {
+        onToolCall?.(toolCall.function!.name!);
+
         const args = JSON.parse(toolCall.function!.arguments!);
 
         let result: unknown;
         try {
-          result = await callFunction(toolCall.function!.name as FunctionName, args);
+          result = await callFunction(toolCall.function!.name as Tool, args);
         } catch (error) {
           result = (error as Error).message || error;
           console.error("Error calling function:", result);
         }
 
-        newMessages.push({
+        newOpenAiMessages.push({
           role: "assistant",
           tool_calls: [
             {
@@ -108,14 +120,24 @@ export const textChatStream = async (
           ],
         });
 
-        newMessages.push({
+        newOpenAiMessages.push({
           role: "tool",
           content: JSON.stringify(result),
           tool_call_id: toolCall.id!,
         } satisfies ChatCompletionToolMessageParam);
+
+        newPenKMessages.push({
+          type: MessageType.ToolCallMessage,
+          content: JSON.stringify({
+            name: toolCall.function!.name!,
+            arguments: toolCall.function!.arguments!,
+            result,
+          }),
+          timestamp: new Date().toISOString(),
+        });
       }
 
-      openAiMessages.push(...newMessages);
+      openAiMessages.push(...newOpenAiMessages);
 
       const followup = await streamAssistantResponse({
         client,
@@ -123,9 +145,10 @@ export const textChatStream = async (
         aiTimestamp,
         onChunk,
       });
+
       fullContent += followup.content;
-      if (followup.usage)
-        chatCompletionCost += calculateCompletionUsage(followup.usage, gpt4dot1NanoPricingModel);
+      chatCompletionCost += followup.cost;
+
       currentToolCalls = followup.toolCalls;
     }
 
@@ -135,9 +158,11 @@ export const textChatStream = async (
       timestamp: aiTimestamp,
     };
 
-    if (onComplete) onComplete(aiMessage);
+    newPenKMessages.push(aiMessage);
 
-    return { aiMessage, cost: chatCompletionCost };
+    if (onComplete) onComplete(fullContent);
+
+    return { newPenKMessages, cost: chatCompletionCost };
   } catch (error) {
     console.error("Error in textChatStream:", error);
     throw error;
@@ -165,7 +190,7 @@ export const audioChat = async (
 
   while (true) {
     const completion = await client.chat.completions.create({
-      model: "gpt-4.1-nano",
+      model: "gpt-4.1-mini",
       messages: openAiMessages,
       modalities: ["text"],
       tools,
@@ -175,13 +200,13 @@ export const audioChat = async (
 
     const choice = completion.choices[0].message;
     totalCost += completion.usage
-      ? calculateCompletionUsage(completion.usage, gpt4dot1NanoPricingModel)
+      ? calculateCompletionUsage(completion.usage, gpt4dot1MiniPricingModel)
       : 0;
 
     // If tool calls exist, call them and loop again
     if (choice.tool_calls?.length) {
       for (const toolCall of choice.tool_calls) {
-        const fnName = toolCall.function.name as FunctionName;
+        const fnName = toolCall.function.name as Tool;
         const args = JSON.parse(toolCall.function.arguments || "{}");
 
         let result: unknown;

@@ -45,7 +45,7 @@ const PenKMessageSchema = new Schema(
     type: {
       type: String,
       required: true,
-      enum: [MessageType.UserMessage, MessageType.AiMessage],
+      enum: [MessageType.UserMessage, MessageType.AiMessage, MessageType.ToolCallMessage],
     },
   },
   {

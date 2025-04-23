@@ -52,6 +52,7 @@ export type Message = {
 
 export enum MessageType {
   AiMessage = 'AI_MESSAGE',
+  ToolCallMessage = 'TOOL_CALL_MESSAGE',
   UserMessage = 'USER_MESSAGE'
 }
 
@@ -84,13 +85,17 @@ export type QueryGoogleAuthUrlArgs = {
   type: LinkedAccountType;
 };
 
+export enum Tool {
+  GetCalendarEvents = 'GET_CALENDAR_EVENTS',
+  GetEmails = 'GET_EMAILS'
+}
+
 export enum Ws_InfoType {
   AudioStreamCompleted = 'AUDIO_STREAM_COMPLETED',
   AuthenticationFailed = 'AUTHENTICATION_FAILED',
   AuthenticationRequired = 'AUTHENTICATION_REQUIRED',
   AuthenticationSuccess = 'AUTHENTICATION_SUCCESS',
   AuthenticationTimeout = 'AUTHENTICATION_TIMEOUT',
-  MessageStreamCompleted = 'MESSAGE_STREAM_COMPLETED',
   TranscriptionFailed = 'TRANSCRIPTION_FAILED'
 }
 
@@ -108,6 +113,8 @@ export enum Ws_MessageType {
   Info = 'INFO',
   TextChat = 'TEXT_CHAT',
   TextStream = 'TEXT_STREAM',
+  TextStreamEnded = 'TEXT_STREAM_ENDED',
+  ToolCall = 'TOOL_CALL',
   TranscriptResult = 'TRANSCRIPT_RESULT',
   UploadAudio = 'UPLOAD_AUDIO'
 }
@@ -195,6 +202,7 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  Tool: Tool;
   WS_InfoType: Ws_InfoType;
   WS_Message: ResolverTypeWrapper<Ws_Message>;
   WS_MessageType: Ws_MessageType;

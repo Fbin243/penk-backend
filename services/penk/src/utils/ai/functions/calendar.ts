@@ -3,13 +3,12 @@ import { FunctionDefinition } from "openai/resources/shared.mjs";
 import { rrulestr } from "rrule";
 
 import { getCalendarEvents } from "../../googleapis";
-import { LinkedAccountType } from "../../types";
+import { LinkedAccountType, Tool } from "../../types";
 import { getLinkedAccounts } from "./../../database/utils";
 import { SharedDescription } from "./shared";
-import { FunctionName } from "./types";
 
 const getCalendarEventsDefinition: FunctionDefinition = {
-  name: FunctionName.GetCalendarEvents,
+  name: Tool.GetCalendarEvents,
   description:
     "Retrieves the user's calendar events across all their linked calendars. Use this tool when the user asks about their schedule, upcoming meetings, events, or availability. The function defaults to showing events for the next 7 days if no specific timeframe is mentioned. Time queries are limited to a 1-month range in either the past or future. Results include event titles, times, locations, participants, and other relevant details from the user's calendars.",
   parameters: {
@@ -51,7 +50,7 @@ export const functionGetCalendarEvents = async (props: {
   timezone: string;
   locale: string;
 }) => {
-  console.log(`[Tool: ${FunctionName.GetCalendarEvents}]`);
+  console.log(`[Tool: ${Tool.GetCalendarEvents}]`);
   console.dir(props, { depth: null, colors: true });
   console.log();
 
@@ -129,7 +128,7 @@ export const functionGetCalendarEvents = async (props: {
       : undefined,
   }));
 
-  // console.log(`[Tool: ${FunctionName.GetCalendarEvents}]`);
+  // console.log(`[Tool: ${Tool.GetCalendarEvents}]`);
   // console.dir(result, { depth: null, colors: true });
   // console.log();
 
