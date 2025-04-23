@@ -18,7 +18,7 @@ func (hdl *CoreHandler) UpsertTask(ctx context.Context, req *core.TaskInput) (*c
 		return nil, err
 	}
 
-	return MapEntityToRPC[entity.Task, core.TaskMsg](task, nil)
+	return MapEntityToRPC[entity.Task, core.TaskMsg](task, UnixTimeConverter)
 }
 
 func (hdl *CoreHandler) UpsertTaskSession(ctx context.Context, req *core.TaskSessionInput) (*core.TaskSession, error) {
@@ -32,5 +32,5 @@ func (hdl *CoreHandler) UpsertTaskSession(ctx context.Context, req *core.TaskSes
 		return nil, err
 	}
 
-	return MapEntityToRPC[entity.TaskSession, core.TaskSession](taskSession, nil)
+	return MapEntityToRPC[entity.TaskSession, core.TaskSession](taskSession, UnixTimeConverter)
 }
