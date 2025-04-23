@@ -8,7 +8,7 @@ import (
 )
 
 func (hdl *CoreHandler) UpsertTask(ctx context.Context, req *core.TaskInput) (*core.TaskMsg, error) {
-	taskInput, err := MapRPCInputToEntityInput[core.TaskInput, entity.TaskInput](req, nil)
+	taskInput, err := MapRPCInputToEntityInput[core.TaskInput, entity.TaskInput](req, UnixTimeConverter)
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +22,7 @@ func (hdl *CoreHandler) UpsertTask(ctx context.Context, req *core.TaskInput) (*c
 }
 
 func (hdl *CoreHandler) UpsertTaskSession(ctx context.Context, req *core.TaskSessionInput) (*core.TaskSession, error) {
-	taskSessionInput, err := MapRPCInputToEntityInput[core.TaskSessionInput, entity.TaskSessionInput](req, nil)
+	taskSessionInput, err := MapRPCInputToEntityInput[core.TaskSessionInput, entity.TaskSessionInput](req, UnixTimeConverter)
 	if err != nil {
 		return nil, err
 	}
