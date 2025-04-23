@@ -1,6 +1,6 @@
-const { ApolloServer } = require("apollo-server");
-const { ApolloGateway, IntrospectAndCompose, RemoteGraphQLDataSource } = require("@apollo/gateway");
-const fetch = require("node-fetch");
+import { ApolloGateway, IntrospectAndCompose, RemoteGraphQLDataSource } from "@apollo/gateway";
+import { ApolloServer } from "apollo-server";
+import fetch from "node-fetch";
 require("dotenv").config();
 
 const subgraphs = [
@@ -12,7 +12,7 @@ const subgraphs = [
 
 async function startGateway() {
   // Check if all subgraphs are reachable
-  const reachableSubgraphs = [];
+  const reachableSubgraphs: { name: string; url: string; }[] = [];
   await Promise.all(
     subgraphs.map(async ({ name, url }) => {
       try {
@@ -37,8 +37,8 @@ async function startGateway() {
       return new RemoteGraphQLDataSource({
         url,
         willSendRequest({ request, context }) {
-          request.http.headers.append("Authorization", context.token);
-          request.http.headers.append("X-Device-Id", context.deviceId);
+          request.http?.headers.append("Authorization", context.token);
+          request.http?.headers.append("X-Device-Id", context.deviceId);
         },
       });
     },
@@ -53,7 +53,6 @@ async function startGateway() {
         deviceId: req.headers["x-device-id"],
       };
     },
-    subscriptions: false,
   });
 
   server.listen({ port: 8070 }).then(({ url }) => {
