@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"context"
-	"strings"
 
 	"tenkhours/pkg/auth"
 
@@ -21,10 +20,10 @@ func NewAuthInterceptor(authClient *AuthClient) *authInterceptor {
 
 func (a *authInterceptor) UnaryInterceptor(
 	ctx context.Context,
-	req interface{},
+	req any,
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
-) (interface{}, error) {
+) (any, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, errors.New("missing metadata")
@@ -35,16 +34,14 @@ func (a *authInterceptor) UnaryInterceptor(
 		return handler(ctx, req)
 	}
 
-	authHeaders := md.Get("authorization")
-	if len(authHeaders) == 0 {
-		return nil, errors.New("missing authorization token")
+	userID := md.Get("x-user-id")
+	if len(userID) == 0 {
+		return nil, errors.New("missing user id")
 	}
 
-	token := strings.Replace(authHeaders[0], "Bearer ", "", 1)
-	// TODO: @Fbin243 refactor auth later
-	authSession, err := a.authClient.IntrospectToken(ctx, token, "")
+	authSession, err := a.authClient.IntrospectUser(ctx, "", userID[0], "")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to introspect token")
+		return nil, errors.Wrap(err, "failed to introspect user")
 	}
 
 	// Save auth session to context

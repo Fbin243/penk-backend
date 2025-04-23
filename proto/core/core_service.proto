@@ -12,7 +12,7 @@ import "core/timetracking_message.proto";
 option go_package = "tenkhours/proto/pb/core";
 
 service Core {
-  rpc IntrospectToken(IntrospectReq) returns (IntrospectResp);
+  rpc IntrospectUser(IntrospectReq) returns (IntrospectResp);
   rpc UpsertCharacter(CharacterInput) returns (Character);
   rpc UpsertGoal(GoalInput) returns (Goal);
   rpc UpsertTimeTracking(TimeTrackingInput) returns (TimeTracking);

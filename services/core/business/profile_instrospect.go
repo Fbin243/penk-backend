@@ -2,7 +2,6 @@ package business
 
 import (
 	"context"
-	"fmt"
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
@@ -12,13 +11,8 @@ import (
 	"tenkhours/services/core/entity"
 )
 
-func (biz *ProfileBusiness) IntrospectToken(ctx context.Context, token, deviceID string) (*rdb.AuthSession, error) {
-	firebaseProfile, err := auth.GetProfileByIDToken(token)
-	if err != nil {
-		return nil, fmt.Errorf("invalid token: %v", err)
-	}
-
-	authSession, err := biz.Cache.GetAuthSession(ctx, firebaseProfile.UID)
+func (biz *ProfileBusiness) IntrospectUser(ctx context.Context, token, userID, deviceID string) (*rdb.AuthSession, error) {
+	authSession, err := biz.Cache.GetAuthSession(ctx, userID)
 	if err != nil && err != errors.ErrRedisNotFound {
 		return nil, err
 	}
@@ -29,13 +23,19 @@ func (biz *ProfileBusiness) IntrospectToken(ctx context.Context, token, deviceID
 	}
 
 	// Cache misss, create a new session from the profile in DB
-	profile, err := biz.ProfileRepo.GetProfileByFirebaseUID(ctx, firebaseProfile.UID)
+	profile, err := biz.ProfileRepo.GetProfileByFirebaseUID(ctx, userID)
 	if err != nil && err != errors.ErrMongoNotFound {
 		return nil, err
 	}
 
 	if profile == nil {
 		// profile not found, mean the new account
+		// decode token to get payload
+		firebaseProfile, err := auth.GetProfileByIDToken(token)
+		if err != nil {
+			return nil, err
+		}
+
 		newProfile := entity.Profile{
 			BaseEntity: &base.BaseEntity{
 				ID: mongodb.GenObjectID(),
@@ -63,12 +63,6 @@ func (biz *ProfileBusiness) IntrospectToken(ctx context.Context, token, deviceID
 		if err != nil {
 			return nil, err
 		}
-
-		// TODO: @Namiscrea7or refactor later after the usecase of currency is clear
-		// err = biz.CurrencyClient.CreateFish(ctx, profile.ID)
-		// if err != nil {
-		// 	return nil, err
-		// }
 	}
 
 	authSession = &rdb.AuthSession{

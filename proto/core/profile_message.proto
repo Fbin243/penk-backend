@@ -6,7 +6,8 @@ option go_package = "tenkhours/proto/pb/core";
 
 message IntrospectReq {   
   string token = 1;
-  string device_id = 2;
+  string user_id = 2;
+  string device_id = 3;
 }
 
 message IntrospectResp {
