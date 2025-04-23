@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose from "mongoose";
 
 import { decrypt } from "../encrypt";
@@ -16,8 +17,8 @@ export const getPenKMessages = async (profileId: string) => {
   return messages;
 };
 
-const convertObjectsToStrings = (result: object): object => {
-  const convertedResult = {};
+const convertObjectsToStrings = (result: any): any => {
+  const convertedResult: any = {};
 
   for (const key in result) {
     if (Object.prototype.hasOwnProperty.call(result, key)) {
@@ -47,6 +48,11 @@ const convertObjectsToStrings = (result: object): object => {
   }
 
   return convertedResult;
+};
+
+export const getPenKContext = async (userId: string) => {
+  const penkContext = await PenKContextModel.findOne({ user_id: userId });
+  return penkContext;
 };
 
 export const getPenKData = async (userId: string) => {

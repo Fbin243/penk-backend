@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import { WebSocket } from "ws";
 
 import { textChatStream } from "../../../utils/ai";
@@ -76,16 +75,15 @@ export const handleTextChat = (ws: WebSocket, context: WebSocketContext) => {
           },
         );
 
-        if (cost) {
-          console.log(chalk.green("Total cost:", cost));
-          PenKUsageModel.updateOne(
-            { profile_id: context.profileId },
-            { $inc: { total_cost: cost, text_chat_count: 1 } },
-            { upsert: true },
-          ).catch((error) => {
-            console.error("Error updating usage:", error);
-          });
-        }
+        console.log("Total cost:", cost);
+        console.log();
+        PenKUsageModel.updateOne(
+          { profile_id: context.profileId },
+          { $inc: { total_cost: cost, text_chat_count: 1 } },
+          { upsert: true },
+        ).catch((error) => {
+          console.error("Error updating usage:", error);
+        });
       } catch (error) {
         console.error("Error in streaming chat:", error);
         sendErrorResponse(ws, "Error in streaming chat");

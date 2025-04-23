@@ -66,7 +66,7 @@ export const streamAssistantResponse = async (props: {
   const finalToolCalls: Record<number, ChatCompletionChunk.Choice.Delta.ToolCall> = {};
 
   const stream = await client.chat.completions.create({
-    model: "gpt-4.1-mini",
+    model: "gpt-4.1-nano",
     messages,
     stream: true,
     stream_options: { include_usage: true },

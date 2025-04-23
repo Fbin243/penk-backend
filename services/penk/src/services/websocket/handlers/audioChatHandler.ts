@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import { WebSocket } from "ws";
 
 import { audioChat, base64ToUploadable, transcribeAudio } from "../../../utils/ai";
@@ -140,7 +139,7 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
           );
 
           const totalCost = transcriptionResult.cost + cost;
-          console.log(chalk.green("Total cost:", totalCost));
+          console.log("Total cost:", totalCost);
 
           PenKUsageModel.updateOne(
             { profile_id: context.profileId },

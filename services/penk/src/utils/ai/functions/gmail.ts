@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import { ChatCompletionTool } from "openai/resources/index.mjs";
 import { FunctionDefinition } from "openai/resources/shared.mjs";
 
@@ -36,7 +35,7 @@ const getMailsDefinition: FunctionDefinition = {
 };
 
 export const functionGetMails = async (props: { profileId: string; q: string }) => {
-  console.log(chalk.cyan(`[Tool: ${FunctionName.GetMails}]`));
+  console.log(`[Tool: ${FunctionName.GetMails}]`);
   console.dir(props, { depth: null, colors: true });
   console.log();
 

@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import { ChatCompletionTool } from "openai/resources/index.mjs";
 import { FunctionDefinition } from "openai/resources/shared.mjs";
 import { rrulestr } from "rrule";
@@ -52,7 +51,7 @@ export const functionGetCalendarEvents = async (props: {
   timezone: string;
   locale: string;
 }) => {
-  console.log(chalk.cyan(`[Tool: ${FunctionName.GetCalendarEvents}]`));
+  console.log(`[Tool: ${FunctionName.GetCalendarEvents}]`);
   console.dir(props, { depth: null, colors: true });
   console.log();
 
@@ -130,7 +129,7 @@ export const functionGetCalendarEvents = async (props: {
       : undefined,
   }));
 
-  // console.log(chalk.cyan(`[Tool: ${FunctionName.GetCalendarEvents}]`));
+  // console.log(`[Tool: ${FunctionName.GetCalendarEvents}]`);
   // console.dir(result, { depth: null, colors: true });
   // console.log();
 

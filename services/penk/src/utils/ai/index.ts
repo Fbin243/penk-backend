@@ -13,7 +13,7 @@ import {
   calculateCompletionUsage,
   calculateTranscriptionCost,
   calculateTtsCost,
-  gpt4dot1MiniPricingModel,
+  gpt4dot1NanoPricingModel,
 } from "./pricing";
 import { setupInitialMessages, streamAssistantResponse } from "./utils";
 
@@ -43,6 +43,7 @@ export const transcribeAudio = async (audio: Uploadable) => {
   const transcription = await client.audio.transcriptions.create({
     file: audio,
     model: "gpt-4o-transcribe",
+    prompt: "PenK (pronounced Pen-k) Assistant",
   });
 
   return {
@@ -62,7 +63,7 @@ export const textChatStream = async (
 ) => {
   const aiTimestamp = new Date().toISOString();
   let fullContent = "";
-  let cost = 0;
+  let chatCompletionCost = 0;
 
   const openAiMessages = setupInitialMessages(props.userData, props.history);
   openAiMessages.push({ role: "user", content: props.newMessage });
@@ -75,7 +76,7 @@ export const textChatStream = async (
       onChunk,
     });
     fullContent += content;
-    if (usage) cost += calculateCompletionUsage(usage, gpt4dot1MiniPricingModel);
+    if (usage) chatCompletionCost += calculateCompletionUsage(usage, gpt4dot1NanoPricingModel);
 
     let currentToolCalls = toolCalls;
 
@@ -89,7 +90,7 @@ export const textChatStream = async (
         try {
           result = await callFunction(toolCall.function!.name as FunctionName, args);
         } catch (error) {
-          result = error.message || error;
+          result = (error as Error).message || error;
           console.error("Error calling function:", result);
         }
 
@@ -124,7 +125,7 @@ export const textChatStream = async (
       });
       fullContent += followup.content;
       if (followup.usage)
-        cost += calculateCompletionUsage(followup.usage, gpt4dot1MiniPricingModel);
+        chatCompletionCost += calculateCompletionUsage(followup.usage, gpt4dot1NanoPricingModel);
       currentToolCalls = followup.toolCalls;
     }
 
@@ -135,7 +136,8 @@ export const textChatStream = async (
     };
 
     if (onComplete) onComplete(aiMessage);
-    return { aiMessage, cost };
+
+    return { aiMessage, cost: chatCompletionCost };
   } catch (error) {
     console.error("Error in textChatStream:", error);
     throw error;
@@ -163,7 +165,7 @@ export const audioChat = async (
 
   while (true) {
     const completion = await client.chat.completions.create({
-      model: "gpt-4.1-mini",
+      model: "gpt-4.1-nano",
       messages: openAiMessages,
       modalities: ["text"],
       tools,
@@ -173,7 +175,7 @@ export const audioChat = async (
 
     const choice = completion.choices[0].message;
     totalCost += completion.usage
-      ? calculateCompletionUsage(completion.usage, gpt4dot1MiniPricingModel)
+      ? calculateCompletionUsage(completion.usage, gpt4dot1NanoPricingModel)
       : 0;
 
     // If tool calls exist, call them and loop again
@@ -186,7 +188,7 @@ export const audioChat = async (
         try {
           result = await callFunction(fnName, args);
         } catch (error) {
-          result = error.message || error;
+          result = (error as Error).message || error;
           console.error("Error calling function:", result);
         }
 
