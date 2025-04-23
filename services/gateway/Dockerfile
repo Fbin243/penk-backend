@@ -8,4 +8,4 @@ RUN npm install
 
 COPY services/gateway .
 
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npm run build && npm run start"]
