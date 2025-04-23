@@ -5,6 +5,7 @@ import (
 
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // InsertMany inserts multiple documents into the collection.
@@ -46,6 +47,33 @@ func (r *BaseRepo[M, N]) FindAndUpdateByID(ctx context.Context, id string, m *M)
 		bson.M{"$set": ToMongoEntity[M, N](m)},
 		FindOneAndUpdateOptions).Decode(&m)
 	return m, err
+}
+
+// FindAndUpdateByIDs finds multiple documents by their IDs and updates them with the provided data.
+func (r *BaseRepo[M, N]) FindAndUpdateByIDs(ctx context.Context, ms []M) ([]M, error) {
+	ctx, cancel := context.WithTimeout(ctx, r.Timeout)
+	defer cancel()
+
+	if r.WithTimestamp {
+		for i := range ms {
+			lo.FromPtr(&ms[i]).SetUpdatedAtByNow()
+		}
+	}
+
+	models := []mongo.WriteModel{}
+	for _, m := range ms {
+		models = append(models, mongo.NewReplaceOneModel().
+			SetFilter(bson.M{"_id": ToObjectID(m.GetID())}).
+			SetReplacement(ToMongoEntity[M, N](&m)).
+			SetUpsert(true))
+	}
+
+	_, err := r.Collection.BulkWrite(ctx, models)
+	if err != nil {
+		return nil, err
+	}
+
+	return ms, nil
 }
 
 // UpdateByID updates a single document in the collection based on the provided ID.

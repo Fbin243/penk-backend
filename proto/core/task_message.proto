@@ -20,6 +20,10 @@ message TaskMsg {
   optional int64 deadline = 11;
 }
 
+message TaskMsgs {
+  repeated TaskMsg tasks = 1;
+}
+
 message TaskInput {
   optional string id = 1;
   optional string category_id = 2;
@@ -29,4 +33,8 @@ message TaskInput {
   repeated CheckboxInput subtasks = 6;
   optional string description = 7;
   optional int64 deadline = 8;
+}
+
+message TaskInputs {
+  repeated TaskInput tasks = 1;
 }

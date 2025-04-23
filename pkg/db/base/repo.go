@@ -11,10 +11,12 @@ type IBaseRepo[M any] interface {
 	InsertMany(ctx context.Context, ms []M) ([]M, error)
 
 	FindByID(ctx context.Context, id string) (*M, error)
+	FindByIDs(ctx context.Context, ids []string) ([]M, error)
 	// FindOne(ctx context.Context, filter any) (*M, error)
 	// FindMany(ctx context.Context, filter any) ([]M, error)
 
 	FindAndUpdateByID(ctx context.Context, id string, m *M) (*M, error)
+	FindAndUpdateByIDs(ctx context.Context, m []M) ([]M, error)
 	UpdateByID(ctx context.Context, id string, m *M) error
 	// UpdateOne(ctx context.Context, filter, update any) error
 	// UpdateMany(ctx context.Context, filter, update any) error

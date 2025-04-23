@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	common "tenkhours/proto/pb/common"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,10 +22,16 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Core_IntrospectUser_FullMethodName     = "/core.Core/IntrospectUser"
 	Core_UpsertCharacter_FullMethodName    = "/core.Core/UpsertCharacter"
+	Core_DeleteCharacter_FullMethodName    = "/core.Core/DeleteCharacter"
 	Core_UpsertGoal_FullMethodName         = "/core.Core/UpsertGoal"
+	Core_DeleteGoal_FullMethodName         = "/core.Core/DeleteGoal"
 	Core_UpsertTimeTracking_FullMethodName = "/core.Core/UpsertTimeTracking"
 	Core_UpsertTask_FullMethodName         = "/core.Core/UpsertTask"
+	Core_UpsertTasks_FullMethodName        = "/core.Core/UpsertTasks"
+	Core_DeleteTask_FullMethodName         = "/core.Core/DeleteTask"
 	Core_UpsertTaskSession_FullMethodName  = "/core.Core/UpsertTaskSession"
+	Core_UpsertTaskSessions_FullMethodName = "/core.Core/UpsertTaskSessions"
+	Core_DeleteTaskSession_FullMethodName  = "/core.Core/DeleteTaskSession"
 )
 
 // CoreClient is the client API for Core service.
@@ -33,10 +40,16 @@ const (
 type CoreClient interface {
 	IntrospectUser(ctx context.Context, in *IntrospectReq, opts ...grpc.CallOption) (*IntrospectResp, error)
 	UpsertCharacter(ctx context.Context, in *CharacterInput, opts ...grpc.CallOption) (*Character, error)
+	DeleteCharacter(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
 	UpsertGoal(ctx context.Context, in *GoalInput, opts ...grpc.CallOption) (*Goal, error)
+	DeleteGoal(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
 	UpsertTimeTracking(ctx context.Context, in *TimeTrackingInput, opts ...grpc.CallOption) (*TimeTracking, error)
 	UpsertTask(ctx context.Context, in *TaskInput, opts ...grpc.CallOption) (*TaskMsg, error)
+	UpsertTasks(ctx context.Context, in *TaskInputs, opts ...grpc.CallOption) (*TaskMsgs, error)
+	DeleteTask(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
 	UpsertTaskSession(ctx context.Context, in *TaskSessionInput, opts ...grpc.CallOption) (*TaskSession, error)
+	UpsertTaskSessions(ctx context.Context, in *TaskSessionInputs, opts ...grpc.CallOption) (*TaskSessions, error)
+	DeleteTaskSession(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
 }
 
 type coreClient struct {
@@ -67,10 +80,30 @@ func (c *coreClient) UpsertCharacter(ctx context.Context, in *CharacterInput, op
 	return out, nil
 }
 
+func (c *coreClient) DeleteCharacter(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.IdResp)
+	err := c.cc.Invoke(ctx, Core_DeleteCharacter_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *coreClient) UpsertGoal(ctx context.Context, in *GoalInput, opts ...grpc.CallOption) (*Goal, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Goal)
 	err := c.cc.Invoke(ctx, Core_UpsertGoal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreClient) DeleteGoal(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.IdResp)
+	err := c.cc.Invoke(ctx, Core_DeleteGoal_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -97,10 +130,50 @@ func (c *coreClient) UpsertTask(ctx context.Context, in *TaskInput, opts ...grpc
 	return out, nil
 }
 
+func (c *coreClient) UpsertTasks(ctx context.Context, in *TaskInputs, opts ...grpc.CallOption) (*TaskMsgs, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TaskMsgs)
+	err := c.cc.Invoke(ctx, Core_UpsertTasks_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreClient) DeleteTask(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.IdResp)
+	err := c.cc.Invoke(ctx, Core_DeleteTask_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *coreClient) UpsertTaskSession(ctx context.Context, in *TaskSessionInput, opts ...grpc.CallOption) (*TaskSession, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TaskSession)
 	err := c.cc.Invoke(ctx, Core_UpsertTaskSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreClient) UpsertTaskSessions(ctx context.Context, in *TaskSessionInputs, opts ...grpc.CallOption) (*TaskSessions, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TaskSessions)
+	err := c.cc.Invoke(ctx, Core_UpsertTaskSessions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreClient) DeleteTaskSession(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.IdResp)
+	err := c.cc.Invoke(ctx, Core_DeleteTaskSession_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -113,10 +186,16 @@ func (c *coreClient) UpsertTaskSession(ctx context.Context, in *TaskSessionInput
 type CoreServer interface {
 	IntrospectUser(context.Context, *IntrospectReq) (*IntrospectResp, error)
 	UpsertCharacter(context.Context, *CharacterInput) (*Character, error)
+	DeleteCharacter(context.Context, *common.IdReq) (*common.IdResp, error)
 	UpsertGoal(context.Context, *GoalInput) (*Goal, error)
+	DeleteGoal(context.Context, *common.IdReq) (*common.IdResp, error)
 	UpsertTimeTracking(context.Context, *TimeTrackingInput) (*TimeTracking, error)
 	UpsertTask(context.Context, *TaskInput) (*TaskMsg, error)
+	UpsertTasks(context.Context, *TaskInputs) (*TaskMsgs, error)
+	DeleteTask(context.Context, *common.IdReq) (*common.IdResp, error)
 	UpsertTaskSession(context.Context, *TaskSessionInput) (*TaskSession, error)
+	UpsertTaskSessions(context.Context, *TaskSessionInputs) (*TaskSessions, error)
+	DeleteTaskSession(context.Context, *common.IdReq) (*common.IdResp, error)
 	mustEmbedUnimplementedCoreServer()
 }
 
@@ -133,8 +212,14 @@ func (UnimplementedCoreServer) IntrospectUser(context.Context, *IntrospectReq) (
 func (UnimplementedCoreServer) UpsertCharacter(context.Context, *CharacterInput) (*Character, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertCharacter not implemented")
 }
+func (UnimplementedCoreServer) DeleteCharacter(context.Context, *common.IdReq) (*common.IdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteCharacter not implemented")
+}
 func (UnimplementedCoreServer) UpsertGoal(context.Context, *GoalInput) (*Goal, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertGoal not implemented")
+}
+func (UnimplementedCoreServer) DeleteGoal(context.Context, *common.IdReq) (*common.IdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteGoal not implemented")
 }
 func (UnimplementedCoreServer) UpsertTimeTracking(context.Context, *TimeTrackingInput) (*TimeTracking, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertTimeTracking not implemented")
@@ -142,8 +227,20 @@ func (UnimplementedCoreServer) UpsertTimeTracking(context.Context, *TimeTracking
 func (UnimplementedCoreServer) UpsertTask(context.Context, *TaskInput) (*TaskMsg, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertTask not implemented")
 }
+func (UnimplementedCoreServer) UpsertTasks(context.Context, *TaskInputs) (*TaskMsgs, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpsertTasks not implemented")
+}
+func (UnimplementedCoreServer) DeleteTask(context.Context, *common.IdReq) (*common.IdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTask not implemented")
+}
 func (UnimplementedCoreServer) UpsertTaskSession(context.Context, *TaskSessionInput) (*TaskSession, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertTaskSession not implemented")
+}
+func (UnimplementedCoreServer) UpsertTaskSessions(context.Context, *TaskSessionInputs) (*TaskSessions, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpsertTaskSessions not implemented")
+}
+func (UnimplementedCoreServer) DeleteTaskSession(context.Context, *common.IdReq) (*common.IdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTaskSession not implemented")
 }
 func (UnimplementedCoreServer) mustEmbedUnimplementedCoreServer() {}
 func (UnimplementedCoreServer) testEmbeddedByValue()              {}
@@ -202,6 +299,24 @@ func _Core_UpsertCharacter_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Core_DeleteCharacter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(common.IdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).DeleteCharacter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_DeleteCharacter_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).DeleteCharacter(ctx, req.(*common.IdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Core_UpsertGoal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GoalInput)
 	if err := dec(in); err != nil {
@@ -216,6 +331,24 @@ func _Core_UpsertGoal_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CoreServer).UpsertGoal(ctx, req.(*GoalInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Core_DeleteGoal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(common.IdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).DeleteGoal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_DeleteGoal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).DeleteGoal(ctx, req.(*common.IdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -256,6 +389,42 @@ func _Core_UpsertTask_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Core_UpsertTasks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskInputs)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).UpsertTasks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_UpsertTasks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).UpsertTasks(ctx, req.(*TaskInputs))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Core_DeleteTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(common.IdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).DeleteTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_DeleteTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).DeleteTask(ctx, req.(*common.IdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Core_UpsertTaskSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TaskSessionInput)
 	if err := dec(in); err != nil {
@@ -270,6 +439,42 @@ func _Core_UpsertTaskSession_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CoreServer).UpsertTaskSession(ctx, req.(*TaskSessionInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Core_UpsertTaskSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskSessionInputs)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).UpsertTaskSessions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_UpsertTaskSessions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).UpsertTaskSessions(ctx, req.(*TaskSessionInputs))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Core_DeleteTaskSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(common.IdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).DeleteTaskSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_DeleteTaskSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).DeleteTaskSession(ctx, req.(*common.IdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -290,8 +495,16 @@ var Core_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Core_UpsertCharacter_Handler,
 		},
 		{
+			MethodName: "DeleteCharacter",
+			Handler:    _Core_DeleteCharacter_Handler,
+		},
+		{
 			MethodName: "UpsertGoal",
 			Handler:    _Core_UpsertGoal_Handler,
+		},
+		{
+			MethodName: "DeleteGoal",
+			Handler:    _Core_DeleteGoal_Handler,
 		},
 		{
 			MethodName: "UpsertTimeTracking",
@@ -302,8 +515,24 @@ var Core_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Core_UpsertTask_Handler,
 		},
 		{
+			MethodName: "UpsertTasks",
+			Handler:    _Core_UpsertTasks_Handler,
+		},
+		{
+			MethodName: "DeleteTask",
+			Handler:    _Core_DeleteTask_Handler,
+		},
+		{
 			MethodName: "UpsertTaskSession",
 			Handler:    _Core_UpsertTaskSession_Handler,
+		},
+		{
+			MethodName: "UpsertTaskSessions",
+			Handler:    _Core_UpsertTaskSessions_Handler,
+		},
+		{
+			MethodName: "DeleteTaskSession",
+			Handler:    _Core_DeleteTaskSession_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package core;
 
+import "common/common_message.proto";
 import "core/character_message.proto";
 import "core/goal_message.proto";
 import "core/profile_message.proto";
@@ -13,9 +14,20 @@ option go_package = "tenkhours/proto/pb/core";
 
 service Core {
   rpc IntrospectUser(IntrospectReq) returns (IntrospectResp);
+  
   rpc UpsertCharacter(CharacterInput) returns (Character);
+  rpc DeleteCharacter(common.IdReq) returns (common.IdResp);
+
   rpc UpsertGoal(GoalInput) returns (Goal);
+  rpc DeleteGoal(common.IdReq) returns (common.IdResp);
+
   rpc UpsertTimeTracking(TimeTrackingInput) returns (TimeTracking);
+
   rpc UpsertTask(TaskInput) returns (TaskMsg);
+  rpc UpsertTasks(TaskInputs) returns (TaskMsgs);
+  rpc DeleteTask(common.IdReq) returns (common.IdResp);
+
   rpc UpsertTaskSession(TaskSessionInput) returns (TaskSession);
+  rpc UpsertTaskSessions(TaskSessionInputs) returns (TaskSessions);
+  rpc DeleteTaskSession(common.IdReq) returns (common.IdResp);
 }

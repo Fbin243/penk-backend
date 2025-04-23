@@ -57,6 +57,7 @@ type ITaskBusiness interface {
 	CountTaskSession(ctx context.Context, filter *entity.TaskSessionFilter) (int, error)
 	GetTaskSessions(ctx context.Context, filter *entity.TaskSessionFilter, orderBy *entity.TaskSessionOrderBy, limit, offset *int) ([]entity.TaskSession, error)
 	UpsertTaskSession(ctx context.Context, input *entity.TaskSessionInput) (*entity.TaskSession, error)
+	UpsertTaskSessions(ctx context.Context, inputs []entity.TaskSessionInput) ([]entity.TaskSession, error)
 	DeleteTaskSession(ctx context.Context, id string) (*entity.TaskSession, error)
 }
 

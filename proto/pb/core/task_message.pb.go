@@ -145,6 +145,50 @@ func (x *TaskMsg) GetDeadline() int64 {
 	return 0
 }
 
+type TaskMsgs struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tasks         []*TaskMsg             `protobuf:"bytes,1,rep,name=tasks,proto3" json:"tasks,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TaskMsgs) Reset() {
+	*x = TaskMsgs{}
+	mi := &file_core_task_message_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TaskMsgs) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TaskMsgs) ProtoMessage() {}
+
+func (x *TaskMsgs) ProtoReflect() protoreflect.Message {
+	mi := &file_core_task_message_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TaskMsgs.ProtoReflect.Descriptor instead.
+func (*TaskMsgs) Descriptor() ([]byte, []int) {
+	return file_core_task_message_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *TaskMsgs) GetTasks() []*TaskMsg {
+	if x != nil {
+		return x.Tasks
+	}
+	return nil
+}
+
 type TaskInput struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            *string                `protobuf:"bytes,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
@@ -161,7 +205,7 @@ type TaskInput struct {
 
 func (x *TaskInput) Reset() {
 	*x = TaskInput{}
-	mi := &file_core_task_message_proto_msgTypes[1]
+	mi := &file_core_task_message_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -173,7 +217,7 @@ func (x *TaskInput) String() string {
 func (*TaskInput) ProtoMessage() {}
 
 func (x *TaskInput) ProtoReflect() protoreflect.Message {
-	mi := &file_core_task_message_proto_msgTypes[1]
+	mi := &file_core_task_message_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -186,7 +230,7 @@ func (x *TaskInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TaskInput.ProtoReflect.Descriptor instead.
 func (*TaskInput) Descriptor() ([]byte, []int) {
-	return file_core_task_message_proto_rawDescGZIP(), []int{1}
+	return file_core_task_message_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *TaskInput) GetId() string {
@@ -245,6 +289,50 @@ func (x *TaskInput) GetDeadline() int64 {
 	return 0
 }
 
+type TaskInputs struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tasks         []*TaskInput           `protobuf:"bytes,1,rep,name=tasks,proto3" json:"tasks,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TaskInputs) Reset() {
+	*x = TaskInputs{}
+	mi := &file_core_task_message_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TaskInputs) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TaskInputs) ProtoMessage() {}
+
+func (x *TaskInputs) ProtoReflect() protoreflect.Message {
+	mi := &file_core_task_message_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TaskInputs.ProtoReflect.Descriptor instead.
+func (*TaskInputs) Descriptor() ([]byte, []int) {
+	return file_core_task_message_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *TaskInputs) GetTasks() []*TaskInput {
+	if x != nil {
+		return x.Tasks
+	}
+	return nil
+}
+
 var File_core_task_message_proto protoreflect.FileDescriptor
 
 const file_core_task_message_proto_rawDesc = "" +
@@ -269,7 +357,9 @@ const file_core_task_message_proto_rawDesc = "" +
 	"\f_category_idB\x11\n" +
 	"\x0f_completed_timeB\x0e\n" +
 	"\f_descriptionB\v\n" +
-	"\t_deadline\"\xe2\x02\n" +
+	"\t_deadline\"/\n" +
+	"\bTaskMsgs\x12#\n" +
+	"\x05tasks\x18\x01 \x03(\v2\r.core.TaskMsgR\x05tasks\"\xe2\x02\n" +
 	"\tTaskInput\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12$\n" +
 	"\vcategory_id\x18\x02 \x01(\tH\x01R\n" +
@@ -284,7 +374,10 @@ const file_core_task_message_proto_rawDesc = "" +
 	"\f_category_idB\x11\n" +
 	"\x0f_completed_timeB\x0e\n" +
 	"\f_descriptionB\v\n" +
-	"\t_deadlineB\x19Z\x17tenkhours/proto/pb/coreb\x06proto3"
+	"\t_deadline\"3\n" +
+	"\n" +
+	"TaskInputs\x12%\n" +
+	"\x05tasks\x18\x01 \x03(\v2\x0f.core.TaskInputR\x05tasksB\x19Z\x17tenkhours/proto/pb/coreb\x06proto3"
 
 var (
 	file_core_task_message_proto_rawDescOnce sync.Once
@@ -298,21 +391,25 @@ func file_core_task_message_proto_rawDescGZIP() []byte {
 	return file_core_task_message_proto_rawDescData
 }
 
-var file_core_task_message_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_core_task_message_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_core_task_message_proto_goTypes = []any{
 	(*TaskMsg)(nil),       // 0: core.TaskMsg
-	(*TaskInput)(nil),     // 1: core.TaskInput
-	(*Checkbox)(nil),      // 2: core.Checkbox
-	(*CheckboxInput)(nil), // 3: core.CheckboxInput
+	(*TaskMsgs)(nil),      // 1: core.TaskMsgs
+	(*TaskInput)(nil),     // 2: core.TaskInput
+	(*TaskInputs)(nil),    // 3: core.TaskInputs
+	(*Checkbox)(nil),      // 4: core.Checkbox
+	(*CheckboxInput)(nil), // 5: core.CheckboxInput
 }
 var file_core_task_message_proto_depIdxs = []int32{
-	2, // 0: core.TaskMsg.subtasks:type_name -> core.Checkbox
-	3, // 1: core.TaskInput.subtasks:type_name -> core.CheckboxInput
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	4, // 0: core.TaskMsg.subtasks:type_name -> core.Checkbox
+	0, // 1: core.TaskMsgs.tasks:type_name -> core.TaskMsg
+	5, // 2: core.TaskInput.subtasks:type_name -> core.CheckboxInput
+	2, // 3: core.TaskInputs.tasks:type_name -> core.TaskInput
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_core_task_message_proto_init() }
@@ -322,14 +419,14 @@ func file_core_task_message_proto_init() {
 	}
 	file_core_checkbox_message_proto_init()
 	file_core_task_message_proto_msgTypes[0].OneofWrappers = []any{}
-	file_core_task_message_proto_msgTypes[1].OneofWrappers = []any{}
+	file_core_task_message_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_core_task_message_proto_rawDesc), len(file_core_task_message_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
