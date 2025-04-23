@@ -44,6 +44,14 @@ func (r *BaseRepo[M, N]) FindByID(ctx context.Context, id string) (*M, error) {
 	return &m, err
 }
 
+// FindByIDs retrieves multiple documents by their IDs from the collection.
+func (r *BaseRepo[M, N]) FindByIDs(ctx context.Context, ids []string) ([]M, error) {
+	ctx, cancel := context.WithTimeout(ctx, r.Timeout)
+	defer cancel()
+
+	return r.FindMany(ctx, bson.M{"_id": bson.M{"$in": ToObjectIDs(ids)}})
+}
+
 // FindOne retrieves a single document from the collection based on the provided filter.
 func (r *BaseRepo[M, N]) FindOne(ctx context.Context, filter any) (*M, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.Timeout)
