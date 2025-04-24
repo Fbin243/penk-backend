@@ -5,6 +5,7 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
+	"tenkhours/pkg/errors"
 	"tenkhours/services/core/entity"
 
 	"github.com/jinzhu/copier"
@@ -82,7 +83,7 @@ func (b *TaskBusiness) UpsertTaskSessions(ctx context.Context, inputs []entity.T
 				BaseEntity: &base.BaseEntity{},
 			}
 
-			err = copier.Copy(taskSession, input)
+			err = copier.Copy(taskSession, &input)
 			if err != nil {
 				return nil, err
 			}
@@ -109,11 +110,17 @@ func (b *TaskBusiness) UpsertTaskSessions(ctx context.Context, inputs []entity.T
 		return nil, err
 	}
 
+	if len(existingTaskSessions) != len(updateTaskSessionIDs) {
+		return nil, errors.NewGQLError(errors.ErrCodeBadRequest, "one or more task sessions not found")
+	}
+
 	// --- Update task sessions
-	updateTaskSessions := make([]entity.TaskSession, len(existingTaskSessions))
+	updateTaskSessions := []entity.TaskSession{}
 	for _, taskSession := range existingTaskSessions {
 		input := updateTaskSessionMap[taskSession.ID]
-		err = copier.Copy(taskSession, input)
+		err = copier.CopyWithOption(&taskSession, &input, copier.Option{
+			IgnoreEmpty: true,
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -121,7 +128,7 @@ func (b *TaskBusiness) UpsertTaskSessions(ctx context.Context, inputs []entity.T
 		updateTaskSessions = append(updateTaskSessions, taskSession)
 	}
 
-	// --- Update task sessions in DB
+	// --- Save task sessions in DB
 	updateTaskSessions, err = b.taskSessionRepo.FindAndUpdateByIDs(ctx, updateTaskSessions)
 	if err != nil {
 		return nil, err

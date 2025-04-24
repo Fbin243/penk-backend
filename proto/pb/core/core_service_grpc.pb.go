@@ -22,7 +22,6 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Core_IntrospectUser_FullMethodName     = "/core.Core/IntrospectUser"
 	Core_UpsertCharacter_FullMethodName    = "/core.Core/UpsertCharacter"
-	Core_DeleteCharacter_FullMethodName    = "/core.Core/DeleteCharacter"
 	Core_UpsertGoal_FullMethodName         = "/core.Core/UpsertGoal"
 	Core_DeleteGoal_FullMethodName         = "/core.Core/DeleteGoal"
 	Core_UpsertTimeTracking_FullMethodName = "/core.Core/UpsertTimeTracking"
@@ -40,7 +39,6 @@ const (
 type CoreClient interface {
 	IntrospectUser(ctx context.Context, in *IntrospectReq, opts ...grpc.CallOption) (*IntrospectResp, error)
 	UpsertCharacter(ctx context.Context, in *CharacterInput, opts ...grpc.CallOption) (*Character, error)
-	DeleteCharacter(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
 	UpsertGoal(ctx context.Context, in *GoalInput, opts ...grpc.CallOption) (*Goal, error)
 	DeleteGoal(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
 	UpsertTimeTracking(ctx context.Context, in *TimeTrackingInput, opts ...grpc.CallOption) (*TimeTracking, error)
@@ -74,16 +72,6 @@ func (c *coreClient) UpsertCharacter(ctx context.Context, in *CharacterInput, op
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Character)
 	err := c.cc.Invoke(ctx, Core_UpsertCharacter_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *coreClient) DeleteCharacter(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(common.IdResp)
-	err := c.cc.Invoke(ctx, Core_DeleteCharacter_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +174,6 @@ func (c *coreClient) DeleteTaskSession(ctx context.Context, in *common.IdReq, op
 type CoreServer interface {
 	IntrospectUser(context.Context, *IntrospectReq) (*IntrospectResp, error)
 	UpsertCharacter(context.Context, *CharacterInput) (*Character, error)
-	DeleteCharacter(context.Context, *common.IdReq) (*common.IdResp, error)
 	UpsertGoal(context.Context, *GoalInput) (*Goal, error)
 	DeleteGoal(context.Context, *common.IdReq) (*common.IdResp, error)
 	UpsertTimeTracking(context.Context, *TimeTrackingInput) (*TimeTracking, error)
@@ -211,9 +198,6 @@ func (UnimplementedCoreServer) IntrospectUser(context.Context, *IntrospectReq) (
 }
 func (UnimplementedCoreServer) UpsertCharacter(context.Context, *CharacterInput) (*Character, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertCharacter not implemented")
-}
-func (UnimplementedCoreServer) DeleteCharacter(context.Context, *common.IdReq) (*common.IdResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteCharacter not implemented")
 }
 func (UnimplementedCoreServer) UpsertGoal(context.Context, *GoalInput) (*Goal, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertGoal not implemented")
@@ -295,24 +279,6 @@ func _Core_UpsertCharacter_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CoreServer).UpsertCharacter(ctx, req.(*CharacterInput))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Core_DeleteCharacter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(common.IdReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CoreServer).DeleteCharacter(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Core_DeleteCharacter_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoreServer).DeleteCharacter(ctx, req.(*common.IdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -493,10 +459,6 @@ var Core_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpsertCharacter",
 			Handler:    _Core_UpsertCharacter_Handler,
-		},
-		{
-			MethodName: "DeleteCharacter",
-			Handler:    _Core_DeleteCharacter_Handler,
 		},
 		{
 			MethodName: "UpsertGoal",

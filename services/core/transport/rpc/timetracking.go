@@ -2,7 +2,7 @@ package rpc
 
 // func (hdl *CoreHandler) CreateTimeTracking(ctx context.Context, req *core.CreateTimeTrackingReq) (*core.TimeTracking, error) {
 // 	// Map RPC input to entity input
-// 	timeTrackingInput, err := MapRPCInputToEntityInput[core.CreateTimeTrackingReq, entity.TimeTrackingInput](req, UnixTimeConverter)
+// 	timeTrackingInput, err := Map[core.CreateTimeTrackingReq, entity.TimeTrackingInput](req, UnixTimeConverter)
 // 	if err != nil {
 // 		return nil, err
 // 	}
@@ -14,7 +14,7 @@ package rpc
 // 	}
 
 // 	// Map entity to RPC response
-// 	return MapEntityToRPC[entity.TimeTracking, core.TimeTracking](timeTracking, nil)
+// 	return Map[entity.TimeTracking, core.TimeTracking](timeTracking, nil)
 // }
 
 // func (hdl *CoreHandler) UpdateTimeTracking(ctx context.Context, req *common.EmptyReq) (*core.TimeTracking, error) {
@@ -25,7 +25,7 @@ package rpc
 // 	}
 
 // 	// Map entity to RPC response
-// 	return MapEntityToRPC[entity.TimeTracking, core.TimeTracking](timeTracking, UnixTimeConverter)
+// 	return Map[entity.TimeTracking, core.TimeTracking](timeTracking, UnixTimeConverter)
 // }
 
 // // TODO: @Fbin243 implements the following methods later

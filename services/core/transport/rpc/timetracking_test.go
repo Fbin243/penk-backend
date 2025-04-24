@@ -31,7 +31,7 @@ var timeTracking = entity.TimeTracking{
 
 func TestMapTimeTracking(t *testing.T) {
 	// Act
-	rpcTimeTracking, err := rpc.MapEntityToRPC[entity.TimeTracking, core.TimeTracking](&timeTracking, append(rpc.UnixTimeConverter, rpc.EntityTypeConverter...))
+	rpcTimeTracking, err := rpc.Map[entity.TimeTracking, core.TimeTracking](&timeTracking, append(rpc.UnixTimeConverter, rpc.EntityTypeConverter...))
 	assert.NoError(t, err)
 
 	log.Printf("timeTracking: %+v", utils.PrettyJSON(timeTracking))
@@ -55,7 +55,7 @@ var rpcTimeTrackingInput = &core.TimeTrackingInput{
 
 func TestMapTimeTrackingInput(t *testing.T) {
 	// Act
-	timeTrackingInput, err := rpc.MapRPCInputToEntityInput[core.TimeTrackingInput, entity.TimeTrackingInput](rpcTimeTrackingInput, append(rpc.UnixTimeConverter, rpc.EntityTypeConverter...))
+	timeTrackingInput, err := rpc.Map[core.TimeTrackingInput, entity.TimeTrackingInput](rpcTimeTrackingInput, append(rpc.UnixTimeConverter, rpc.EntityTypeConverter...))
 	assert.NoError(t, err)
 
 	log.Printf("rpcTimeTrackingInput: %+v", utils.PrettyJSON(rpcTimeTrackingInput))

@@ -2,24 +2,24 @@ package rpc
 
 import "github.com/jinzhu/copier"
 
-// MapEntityToRPC maps an entity to a gRPC response
-func MapEntityToRPC[E, R any](entity *E, converters []copier.TypeConverter) (*R, error) {
-	resp := new(R)
-	err := copier.CopyWithOption(resp, entity, copier.Option{
+func Map[From, To any](from *From, converters []copier.TypeConverter) (*To, error) {
+	to := new(To)
+	err := copier.CopyWithOption(to, from, copier.Option{
 		IgnoreEmpty: true,
 		DeepCopy:    true,
 		Converters:  converters,
 	})
-	return resp, err
+
+	return to, err
 }
 
-// MapRPCInputToEntityInput maps a gRPC request to an entity input
-func MapRPCInputToEntityInput[R, E any](req *R, converters []copier.TypeConverter) (*E, error) {
-	entity := new(E)
-	err := copier.CopyWithOption(entity, req, copier.Option{
+func MapSlice[From, To any](froms []From, converters []copier.TypeConverter) ([]To, error) {
+	tos := make([]To, len(froms))
+	err := copier.CopyWithOption(&tos, &froms, copier.Option{
 		IgnoreEmpty: true,
 		DeepCopy:    true,
 		Converters:  converters,
 	})
-	return entity, err
+
+	return tos, err
 }

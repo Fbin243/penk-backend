@@ -19,7 +19,11 @@ func (r *BaseRepo[M, N]) InsertMany(ctx context.Context, ms []M) ([]M, error) {
 		docs[i] = ToMongoEntity[M, N](&m)
 	}
 
-	_, err := r.Collection.InsertMany(ctx, docs)
+	var err error
+	if len(docs) > 0 {
+		_, err = r.Collection.InsertMany(ctx, docs)
+	}
+
 	return ms, err
 }
 
@@ -54,26 +58,23 @@ func (r *BaseRepo[M, N]) FindAndUpdateByIDs(ctx context.Context, ms []M) ([]M, e
 	ctx, cancel := context.WithTimeout(ctx, r.Timeout)
 	defer cancel()
 
-	if r.WithTimestamp {
-		for i := range ms {
-			lo.FromPtr(&ms[i]).SetUpdatedAtByNow()
-		}
-	}
-
 	models := []mongo.WriteModel{}
 	for _, m := range ms {
-		models = append(models, mongo.NewReplaceOneModel().
+		if r.WithTimestamp {
+			m.SetUpdatedAtByNow()
+		}
+
+		models = append(models, mongo.NewUpdateOneModel().
 			SetFilter(bson.M{"_id": ToObjectID(m.GetID())}).
-			SetReplacement(ToMongoEntity[M, N](&m)).
-			SetUpsert(true))
+			SetUpdate(bson.M{"$set": ToMongoEntity[M, N](&m)}))
 	}
 
-	_, err := r.Collection.BulkWrite(ctx, models)
-	if err != nil {
-		return nil, err
+	var err error
+	if len(models) > 0 {
+		_, err = r.Collection.BulkWrite(ctx, models)
 	}
 
-	return ms, nil
+	return ms, err
 }
 
 // UpdateByID updates a single document in the collection based on the provided ID.

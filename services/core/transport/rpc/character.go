@@ -9,7 +9,7 @@ import (
 
 func (hdl *CoreHandler) UpsertCharacter(ctx context.Context, req *core.CharacterInput) (*core.Character, error) {
 	// Map RPC input to entity input
-	characterInput, err := MapRPCInputToEntityInput[core.CharacterInput, entity.CharacterInput](req, append(UnixTimeConverter, MetricConditionConverter...))
+	characterInput, err := Map[core.CharacterInput, entity.CharacterInput](req, append(UnixTimeConverter, MetricConditionConverter...))
 	if err != nil {
 		return nil, err
 	}
@@ -21,5 +21,5 @@ func (hdl *CoreHandler) UpsertCharacter(ctx context.Context, req *core.Character
 	}
 
 	// Map entity to RPC response
-	return MapEntityToRPC[entity.Character, core.Character](character, append(UnixTimeConverter, MetricConditionConverter...))
+	return Map[entity.Character, core.Character](character, append(UnixTimeConverter, MetricConditionConverter...))
 }

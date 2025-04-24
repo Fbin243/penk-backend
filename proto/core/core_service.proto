@@ -14,9 +14,8 @@ option go_package = "tenkhours/proto/pb/core";
 
 service Core {
   rpc IntrospectUser(IntrospectReq) returns (IntrospectResp);
-  
+
   rpc UpsertCharacter(CharacterInput) returns (Character);
-  rpc DeleteCharacter(common.IdReq) returns (common.IdResp);
 
   rpc UpsertGoal(GoalInput) returns (Goal);
   rpc DeleteGoal(common.IdReq) returns (common.IdResp);
