@@ -31,6 +31,12 @@ const (
 	Core_UpsertTaskSession_FullMethodName  = "/core.Core/UpsertTaskSession"
 	Core_UpsertTaskSessions_FullMethodName = "/core.Core/UpsertTaskSessions"
 	Core_DeleteTaskSession_FullMethodName  = "/core.Core/DeleteTaskSession"
+	Core_UpsertHabit_FullMethodName        = "/core.Core/UpsertHabit"
+	Core_DeleteHabit_FullMethodName        = "/core.Core/DeleteHabit"
+	Core_UpsertCategory_FullMethodName     = "/core.Core/UpsertCategory"
+	Core_DeleteCategory_FullMethodName     = "/core.Core/DeleteCategory"
+	Core_UpsertMetric_FullMethodName       = "/core.Core/UpsertMetric"
+	Core_DeleteMetric_FullMethodName       = "/core.Core/DeleteMetric"
 )
 
 // CoreClient is the client API for Core service.
@@ -48,6 +54,12 @@ type CoreClient interface {
 	UpsertTaskSession(ctx context.Context, in *TaskSessionInput, opts ...grpc.CallOption) (*TaskSession, error)
 	UpsertTaskSessions(ctx context.Context, in *TaskSessionInputs, opts ...grpc.CallOption) (*TaskSessions, error)
 	DeleteTaskSession(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
+	UpsertHabit(ctx context.Context, in *HabitInput, opts ...grpc.CallOption) (*Habit, error)
+	DeleteHabit(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
+	UpsertCategory(ctx context.Context, in *CategoryInput, opts ...grpc.CallOption) (*Category, error)
+	DeleteCategory(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
+	UpsertMetric(ctx context.Context, in *MetricInput, opts ...grpc.CallOption) (*Metric, error)
+	DeleteMetric(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
 }
 
 type coreClient struct {
@@ -168,6 +180,66 @@ func (c *coreClient) DeleteTaskSession(ctx context.Context, in *common.IdReq, op
 	return out, nil
 }
 
+func (c *coreClient) UpsertHabit(ctx context.Context, in *HabitInput, opts ...grpc.CallOption) (*Habit, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Habit)
+	err := c.cc.Invoke(ctx, Core_UpsertHabit_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreClient) DeleteHabit(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.IdResp)
+	err := c.cc.Invoke(ctx, Core_DeleteHabit_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreClient) UpsertCategory(ctx context.Context, in *CategoryInput, opts ...grpc.CallOption) (*Category, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Category)
+	err := c.cc.Invoke(ctx, Core_UpsertCategory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreClient) DeleteCategory(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.IdResp)
+	err := c.cc.Invoke(ctx, Core_DeleteCategory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreClient) UpsertMetric(ctx context.Context, in *MetricInput, opts ...grpc.CallOption) (*Metric, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Metric)
+	err := c.cc.Invoke(ctx, Core_UpsertMetric_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreClient) DeleteMetric(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.IdResp)
+	err := c.cc.Invoke(ctx, Core_DeleteMetric_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoreServer is the server API for Core service.
 // All implementations must embed UnimplementedCoreServer
 // for forward compatibility.
@@ -183,6 +255,12 @@ type CoreServer interface {
 	UpsertTaskSession(context.Context, *TaskSessionInput) (*TaskSession, error)
 	UpsertTaskSessions(context.Context, *TaskSessionInputs) (*TaskSessions, error)
 	DeleteTaskSession(context.Context, *common.IdReq) (*common.IdResp, error)
+	UpsertHabit(context.Context, *HabitInput) (*Habit, error)
+	DeleteHabit(context.Context, *common.IdReq) (*common.IdResp, error)
+	UpsertCategory(context.Context, *CategoryInput) (*Category, error)
+	DeleteCategory(context.Context, *common.IdReq) (*common.IdResp, error)
+	UpsertMetric(context.Context, *MetricInput) (*Metric, error)
+	DeleteMetric(context.Context, *common.IdReq) (*common.IdResp, error)
 	mustEmbedUnimplementedCoreServer()
 }
 
@@ -225,6 +303,24 @@ func (UnimplementedCoreServer) UpsertTaskSessions(context.Context, *TaskSessionI
 }
 func (UnimplementedCoreServer) DeleteTaskSession(context.Context, *common.IdReq) (*common.IdResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTaskSession not implemented")
+}
+func (UnimplementedCoreServer) UpsertHabit(context.Context, *HabitInput) (*Habit, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpsertHabit not implemented")
+}
+func (UnimplementedCoreServer) DeleteHabit(context.Context, *common.IdReq) (*common.IdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteHabit not implemented")
+}
+func (UnimplementedCoreServer) UpsertCategory(context.Context, *CategoryInput) (*Category, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpsertCategory not implemented")
+}
+func (UnimplementedCoreServer) DeleteCategory(context.Context, *common.IdReq) (*common.IdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteCategory not implemented")
+}
+func (UnimplementedCoreServer) UpsertMetric(context.Context, *MetricInput) (*Metric, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpsertMetric not implemented")
+}
+func (UnimplementedCoreServer) DeleteMetric(context.Context, *common.IdReq) (*common.IdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteMetric not implemented")
 }
 func (UnimplementedCoreServer) mustEmbedUnimplementedCoreServer() {}
 func (UnimplementedCoreServer) testEmbeddedByValue()              {}
@@ -445,6 +541,114 @@ func _Core_DeleteTaskSession_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Core_UpsertHabit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HabitInput)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).UpsertHabit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_UpsertHabit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).UpsertHabit(ctx, req.(*HabitInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Core_DeleteHabit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(common.IdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).DeleteHabit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_DeleteHabit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).DeleteHabit(ctx, req.(*common.IdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Core_UpsertCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CategoryInput)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).UpsertCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_UpsertCategory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).UpsertCategory(ctx, req.(*CategoryInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Core_DeleteCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(common.IdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).DeleteCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_DeleteCategory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).DeleteCategory(ctx, req.(*common.IdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Core_UpsertMetric_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MetricInput)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).UpsertMetric(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_UpsertMetric_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).UpsertMetric(ctx, req.(*MetricInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Core_DeleteMetric_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(common.IdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).DeleteMetric(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_DeleteMetric_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).DeleteMetric(ctx, req.(*common.IdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Core_ServiceDesc is the grpc.ServiceDesc for Core service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -495,6 +699,30 @@ var Core_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteTaskSession",
 			Handler:    _Core_DeleteTaskSession_Handler,
+		},
+		{
+			MethodName: "UpsertHabit",
+			Handler:    _Core_UpsertHabit_Handler,
+		},
+		{
+			MethodName: "DeleteHabit",
+			Handler:    _Core_DeleteHabit_Handler,
+		},
+		{
+			MethodName: "UpsertCategory",
+			Handler:    _Core_UpsertCategory_Handler,
+		},
+		{
+			MethodName: "DeleteCategory",
+			Handler:    _Core_DeleteCategory_Handler,
+		},
+		{
+			MethodName: "UpsertMetric",
+			Handler:    _Core_UpsertMetric_Handler,
+		},
+		{
+			MethodName: "DeleteMetric",
+			Handler:    _Core_DeleteMetric_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

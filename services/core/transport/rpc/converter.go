@@ -92,3 +92,42 @@ var EntityTypeConverter = []copier.TypeConverter{
 		},
 	},
 }
+
+var HabitConverter = []copier.TypeConverter{
+	{
+		SrcType: core.CompletionType(0),
+		DstType: entity.CompletionType(fmt.Sprint(0)),
+		Fn: func(src any) (any, error) {
+			return entity.CompletionType(
+				core.CompletionType_name[int32(src.(core.CompletionType).Number())],
+			), nil
+		},
+	},
+	{
+		SrcType: entity.CompletionType(fmt.Sprint(0)),
+		DstType: core.CompletionType(0),
+		Fn: func(src any) (any, error) {
+			return core.CompletionType(
+				core.CompletionType_value[string(src.(entity.CompletionType))],
+			), nil
+		},
+	},
+	{
+		SrcType: core.HabitReset(0),
+		DstType: entity.HabitReset(fmt.Sprint(0)),
+		Fn: func(src any) (any, error) {
+			return entity.HabitReset(
+				core.HabitReset_name[int32(src.(core.HabitReset).Number())],
+			), nil
+		},
+	},
+	{
+		SrcType: entity.HabitReset(fmt.Sprint(0)),
+		DstType: core.HabitReset(0),
+		Fn: func(src any) (any, error) {
+			return core.HabitReset(
+				core.HabitReset_value[string(src.(entity.HabitReset))],
+			), nil
+		},
+	},
+}

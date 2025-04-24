@@ -24,19 +24,19 @@ const (
 type EntityType int32
 
 const (
-	EntityType_Task  EntityType = 0
-	EntityType_Habit EntityType = 1
+	EntityType_TaskType  EntityType = 0
+	EntityType_HabitType EntityType = 1
 )
 
 // Enum value maps for EntityType.
 var (
 	EntityType_name = map[int32]string{
-		0: "Task",
-		1: "Habit",
+		0: "TaskType",
+		1: "HabitType",
 	}
 	EntityType_value = map[string]int32{
-		"Task":  0,
-		"Habit": 1,
+		"TaskType":  0,
+		"HabitType": 1,
 	}
 )
 
@@ -71,11 +71,11 @@ var File_core_entity_type_message_proto protoreflect.FileDescriptor
 
 const file_core_entity_type_message_proto_rawDesc = "" +
 	"\n" +
-	"\x1ecore/entity_type_message.proto\x12\x04core*!\n" +
+	"\x1ecore/entity_type_message.proto\x12\x04core*)\n" +
 	"\n" +
-	"EntityType\x12\b\n" +
-	"\x04Task\x10\x00\x12\t\n" +
-	"\x05Habit\x10\x01B\x19Z\x17tenkhours/proto/pb/coreb\x06proto3"
+	"EntityType\x12\f\n" +
+	"\bTaskType\x10\x00\x12\r\n" +
+	"\tHabitType\x10\x01B\x19Z\x17tenkhours/proto/pb/coreb\x06proto3"
 
 var (
 	file_core_entity_type_message_proto_rawDescOnce sync.Once

@@ -182,9 +182,11 @@ type ComplexityRoot struct {
 		Category    func(childComplexity int) int
 		CategoryID  func(childComplexity int) int
 		CharacterID func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Unit        func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
 		Value       func(childComplexity int) int
 	}
 
@@ -905,6 +907,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Metric.CharacterID(childComplexity), true
 
+	case "Metric.createdAt":
+		if e.complexity.Metric.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Metric.CreatedAt(childComplexity), true
+
 	case "Metric.id":
 		if e.complexity.Metric.ID == nil {
 			break
@@ -925,6 +934,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Metric.Unit(childComplexity), true
+
+	case "Metric.updatedAt":
+		if e.complexity.Metric.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Metric.UpdatedAt(childComplexity), true
 
 	case "Metric.value":
 		if e.complexity.Metric.Value == nil {
@@ -4497,6 +4513,10 @@ func (ec *executionContext) fieldContext_GoalMetric_metric(_ context.Context, fi
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Metric_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Metric_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Metric_updatedAt(ctx, field)
 			case "characterID":
 				return ec.fieldContext_Metric_characterID(ctx, field)
 			case "categoryID":
@@ -5617,6 +5637,94 @@ func (ec *executionContext) fieldContext_Metric_id(_ context.Context, field grap
 	return fc, nil
 }
 
+func (ec *executionContext) _Metric_createdAt(ctx context.Context, field graphql.CollectedField, obj *entity.Metric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Metric_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Metric_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Metric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Metric_updatedAt(ctx context.Context, field graphql.CollectedField, obj *entity.Metric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Metric_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Metric_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Metric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Metric_characterID(ctx context.Context, field graphql.CollectedField, obj *entity.Metric) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Metric_characterID(ctx, field)
 	if err != nil {
@@ -5984,6 +6092,10 @@ func (ec *executionContext) fieldContext_MetricConnection_edges(_ context.Contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Metric_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Metric_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Metric_updatedAt(ctx, field)
 			case "characterID":
 				return ec.fieldContext_Metric_characterID(ctx, field)
 			case "categoryID":
@@ -6487,6 +6599,10 @@ func (ec *executionContext) fieldContext_Mutation_upsertMetric(ctx context.Conte
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Metric_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Metric_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Metric_updatedAt(ctx, field)
 			case "characterID":
 				return ec.fieldContext_Metric_characterID(ctx, field)
 			case "categoryID":
@@ -6558,6 +6674,10 @@ func (ec *executionContext) fieldContext_Mutation_deleteMetric(ctx context.Conte
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Metric_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Metric_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Metric_updatedAt(ctx, field)
 			case "characterID":
 				return ec.fieldContext_Metric_characterID(ctx, field)
 			case "categoryID":
@@ -13983,6 +14103,16 @@ func (ec *executionContext) _Metric(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = graphql.MarshalString("Metric")
 		case "id":
 			out.Values[i] = ec._Metric_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._Metric_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Metric_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

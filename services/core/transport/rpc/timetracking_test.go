@@ -48,7 +48,7 @@ func TestMapTimeTracking(t *testing.T) {
 
 var rpcTimeTrackingInput = &core.TimeTrackingInput{
 	ReferenceId:   lo.ToPtr(mongodb.GenObjectID()),
-	ReferenceType: lo.ToPtr(core.EntityType_Task),
+	ReferenceType: lo.ToPtr(core.EntityType_TaskType),
 	Timestamp:     utils.Now().Unix(),
 	Duration:      3600,
 }
