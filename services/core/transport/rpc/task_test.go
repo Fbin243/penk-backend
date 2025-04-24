@@ -41,7 +41,7 @@ var task = entity.Task{
 }
 
 func TestMapTask(t *testing.T) {
-	rpcTask, err := rpc.MapEntityToRPC[entity.Task, core.TaskMsg](&task, rpc.UnixTimeConverter)
+	rpcTask, err := rpc.Map[entity.Task, core.TaskMsg](&task, rpc.UnixTimeConverter)
 	assert.NoError(t, err)
 
 	log.Printf("Entity Task: %+v", utils.PrettyJSON(task))
@@ -84,7 +84,7 @@ var rpcTaskInput = &core.TaskInput{
 }
 
 func TestMapTaskInput(t *testing.T) {
-	taskInput, err := rpc.MapRPCInputToEntityInput[core.TaskInput, entity.TaskInput](rpcTaskInput, rpc.UnixTimeConverter)
+	taskInput, err := rpc.Map[core.TaskInput, entity.TaskInput](rpcTaskInput, rpc.UnixTimeConverter)
 	assert.NoError(t, err)
 
 	log.Printf("RPC Task Input: %+v", utils.PrettyJSON(rpcTaskInput))
@@ -118,7 +118,7 @@ var taskSession = entity.TaskSession{
 }
 
 func TestMapTaskSession(t *testing.T) {
-	rpcTaskSession, err := rpc.MapEntityToRPC[entity.TaskSession, core.TaskSession](&taskSession, rpc.UnixTimeConverter)
+	rpcTaskSession, err := rpc.Map[entity.TaskSession, core.TaskSession](&taskSession, rpc.UnixTimeConverter)
 	assert.NoError(t, err)
 
 	log.Printf("Entity Task Session: %+v", utils.PrettyJSON(taskSession))
@@ -141,7 +141,7 @@ var rpcTaskSessionInput = &core.TaskSessionInput{
 }
 
 func TestMapTaskSessionInput(t *testing.T) {
-	taskSessionInput, err := rpc.MapRPCInputToEntityInput[core.TaskSessionInput, entity.TaskSessionInput](rpcTaskSessionInput, rpc.UnixTimeConverter)
+	taskSessionInput, err := rpc.Map[core.TaskSessionInput, entity.TaskSessionInput](rpcTaskSessionInput, rpc.UnixTimeConverter)
 	assert.NoError(t, err)
 
 	log.Printf("RPC Task Session Input: %+v", utils.PrettyJSON(rpcTaskSessionInput))

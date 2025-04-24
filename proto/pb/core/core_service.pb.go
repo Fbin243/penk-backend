@@ -25,11 +25,10 @@ var File_core_core_service_proto protoreflect.FileDescriptor
 
 const file_core_core_service_proto_rawDesc = "" +
 	"\n" +
-	"\x17core/core_service.proto\x12\x04core\x1a\x1bcommon/common_message.proto\x1a\x1ccore/character_message.proto\x1a\x17core/goal_message.proto\x1a\x1acore/profile_message.proto\x1a\x17core/task_message.proto\x1a\x1fcore/task_session_message.proto\x1a\x1fcore/timetracking_message.proto2\x8d\x05\n" +
+	"\x17core/core_service.proto\x12\x04core\x1a\x1bcommon/common_message.proto\x1a\x1ccore/character_message.proto\x1a\x17core/goal_message.proto\x1a\x1acore/profile_message.proto\x1a\x17core/task_message.proto\x1a\x1fcore/task_session_message.proto\x1a\x1fcore/timetracking_message.proto2\xdb\x04\n" +
 	"\x04Core\x12;\n" +
 	"\x0eIntrospectUser\x12\x13.core.IntrospectReq\x1a\x14.core.IntrospectResp\x128\n" +
-	"\x0fUpsertCharacter\x12\x14.core.CharacterInput\x1a\x0f.core.Character\x120\n" +
-	"\x0fDeleteCharacter\x12\r.common.IdReq\x1a\x0e.common.IdResp\x12)\n" +
+	"\x0fUpsertCharacter\x12\x14.core.CharacterInput\x1a\x0f.core.Character\x12)\n" +
 	"\n" +
 	"UpsertGoal\x12\x0f.core.GoalInput\x1a\n" +
 	".core.Goal\x12+\n" +
@@ -48,8 +47,8 @@ const file_core_core_service_proto_rawDesc = "" +
 var file_core_core_service_proto_goTypes = []any{
 	(*IntrospectReq)(nil),     // 0: core.IntrospectReq
 	(*CharacterInput)(nil),    // 1: core.CharacterInput
-	(*common.IdReq)(nil),      // 2: common.IdReq
-	(*GoalInput)(nil),         // 3: core.GoalInput
+	(*GoalInput)(nil),         // 2: core.GoalInput
+	(*common.IdReq)(nil),      // 3: common.IdReq
 	(*TimeTrackingInput)(nil), // 4: core.TimeTrackingInput
 	(*TaskInput)(nil),         // 5: core.TaskInput
 	(*TaskInputs)(nil),        // 6: core.TaskInputs
@@ -57,8 +56,8 @@ var file_core_core_service_proto_goTypes = []any{
 	(*TaskSessionInputs)(nil), // 8: core.TaskSessionInputs
 	(*IntrospectResp)(nil),    // 9: core.IntrospectResp
 	(*Character)(nil),         // 10: core.Character
-	(*common.IdResp)(nil),     // 11: common.IdResp
-	(*Goal)(nil),              // 12: core.Goal
+	(*Goal)(nil),              // 11: core.Goal
+	(*common.IdResp)(nil),     // 12: common.IdResp
 	(*TimeTracking)(nil),      // 13: core.TimeTracking
 	(*TaskMsg)(nil),           // 14: core.TaskMsg
 	(*TaskMsgs)(nil),          // 15: core.TaskMsgs
@@ -68,30 +67,28 @@ var file_core_core_service_proto_goTypes = []any{
 var file_core_core_service_proto_depIdxs = []int32{
 	0,  // 0: core.Core.IntrospectUser:input_type -> core.IntrospectReq
 	1,  // 1: core.Core.UpsertCharacter:input_type -> core.CharacterInput
-	2,  // 2: core.Core.DeleteCharacter:input_type -> common.IdReq
-	3,  // 3: core.Core.UpsertGoal:input_type -> core.GoalInput
-	2,  // 4: core.Core.DeleteGoal:input_type -> common.IdReq
-	4,  // 5: core.Core.UpsertTimeTracking:input_type -> core.TimeTrackingInput
-	5,  // 6: core.Core.UpsertTask:input_type -> core.TaskInput
-	6,  // 7: core.Core.UpsertTasks:input_type -> core.TaskInputs
-	2,  // 8: core.Core.DeleteTask:input_type -> common.IdReq
-	7,  // 9: core.Core.UpsertTaskSession:input_type -> core.TaskSessionInput
-	8,  // 10: core.Core.UpsertTaskSessions:input_type -> core.TaskSessionInputs
-	2,  // 11: core.Core.DeleteTaskSession:input_type -> common.IdReq
-	9,  // 12: core.Core.IntrospectUser:output_type -> core.IntrospectResp
-	10, // 13: core.Core.UpsertCharacter:output_type -> core.Character
-	11, // 14: core.Core.DeleteCharacter:output_type -> common.IdResp
-	12, // 15: core.Core.UpsertGoal:output_type -> core.Goal
-	11, // 16: core.Core.DeleteGoal:output_type -> common.IdResp
-	13, // 17: core.Core.UpsertTimeTracking:output_type -> core.TimeTracking
-	14, // 18: core.Core.UpsertTask:output_type -> core.TaskMsg
-	15, // 19: core.Core.UpsertTasks:output_type -> core.TaskMsgs
-	11, // 20: core.Core.DeleteTask:output_type -> common.IdResp
-	16, // 21: core.Core.UpsertTaskSession:output_type -> core.TaskSession
-	17, // 22: core.Core.UpsertTaskSessions:output_type -> core.TaskSessions
-	11, // 23: core.Core.DeleteTaskSession:output_type -> common.IdResp
-	12, // [12:24] is the sub-list for method output_type
-	0,  // [0:12] is the sub-list for method input_type
+	2,  // 2: core.Core.UpsertGoal:input_type -> core.GoalInput
+	3,  // 3: core.Core.DeleteGoal:input_type -> common.IdReq
+	4,  // 4: core.Core.UpsertTimeTracking:input_type -> core.TimeTrackingInput
+	5,  // 5: core.Core.UpsertTask:input_type -> core.TaskInput
+	6,  // 6: core.Core.UpsertTasks:input_type -> core.TaskInputs
+	3,  // 7: core.Core.DeleteTask:input_type -> common.IdReq
+	7,  // 8: core.Core.UpsertTaskSession:input_type -> core.TaskSessionInput
+	8,  // 9: core.Core.UpsertTaskSessions:input_type -> core.TaskSessionInputs
+	3,  // 10: core.Core.DeleteTaskSession:input_type -> common.IdReq
+	9,  // 11: core.Core.IntrospectUser:output_type -> core.IntrospectResp
+	10, // 12: core.Core.UpsertCharacter:output_type -> core.Character
+	11, // 13: core.Core.UpsertGoal:output_type -> core.Goal
+	12, // 14: core.Core.DeleteGoal:output_type -> common.IdResp
+	13, // 15: core.Core.UpsertTimeTracking:output_type -> core.TimeTracking
+	14, // 16: core.Core.UpsertTask:output_type -> core.TaskMsg
+	15, // 17: core.Core.UpsertTasks:output_type -> core.TaskMsgs
+	12, // 18: core.Core.DeleteTask:output_type -> common.IdResp
+	16, // 19: core.Core.UpsertTaskSession:output_type -> core.TaskSession
+	17, // 20: core.Core.UpsertTaskSessions:output_type -> core.TaskSessions
+	12, // 21: core.Core.DeleteTaskSession:output_type -> common.IdResp
+	11, // [11:22] is the sub-list for method output_type
+	0,  // [0:11] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

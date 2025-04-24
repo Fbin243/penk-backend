@@ -32,7 +32,7 @@ var rpcCharacterInput = &core.CharacterInput{
 }
 
 func TestMapCharacter(t *testing.T) {
-	rpcCharacter, err := rpc.MapEntityToRPC[entity.Character, core.Character](&character, rpc.UnixTimeConverter)
+	rpcCharacter, err := rpc.Map[entity.Character, core.Character](&character, rpc.UnixTimeConverter)
 	assert.NoError(t, err)
 
 	// Assert
@@ -44,7 +44,7 @@ func TestMapCharacter(t *testing.T) {
 }
 
 func TestMapCharacterInput(t *testing.T) {
-	characterInput, err := rpc.MapRPCInputToEntityInput[core.CharacterInput, entity.CharacterInput](rpcCharacterInput, rpc.UnixTimeConverter)
+	characterInput, err := rpc.Map[core.CharacterInput, entity.CharacterInput](rpcCharacterInput, rpc.UnixTimeConverter)
 	assert.NoError(t, err)
 
 	// Assert

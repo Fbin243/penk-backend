@@ -6,10 +6,12 @@ import (
 	"tenkhours/proto/pb/common"
 	"tenkhours/proto/pb/core"
 	"tenkhours/services/core/entity"
+
+	"github.com/samber/lo"
 )
 
 func (hdl *CoreHandler) UpsertTask(ctx context.Context, req *core.TaskInput) (*core.TaskMsg, error) {
-	taskInput, err := MapRPCInputToEntityInput[core.TaskInput, entity.TaskInput](req, UnixTimeConverter)
+	taskInput, err := Map[core.TaskInput, entity.TaskInput](req, UnixTimeConverter)
 	if err != nil {
 		return nil, err
 	}
@@ -19,7 +21,7 @@ func (hdl *CoreHandler) UpsertTask(ctx context.Context, req *core.TaskInput) (*c
 		return nil, err
 	}
 
-	return MapEntityToRPC[entity.Task, core.TaskMsg](task, UnixTimeConverter)
+	return Map[entity.Task, core.TaskMsg](task, UnixTimeConverter)
 }
 
 func (hdl *CoreHandler) DeleteTask(ctx context.Context, req *common.IdReq) (*common.IdResp, error) {
@@ -31,7 +33,7 @@ func (hdl *CoreHandler) DeleteTask(ctx context.Context, req *common.IdReq) (*com
 }
 
 func (hdl *CoreHandler) UpsertTaskSession(ctx context.Context, req *core.TaskSessionInput) (*core.TaskSession, error) {
-	taskSessionInput, err := MapRPCInputToEntityInput[core.TaskSessionInput, entity.TaskSessionInput](req, UnixTimeConverter)
+	taskSessionInput, err := Map[core.TaskSessionInput, entity.TaskSessionInput](req, UnixTimeConverter)
 	if err != nil {
 		return nil, err
 	}
@@ -41,36 +43,27 @@ func (hdl *CoreHandler) UpsertTaskSession(ctx context.Context, req *core.TaskSes
 		return nil, err
 	}
 
-	return MapEntityToRPC[entity.TaskSession, core.TaskSession](taskSession, UnixTimeConverter)
+	return Map[entity.TaskSession, core.TaskSession](taskSession, UnixTimeConverter)
 }
 
 func (hdl *CoreHandler) UpsertTaskSessions(ctx context.Context, req *core.TaskSessionInputs) (*core.TaskSessions, error) {
-	taskSessionInputs := []entity.TaskSessionInput{}
-	for _, taskSessionInput := range req.TaskSessionInputs {
-		taskSessionInputEntity, err := MapRPCInputToEntityInput[core.TaskSessionInput, entity.TaskSessionInput](taskSessionInput, UnixTimeConverter)
-		if err != nil {
-			return nil, err
-		}
-
-		taskSessionInputs = append(taskSessionInputs, *taskSessionInputEntity)
-	}
-
-	taskSessions, err := hdl.taskBiz.UpsertTaskSessions(ctx, taskSessionInputs)
+	entityTaskSessionInputs, err := MapSlice[core.TaskSessionInput, entity.TaskSessionInput](lo.FromSlicePtr(req.TaskSessionInputs), UnixTimeConverter)
 	if err != nil {
 		return nil, err
 	}
 
-	rpcTaskSessions := []*core.TaskSession{}
-	for _, taskSession := range taskSessions {
-		taskSessionMsg, err := MapEntityToRPC[entity.TaskSession, core.TaskSession](&taskSession, UnixTimeConverter)
-		if err != nil {
-			return nil, err
-		}
-		rpcTaskSessions = append(rpcTaskSessions, taskSessionMsg)
+	entityTaskSessions, err := hdl.taskBiz.UpsertTaskSessions(ctx, entityTaskSessionInputs)
+	if err != nil {
+		return nil, err
+	}
+
+	rpcTaskSessions, err := MapSlice[entity.TaskSession, core.TaskSession](entityTaskSessions, UnixTimeConverter)
+	if err != nil {
+		return nil, err
 	}
 
 	return &core.TaskSessions{
-		TaskSessions: rpcTaskSessions,
+		TaskSessions: lo.ToSlicePtr(rpcTaskSessions),
 	}, nil
 }
 

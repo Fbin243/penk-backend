@@ -50,7 +50,7 @@ var goal = entity.Goal{
 }
 
 func TestMapGoal(t *testing.T) {
-	rpcGoal, err := rpc.MapEntityToRPC[entity.Goal, core.Goal](&goal, append(rpc.UnixTimeConverter, rpc.MetricConditionConverter...))
+	rpcGoal, err := rpc.Map[entity.Goal, core.Goal](&goal, append(rpc.UnixTimeConverter, rpc.MetricConditionConverter...))
 	assert.NoError(t, err)
 
 	assert.Equal(t, goal.ID, rpcGoal.Id)
@@ -116,7 +116,7 @@ var rpcGoalInput = &core.GoalInput{
 }
 
 func TestMapGoalInput(t *testing.T) {
-	goalInput, err := rpc.MapRPCInputToEntityInput[core.GoalInput, entity.GoalInput](rpcGoalInput, append(rpc.UnixTimeConverter, rpc.MetricConditionConverter...))
+	goalInput, err := rpc.Map[core.GoalInput, entity.GoalInput](rpcGoalInput, append(rpc.UnixTimeConverter, rpc.MetricConditionConverter...))
 	assert.NoError(t, err)
 
 	assert.Equal(t, rpcGoalInput.Id, goalInput.ID)
