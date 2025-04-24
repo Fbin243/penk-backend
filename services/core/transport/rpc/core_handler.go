@@ -14,6 +14,9 @@ type CoreHandler struct {
 	goalBiz         business.IGoalBusiness
 	timetrackingBiz business.ITimeTrackingBusiness
 	taskBiz         business.ITaskBusiness
+	metricBiz       business.IMetricBusiness
+	categoryBiz     business.ICategoryBusiness
+	habitBiz        business.IHabitBusiness
 }
 
 func NewCoreHandler(
@@ -22,6 +25,9 @@ func NewCoreHandler(
 	goalBiz business.IGoalBusiness,
 	timetrackingBiz business.ITimeTrackingBusiness,
 	taskBiz business.ITaskBusiness,
+	metricBiz business.IMetricBusiness,
+	categoryBiz business.ICategoryBusiness,
+	habitBiz business.IHabitBusiness,
 ) *CoreHandler {
 	return &CoreHandler{
 		profileBiz:      profilesBusiness,
@@ -29,6 +35,9 @@ func NewCoreHandler(
 		goalBiz:         goalBiz,
 		timetrackingBiz: timetrackingBiz,
 		taskBiz:         taskBiz,
+		metricBiz:       metricBiz,
+		categoryBiz:     categoryBiz,
+		habitBiz:        habitBiz,
 	}
 }
 

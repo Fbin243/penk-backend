@@ -1,5 +1,7 @@
 type Metric {
   id: ID!
+  createdAt: Time!
+  updatedAt: Time!
   characterID: ID!
   categoryID: ID
   category: Category

@@ -96,7 +96,7 @@ func (x *TimeTracking) GetReferenceType() EntityType {
 	if x != nil && x.ReferenceType != nil {
 		return *x.ReferenceType
 	}
-	return EntityType_Task
+	return EntityType_TaskType
 }
 
 func (x *TimeTracking) GetTimestamp() int64 {
@@ -164,7 +164,7 @@ func (x *TimeTrackingInput) GetReferenceType() EntityType {
 	if x != nil && x.ReferenceType != nil {
 		return *x.ReferenceType
 	}
-	return EntityType_Task
+	return EntityType_TaskType
 }
 
 func (x *TimeTrackingInput) GetTimestamp() int64 {

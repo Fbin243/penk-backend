@@ -69,11 +69,8 @@ func (hdl *CoreHandler) UpsertTaskSessions(ctx context.Context, req *core.TaskSe
 
 func (hdl *CoreHandler) DeleteTaskSession(ctx context.Context, req *common.IdReq) (*common.IdResp, error) {
 	taskSession, err := hdl.taskBiz.DeleteTaskSession(ctx, req.Id)
-	if err != nil {
-		return nil, err
-	}
 
 	return &common.IdResp{
 		Id: taskSession.ID,
-	}, nil
+	}, err
 }
