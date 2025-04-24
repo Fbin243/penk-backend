@@ -1,47 +1,27 @@
-import { ChatCompletionTool } from "openai/resources/index.mjs";
-import { FunctionDefinition } from "openai/resources/shared.mjs";
+import { zodFunction } from "openai/helpers/zod";
 import { rrulestr } from "rrule";
+import { z } from "zod";
 
 import { getCalendarEvents } from "../../googleapis";
 import { LinkedAccountType, Tool } from "../../types";
 import { getLinkedAccounts } from "./../../database/utils";
 import { SharedDescription } from "./shared";
 
-const getCalendarEventsDefinition: FunctionDefinition = {
-  name: Tool.GetCalendarEvents,
-  description:
-    "Retrieves the user's calendar events across all their linked calendars. Use this tool when the user asks about their schedule, upcoming meetings, events, or availability. The function defaults to showing events for the next 7 days if no specific timeframe is mentioned. Time queries are limited to a 1-month range in either the past or future. Results include event titles, times, locations, participants, and other relevant details from the user's calendars.",
-  parameters: {
-    type: "object",
-    properties: {
-      profileId: {
-        type: "string",
-        description: SharedDescription.profileId,
-      },
-      timeMin: {
-        type: "string",
-        description:
-          "Start time for the calendar query in ISO 8601 format (e.g., '2025-04-22T00:00:00Z'). Should be within 1 month of the current date.",
-      },
-      timeMax: {
-        type: "string",
-        description:
-          "End time for the calendar query in ISO 8601 format (e.g., '2025-04-29T23:59:59Z'). Should be within 1 month of the current date and after timeMin.",
-      },
-      timezone: {
-        type: "string",
-        description: SharedDescription.timezone,
-      },
-      locale: {
-        type: "string",
-        description: SharedDescription.locale,
-      },
-    },
-    required: ["profileId", "timeMin", "timeMax", "timezone", "locale"],
-    additionalProperties: false,
-  },
-  strict: true,
-};
+const getCalendarEventsParams = z.object({
+  profileId: z.string().describe(SharedDescription.profileId),
+  timeMin: z
+    .string()
+    .describe(
+      "Start time for the calendar query in ISO 8601 format (e.g., '2025-04-22T00:00:00Z'). Should be within 1 month of the current date.",
+    ),
+  timeMax: z
+    .string()
+    .describe(
+      "End time for the calendar query in ISO 8601 format (e.g., '2025-04-29T23:59:59Z'). Should be within 1 month of the current date and after timeMin.",
+    ),
+  timezone: z.string().describe(SharedDescription.timezone),
+  locale: z.string().describe(SharedDescription.locale),
+});
 
 export const functionGetCalendarEvents = async (props: {
   profileId: string;
@@ -128,14 +108,12 @@ export const functionGetCalendarEvents = async (props: {
       : undefined,
   }));
 
-  // console.log(`[Tool: ${Tool.GetCalendarEvents}]`);
-  // console.dir(result, { depth: null, colors: true });
-  // console.log();
-
   return result;
 };
 
-export const toolGetCalendarEvents: ChatCompletionTool = {
-  type: "function",
-  function: getCalendarEventsDefinition,
-};
+export const toolGetCalendarEvents = zodFunction({
+  name: Tool.GetCalendarEvents,
+  description:
+    "Retrieves the user's calendar events across all their linked calendars. Use this tool when the user asks about their schedule, upcoming meetings, events, or availability. The function defaults to showing events for the next 7 days if no specific timeframe is mentioned. Time queries are limited to a 1-month range in either the past or future. Results include event titles, times, locations, participants, and other relevant details from the user's calendars.",
+  parameters: getCalendarEventsParams,
+});

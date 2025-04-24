@@ -8,6 +8,12 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 };
 
 export interface ProtoGrpcType {
+  common: {
+    EmptyReq: MessageTypeDefinition
+    EmptyResp: MessageTypeDefinition
+    IdReq: MessageTypeDefinition
+    IdResp: MessageTypeDefinition
+  }
   core: {
     Character: MessageTypeDefinition
     CharacterInput: MessageTypeDefinition
@@ -26,9 +32,13 @@ export interface ProtoGrpcType {
     Range: MessageTypeDefinition
     RangeInput: MessageTypeDefinition
     TaskInput: MessageTypeDefinition
+    TaskInputs: MessageTypeDefinition
     TaskMsg: MessageTypeDefinition
+    TaskMsgs: MessageTypeDefinition
     TaskSession: MessageTypeDefinition
     TaskSessionInput: MessageTypeDefinition
+    TaskSessionInputs: MessageTypeDefinition
+    TaskSessions: MessageTypeDefinition
     TimeTracking: MessageTypeDefinition
     TimeTrackingInput: MessageTypeDefinition
   }

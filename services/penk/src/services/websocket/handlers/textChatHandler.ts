@@ -31,11 +31,11 @@ export const handleTextChat = (ws: WebSocket, context: WebSocketContext) => {
             newMessage: data,
           },
           // This callback is called for each chunk of the response
-          (chunkContent, timestamp) => {
+          (chunkContent) => {
             const chunkResponse: Ws_Message = {
               type: Ws_MessageType.TextStream,
               data: chunkContent,
-              timestamp,
+              timestamp: new Date().toISOString(),
             };
             ws.send(JSON.stringify(chunkResponse));
           },

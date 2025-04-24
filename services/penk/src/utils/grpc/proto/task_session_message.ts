@@ -10,6 +10,8 @@ export interface ProtoGrpcType {
   core: {
     TaskSession: MessageTypeDefinition
     TaskSessionInput: MessageTypeDefinition
+    TaskSessionInputs: MessageTypeDefinition
+    TaskSessions: MessageTypeDefinition
   }
 }
 

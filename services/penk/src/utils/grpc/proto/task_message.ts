@@ -11,7 +11,9 @@ export interface ProtoGrpcType {
     Checkbox: MessageTypeDefinition
     CheckboxInput: MessageTypeDefinition
     TaskInput: MessageTypeDefinition
+    TaskInputs: MessageTypeDefinition
     TaskMsg: MessageTypeDefinition
+    TaskMsgs: MessageTypeDefinition
   }
 }
 

@@ -10,6 +10,8 @@ export interface ProtoGrpcType {
   common: {
     EmptyReq: MessageTypeDefinition
     EmptyResp: MessageTypeDefinition
+    IdReq: MessageTypeDefinition
+    IdResp: MessageTypeDefinition
   }
 }
 

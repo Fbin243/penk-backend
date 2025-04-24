@@ -52,10 +52,9 @@ export const setupInitialMessages = (
 export const streamAssistantResponse = async (props: {
   client: OpenAI;
   messages: ChatCompletionMessageParam[];
-  aiTimestamp: string;
-  onChunk: (chunk: string, timestamp: string) => void;
+  onChunk: (chunk: string) => void;
 }) => {
-  const { client, messages, aiTimestamp, onChunk } = props;
+  const { client, messages, onChunk } = props;
 
   let content = "";
   let cost = 0;
@@ -89,7 +88,7 @@ export const streamAssistantResponse = async (props: {
     const partial = chunk.choices[0]?.delta?.content || "";
     if (partial) {
       content += partial;
-      onChunk(partial, aiTimestamp);
+      onChunk(partial);
     }
 
     if (chunk.usage) {

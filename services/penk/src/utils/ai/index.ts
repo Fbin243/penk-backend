@@ -58,7 +58,7 @@ export const textStream = async (
     history: Message[];
     newMessage: string;
   },
-  onChunk: (chunk: string, timestamp: string) => void,
+  onChunk: (chunk: string) => void,
   onToolCall?: (toolName: string) => void,
   onComplete?: (response: string) => void,
 ) => {
@@ -73,7 +73,6 @@ export const textStream = async (
   const openAiMessages = setupInitialMessages(props.userData, props.history);
   openAiMessages.push({ role: "user", content: props.newMessage });
 
-  const aiTimestamp = new Date().toISOString();
   let fullContent = "";
   let chatCompletionCost = 0;
 
@@ -81,7 +80,6 @@ export const textStream = async (
     const { content, toolCalls, cost } = await streamAssistantResponse({
       client,
       messages: openAiMessages,
-      aiTimestamp,
       onChunk,
     });
 
@@ -142,7 +140,6 @@ export const textStream = async (
       const followup = await streamAssistantResponse({
         client,
         messages: openAiMessages,
-        aiTimestamp,
         onChunk,
       });
 
@@ -155,7 +152,7 @@ export const textStream = async (
     const aiMessage: Message = {
       type: MessageType.AiMessage,
       content: fullContent || "Something went wrong",
-      timestamp: aiTimestamp,
+      timestamp: new Date().toISOString(),
     };
 
     newPenKMessages.push(aiMessage);

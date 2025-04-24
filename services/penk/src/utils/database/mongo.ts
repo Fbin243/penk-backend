@@ -98,3 +98,77 @@ export const OAuthTokenSchema = new Schema({
 });
 
 export const OAuthTokenModel = conn.model("oauth_tokens", OAuthTokenSchema);
+
+// Other services' collections
+export const TaskSchema = new Schema({
+  character_id: {
+    type: Schema.Types.ObjectId,
+    ref: "characters",
+    required: true,
+  },
+  category_id: {
+    type: Schema.Types.ObjectId,
+    ref: "categories",
+    default: null,
+  },
+  name: { type: String, required: true },
+  priority: { type: Number, required: true },
+  deadline: { type: Date },
+  completed_time: { type: Date },
+  subtasks: [
+    {
+      id: { type: String, required: true },
+      name: { type: String, required: true, default: "" },
+      value: { type: Boolean, required: true, default: false },
+    },
+  ],
+});
+
+export const TaskModel = conn.model("tasks", TaskSchema);
+
+export const MetricSchema = new Schema({
+  character_id: {
+    type: Schema.Types.ObjectId,
+    ref: "characters",
+    required: true,
+  },
+  category_id: {
+    type: Schema.Types.ObjectId,
+    ref: "categories",
+    default: null,
+  },
+  name: { type: String, required: true },
+  value: { type: Number, required: true },
+  unit: { type: String },
+});
+
+export const MetricModel = conn.model("metrics", MetricSchema);
+
+export const HabitSchema = new Schema({
+  character_id: {
+    type: Schema.Types.ObjectId,
+    ref: "characters",
+    required: true,
+  },
+  category_id: {
+    type: Schema.Types.ObjectId,
+    ref: "categories",
+    default: null,
+  },
+  name: { type: String, required: true },
+  value: { type: Number, required: true },
+  unit: { type: String },
+  completion_type: {
+    type: String,
+    required: true,
+    enum: ["Number", "Time"],
+  },
+  rrule: { type: String },
+  reset: {
+    type: String,
+    required: true,
+    enum: ["Daily", "Weekly", "Monthly"],
+  },
+});
+
+export const HabitModel = conn.model("habits", HabitSchema);
