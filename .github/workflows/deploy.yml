@@ -1,9 +1,9 @@
-name: Deploy TENK-BACKEND to EC2 (Test)
+name: Deploy TENK-BACKEND to EC2
 
 on:
   push:
     branches:
-      - feat/crea7or-setup-cicd
+      - dev
 
 jobs:
   deploy:
@@ -33,13 +33,4 @@ jobs:
             cd ${{ secrets.TARGET_DIR }}
             docker-compose -f docker-compose.dev.yml down
             docker-compose -f docker-compose.dev.yml up -d --build
-
-      - name: Clean up Docker resources
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          timeout: 5m
-          script: |
             docker system prune -af
