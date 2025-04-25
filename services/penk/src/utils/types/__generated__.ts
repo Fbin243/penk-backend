@@ -86,9 +86,15 @@ export type QueryGoogleAuthUrlArgs = {
 };
 
 export enum Tool {
+  CreateCategory = 'CREATE_CATEGORY',
+  CreateGoal = 'CREATE_GOAL',
+  CreateHabit = 'CREATE_HABIT',
   CreateMetric = 'CREATE_METRIC',
   CreateTask = 'CREATE_TASK',
   CreateTaskSession = 'CREATE_TASK_SESSION',
+  DeleteCategory = 'DELETE_CATEGORY',
+  DeleteGoal = 'DELETE_GOAL',
+  DeleteHabit = 'DELETE_HABIT',
   DeleteMetric = 'DELETE_METRIC',
   DeleteTask = 'DELETE_TASK',
   DeleteTaskSession = 'DELETE_TASK_SESSION',
@@ -100,6 +106,9 @@ export enum Tool {
   GetTasks = 'GET_TASKS',
   GetTaskSessions = 'GET_TASK_SESSIONS',
   PlanDay = 'PLAN_DAY',
+  UpdateCategory = 'UPDATE_CATEGORY',
+  UpdateGoal = 'UPDATE_GOAL',
+  UpdateHabit = 'UPDATE_HABIT',
   UpdateMetric = 'UPDATE_METRIC',
   UpdateTask = 'UPDATE_TASK',
   UpdateTaskSession = 'UPDATE_TASK_SESSION'

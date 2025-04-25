@@ -117,7 +117,7 @@ export const TaskSchema = new Schema({
   completed_time: { type: Date },
   subtasks: [
     {
-      id: { type: String, required: true },
+      id: { type: Schema.Types.ObjectId, required: true },
       name: { type: String, required: true, default: "" },
       value: { type: Boolean, required: true, default: false },
     },
@@ -172,3 +172,40 @@ export const HabitSchema = new Schema({
 });
 
 export const HabitModel = conn.model("habits", HabitSchema);
+
+export const GoalSchema = new Schema({
+  character_id: {
+    type: Schema.Types.ObjectId,
+    ref: "characters",
+    required: true,
+  },
+  name: { type: String, required: true },
+  description: { type: String },
+  start_time: { type: Date },
+  end_time: { type: Date },
+  completed_time: { type: Date },
+  metrics: [
+    {
+      id: { type: Schema.Types.ObjectId, required: true },
+      condition: {
+        type: String,
+        required: true,
+        enum: ["eq", "gt", "gte", "ir", "lt", "lte"],
+      },
+      target_value: { type: Number },
+      range_value: {
+        min: { type: Number },
+        max: { type: Number },
+      },
+    },
+  ],
+  checkboxes: [
+    {
+      id: { type: Schema.Types.ObjectId, required: true },
+      name: { type: String, required: true },
+      value: { type: Boolean, required: true },
+    },
+  ],
+});
+
+export const GoalModel = conn.model("goals", GoalSchema);

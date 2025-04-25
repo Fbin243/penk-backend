@@ -15,10 +15,15 @@ export interface ProtoGrpcType {
     IdResp: MessageTypeDefinition
   }
   core: {
+    Category: MessageTypeDefinition
+    CategoryInput: MessageTypeDefinition
+    CategoryStyle: MessageTypeDefinition
+    CategoryStyleInput: MessageTypeDefinition
     Character: MessageTypeDefinition
     CharacterInput: MessageTypeDefinition
     Checkbox: MessageTypeDefinition
     CheckboxInput: MessageTypeDefinition
+    CompletionType: EnumTypeDefinition
     Core: SubtypeConstructor<typeof grpc.Client, _core_CoreClient> & { service: _core_CoreDefinition }
     EntityType: EnumTypeDefinition
     Goal: MessageTypeDefinition
@@ -26,9 +31,14 @@ export interface ProtoGrpcType {
     GoalMetric: MessageTypeDefinition
     GoalMetricInput: MessageTypeDefinition
     GoalStatus: EnumTypeDefinition
+    Habit: MessageTypeDefinition
+    HabitInput: MessageTypeDefinition
+    HabitReset: EnumTypeDefinition
     IntrospectReq: MessageTypeDefinition
     IntrospectResp: MessageTypeDefinition
+    Metric: MessageTypeDefinition
     MetricCondition: EnumTypeDefinition
+    MetricInput: MessageTypeDefinition
     Range: MessageTypeDefinition
     RangeInput: MessageTypeDefinition
     TaskInput: MessageTypeDefinition

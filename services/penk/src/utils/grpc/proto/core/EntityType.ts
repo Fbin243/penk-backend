@@ -1,14 +1,14 @@
 // Original file: ../../proto/core/entity_type_message.proto
 
 export const EntityType = {
-  Task: 'Task',
-  Habit: 'Habit',
+  TaskType: 'TaskType',
+  HabitType: 'HabitType',
 } as const;
 
 export type EntityType =
-  | 'Task'
+  | 'TaskType'
   | 0
-  | 'Habit'
+  | 'HabitType'
   | 1
 
 export type EntityType__Output = typeof EntityType[keyof typeof EntityType]

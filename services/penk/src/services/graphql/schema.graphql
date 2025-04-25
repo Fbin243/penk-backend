@@ -38,6 +38,11 @@ enum Tool {
   GET_CALENDAR_EVENTS
   GET_EMAILS
 
+  # Categories
+  CREATE_CATEGORY
+  UPDATE_CATEGORY
+  DELETE_CATEGORY
+
   # Tasks & Planner
   GET_TASKS
   CREATE_TASK
@@ -57,9 +62,15 @@ enum Tool {
 
   # Habits
   GET_HABITS
+  CREATE_HABIT
+  UPDATE_HABIT
+  DELETE_HABIT
 
   # Goals
   GET_GOALS
+  CREATE_GOAL
+  UPDATE_GOAL
+  DELETE_GOAL
 }
 
 type Context {

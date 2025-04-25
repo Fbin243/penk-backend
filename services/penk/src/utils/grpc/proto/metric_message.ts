@@ -8,10 +8,8 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 
 export interface ProtoGrpcType {
   core: {
-    Category: MessageTypeDefinition
-    CategoryInput: MessageTypeDefinition
-    CategoryStyle: MessageTypeDefinition
-    CategoryStyleInput: MessageTypeDefinition
+    Metric: MessageTypeDefinition
+    MetricInput: MessageTypeDefinition
   }
 }
 

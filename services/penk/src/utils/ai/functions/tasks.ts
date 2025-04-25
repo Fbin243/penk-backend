@@ -47,7 +47,7 @@ export const functionGetTasks = async (props: {
 export const toolGetTasks = zodFunction({
   name: Tool.GetTasks,
   description:
-    "Retrieves tasks for a user with optional filtering by category, priority level, and completion status. By default, returns only incomplete tasks.",
+    "Retrieves tasks for a user with optional filtering by category, priority level, and completion status. By default, returns only incomplete tasks. Always use this tool before creating new tasks to check if similar tasks already exist.",
   parameters: getTasksParams,
 });
 
@@ -102,7 +102,7 @@ export const functionCreateTask = async (props: {
 
 export const toolCreateTask = zodFunction({
   name: Tool.CreateTask,
-  description: "Create a new task",
+  description: `Create a new task. Before using this tool, always check for existing tasks with GetTasks first to avoid creating duplicates. If a similar task exists, use ${Tool.UpdateTask} instead. Tasks require a name, priority level, and can optionally have a deadline and subtasks.`,
   parameters: createTaskParams,
 });
 
@@ -168,7 +168,8 @@ export const functionUpdateTask = async (props: {
 
 export const toolUpdateTask = zodFunction({
   name: Tool.UpdateTask,
-  description: "Update an existing task",
+  description:
+    "Update an existing task. Use this tool to modify task properties or mark tasks as complete by setting the completedTime. Required parameters include task ID, name, and priority.",
   parameters: updateTaskParams,
 });
 
@@ -243,7 +244,7 @@ export const functionCreateTaskSession = async (props: {
 
 export const toolCreateTaskSession = zodFunction({
   name: Tool.CreateTaskSession,
-  description: "Create a new task session",
+  description: `Create a new task session block in the user's daily timeline visualization. Task sessions represent scheduled focused work periods with defined start/end times, appearing as visual blocks in the day planner. Always verify the task ID exists first using ${Tool.GetTasks}.`,
   parameters: createTaskSessionParams,
 });
 
@@ -291,7 +292,8 @@ export const functionUpdateTaskSession = async (props: {
 
 export const toolUpdateTaskSession = zodFunction({
   name: Tool.UpdateTaskSession,
-  description: "Update an existing task session",
+  description:
+    "Update an existing task session block in the user's daily timeline. Use this to modify scheduled work periods by adjusting timing or marking sessions as completed. Changes will update the visual timeline representation.",
   parameters: updateTaskSessionParams,
 });
 
@@ -370,7 +372,6 @@ export const functionPlanDay = async (props: {
 
 export const toolPlanDay = zodFunction({
   name: Tool.PlanDay,
-  description:
-    "Plan a day by creating multiple task sessions in one day based on active tasks data.",
+  description: `Create a comprehensive visual day plan by scheduling multiple task sessions at once. This efficiently builds the user's daily timeline visualization with focused work blocks based on task priorities and available time. Always verify task IDs exist first using ${Tool.GetTasks}. Use this for creating an optimized daily schedule that balances priorities and time constraints.`,
   parameters: planDayParams,
 });

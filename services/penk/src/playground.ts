@@ -12,13 +12,10 @@ const main = async () => {
   console.dir(userData, { depth: null, colors: true });
   console.log();
 
-  const query: Record<string, unknown> = { character_id: testProfileId };
-  // if (props.categoryId) {
-  //   query.category_id = props.categoryId;
-  // }
-  // if (props.name) {
-  //   query.name = { $regex: props.name, $options: "i" };
-  // }
+  const query: Record<string, unknown> = {
+    character_id: testProfileId,
+    name: { $regex: "water", $options: "i" },
+  };
 
   const habits = await HabitModel.find(query);
 
