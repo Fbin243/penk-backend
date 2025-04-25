@@ -167,14 +167,22 @@ export const getLinkedAccounts = async (profileId: string) => {
   const tokens = await OAuthTokenModel.find({ profile_id: profileId });
   const linkedAccounts: LinkedAccount[] = [];
   for (const token of tokens) {
-    const accessToken = await refreshToken(decrypt(token.refresh_token));
-    if (accessToken) {
-      linkedAccounts.push({
-        id: token._id.toString(),
-        email: token.email,
-        type: token.type,
-        accessToken,
-      });
+    try {
+      const accessToken = await refreshToken(decrypt(token.refresh_token));
+      if (accessToken) {
+        linkedAccounts.push({
+          id: token._id.toString(),
+          email: token.email,
+          type: token.type,
+          accessToken,
+        });
+      }
+    } catch (error) {
+      if ((error as any)?.response?.data?.error === "invalid_grant") {
+        await OAuthTokenModel.deleteOne({ _id: token._id });
+      } else {
+        throw error;
+      }
     }
   }
 
