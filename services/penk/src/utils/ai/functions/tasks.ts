@@ -5,7 +5,19 @@ import { TaskModel } from "../../database/mongo";
 import { coreClient, createMetadata } from "../../grpc";
 import { isoStringToUnixSeconds } from "../../time";
 import { Tool } from "../../types";
-import { SharedDescription } from "./shared";
+import { CheckboxInput, SharedDescription } from "./shared";
+
+const TaskInput = z.object({
+  id: z
+    .union([z.string(), z.null()])
+    .describe("Null when creating a new task, otherwise the task ID"),
+  categoryId: z.union([z.string(), z.null()]).describe(SharedDescription.assignedCategoryId),
+  name: z.string().describe("Task name"),
+  priority: z.number().describe(SharedDescription.eisenHowerMatrix),
+  completedTime: z.union([z.string(), z.null()]).describe(SharedDescription.datetime),
+  deadline: z.union([z.string(), z.null()]).describe(SharedDescription.datetime),
+  subtasks: z.array(CheckboxInput).describe("Subtasks"),
+});
 
 const getTasksParams = z.object({
   profileId: z.string().describe(SharedDescription.profileId),
@@ -53,27 +65,12 @@ export const toolGetTasks = zodFunction({
 
 const createTaskParams = z.object({
   firebaseUID: z.string().describe(SharedDescription.firebaseUID),
-  name: z.string().describe("Task name"),
-  categoryId: z.union([z.string(), z.null()]).describe(SharedDescription.assignedCategoryId),
-  priority: z.number().describe(SharedDescription.eisenHowerMatrix),
-  deadline: z.union([z.string(), z.null()]).describe(SharedDescription.datetime),
-  subtasks: z
-    .array(
-      z.object({
-        name: z.string().describe("Subtask name"),
-        value: z.boolean().describe("Subtask completion status"),
-      }),
-    )
-    .describe("Subtasks"),
+  input: TaskInput,
 });
 
 export const functionCreateTask = async (props: {
   firebaseUID: string;
-  name: string;
-  priority: number;
-  categoryId?: string;
-  deadline: string;
-  subtasks: { name: string; value: boolean }[];
+  input: z.infer<typeof TaskInput>;
 }) => {
   console.log(`[Tool: ${Tool.CreateTask}]`);
   console.dir(props, { depth: null, colors: true });
@@ -82,11 +79,15 @@ export const functionCreateTask = async (props: {
   return new Promise((resolve, reject) => {
     coreClient.UpsertTask(
       {
-        name: props.name,
-        categoryId: props.categoryId,
-        priority: props.priority,
-        deadline: isoStringToUnixSeconds(props.deadline),
-        subtasks: props.subtasks,
+        name: props.input.name,
+        categoryId: props.input.categoryId || undefined,
+        priority: props.input.priority,
+        completedTime: isoStringToUnixSeconds(props.input.completedTime),
+        deadline: isoStringToUnixSeconds(props.input.deadline),
+        subtasks: props.input.subtasks.map((st) => ({
+          name: st.name,
+          completed: st.completed,
+        })),
       },
       createMetadata(props.firebaseUID),
       (err, res) => {
@@ -108,32 +109,12 @@ export const toolCreateTask = zodFunction({
 
 const updateTaskParams = z.object({
   firebaseUID: z.string().describe(SharedDescription.firebaseUID),
-  id: z.string().describe("Task ID"),
-  name: z.string().describe("Task name"),
-  categoryId: z.union([z.string(), z.null()]).describe(SharedDescription.assignedCategoryId),
-  priority: z.number().describe(SharedDescription.eisenHowerMatrix),
-  completedTime: z.union([z.string(), z.null()]).describe(SharedDescription.datetime),
-  deadline: z.union([z.string(), z.null()]).describe(SharedDescription.datetime),
-  subtasks: z
-    .array(
-      z.object({
-        id: z.string().describe("Subtask ID"),
-        name: z.string().describe("Subtask name"),
-        value: z.boolean().describe("Subtask completion status"),
-      }),
-    )
-    .describe("Subtasks"),
+  input: TaskInput,
 });
 
 export const functionUpdateTask = async (props: {
   firebaseUID: string;
-  id: string;
-  name: string;
-  priority: number;
-  categoryId?: string;
-  completedTime?: string;
-  deadline?: string;
-  subtasks: { id?: string; name: string; value: boolean }[];
+  input: z.infer<typeof TaskInput>;
 }) => {
   console.log(`[Tool: ${Tool.UpdateTask}]`);
   console.dir(props, { depth: null, colors: true });
@@ -142,16 +123,15 @@ export const functionUpdateTask = async (props: {
   return new Promise((resolve, reject) => {
     coreClient.UpsertTask(
       {
-        id: props.id,
-        name: props.name,
-        categoryId: props.categoryId !== "" ? props.categoryId : undefined,
-        priority: props.priority,
-        completedTime: isoStringToUnixSeconds(props.completedTime),
-        deadline: isoStringToUnixSeconds(props.deadline),
-        subtasks: props.subtasks.map((st) => ({
-          id: st.id !== "" ? st.id : undefined,
+        id: props.input.id || undefined,
+        categoryId: props.input.categoryId || undefined,
+        priority: props.input.priority,
+        completedTime: isoStringToUnixSeconds(props.input.completedTime),
+        deadline: isoStringToUnixSeconds(props.input.deadline),
+        subtasks: props.input.subtasks.map((st) => ({
+          id: st.id || undefined,
           name: st.name,
-          value: st.value,
+          completed: st.completed,
         })),
       },
       createMetadata(props.firebaseUID),
@@ -206,18 +186,24 @@ export const toolDeleteTask = zodFunction({
   parameters: deleteTaskParams,
 });
 
-const createTaskSessionParams = z.object({
-  firebaseUID: z.string().describe(SharedDescription.firebaseUID),
+const TaskSessionInput = z.object({
+  id: z
+    .union([z.string(), z.null()])
+    .describe("Null when creating a new task session, otherwise the task session ID"),
   taskId: z.string().describe("Task ID"),
   startTime: z.string().describe(SharedDescription.datetime),
   endTime: z.string().describe(SharedDescription.datetime),
+  completedTime: z.union([z.string(), z.null()]).describe(SharedDescription.datetime),
+});
+
+const createTaskSessionParams = z.object({
+  firebaseUID: z.string().describe(SharedDescription.firebaseUID),
+  input: TaskSessionInput,
 });
 
 export const functionCreateTaskSession = async (props: {
   firebaseUID: string;
-  taskId: string;
-  startTime: string;
-  endTime: string;
+  input: z.infer<typeof TaskSessionInput>;
 }) => {
   console.log(`[Tool: ${Tool.CreateTaskSession}]`);
   console.dir(props, { depth: null, colors: true });
@@ -226,9 +212,9 @@ export const functionCreateTaskSession = async (props: {
   return new Promise((resolve, reject) => {
     coreClient.UpsertTaskSession(
       {
-        taskId: props.taskId,
-        startTime: isoStringToUnixSeconds(props.startTime),
-        endTime: isoStringToUnixSeconds(props.endTime),
+        taskId: props.input.taskId,
+        startTime: isoStringToUnixSeconds(props.input.startTime),
+        endTime: isoStringToUnixSeconds(props.input.endTime),
       },
       createMetadata(props.firebaseUID),
       (err, res) => {
@@ -250,20 +236,12 @@ export const toolCreateTaskSession = zodFunction({
 
 const updateTaskSessionParams = z.object({
   firebaseUID: z.string().describe(SharedDescription.firebaseUID),
-  id: z.string().describe("Task session ID"),
-  taskId: z.string().describe("Task ID"),
-  startTime: z.string().describe(SharedDescription.datetime),
-  endTime: z.string().describe(SharedDescription.datetime),
-  completedTime: z.union([z.string(), z.null()]).describe(SharedDescription.datetime),
+  input: TaskSessionInput,
 });
 
 export const functionUpdateTaskSession = async (props: {
   firebaseUID: string;
-  id: string;
-  taskId: string;
-  startTime: string;
-  endTime: string;
-  completedTime?: string;
+  input: z.infer<typeof TaskSessionInput>;
 }) => {
   console.log(`[Tool: ${Tool.UpdateTaskSession}]`);
   console.dir(props, { depth: null, colors: true });
@@ -272,11 +250,11 @@ export const functionUpdateTaskSession = async (props: {
   return new Promise((resolve, reject) => {
     coreClient.UpsertTaskSession(
       {
-        id: props.id,
-        taskId: props.taskId,
-        startTime: isoStringToUnixSeconds(props.startTime),
-        endTime: isoStringToUnixSeconds(props.endTime),
-        completedTime: isoStringToUnixSeconds(props.completedTime),
+        id: props.input.id || undefined,
+        taskId: props.input.taskId,
+        startTime: isoStringToUnixSeconds(props.input.startTime),
+        endTime: isoStringToUnixSeconds(props.input.endTime),
+        completedTime: isoStringToUnixSeconds(props.input.completedTime),
       },
       createMetadata(props.firebaseUID),
       (err, res) => {
@@ -332,18 +310,12 @@ export const toolDeleteTaskSession = zodFunction({
 
 const planDayParams = z.object({
   firebaseUID: z.string().describe(SharedDescription.firebaseUID),
-  sessions: z.array(
-    z.object({
-      taskId: z.string().describe("Task ID"),
-      startTime: z.string().describe(SharedDescription.datetime),
-      endTime: z.string().describe(SharedDescription.datetime),
-    }),
-  ),
+  sessions: z.array(TaskSessionInput),
 });
 
 export const functionPlanDay = async (props: {
   firebaseUID: string;
-  sessions: { taskId: string; startTime: string; endTime: string }[];
+  sessions: z.infer<typeof TaskSessionInput>[];
 }) => {
   console.log(`[Tool: ${Tool.PlanDay}]`);
   console.dir(props, { depth: null, colors: true });

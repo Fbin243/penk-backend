@@ -92,6 +92,17 @@ export const textStream = async (
       const newOpenAiMessages: ChatCompletionMessageParam[] = [];
 
       for (const toolCall of Object.values(currentToolCalls)) {
+        if (fullContent !== "") {
+          const aiMessage: Message = {
+            type: MessageType.AiMessage,
+            content: fullContent,
+            timestamp: new Date().toISOString(),
+          };
+          newPenKMessages.push(aiMessage);
+          onComplete?.(fullContent);
+          fullContent = "";
+        }
+
         onToolCall?.(toolCall.function!.name!);
 
         const args = JSON.parse(toolCall.function!.arguments!);

@@ -6,6 +6,16 @@ import { coreClient, createMetadata } from "../../grpc";
 import { Tool } from "../../types";
 import { SharedDescription } from "./shared";
 
+const MetricInput = z.object({
+  id: z
+    .union([z.string(), z.null()])
+    .describe("Null when creating a new metric, otherwise the metric ID"),
+  categoryId: z.union([z.string(), z.null()]).describe(SharedDescription.assignedCategoryId),
+  name: z.string().describe("Metric name"),
+  value: z.number().describe("Metric value"),
+  unit: z.string().describe("Metric unit"),
+});
+
 const getMetricsParams = z.object({
   profileId: z.string().describe(SharedDescription.profileId),
   categoryId: z.union([z.string(), z.null()]).describe(SharedDescription.assignedCategoryId),
@@ -47,18 +57,12 @@ export const toolGetMetrics = zodFunction({
 
 const createMetricParams = z.object({
   firebaseUID: z.string().describe(SharedDescription.firebaseUID),
-  categoryId: z.union([z.string(), z.null()]).describe(SharedDescription.assignedCategoryId),
-  name: z.string().describe("Metric name"),
-  value: z.number().describe("Metric value"),
-  unit: z.string().describe("Metric unit"),
+  input: MetricInput,
 });
 
 export const functionCreateMetric = async (props: {
   firebaseUID: string;
-  categoryId?: string;
-  name: string;
-  value: number;
-  unit: string;
+  input: z.infer<typeof MetricInput>;
 }) => {
   console.log(`[Tool: ${Tool.CreateMetric}]`);
   console.dir(props, { depth: null, colors: true });
@@ -67,10 +71,10 @@ export const functionCreateMetric = async (props: {
   return new Promise((resolve, reject) => {
     coreClient.UpsertMetric(
       {
-        name: props.name,
-        value: props.value,
-        unit: props.unit,
-        categoryId: props.categoryId,
+        name: props.input.name,
+        value: props.input.value,
+        unit: props.input.unit,
+        categoryId: props.input.categoryId || undefined,
       },
       createMetadata(props.firebaseUID),
       (err, res) => {
@@ -92,20 +96,12 @@ export const toolCreateMetric = zodFunction({
 
 const updateMetricParams = z.object({
   firebaseUID: z.string().describe(SharedDescription.firebaseUID),
-  id: z.string().describe("Metric ID"),
-  name: z.string().describe("Metric name"),
-  value: z.number().describe("Metric value"),
-  unit: z.string().describe("Metric unit"),
-  categoryId: z.union([z.string(), z.null()]).describe(SharedDescription.assignedCategoryId),
+  input: MetricInput,
 });
 
 export const functionUpdateMetric = async (props: {
   firebaseUID: string;
-  id: string;
-  name: string;
-  value: number;
-  unit: string;
-  categoryId?: string;
+  input: z.infer<typeof MetricInput>;
 }) => {
   console.log(`[Tool: ${Tool.UpdateMetric}]`);
   console.dir(props, { depth: null, colors: true });
@@ -114,11 +110,11 @@ export const functionUpdateMetric = async (props: {
   return new Promise((resolve, reject) => {
     coreClient.UpsertMetric(
       {
-        id: props.id,
-        name: props.name,
-        value: props.value,
-        unit: props.unit,
-        categoryId: props.categoryId,
+        id: props.input.id || undefined,
+        name: props.input.name,
+        value: props.input.value,
+        unit: props.input.unit,
+        categoryId: props.input.categoryId || undefined,
       },
       createMetadata(props.firebaseUID),
       (err, res) => {

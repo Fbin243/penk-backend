@@ -5,7 +5,7 @@ import { GoalModel } from "../../database/mongo";
 import { coreClient, createMetadata } from "../../grpc";
 import { isoStringToUnixSeconds } from "../../time";
 import { Tool } from "../../types";
-import { SharedDescription } from "./shared";
+import { CheckboxInput, SharedDescription } from "./shared";
 
 const GoalMetricInput = z.object({
   id: z.string().describe("Metric ID"),
@@ -28,12 +28,6 @@ const GoalMetricInput = z.object({
     .describe("Range value for the metric. Use null when the condition is not ir"),
 });
 
-const GoalCheckboxInput = z.object({
-  id: z.string().describe("Checkbox ID"),
-  name: z.string().describe("Checkbox name"),
-  completed: z.boolean().describe("Checkbox completion status"),
-});
-
 const GoalInput = z
   .object({
     id: z
@@ -44,7 +38,7 @@ const GoalInput = z
     startTime: z.string().describe(SharedDescription.datetime),
     endTime: z.string().describe(SharedDescription.datetime),
     metrics: z.array(GoalMetricInput).describe("Metrics for the goal"),
-    checkboxes: z.array(GoalCheckboxInput).describe("Checkboxes for the goal"),
+    checkboxes: z.array(CheckboxInput).describe("Checkboxes for the goal"),
   })
   .describe(
     "Goal input parameters. Goal input must have at least one metric or checkbox. Default start time is now, end time is 30 days from now",
@@ -113,7 +107,11 @@ export const functionCreateGoal = async (props: {
           targetValue: metric.targetValue || undefined,
           rangeValue: metric.rangeValue || undefined,
         })),
-        checkboxes: props.input.checkboxes,
+        checkboxes: props.input.checkboxes?.map((checkbox) => ({
+          id: checkbox.id || undefined,
+          name: checkbox.name,
+          completed: checkbox.completed,
+        })),
       },
       createMetadata(props.firebaseUID),
       (err, res) => {
@@ -159,7 +157,11 @@ export const functionUpdateGoal = async (props: {
           targetValue: metric.targetValue || undefined,
           rangeValue: metric.rangeValue || undefined,
         })),
-        checkboxes: props.input.checkboxes,
+        checkboxes: props.input.checkboxes?.map((checkbox) => ({
+          id: checkbox.id || undefined,
+          name: checkbox.name,
+          completed: checkbox.completed,
+        })),
       },
       createMetadata(props.firebaseUID),
       (err, res) => {

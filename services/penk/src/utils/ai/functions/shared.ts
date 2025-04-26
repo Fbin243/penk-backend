@@ -1,3 +1,5 @@
+import z from "zod";
+
 export const SharedDescription = {
   profileId: "User's unique profile identifier needed to access their data",
   firebaseUID: "User's unique Firebase identifier needed to access their data",
@@ -15,3 +17,11 @@ export const SharedDescription = {
     - 4: Neither urgent nor important
     `,
 };
+
+export const CheckboxInput = z.object({
+  id: z
+    .union([z.string(), z.null()])
+    .describe("null when creating a new checkbox, otherwise the checkbox ID"),
+  name: z.string().describe("Checkbox name"),
+  completed: z.boolean().describe("Checkbox completion status"),
+});

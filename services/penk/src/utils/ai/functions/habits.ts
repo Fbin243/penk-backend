@@ -6,6 +6,23 @@ import { coreClient, createMetadata } from "../../grpc";
 import { Tool } from "../../types";
 import { SharedDescription } from "./shared";
 
+const HabitInput = z.object({
+  id: z
+    .union([z.string(), z.null()])
+    .describe("Null when creating a new habit, otherwise the habit ID"),
+  categoryId: z.union([z.string(), z.null()]).describe(SharedDescription.assignedCategoryId),
+  name: z.string().describe("Habit name"),
+  value: z
+    .number()
+    .describe(
+      "Habit value. If completion type is Time, the value is in seconds, e.g. value = 300 means 5 minutes",
+    ),
+  unit: z.string().describe("Habit unit. If completion type is Time, unit should be empty."),
+  completionType: z.enum(["Number", "Time"]).describe("Completion type"),
+  rrule: z.string().describe("RRule for habit. Default is RRULE:FREQ=DAILY;INTERVAL=1"),
+  reset: z.enum(["Daily", "Weekly", "Monthly"]).describe("Reset frequency"),
+});
+
 const getHabitsParams = z.object({
   profileId: z.string().describe(SharedDescription.profileId),
   categoryId: z.union([z.string(), z.null()]).describe(SharedDescription.assignedCategoryId),
@@ -45,28 +62,12 @@ export const toolGetHabits = zodFunction({
 
 const createHabitParams = z.object({
   firebaseUID: z.string().describe(SharedDescription.firebaseUID),
-  name: z.string().describe("Habit name"),
-  categoryId: z.union([z.string(), z.null()]).describe(SharedDescription.assignedCategoryId),
-  value: z
-    .number()
-    .describe(
-      "Habit value. If completion type is Time, the value is in seconds, e.g. value = 300 means 5 minutes",
-    ),
-  unit: z.string().describe("Habit unit. If completion type is Time, unit should be empty."),
-  completionType: z.enum(["Number", "Time"]).describe("Completion type"),
-  rrule: z.string().describe("RRule for habit. Default is RRULE:FREQ=DAILY;INTERVAL=1"),
-  reset: z.enum(["Daily", "Weekly", "Monthly"]).describe("Reset frequency"),
+  input: HabitInput,
 });
 
 export const functionCreateHabit = async (props: {
   firebaseUID: string;
-  name: string;
-  categoryId?: string;
-  value: number;
-  unit: string;
-  completionType: "Number" | "Time";
-  rrule: string;
-  reset: "Daily" | "Weekly" | "Monthly";
+  input: z.infer<typeof HabitInput>;
 }) => {
   console.log(`[Tool: ${Tool.CreateHabit}]`);
   console.dir(props, { depth: null, colors: true });
@@ -75,13 +76,13 @@ export const functionCreateHabit = async (props: {
   return new Promise((resolve, reject) => {
     coreClient.UpsertHabit(
       {
-        name: props.name,
-        value: props.value,
-        unit: props.unit,
-        completionType: props.completionType,
-        rrule: props.rrule,
-        reset: props.reset,
-        categoryId: props.categoryId,
+        categoryId: props.input.categoryId || undefined,
+        name: props.input.name,
+        value: props.input.value,
+        unit: props.input.unit,
+        completionType: props.input.completionType,
+        rrule: props.input.rrule,
+        reset: props.input.reset,
       },
       createMetadata(props.firebaseUID),
       (err, res) => {
@@ -103,30 +104,12 @@ export const toolCreateHabit = zodFunction({
 
 const updateHabitParams = z.object({
   firebaseUID: z.string().describe(SharedDescription.firebaseUID),
-  id: z.string().describe("Habit ID"),
-  categoryId: z.union([z.string(), z.null()]).describe(SharedDescription.assignedCategoryId),
-  name: z.string().describe("Habit name"),
-  value: z
-    .number()
-    .describe(
-      "Habit value. If completion type is Time, the value is in seconds, e.g. value = 300 means 5 minutes",
-    ),
-  unit: z.string().describe("Habit unit. If completion type is Time, unit should be empty."),
-  completionType: z.enum(["Number", "Time"]).describe("Completion type"),
-  rrule: z.string().describe("RRule for habit. Default is RRULE:FREQ=DAILY;INTERVAL=1"),
-  reset: z.enum(["Daily", "Weekly", "Monthly"]).describe("Reset frequency"),
+  input: HabitInput,
 });
 
 export const functionUpdateHabit = async (props: {
   firebaseUID: string;
-  id: string;
-  categoryId?: string;
-  name: string;
-  value: number;
-  unit: string;
-  completionType: "Number" | "Time";
-  rrule: string;
-  reset: "Daily" | "Weekly" | "Monthly";
+  input: z.infer<typeof HabitInput>;
 }) => {
   console.log(`[Tool: ${Tool.UpdateHabit}]`);
   console.dir(props, { depth: null, colors: true });
@@ -135,14 +118,14 @@ export const functionUpdateHabit = async (props: {
   return new Promise((resolve, reject) => {
     coreClient.UpsertHabit(
       {
-        id: props.id,
-        name: props.name,
-        value: props.value,
-        unit: props.unit,
-        completionType: props.completionType,
-        rrule: props.rrule,
-        reset: props.reset,
-        categoryId: props.categoryId,
+        id: props.input.id || undefined,
+        name: props.input.name,
+        value: props.input.value,
+        unit: props.input.unit,
+        completionType: props.input.completionType,
+        rrule: props.input.rrule,
+        reset: props.input.reset,
+        categoryId: props.input.categoryId || undefined,
       },
       createMetadata(props.firebaseUID),
       (err, res) => {
