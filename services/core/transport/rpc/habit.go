@@ -30,3 +30,17 @@ func (hdl *CoreHandler) DeleteHabit(ctx context.Context, req *common.IdReq) (*co
 		Id: category.ID,
 	}, err
 }
+
+func (hdl *CoreHandler) UpsertHabitLog(ctx context.Context, req *core.HabitLogInput) (*core.HabitLog, error) {
+	habitLogInput, err := Map[core.HabitLogInput, entity.HabitLogInput](req, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	habitLog, err := hdl.habitBiz.UpsertHabitLog(ctx, habitLogInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return Map[entity.HabitLog, core.HabitLog](habitLog, nil)
+}

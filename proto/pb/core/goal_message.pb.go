@@ -380,13 +380,12 @@ func (x *Range) GetMax() float64 {
 type GoalInput struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            *string                `protobuf:"bytes,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
-	CharacterId   string                 `protobuf:"bytes,2,opt,name=character_id,json=characterId,proto3" json:"character_id,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Description   *string                `protobuf:"bytes,4,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	StartTime     int64                  `protobuf:"varint,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       int64                  `protobuf:"varint,6,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	Metrics       []*GoalMetricInput     `protobuf:"bytes,8,rep,name=metrics,proto3" json:"metrics,omitempty"`
-	Checkboxes    []*CheckboxInput       `protobuf:"bytes,9,rep,name=checkboxes,proto3" json:"checkboxes,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description   *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	StartTime     int64                  `protobuf:"varint,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime       int64                  `protobuf:"varint,5,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	Metrics       []*GoalMetricInput     `protobuf:"bytes,6,rep,name=metrics,proto3" json:"metrics,omitempty"`
+	Checkboxes    []*CheckboxInput       `protobuf:"bytes,7,rep,name=checkboxes,proto3" json:"checkboxes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -424,13 +423,6 @@ func (*GoalInput) Descriptor() ([]byte, []int) {
 func (x *GoalInput) GetId() string {
 	if x != nil && x.Id != nil {
 		return *x.Id
-	}
-	return ""
-}
-
-func (x *GoalInput) GetCharacterId() string {
-	if x != nil {
-		return x.CharacterId
 	}
 	return ""
 }
@@ -631,18 +623,17 @@ const file_core_goal_message_proto_rawDesc = "" +
 	"\f_range_value\"+\n" +
 	"\x05Range\x12\x10\n" +
 	"\x03min\x18\x01 \x01(\x01R\x03min\x12\x10\n" +
-	"\x03max\x18\x02 \x01(\x01R\x03max\"\xb5\x02\n" +
+	"\x03max\x18\x02 \x01(\x01R\x03max\"\x92\x02\n" +
 	"\tGoalInput\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12!\n" +
-	"\fcharacter_id\x18\x02 \x01(\tR\vcharacterId\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\x12%\n" +
-	"\vdescription\x18\x04 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12%\n" +
+	"\vdescription\x18\x03 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
 	"\n" +
-	"start_time\x18\x05 \x01(\x03R\tstartTime\x12\x19\n" +
-	"\bend_time\x18\x06 \x01(\x03R\aendTime\x12/\n" +
-	"\ametrics\x18\b \x03(\v2\x15.core.GoalMetricInputR\ametrics\x123\n" +
+	"start_time\x18\x04 \x01(\x03R\tstartTime\x12\x19\n" +
+	"\bend_time\x18\x05 \x01(\x03R\aendTime\x12/\n" +
+	"\ametrics\x18\x06 \x03(\v2\x15.core.GoalMetricInputR\ametrics\x123\n" +
 	"\n" +
-	"checkboxes\x18\t \x03(\v2\x13.core.CheckboxInputR\n" +
+	"checkboxes\x18\a \x03(\v2\x13.core.CheckboxInputR\n" +
 	"checkboxesB\x05\n" +
 	"\x03_idB\x0e\n" +
 	"\f_description\"\xd7\x01\n" +

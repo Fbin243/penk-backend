@@ -33,6 +33,7 @@ const (
 	Core_DeleteTaskSession_FullMethodName  = "/core.Core/DeleteTaskSession"
 	Core_UpsertHabit_FullMethodName        = "/core.Core/UpsertHabit"
 	Core_DeleteHabit_FullMethodName        = "/core.Core/DeleteHabit"
+	Core_UpsertHabitLog_FullMethodName     = "/core.Core/UpsertHabitLog"
 	Core_UpsertCategory_FullMethodName     = "/core.Core/UpsertCategory"
 	Core_DeleteCategory_FullMethodName     = "/core.Core/DeleteCategory"
 	Core_UpsertMetric_FullMethodName       = "/core.Core/UpsertMetric"
@@ -56,6 +57,7 @@ type CoreClient interface {
 	DeleteTaskSession(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
 	UpsertHabit(ctx context.Context, in *HabitInput, opts ...grpc.CallOption) (*Habit, error)
 	DeleteHabit(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
+	UpsertHabitLog(ctx context.Context, in *HabitLogInput, opts ...grpc.CallOption) (*HabitLog, error)
 	UpsertCategory(ctx context.Context, in *CategoryInput, opts ...grpc.CallOption) (*Category, error)
 	DeleteCategory(ctx context.Context, in *common.IdReq, opts ...grpc.CallOption) (*common.IdResp, error)
 	UpsertMetric(ctx context.Context, in *MetricInput, opts ...grpc.CallOption) (*Metric, error)
@@ -200,6 +202,16 @@ func (c *coreClient) DeleteHabit(ctx context.Context, in *common.IdReq, opts ...
 	return out, nil
 }
 
+func (c *coreClient) UpsertHabitLog(ctx context.Context, in *HabitLogInput, opts ...grpc.CallOption) (*HabitLog, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HabitLog)
+	err := c.cc.Invoke(ctx, Core_UpsertHabitLog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *coreClient) UpsertCategory(ctx context.Context, in *CategoryInput, opts ...grpc.CallOption) (*Category, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Category)
@@ -257,6 +269,7 @@ type CoreServer interface {
 	DeleteTaskSession(context.Context, *common.IdReq) (*common.IdResp, error)
 	UpsertHabit(context.Context, *HabitInput) (*Habit, error)
 	DeleteHabit(context.Context, *common.IdReq) (*common.IdResp, error)
+	UpsertHabitLog(context.Context, *HabitLogInput) (*HabitLog, error)
 	UpsertCategory(context.Context, *CategoryInput) (*Category, error)
 	DeleteCategory(context.Context, *common.IdReq) (*common.IdResp, error)
 	UpsertMetric(context.Context, *MetricInput) (*Metric, error)
@@ -309,6 +322,9 @@ func (UnimplementedCoreServer) UpsertHabit(context.Context, *HabitInput) (*Habit
 }
 func (UnimplementedCoreServer) DeleteHabit(context.Context, *common.IdReq) (*common.IdResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteHabit not implemented")
+}
+func (UnimplementedCoreServer) UpsertHabitLog(context.Context, *HabitLogInput) (*HabitLog, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpsertHabitLog not implemented")
 }
 func (UnimplementedCoreServer) UpsertCategory(context.Context, *CategoryInput) (*Category, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertCategory not implemented")
@@ -577,6 +593,24 @@ func _Core_DeleteHabit_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Core_UpsertHabitLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HabitLogInput)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).UpsertHabitLog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Core_UpsertHabitLog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).UpsertHabitLog(ctx, req.(*HabitLogInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Core_UpsertCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CategoryInput)
 	if err := dec(in); err != nil {
@@ -707,6 +741,10 @@ var Core_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteHabit",
 			Handler:    _Core_DeleteHabit_Handler,
+		},
+		{
+			MethodName: "UpsertHabitLog",
+			Handler:    _Core_UpsertHabitLog_Handler,
 		},
 		{
 			MethodName: "UpsertCategory",

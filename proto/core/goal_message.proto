@@ -35,13 +35,12 @@ message Range {
 // Input Messages
 message GoalInput {
   optional string id = 1;
-  string character_id = 2;
-  string name = 3;
-  optional string description = 4;
-  int64 start_time = 5;
-  int64 end_time = 6;
-  repeated GoalMetricInput metrics = 8;
-  repeated CheckboxInput checkboxes = 9;
+  string name = 2;
+  optional string description = 3;
+  int64 start_time = 4;
+  int64 end_time = 5;
+  repeated GoalMetricInput metrics = 6;
+  repeated CheckboxInput checkboxes = 7;
 }
 
 message GoalMetricInput {

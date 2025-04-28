@@ -25,7 +25,7 @@ var File_core_core_service_proto protoreflect.FileDescriptor
 
 const file_core_core_service_proto_rawDesc = "" +
 	"\n" +
-	"\x17core/core_service.proto\x12\x04core\x1a\x1bcommon/common_message.proto\x1a\x1ccore/character_message.proto\x1a\x17core/goal_message.proto\x1a\x1acore/profile_message.proto\x1a\x17core/task_message.proto\x1a\x1fcore/task_session_message.proto\x1a\x1fcore/timetracking_message.proto\x1a\x18core/habit_message.proto\x1a\x1bcore/category_message.proto\x1a\x19core/metric_message.proto2\xff\x06\n" +
+	"\x17core/core_service.proto\x12\x04core\x1a\x1bcommon/common_message.proto\x1a\x1ccore/character_message.proto\x1a\x17core/goal_message.proto\x1a\x1acore/profile_message.proto\x1a\x17core/task_message.proto\x1a\x1fcore/task_session_message.proto\x1a\x1fcore/timetracking_message.proto\x1a\x18core/habit_message.proto\x1a\x1bcore/category_message.proto\x1a\x19core/metric_message.proto\x1a\x1ccore/habit_log_message.proto2\xb6\a\n" +
 	"\x04Core\x12;\n" +
 	"\x0eIntrospectUser\x12\x13.core.IntrospectReq\x1a\x14.core.IntrospectResp\x128\n" +
 	"\x0fUpsertCharacter\x12\x14.core.CharacterInput\x1a\x0f.core.Character\x12)\n" +
@@ -45,6 +45,7 @@ const file_core_core_service_proto_rawDesc = "" +
 	"\x11DeleteTaskSession\x12\r.common.IdReq\x1a\x0e.common.IdResp\x12,\n" +
 	"\vUpsertHabit\x12\x10.core.HabitInput\x1a\v.core.Habit\x12,\n" +
 	"\vDeleteHabit\x12\r.common.IdReq\x1a\x0e.common.IdResp\x125\n" +
+	"\x0eUpsertHabitLog\x12\x13.core.HabitLogInput\x1a\x0e.core.HabitLog\x125\n" +
 	"\x0eUpsertCategory\x12\x13.core.CategoryInput\x1a\x0e.core.Category\x12/\n" +
 	"\x0eDeleteCategory\x12\r.common.IdReq\x1a\x0e.common.IdResp\x12/\n" +
 	"\fUpsertMetric\x12\x11.core.MetricInput\x1a\f.core.Metric\x12-\n" +
@@ -61,20 +62,22 @@ var file_core_core_service_proto_goTypes = []any{
 	(*TaskSessionInput)(nil),  // 7: core.TaskSessionInput
 	(*TaskSessionInputs)(nil), // 8: core.TaskSessionInputs
 	(*HabitInput)(nil),        // 9: core.HabitInput
-	(*CategoryInput)(nil),     // 10: core.CategoryInput
-	(*MetricInput)(nil),       // 11: core.MetricInput
-	(*IntrospectResp)(nil),    // 12: core.IntrospectResp
-	(*Character)(nil),         // 13: core.Character
-	(*Goal)(nil),              // 14: core.Goal
-	(*common.IdResp)(nil),     // 15: common.IdResp
-	(*TimeTracking)(nil),      // 16: core.TimeTracking
-	(*TaskMsg)(nil),           // 17: core.TaskMsg
-	(*TaskMsgs)(nil),          // 18: core.TaskMsgs
-	(*TaskSession)(nil),       // 19: core.TaskSession
-	(*TaskSessions)(nil),      // 20: core.TaskSessions
-	(*Habit)(nil),             // 21: core.Habit
-	(*Category)(nil),          // 22: core.Category
-	(*Metric)(nil),            // 23: core.Metric
+	(*HabitLogInput)(nil),     // 10: core.HabitLogInput
+	(*CategoryInput)(nil),     // 11: core.CategoryInput
+	(*MetricInput)(nil),       // 12: core.MetricInput
+	(*IntrospectResp)(nil),    // 13: core.IntrospectResp
+	(*Character)(nil),         // 14: core.Character
+	(*Goal)(nil),              // 15: core.Goal
+	(*common.IdResp)(nil),     // 16: common.IdResp
+	(*TimeTracking)(nil),      // 17: core.TimeTracking
+	(*TaskMsg)(nil),           // 18: core.TaskMsg
+	(*TaskMsgs)(nil),          // 19: core.TaskMsgs
+	(*TaskSession)(nil),       // 20: core.TaskSession
+	(*TaskSessions)(nil),      // 21: core.TaskSessions
+	(*Habit)(nil),             // 22: core.Habit
+	(*HabitLog)(nil),          // 23: core.HabitLog
+	(*Category)(nil),          // 24: core.Category
+	(*Metric)(nil),            // 25: core.Metric
 }
 var file_core_core_service_proto_depIdxs = []int32{
 	0,  // 0: core.Core.IntrospectUser:input_type -> core.IntrospectReq
@@ -90,29 +93,31 @@ var file_core_core_service_proto_depIdxs = []int32{
 	3,  // 10: core.Core.DeleteTaskSession:input_type -> common.IdReq
 	9,  // 11: core.Core.UpsertHabit:input_type -> core.HabitInput
 	3,  // 12: core.Core.DeleteHabit:input_type -> common.IdReq
-	10, // 13: core.Core.UpsertCategory:input_type -> core.CategoryInput
-	3,  // 14: core.Core.DeleteCategory:input_type -> common.IdReq
-	11, // 15: core.Core.UpsertMetric:input_type -> core.MetricInput
-	3,  // 16: core.Core.DeleteMetric:input_type -> common.IdReq
-	12, // 17: core.Core.IntrospectUser:output_type -> core.IntrospectResp
-	13, // 18: core.Core.UpsertCharacter:output_type -> core.Character
-	14, // 19: core.Core.UpsertGoal:output_type -> core.Goal
-	15, // 20: core.Core.DeleteGoal:output_type -> common.IdResp
-	16, // 21: core.Core.UpsertTimeTracking:output_type -> core.TimeTracking
-	17, // 22: core.Core.UpsertTask:output_type -> core.TaskMsg
-	18, // 23: core.Core.UpsertTasks:output_type -> core.TaskMsgs
-	15, // 24: core.Core.DeleteTask:output_type -> common.IdResp
-	19, // 25: core.Core.UpsertTaskSession:output_type -> core.TaskSession
-	20, // 26: core.Core.UpsertTaskSessions:output_type -> core.TaskSessions
-	15, // 27: core.Core.DeleteTaskSession:output_type -> common.IdResp
-	21, // 28: core.Core.UpsertHabit:output_type -> core.Habit
-	15, // 29: core.Core.DeleteHabit:output_type -> common.IdResp
-	22, // 30: core.Core.UpsertCategory:output_type -> core.Category
-	15, // 31: core.Core.DeleteCategory:output_type -> common.IdResp
-	23, // 32: core.Core.UpsertMetric:output_type -> core.Metric
-	15, // 33: core.Core.DeleteMetric:output_type -> common.IdResp
-	17, // [17:34] is the sub-list for method output_type
-	0,  // [0:17] is the sub-list for method input_type
+	10, // 13: core.Core.UpsertHabitLog:input_type -> core.HabitLogInput
+	11, // 14: core.Core.UpsertCategory:input_type -> core.CategoryInput
+	3,  // 15: core.Core.DeleteCategory:input_type -> common.IdReq
+	12, // 16: core.Core.UpsertMetric:input_type -> core.MetricInput
+	3,  // 17: core.Core.DeleteMetric:input_type -> common.IdReq
+	13, // 18: core.Core.IntrospectUser:output_type -> core.IntrospectResp
+	14, // 19: core.Core.UpsertCharacter:output_type -> core.Character
+	15, // 20: core.Core.UpsertGoal:output_type -> core.Goal
+	16, // 21: core.Core.DeleteGoal:output_type -> common.IdResp
+	17, // 22: core.Core.UpsertTimeTracking:output_type -> core.TimeTracking
+	18, // 23: core.Core.UpsertTask:output_type -> core.TaskMsg
+	19, // 24: core.Core.UpsertTasks:output_type -> core.TaskMsgs
+	16, // 25: core.Core.DeleteTask:output_type -> common.IdResp
+	20, // 26: core.Core.UpsertTaskSession:output_type -> core.TaskSession
+	21, // 27: core.Core.UpsertTaskSessions:output_type -> core.TaskSessions
+	16, // 28: core.Core.DeleteTaskSession:output_type -> common.IdResp
+	22, // 29: core.Core.UpsertHabit:output_type -> core.Habit
+	16, // 30: core.Core.DeleteHabit:output_type -> common.IdResp
+	23, // 31: core.Core.UpsertHabitLog:output_type -> core.HabitLog
+	24, // 32: core.Core.UpsertCategory:output_type -> core.Category
+	16, // 33: core.Core.DeleteCategory:output_type -> common.IdResp
+	25, // 34: core.Core.UpsertMetric:output_type -> core.Metric
+	16, // 35: core.Core.DeleteMetric:output_type -> common.IdResp
+	18, // [18:36] is the sub-list for method output_type
+	0,  // [0:18] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -132,6 +137,7 @@ func file_core_core_service_proto_init() {
 	file_core_habit_message_proto_init()
 	file_core_category_message_proto_init()
 	file_core_metric_message_proto_init()
+	file_core_habit_log_message_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
