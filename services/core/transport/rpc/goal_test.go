@@ -102,7 +102,6 @@ var rpcGoalCheckboxInput = &core.CheckboxInput{
 
 var rpcGoalInput = &core.GoalInput{
 	Id:          lo.ToPtr(mongodb.GenObjectID()),
-	CharacterId: mongodb.GenObjectID(),
 	Name:        "Goal name",
 	Description: lo.ToPtr("Goal desc"),
 	StartTime:   utils.Now().Unix(),

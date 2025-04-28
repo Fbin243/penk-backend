@@ -12,6 +12,7 @@ import "core/timetracking_message.proto";
 import "core/habit_message.proto";
 import "core/category_message.proto";
 import "core/metric_message.proto";
+import "core/habit_log_message.proto";
 
 option go_package = "tenkhours/proto/pb/core";
 
@@ -35,6 +36,7 @@ service Core {
 
   rpc UpsertHabit(HabitInput) returns (Habit);
   rpc DeleteHabit(common.IdReq) returns (common.IdResp);
+  rpc UpsertHabitLog(HabitLogInput) returns (HabitLog);
 
   rpc UpsertCategory(CategoryInput) returns (Category);
   rpc DeleteCategory(common.IdReq) returns (common.IdResp);
