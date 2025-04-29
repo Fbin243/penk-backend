@@ -10,7 +10,7 @@ type Habit {
   value: Float!
   unit: String
   rrule: String!
-  reset: HabitReset!
+  resetDuration: HabitReset!
 }
 
 enum CompletionType {
@@ -27,7 +27,7 @@ input HabitInput {
   value: Float!
   unit: String
   rrule: String!
-  reset: HabitReset!
+  resetDuration: HabitReset!
 }
 
 enum HabitReset {

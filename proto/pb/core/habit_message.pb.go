@@ -128,7 +128,7 @@ type Habit struct {
 	Value          float32                `protobuf:"fixed32,8,opt,name=value,proto3" json:"value,omitempty"`
 	Unit           *string                `protobuf:"bytes,9,opt,name=unit,proto3,oneof" json:"unit,omitempty"`
 	Rrule          string                 `protobuf:"bytes,10,opt,name=rrule,proto3" json:"rrule,omitempty"`
-	HReset         HabitReset             `protobuf:"varint,11,opt,name=h_reset,json=hReset,proto3,enum=core.HabitReset" json:"h_reset,omitempty"`
+	ResetDuration  HabitReset             `protobuf:"varint,11,opt,name=reset_duration,json=resetDuration,proto3,enum=core.HabitReset" json:"reset_duration,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -233,9 +233,9 @@ func (x *Habit) GetRrule() string {
 	return ""
 }
 
-func (x *Habit) GetHReset() HabitReset {
+func (x *Habit) GetResetDuration() HabitReset {
 	if x != nil {
-		return x.HReset
+		return x.ResetDuration
 	}
 	return HabitReset_Daily
 }
@@ -249,7 +249,7 @@ type HabitInput struct {
 	Value          float32                `protobuf:"fixed32,5,opt,name=value,proto3" json:"value,omitempty"`
 	Unit           *string                `protobuf:"bytes,6,opt,name=unit,proto3,oneof" json:"unit,omitempty"`
 	Rrule          string                 `protobuf:"bytes,7,opt,name=rrule,proto3" json:"rrule,omitempty"`
-	HReset         HabitReset             `protobuf:"varint,8,opt,name=h_reset,json=hReset,proto3,enum=core.HabitReset" json:"h_reset,omitempty"`
+	ResetDuration  HabitReset             `protobuf:"varint,8,opt,name=reset_duration,json=resetDuration,proto3,enum=core.HabitReset" json:"reset_duration,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -333,9 +333,9 @@ func (x *HabitInput) GetRrule() string {
 	return ""
 }
 
-func (x *HabitInput) GetHReset() HabitReset {
+func (x *HabitInput) GetResetDuration() HabitReset {
 	if x != nil {
-		return x.HReset
+		return x.ResetDuration
 	}
 	return HabitReset_Daily
 }
@@ -344,7 +344,7 @@ var File_core_habit_message_proto protoreflect.FileDescriptor
 
 const file_core_habit_message_proto_rawDesc = "" +
 	"\n" +
-	"\x18core/habit_message.proto\x12\x04core\"\xfa\x02\n" +
+	"\x18core/habit_message.proto\x12\x04core\"\x88\x03\n" +
 	"\x05Habit\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -359,10 +359,10 @@ const file_core_habit_message_proto_rawDesc = "" +
 	"\x05value\x18\b \x01(\x02R\x05value\x12\x17\n" +
 	"\x04unit\x18\t \x01(\tH\x01R\x04unit\x88\x01\x01\x12\x14\n" +
 	"\x05rrule\x18\n" +
-	" \x01(\tR\x05rrule\x12)\n" +
-	"\ah_reset\x18\v \x01(\x0e2\x10.core.HabitResetR\x06hResetB\x0e\n" +
+	" \x01(\tR\x05rrule\x127\n" +
+	"\x0ereset_duration\x18\v \x01(\x0e2\x10.core.HabitResetR\rresetDurationB\x0e\n" +
 	"\f_category_idB\a\n" +
-	"\x05_unit\"\xaa\x02\n" +
+	"\x05_unit\"\xb8\x02\n" +
 	"\n" +
 	"HabitInput\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12$\n" +
@@ -372,8 +372,8 @@ const file_core_habit_message_proto_rawDesc = "" +
 	"\x04name\x18\x04 \x01(\tR\x04name\x12\x14\n" +
 	"\x05value\x18\x05 \x01(\x02R\x05value\x12\x17\n" +
 	"\x04unit\x18\x06 \x01(\tH\x02R\x04unit\x88\x01\x01\x12\x14\n" +
-	"\x05rrule\x18\a \x01(\tR\x05rrule\x12)\n" +
-	"\ah_reset\x18\b \x01(\x0e2\x10.core.HabitResetR\x06hResetB\x05\n" +
+	"\x05rrule\x18\a \x01(\tR\x05rrule\x127\n" +
+	"\x0ereset_duration\x18\b \x01(\x0e2\x10.core.HabitResetR\rresetDurationB\x05\n" +
 	"\x03_idB\x0e\n" +
 	"\f_category_idB\a\n" +
 	"\x05_unit*&\n" +
@@ -410,9 +410,9 @@ var file_core_habit_message_proto_goTypes = []any{
 }
 var file_core_habit_message_proto_depIdxs = []int32{
 	0, // 0: core.Habit.completion_type:type_name -> core.CompletionType
-	1, // 1: core.Habit.h_reset:type_name -> core.HabitReset
+	1, // 1: core.Habit.reset_duration:type_name -> core.HabitReset
 	0, // 2: core.HabitInput.completion_type:type_name -> core.CompletionType
-	1, // 3: core.HabitInput.h_reset:type_name -> core.HabitReset
+	1, // 3: core.HabitInput.reset_duration:type_name -> core.HabitReset
 	4, // [4:4] is the sub-list for method output_type
 	4, // [4:4] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

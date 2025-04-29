@@ -29,19 +29,9 @@ func (r *habitResolver) Category(ctx context.Context, obj *entity.Habit) (*entit
 	return r.CategoryRepo.FindByID(ctx, *obj.CategoryID)
 }
 
-// Reset is the resolver for the reset field.
-func (r *habitResolver) Reset(ctx context.Context, obj *entity.Habit) (entity.HabitReset, error) {
-	panic(fmt.Errorf("not implemented: Reset - reset"))
-}
-
 // Keep is the resolver for the _keep field.
 func (r *habitFilterResolver) Keep(ctx context.Context, obj *entity.HabitFilter, data *bool) error {
 	panic(fmt.Errorf("not implemented: Keep - _keep"))
-}
-
-// Reset is the resolver for the reset field.
-func (r *habitInputResolver) Reset(ctx context.Context, obj *entity.HabitInput, data entity.HabitReset) error {
-	panic(fmt.Errorf("not implemented: Reset - reset"))
 }
 
 // Keep is the resolver for the _keep field.
@@ -55,13 +45,9 @@ func (r *Resolver) Habit() HabitResolver { return &habitResolver{r} }
 // HabitFilter returns HabitFilterResolver implementation.
 func (r *Resolver) HabitFilter() HabitFilterResolver { return &habitFilterResolver{r} }
 
-// HabitInput returns HabitInputResolver implementation.
-func (r *Resolver) HabitInput() HabitInputResolver { return &habitInputResolver{r} }
-
 // HabitOrderBy returns HabitOrderByResolver implementation.
 func (r *Resolver) HabitOrderBy() HabitOrderByResolver { return &habitOrderByResolver{r} }
 
 type habitResolver struct{ *Resolver }
 type habitFilterResolver struct{ *Resolver }
-type habitInputResolver struct{ *Resolver }
 type habitOrderByResolver struct{ *Resolver }

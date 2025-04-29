@@ -15,7 +15,7 @@ message Habit {
   float value = 8;
   optional string unit = 9;
   string rrule = 10;
-  HabitReset h_reset = 11;
+  HabitReset reset_duration = 11;
 }
 
 enum CompletionType {
@@ -37,5 +37,5 @@ message HabitInput {
   float value = 5;
   optional string unit = 6;
   string rrule = 7;
-  HabitReset h_reset = 8;
+  HabitReset reset_duration = 8;
 }
