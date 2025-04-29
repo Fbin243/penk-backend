@@ -10,7 +10,7 @@ type HabitInput struct {
 	Value          float64        `json:"value"`
 	Unit           *string        `json:"unit"`
 	RRule          string         `json:"rrule"`
-	Reset          HabitReset     `json:"reset"`
+	HReset         HabitReset     `json:"reset"`
 }
 
 type HabitPipeline struct {

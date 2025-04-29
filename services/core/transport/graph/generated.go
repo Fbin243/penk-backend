@@ -57,6 +57,7 @@ type ResolverRoot interface {
 	CategoryOrderBy() CategoryOrderByResolver
 	GoalOrderBy() GoalOrderByResolver
 	HabitFilter() HabitFilterResolver
+	HabitInput() HabitInputResolver
 	HabitOrderBy() HabitOrderByResolver
 	MetricFilter() MetricFilterResolver
 	MetricOrderBy() MetricOrderByResolver
@@ -314,6 +315,8 @@ type GoalMetricResolver interface {
 type HabitResolver interface {
 	CategoryID(ctx context.Context, obj *entity.Habit) (*string, error)
 	Category(ctx context.Context, obj *entity.Habit) (*entity.Category, error)
+
+	Reset(ctx context.Context, obj *entity.Habit) (entity.HabitReset, error)
 }
 type MetricResolver interface {
 	CategoryID(ctx context.Context, obj *entity.Metric) (*string, error)
@@ -370,6 +373,9 @@ type GoalOrderByResolver interface {
 }
 type HabitFilterResolver interface {
 	Keep(ctx context.Context, obj *entity.HabitFilter, data *bool) error
+}
+type HabitInputResolver interface {
+	Reset(ctx context.Context, obj *entity.HabitInput, data entity.HabitReset) error
 }
 type HabitOrderByResolver interface {
 	Keep(ctx context.Context, obj *entity.HabitOrderBy, data *bool) error
@@ -4971,11 +4977,14 @@ func (ec *executionContext) _Habit_completionType(ctx context.Context, field gra
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(entity.CompletionType)
 	fc.Result = res
-	return ec.marshalOCompletionType2tenkhoursᚋservicesᚋcoreᚋentityᚐCompletionType(ctx, field.Selections, res)
+	return ec.marshalNCompletionType2tenkhoursᚋservicesᚋcoreᚋentityᚐCompletionType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Habit_completionType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5141,11 +5150,14 @@ func (ec *executionContext) _Habit_rrule(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Habit_rrule(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5175,7 +5187,7 @@ func (ec *executionContext) _Habit_reset(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Reset, nil
+		return ec.resolvers.Habit().Reset(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5196,8 +5208,8 @@ func (ec *executionContext) fieldContext_Habit_reset(_ context.Context, field gr
 	fc = &graphql.FieldContext{
 		Object:     "Habit",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type HabitReset does not have child fields")
 		},
@@ -12346,7 +12358,9 @@ func (ec *executionContext) unmarshalInputHabitInput(ctx context.Context, obj in
 			if err != nil {
 				return it, err
 			}
-			it.Reset = data
+			if err = ec.resolvers.HabitInput().Reset(ctx, &it, data); err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -13906,6 +13920,9 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "completionType":
 			out.Values[i] = ec._Habit_completionType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "name":
 			out.Values[i] = ec._Habit_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -13920,11 +13937,45 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = ec._Habit_unit(ctx, field, obj)
 		case "rrule":
 			out.Values[i] = ec._Habit_rrule(ctx, field, obj)
-		case "reset":
-			out.Values[i] = ec._Habit_reset(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "reset":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Habit_reset(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -17153,17 +17204,6 @@ func (ec *executionContext) unmarshalOCheckboxInput2ᚕtenkhoursᚋservicesᚋco
 		}
 	}
 	return res, nil
-}
-
-func (ec *executionContext) unmarshalOCompletionType2tenkhoursᚋservicesᚋcoreᚋentityᚐCompletionType(ctx context.Context, v interface{}) (entity.CompletionType, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := entity.CompletionType(tmp)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOCompletionType2tenkhoursᚋservicesᚋcoreᚋentityᚐCompletionType(ctx context.Context, sel ast.SelectionSet, v entity.CompletionType) graphql.Marshaler {
-	res := graphql.MarshalString(string(v))
-	return res
 }
 
 func (ec *executionContext) unmarshalOEntityType2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐEntityType(ctx context.Context, v interface{}) (*entity.EntityType, error) {

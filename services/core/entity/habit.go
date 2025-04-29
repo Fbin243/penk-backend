@@ -20,7 +20,7 @@ type Habit struct {
 	Value            float64        `json:"value,omitempty" bson:"value"`
 	Unit             *string        `json:"unit,omitempty"  bson:"unit"`
 	RRule            string         `json:"rrule"           bson:"rrule"`
-	Reset            HabitReset     `json:"reset"           bson:"reset"`
+	HReset           HabitReset     `json:"reset"           bson:"reset"`
 }
 
 type HabitReset string

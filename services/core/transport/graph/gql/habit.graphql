@@ -5,11 +5,11 @@ type Habit {
   characterID: ID!
   categoryID: ID
   category: Category
-  completionType: CompletionType
+  completionType: CompletionType!
   name: String!
   value: Float!
   unit: String
-  rrule: String
+  rrule: String!
   reset: HabitReset!
 }
 

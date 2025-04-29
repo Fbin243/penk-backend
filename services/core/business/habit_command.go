@@ -5,7 +5,6 @@ import (
 
 	"tenkhours/pkg/auth"
 	"tenkhours/pkg/db/base"
-	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/utils"
 	"tenkhours/services/core/entity"
@@ -14,9 +13,9 @@ import (
 )
 
 func (b *HabitBusiness) Upsert(ctx context.Context, habitInput *entity.HabitInput) (*entity.Habit, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	permEntities := []PermissionEntity{}
@@ -34,7 +33,7 @@ func (b *HabitBusiness) Upsert(ctx context.Context, habitInput *entity.HabitInpu
 		})
 	}
 
-	err := b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, permEntities)
+	err = b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, permEntities)
 	if err != nil {
 		return nil, err
 	}
@@ -96,12 +95,12 @@ func (b *HabitBusiness) Upsert(ctx context.Context, habitInput *entity.HabitInpu
 }
 
 func (b *HabitBusiness) Delete(ctx context.Context, habitID string) (*entity.Habit, error) {
-	authSession, ok := ctx.Value(auth.AuthSessionKey).(rdb.AuthSession)
-	if !ok {
-		return nil, errors.ErrUnauthorized
+	authSession, err := auth.GetAuthSession(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	err := b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
+	err = b.permBiz.CheckOwnEntities(ctx, authSession.CurrentCharacterID, []PermissionEntity{
 		{
 			ID:   habitID,
 			Type: entity.EntityTypeHabit,

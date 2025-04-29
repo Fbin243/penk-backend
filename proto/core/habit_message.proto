@@ -9,13 +9,13 @@ message Habit {
   int64 created_at = 2;
   int64 updated_at = 3;
   string character_id = 4;
-  string category_id = 5;
+  optional string category_id = 5;
   CompletionType completion_type = 6;
   string name = 7;
   float value = 8;
-  string unit = 9;
+  optional string unit = 9;
   string rrule = 10;
-  HabitReset reset = 11;
+  HabitReset h_reset = 11;
 }
 
 enum CompletionType {
@@ -30,12 +30,12 @@ enum HabitReset {
 }
 
 message HabitInput {
-  string id = 1;
-  string category_id = 2;
+  optional string id = 1;
+  optional string category_id = 2;
   CompletionType completion_type = 3;
   string name = 4;
   float value = 5;
-  string unit = 6;
+  optional string unit = 6;
   string rrule = 7;
-  HabitReset reset = 8;
+  HabitReset h_reset = 8;
 }
