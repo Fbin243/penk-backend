@@ -7,9 +7,9 @@ import (
 
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
-	"tenkhours/pkg/pb"
+	"tenkhours/proto/pb/core"
 	"tenkhours/services/core/composer"
-	"tenkhours/services/core/graph"
+	"tenkhours/services/core/transport/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -25,13 +25,13 @@ func main() {
 	}
 
 	if godotenv.Load(".env."+env) != nil {
-		log.Fatal("Error loading .env." + env + " file")
+		log.Printf("Error loading .env." + env + " file")
 	}
 
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
-		AllowHeaders:    []string{"Content-Type", "Authorization"},
+		AllowHeaders:    []string{"Content-Type", "Authorization", "X-Device-Id", "X-User-Id"},
 	}))
 
 	app.GET("/health", func(c *gin.Context) {
@@ -41,7 +41,7 @@ func main() {
 	})
 
 	// Check authentication
-	authClient, conn := middlewares.ComposeRPCClient()
+	authClient, conn := middlewares.ComposeAuthClient()
 	defer conn.Close()
 	app.Use(middlewares.RequireAuth(authClient))
 
@@ -50,28 +50,32 @@ func main() {
 		Resolvers: composer.ComposeGraphQLResolver(),
 	}))
 	srv.SetErrorPresenter(errors.DefaultPresenter)
-
 	app.POST("/graphql", func(c *gin.Context) {
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 
+	defer composer.GetComposer().Close()
+
 	// Start RPC server
-	go startRPCServer()
+	go startRPCServer(authClient)
 
 	port, found := os.LookupEnv("CORE_PORT")
 	if !found {
 		port = "8080"
 	}
 
-	app.Run(":" + port)
+	if err := app.Run(":" + port); err != nil {
+		log.Fatalf("failed to run server: %v", err)
+	}
 }
 
-func startRPCServer() {
+func startRPCServer(authClient *middlewares.AuthClient) {
 	// Create the server for gRPC API
-	s := grpc.NewServer()
-	pb.RegisterCoreServer(s, composer.ComposeRPCHandler())
+	authInterceptor := middlewares.NewAuthInterceptor(authClient)
+	s := grpc.NewServer(grpc.UnaryInterceptor(authInterceptor.UnaryInterceptor))
+	core.RegisterCoreServer(s, composer.ComposeRPCHandler())
 
-	port, found := os.LookupEnv("CORE_RPC_PORT")
+	port, found := os.LookupEnv("CORE_GRPC_PORT")
 	if !found {
 		port = "50051"
 	}

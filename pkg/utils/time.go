@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -25,6 +26,25 @@ var MonthToIntMap = map[string]int{
 	"DECEMBER":  12,
 }
 
-func ResetTimeToBeginningOfDay(t time.Time) time.Time {
+func StartOfDay(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
+}
+
+func EndOfDay(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 999999999, time.UTC)
+}
+
+func ParseTime(timeStr string) time.Time {
+	time, _ := time.Parse(time.RFC3339, timeStr)
+	return time
+}
+
+func UnixToTime(timestamp int64) time.Time {
+	return time.Unix(timestamp, 0)
+}
+
+func PrintTimeSlice(ts []time.Time) {
+	for _, t := range ts {
+		fmt.Println(t)
+	}
 }

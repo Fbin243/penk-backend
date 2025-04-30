@@ -11,15 +11,20 @@ import (
 )
 
 // Check if the request has a valid Authorization header with a Bearer token.
-func RequireAuth(ac *authClient) func(c *gin.Context) {
+func RequireAuth(ac *AuthClient) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		reqCtx := c.Request.Context()
-		authKey := c.Request.Header.Get("Authorization")
-		if strings.HasPrefix(authKey, "Bearer ") {
-			idToken := strings.Replace(authKey, "Bearer ", "", 1)
-
+		authorization := c.Request.Header.Get("Authorization")
+		deviceID := c.Request.Header.Get("X-Device-Id")
+		userID := c.Request.Header.Get("X-User-Id")
+		if userID != "" {
 			// Instropect the token to get or make an auth session
-			authSession, err := ac.IntrospectToken(reqCtx, idToken)
+			var idToken string
+			if strings.HasPrefix(authorization, "Bearer ") {
+				idToken = strings.Split(authorization, "Bearer ")[1]
+			}
+
+			authSession, err := ac.IntrospectUser(reqCtx, idToken, userID, deviceID)
 			if err != nil {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 				return

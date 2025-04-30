@@ -1,0 +1,33 @@
+type HabitLog {
+  id: ID!
+  timestamp: String!  
+  habitID: ID!
+  value: Float!
+}
+
+input HabitLogInput {
+  timestamp: String!
+  habitID: ID!
+  value: Float!
+}
+
+input HabitLogFilter {
+  habitID: ID
+  startTime: Time
+  endTime: Time
+  resetDuration: HabitReset
+}
+
+input HabitLogOrderBy {
+  timestamp: SortOrder
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+type HabitLogConnection {
+  totalCount: Int!
+  edges: [HabitLog!]!
+}

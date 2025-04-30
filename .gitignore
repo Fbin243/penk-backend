@@ -1,16 +1,45 @@
-.env*
+# If you prefer the allow list template instead of the deny list, see community template:
+# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
+#
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
 
-firebase-admin.*.json
+# Test binary, built with `go test -c`
+*.test
 
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
 tmp/
-.vscode
-cover.out
-/aside
-.vscode
-.DS_Store
-node_modules
+dist/
 
+# Dependency directories (remove the comment below to include it)
+node_modules/
+
+# env file
+.env.development
+.env.test
+
+# Config files
+firebase-admin.*.json
 waitlist.*.json
-
 fish_config.csv
 exchange_config.csv
+
+# OS
+.DS_Store
+
+# Database
+dump
+
+# Observability
+.data/
+
+# IDE
+.cursorignore
+
+# Dependencies
+vendor

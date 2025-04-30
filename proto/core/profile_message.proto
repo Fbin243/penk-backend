@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package core;
+
+option go_package = "tenkhours/proto/pb/core";
+
+message IntrospectReq {   
+  string token = 1;
+  string user_id = 2;
+  string device_id = 3;
+}
+
+message IntrospectResp {
+  bool success = 1;
+  string profile_id = 2;
+  string device_id = 3;
+  string current_character_id = 4;
+  string firebase_uid = 5;
+}

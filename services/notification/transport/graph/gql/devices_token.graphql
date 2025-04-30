@@ -1,0 +1,13 @@
+type devicesToken {
+    id: ID!
+    profileID: String!
+    tokens: [Token!]!
+}
+
+type Token {
+    id: ID!
+    deviceID: String!
+    platform: String!
+    createdAt: String!
+    token: String!
+}

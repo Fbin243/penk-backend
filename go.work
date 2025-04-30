@@ -9,12 +9,12 @@ use (
 	./pkg/errors
 	./pkg/graphql
 	./pkg/middlewares
-	./pkg/proto/pb
 	./pkg/utils
-	./services/analytics
+	./proto
+	./services/analytic
 	./services/core
 	./services/currency
-	./services/notifications
-	./services/timetrackings
+	./services/event
+	./services/notification
 	./test
 )

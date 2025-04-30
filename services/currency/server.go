@@ -7,7 +7,7 @@ import (
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
 	"tenkhours/services/currency/composer"
-	"tenkhours/services/currency/graph"
+	"tenkhours/services/currency/transport/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
@@ -22,13 +22,13 @@ func main() {
 	}
 
 	if godotenv.Load(".env."+env) != nil {
-		log.Fatal("Error loading .env." + env + " file")
+		log.Printf("Error loading .env." + env + " file")
 	}
 
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
-		AllowHeaders:    []string{"Content-Type", "Authorization"},
+		AllowHeaders:    []string{"Content-Type", "Authorization", "X-Device-Id", "X-User-Id"},
 	}))
 
 	app.GET("/health", func(c *gin.Context) {
@@ -38,7 +38,7 @@ func main() {
 	})
 
 	// Check authentication
-	authClient, conn := middlewares.ComposeRPCClient()
+	authClient, conn := middlewares.ComposeAuthClient()
 	defer conn.Close()
 	app.Use(middlewares.RequireAuth(authClient))
 
@@ -56,5 +56,7 @@ func main() {
 		port = "8085"
 	}
 
-	app.Run(":" + port)
+	if err := app.Run(":" + port); err != nil {
+		log.Fatalf("failed to run server: %v", err)
+	}
 }

@@ -1,0 +1,120 @@
+x-common-config: &common-config
+  env_file:
+    - .env.development
+  networks:
+    - tenk_network
+
+x-common-variables: &common-env
+  TENK_ENV: development
+  CORE_GRPC_HOST: core
+  ANALYTIC_GRPC_HOST: analytic
+  CURRENCY_GRPC_HOST: currency
+  NOTIFICATION_GRPC_HOST: notification
+
+x-common-heatlhcheck: &common-healthcheck
+  start_period: 3s
+  interval: 5m
+  timeout: 3s
+  retries: 5
+
+services:
+  core:
+    <<: *common-config
+    container_name: tenk-core
+    image: tenk-core:latest
+    build:
+      context: .
+      dockerfile: services/core/Dockerfile
+    environment:
+      <<: *common-env
+    ports:
+      - 8080:8080
+      - 50051:50051
+    volumes:
+      - ./firebase-admin.development.json:/tenk-backend/firebase-admin.development.json
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
+
+  analytic:
+    <<: *common-config
+    container_name: tenk-analytic
+    image: tenk-analytic:latest
+    build:
+      context: .
+      dockerfile: services/analytic/Dockerfile
+    environment:
+      <<: *common-env
+    ports:
+      - 8082:8082
+      - 50052:50052
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8082/health"]
+
+  notification:
+    <<: *common-config
+    container_name: tenk-notification
+    image: tenk-notification:latest
+    build:
+      context: .
+      dockerfile: services/notification/Dockerfile
+    environment:
+      <<: *common-env
+    ports:
+      - 8084:8084
+      - 50054:50054
+    volumes:
+      - ./waitlist.development.json:/tenk-backend/waitlist.development.json
+      - ./firebase-admin.development.json:/tenk-backend/firebase-admin.development.json
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8084/health"]
+
+  currency:
+    <<: *common-config
+    container_name: tenk-currency
+    image: tenk-currency:latest
+    build:
+      context: .
+      dockerfile: services/currency/Dockerfile
+    environment:
+      <<: *common-env
+    ports:
+      - 8085:8085
+      - 50055:50055
+    volumes:
+      - ./exchange_config.csv:/tenk-backend/exchange_config.csv
+      - ./fish_config.csv:/tenk-backend/fish_config.csv
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8085/health"]
+
+  gateway:
+    <<: *common-config
+    container_name: tenk-gateway
+    image: tenk-gateway:latest
+    build:
+      context: .
+      dockerfile: services/gateway/Dockerfile
+    environment:
+      <<: *common-env
+      CORE_URL: http://core:8080/graphql
+      ANALYTIC_URL: http://analytic:8082/graphql
+      NOTIFICATION_URL: http://notification:8084/graphql
+      CURRENCY_URL: http://currency:8085/graphql
+    ports:
+      - 8070:8070
+    volumes:
+      - ./firebase-admin.development.json:/tenk-backend/firebase-admin.development.json
+    depends_on:
+      core:
+        condition: service_healthy
+      analytic:
+        condition: service_healthy
+      notification:
+        condition: service_healthy
+
+networks:
+  tenk_network:
+    driver: bridge

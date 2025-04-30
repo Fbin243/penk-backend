@@ -13,7 +13,6 @@ import (
 	"tenkhours/test/flows"
 
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestUserFlow(t *testing.T) {
@@ -26,6 +25,7 @@ func TestUserFlow(t *testing.T) {
 
 	log.Println("--> TOKEN: ", token)
 	common.IdToken = token
+	common.DeviceId = "test-device-id"
 	cleanUp := func(ctx *context.Context) {
 		// Clean up the profile and related data
 		err := common.QueryGraphQL(ctx,
@@ -33,7 +33,6 @@ func TestUserFlow(t *testing.T) {
 				Query:     core.DeleteProfileQuery,
 				Assertion: []common.Assertion{jsonpath.Chain().NotPresent("$.errors").End()},
 			})
-
 		if err != nil {
 			log.Fatalf("Failed to clean up the profile and related data %v\n", err)
 		}
@@ -44,26 +43,24 @@ func TestUserFlow(t *testing.T) {
 	// Get the flows to run the test
 	flowKeyStr := os.Getenv("FLOWS")
 	if flowKeyStr == "" {
-		flowKeyStr = "profiles"
+		flowKeyStr = "profile"
 	}
 
 	flowsMap := map[common.FlowKey][]pineline.Stage{
-		common.ProfilesFlowKey:      flows.ProfilesFlow,
-		common.CharactersFlowKey:    flows.CharactersFlow,
-		common.TimeTrackingsFlowKey: flows.TimeTrackingsFlow,
-		common.SnapshotsFlowKey:     flows.SnapshotsFlow,
+		common.ProfileFlowKey:      flows.ProfileFlow,
+		common.CharacterFlowKey:    flows.CharacterFlow,
+		common.TimeTrackingFlowKey: flows.TimeTrackingFlow,
+		common.SnapshotFlowKey:     flows.SnapshotFlow,
+		common.GoalFlowKey:         flows.GoalFlow,
 	}
 
 	flowKeys := strings.Split(flowKeyStr, ",")
 	log.Println("--> FLOWS: ", flowKeys)
 	for _, flowKey := range flowKeys {
-		p := pineline.Pineline(flowsMap[common.FlowKey(flowKey)]...)
-		err := p(&ctx)
-
+		err := pineline.Pineline(flowsMap[common.FlowKey(flowKey)]...)(&ctx)
 		if err != nil {
-			common.LogResponse()
+			t.Fatalf("Failed to run the flow %v\n", flowKey)
+			break
 		}
-
-		assert.Empty(t, err)
 	}
 }

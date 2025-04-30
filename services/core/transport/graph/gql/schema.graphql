@@ -1,0 +1,33 @@
+type Query {
+  characters: [Character!]!
+  profile: Profile!
+  appSettings: AppSettings!
+  goals(filter: GoalFilter, orderBy: GoalOrderBy, limit: Int, offset: Int): GoalConnection!
+  metrics(filter: MetricFilter, orderBy: MetricOrderBy, limit: Int, offset: Int): MetricConnection!
+  categories(filter: CategoryFilter, orderBy: CategoryOrderBy, limit: Int, offset: Int): CategoryConnection!
+  habits(filter: HabitFilter, orderBy: HabitOrderBy, limit: Int, offset: Int): HabitConnection!
+  habitLogs(filter: HabitLogFilter, orderBy: HabitLogOrderBy, limit: Int, offset: Int): HabitLogConnection!
+  tasks(filter: TaskFilter, orderBy: TaskOrderBy, limit: Int, offset: Int): TaskConnection!
+  taskSessions(filter: TaskSessionFilter, orderBy: TaskSessionOrderBy, limit: Int, offset: Int): TaskSessionConnection!
+}
+
+type Mutation {
+  updateProfile(input: ProfileInput!): Profile!
+  deleteProfile: Profile!
+  upsertCharacter(input: CharacterInput!): Character!
+  deleteCharacter(id: ID!): Character!
+  upsertGoal(input: GoalInput!): Goal!
+  deleteGoal(id: ID!): Goal!
+  upsertMetric(input: MetricInput!): Metric!
+  deleteMetric(id: ID!): Metric!
+  upsertCategory(input: CategoryInput!): Category!
+  deleteCategory(id: ID!): Category!
+  upsertHabit(input: HabitInput!): Habit!
+  deleteHabit(id: ID!): Habit!
+  upsertHabitLog(input: HabitLogInput!): HabitLog!  
+  upsertTask(input: TaskInput!): Task!
+  deleteTask(id: ID!): Task!
+  upsertTaskSession(input: TaskSessionInput!): TaskSession!
+  deleteTaskSession(id: ID!): TaskSession!
+  upsertTimeTracking(input: TimeTrackingInput!): TimeTracking!
+}

@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package currency;
+
+option go_package = "tenkhours/proto/pb/currency";
+
+message CreateFishReq {
+  string profile_id = 1;
+}
+
+message CreateFishResp {
+  bool success = 1;
+}
+
+message UpdateFishReq {
+  string profile_id = 1;
+  int32 gold = 2;
+  int32 normal = 3;
+}
+
+message UpdateFishResp {
+  string fish_id = 1;
+}
+
+message CatchFishReq {}
+
+message CatchFishResp {
+  FishType fish_type = 1;
+  int32 number = 2;
+  enum FishType {
+    None = 0;
+    Normal = 1;
+    Gold = 2;
+  }
+}
+
+message DeleteFishReq {
+  string profile_id = 1;
+}
+
+message DeleteFishResp {
+  bool success = 1;
+}

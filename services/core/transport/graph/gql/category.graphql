@@ -1,0 +1,44 @@
+type Category {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  characterID: ID!
+  name: String!
+  description: String!
+  style: CategoryStyle!
+  time: Int!
+  metricCount: Int!
+  habitCount: Int!
+  taskCount: Int!
+}
+
+type CategoryStyle {
+  color: String!
+  icon: String!
+}
+
+# Inputs
+input CategoryInput {
+  id: ID
+  name: String!
+  description: String
+  style: CategoryStyleInput!
+}
+
+input CategoryStyleInput {
+  color: String!
+  icon: String!
+}
+
+input CategoryFilter {
+  _keep: Boolean
+}
+
+input CategoryOrderBy {
+  _keep: Boolean
+}
+
+type CategoryConnection {
+  totalCount: Int!
+  edges: [Category!]!
+}

@@ -1,6 +1,0 @@
-type AppSettings {
-  minDurationTime: Int!
-  maxDurationTime: Int!
-  limitedMetricNumber: Int!
-  limitedPropertyNumber: Int!
-}

@@ -1,0 +1,31 @@
+type TaskSession {
+  id: ID!
+  taskID: ID!
+  startTime: Time!
+  endTime: Time!
+  completedTime: Time
+}
+
+input TaskSessionInput {
+  id: ID
+  taskID: ID!
+  startTime: Time!
+  endTime: Time!
+  completedTime: Time
+}
+
+input TaskSessionFilter {
+  taskID: ID
+  startTime: Time
+  endTime: Time
+  isCompleted: Boolean
+}
+
+input TaskSessionOrderBy {
+  _keep: Boolean
+}
+
+type TaskSessionConnection {
+  totalCount: Int!
+  edges: [TaskSession!]!
+}

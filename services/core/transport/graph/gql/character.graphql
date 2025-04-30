@@ -1,0 +1,13 @@
+type Character {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  profileID: ID!
+  name: String!
+  time: Int!
+}
+
+input CharacterInput {
+  id: ID
+  name: String!
+}

@@ -1,40 +1,29 @@
 package composer
 
 import (
-	"tenkhours/pkg/db"
-	analyticsRepo "tenkhours/services/analytics/repo"
-	"tenkhours/services/core/business"
-	"tenkhours/services/core/graph"
-	"tenkhours/services/core/repo"
-	fishRepo "tenkhours/services/currency/repo"
+	"tenkhours/services/core/transport/graph"
 )
 
 func ComposeGraphQLResolver() *graph.Resolver {
-	// Init dependencies and perform DI manually
-	mongodb := db.GetDBManager().DB
-	redisClient := db.GetRedisClient()
-	profilesRepo := repo.NewProfilesRepo(mongodb)
-	charactersRepo := repo.NewCharactersRepo(mongodb)
-	fishRepo := fishRepo.NewFishRepo(mongodb)
-	goalsRepo := repo.NewGoalsRepo(mongodb)
-	templatesRepo := repo.NewTemplatesRepo(mongodb)
-	templateCategoriesRepo := repo.NewTemplateCategoriesRepo(mongodb)
-
-	// TODO: Temporary inject analyticsRepos into profilesBiz for deleting related data
-	capturedRepordsRepo := analyticsRepo.NewCapturedRecordsRepo(mongodb)
-	snapshotsRepo := repo.NewSnapshotsRepo(mongodb)
-
-	profilesBiz := business.NewProfilesBusiness(profilesRepo, fishRepo, charactersRepo, capturedRepordsRepo, snapshotsRepo, redisClient)
-	charactersBiz := business.NewCharactersBusiness(charactersRepo, profilesRepo, goalsRepo)
-	goalsBiz := business.NewGoalsBusiness(goalsRepo, charactersRepo)
-	templatesBiz := business.NewTemplatesBusiness(templatesRepo, templateCategoriesRepo)
-	snapshotsBiz := business.NewSnapshotsBusiness(profilesRepo, charactersRepo, snapshotsRepo)
-
+	composer := GetComposer()
 	return &graph.Resolver{
-		ProfilesBusiness:   profilesBiz,
-		CharactersBusiness: charactersBiz,
-		GoalsBusiness:      goalsBiz,
-		TemplatesBusiness:  templatesBiz,
-		SnapshotsBusiness:  snapshotsBiz,
+		ProfileBusiness:      composer.ProfileBiz,
+		CharacterBusiness:    composer.CharacterBiz,
+		GoalBusiness:         composer.GoalBiz,
+		HabitBusiness:        composer.HabitBiz,
+		MetricBusiness:       composer.MetricBiz,
+		CategoryBusiness:     composer.CategoryBiz,
+		TimeTrackingBusiness: composer.TimeTrackingBiz,
+		TaskBusiness:         composer.TaskBiz,
+
+		CharacterRepo:    composer.CharacterRepo,
+		MetricRepo:       composer.MetricRepo,
+		CategoryRepo:     composer.CategoryRepo,
+		TimeTrackingRepo: composer.TimeTrackingRepo,
+		HabitRepo:        composer.HabitRepo,
+		HabitLogRepo:     composer.HabitLogRepo,
+		TaskRepo:         composer.TaskRepo,
+		TaskSessionRepo:  composer.TaskSessionRepo,
+		GoalRepo:         composer.GoalRepo,
 	}
 }

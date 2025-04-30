@@ -1,8 +1,0 @@
-scalar ObjectID
-
-type Fish @key(fields: "profileID") {
-  id: ObjectID!
-  profileID: ObjectID!
-  gold: Int
-  normal: Int
-}

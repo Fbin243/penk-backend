@@ -40,13 +40,15 @@ func ReadResponseJson(res *http.Response) string {
 	return string(body)
 }
 
-type Assertion func(*http.Response, *http.Request) error
-type QueryParams struct {
-	Url       string
-	Query     string
-	Variables map[string]interface{}
-	Assertion []Assertion
-}
+type (
+	Assertion   func(*http.Response, *http.Request) error
+	QueryParams struct {
+		Url       string
+		Query     string
+		Variables map[string]interface{}
+		Assertion []Assertion
+	}
+)
 
 func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
 	testingT, ok := (*ctx).Value(TestingT).(apitest.TestingT)
@@ -61,7 +63,10 @@ func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
 	response := apitest.New().
 		EnableNetworking(cli).
 		Post(q.Url).
-		Header("Authorization", "Bearer "+IdToken).
+		Headers(map[string]string{
+			"Authorization": "Bearer " + IdToken,
+			"X-Device-Id":   DeviceId,
+		}).
 		GraphQLQuery(q.Query, q.Variables).
 		Expect(testingT).
 		Status(http.StatusOK)
@@ -73,9 +78,7 @@ func QueryGraphQL(ctx *context.Context, q *QueryParams) error {
 	result := response.End()
 
 	jsonResponse = ReadResponseJson(result.Response)
-	LogResponse()
-
-	return nil
+	return LogResponse()
 }
 
 type SaveToContextStage struct {

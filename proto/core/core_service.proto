@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package core;
+
+import "common/common_message.proto";
+import "core/character_message.proto";
+import "core/goal_message.proto";
+import "core/profile_message.proto";
+import "core/task_message.proto";
+import "core/task_session_message.proto";
+import "core/timetracking_message.proto";
+import "core/habit_message.proto";
+import "core/category_message.proto";
+import "core/metric_message.proto";
+import "core/habit_log_message.proto";
+
+option go_package = "tenkhours/proto/pb/core";
+
+service Core {
+  rpc IntrospectUser(IntrospectReq) returns (IntrospectResp);
+
+  rpc UpsertCharacter(CharacterInput) returns (Character);
+
+  rpc UpsertGoal(GoalInput) returns (Goal);
+  rpc DeleteGoal(common.IdReq) returns (common.IdResp);
+
+  rpc UpsertTimeTracking(TimeTrackingInput) returns (TimeTracking);
+
+  rpc UpsertTask(TaskInput) returns (TaskMsg);
+  rpc UpsertTasks(TaskInputs) returns (TaskMsgs);
+  rpc DeleteTask(common.IdReq) returns (common.IdResp);
+
+  rpc UpsertTaskSession(TaskSessionInput) returns (TaskSession);
+  rpc UpsertTaskSessions(TaskSessionInputs) returns (TaskSessions);
+  rpc DeleteTaskSession(common.IdReq) returns (common.IdResp);
+
+  rpc UpsertHabit(HabitInput) returns (Habit);
+  rpc DeleteHabit(common.IdReq) returns (common.IdResp);
+  rpc UpsertHabitLog(HabitLogInput) returns (HabitLog);
+
+  rpc UpsertCategory(CategoryInput) returns (Category);
+  rpc DeleteCategory(common.IdReq) returns (common.IdResp);
+
+  rpc UpsertMetric(MetricInput) returns (Metric);
+  rpc DeleteMetric(common.IdReq) returns (common.IdResp);
+}

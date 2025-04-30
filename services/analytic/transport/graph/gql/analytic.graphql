@@ -1,0 +1,17 @@
+# extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@external", "@requires"])
+
+scalar Time
+scalar JSON
+
+enum AnalyticSection {
+  Overall
+  Distribution
+  Timeline
+  Frequency
+}
+
+input StatAnalyticFilter {
+  startTime: Time
+  endTime: Time
+  analyticSections: [AnalyticSection!]
+}

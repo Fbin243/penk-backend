@@ -4,9 +4,10 @@ go 1.22.3
 
 require (
 	github.com/joho/godotenv v1.5.1
+	github.com/rabbitmq/amqp091-go v1.10.0
+	github.com/teambition/rrule-go v1.8.2
 	github.com/tidwall/gjson v1.18.0
 	github.com/urfave/cli/v2 v2.27.4
-	go.mongodb.org/mongo-driver v1.17.1
 )
 
 require (

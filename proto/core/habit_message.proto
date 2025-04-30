@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package core;
+
+option go_package = "tenkhours/proto/pb/core";
+
+message Habit {
+  string id = 1;
+  int64 created_at = 2;
+  int64 updated_at = 3;
+  string character_id = 4;
+  optional string category_id = 5;
+  CompletionType completion_type = 6;
+  string name = 7;
+  float value = 8;
+  optional string unit = 9;
+  string rrule = 10;
+  HabitReset reset_duration = 11;
+}
+
+enum CompletionType {
+  Number = 0;
+  Time = 1;
+}
+
+enum HabitReset {
+  Daily = 0;
+  Weekly = 1;
+  Monthly = 2;
+}
+
+message HabitInput {
+  optional string id = 1;
+  optional string category_id = 2;
+  CompletionType completion_type = 3;
+  string name = 4;
+  float value = 5;
+  optional string unit = 6;
+  string rrule = 7;
+  HabitReset reset_duration = 8;
+}
