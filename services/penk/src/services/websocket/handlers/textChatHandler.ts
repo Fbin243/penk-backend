@@ -23,7 +23,7 @@ export const handleTextChat = (ws: WebSocket, context: WebSocketContext) => {
         const { newPenKMessages, cost } = await textStream(
           {
             userData: JSON.stringify(penkData),
-            history: history.map((message) => ({
+            history: history.reverse().map((message) => ({
               type: message.type,
               content: message.content,
               timestamp: message.timestamp.toISOString(),

@@ -15,12 +15,20 @@ const HabitInput = z.object({
   value: z
     .number()
     .describe(
-      "Habit value. If completion type is Time, the value is in seconds, e.g. value = 300 means 5 minutes",
+      "Habit value. IMPORTANT: For Time habits, value MUST be in seconds (not minutes). Example: 5 minutes = 300 seconds, 1 hour = 3600 seconds. For Number habits, value is the numeric quantity.",
     ),
-  unit: z.string().describe("Habit unit. If completion type is Time, unit should be empty."),
+  unit: z
+    .string()
+    .describe(
+      "Habit unit. IMPORTANT: For Time habits, unit MUST be empty string. For Number habits, specify appropriate unit (e.g., 'pages', 'glasses').",
+    ),
   completionType: z.enum(["Number", "Time"]).describe("Completion type"),
   rrule: z.string().describe("RRule for habit. Default is RRULE:FREQ=DAILY;INTERVAL=1"),
-  reset: z.enum(["Daily", "Weekly", "Monthly"]).describe("Reset frequency"),
+  resetDuration: z
+    .enum(["Daily", "Weekly", "Monthly"])
+    .describe(
+      "Reset duration. Default is Daily. Some examples: Drink 2L of water every day, Read 100 pages every week, etc.",
+    ),
 });
 
 const getHabitsParams = z.object({
@@ -82,7 +90,7 @@ export const functionCreateHabit = async (props: {
         unit: props.input.unit,
         completionType: props.input.completionType,
         rrule: props.input.rrule,
-        reset: props.input.reset,
+        resetDuration: props.input.resetDuration,
       },
       createMetadata(props.firebaseUID),
       (err, res) => {
@@ -124,7 +132,7 @@ export const functionUpdateHabit = async (props: {
         unit: props.input.unit,
         completionType: props.input.completionType,
         rrule: props.input.rrule,
-        reset: props.input.reset,
+        resetDuration: props.input.resetDuration,
         categoryId: props.input.categoryId || undefined,
       },
       createMetadata(props.firebaseUID),

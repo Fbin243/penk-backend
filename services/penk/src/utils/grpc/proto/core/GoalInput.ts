@@ -6,7 +6,6 @@ import type { Long } from '@grpc/proto-loader';
 
 export interface GoalInput {
   'id'?: (string);
-  'characterId'?: (string);
   'name'?: (string);
   'description'?: (string);
   'startTime'?: (number | string | Long);
@@ -19,7 +18,6 @@ export interface GoalInput {
 
 export interface GoalInput__Output {
   'id'?: (string);
-  'characterId': (string);
   'name': (string);
   'description'?: (string);
   'startTime': (string);

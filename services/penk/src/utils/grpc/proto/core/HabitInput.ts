@@ -11,16 +11,22 @@ export interface HabitInput {
   'value'?: (number | string);
   'unit'?: (string);
   'rrule'?: (string);
-  'reset'?: (_core_HabitReset);
+  'resetDuration'?: (_core_HabitReset);
+  '_id'?: "id";
+  '_categoryId'?: "categoryId";
+  '_unit'?: "unit";
 }
 
 export interface HabitInput__Output {
-  'id': (string);
-  'categoryId': (string);
+  'id'?: (string);
+  'categoryId'?: (string);
   'completionType': (_core_CompletionType__Output);
   'name': (string);
   'value': (number);
-  'unit': (string);
+  'unit'?: (string);
   'rrule': (string);
-  'reset': (_core_HabitReset__Output);
+  'resetDuration': (_core_HabitReset__Output);
+  '_id': "id";
+  '_categoryId': "categoryId";
+  '_unit': "unit";
 }

@@ -15,7 +15,9 @@ export interface Habit {
   'value'?: (number | string);
   'unit'?: (string);
   'rrule'?: (string);
-  'reset'?: (_core_HabitReset);
+  'resetDuration'?: (_core_HabitReset);
+  '_categoryId'?: "categoryId";
+  '_unit'?: "unit";
 }
 
 export interface Habit__Output {
@@ -23,11 +25,13 @@ export interface Habit__Output {
   'createdAt': (string);
   'updatedAt': (string);
   'characterId': (string);
-  'categoryId': (string);
+  'categoryId'?: (string);
   'completionType': (_core_CompletionType__Output);
   'name': (string);
   'value': (number);
-  'unit': (string);
+  'unit'?: (string);
   'rrule': (string);
-  'reset': (_core_HabitReset__Output);
+  'resetDuration': (_core_HabitReset__Output);
+  '_categoryId': "categoryId";
+  '_unit': "unit";
 }

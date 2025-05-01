@@ -33,6 +33,8 @@ export interface ProtoGrpcType {
     GoalStatus: EnumTypeDefinition
     Habit: MessageTypeDefinition
     HabitInput: MessageTypeDefinition
+    HabitLog: MessageTypeDefinition
+    HabitLogInput: MessageTypeDefinition
     HabitReset: EnumTypeDefinition
     IntrospectReq: MessageTypeDefinition
     IntrospectResp: MessageTypeDefinition

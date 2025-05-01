@@ -10,6 +10,8 @@ import type { Goal as _core_Goal, Goal__Output as _core_Goal__Output } from '../
 import type { GoalInput as _core_GoalInput, GoalInput__Output as _core_GoalInput__Output } from '../core/GoalInput';
 import type { Habit as _core_Habit, Habit__Output as _core_Habit__Output } from '../core/Habit';
 import type { HabitInput as _core_HabitInput, HabitInput__Output as _core_HabitInput__Output } from '../core/HabitInput';
+import type { HabitLog as _core_HabitLog, HabitLog__Output as _core_HabitLog__Output } from '../core/HabitLog';
+import type { HabitLogInput as _core_HabitLogInput, HabitLogInput__Output as _core_HabitLogInput__Output } from '../core/HabitLogInput';
 import type { IdReq as _common_IdReq, IdReq__Output as _common_IdReq__Output } from '../common/IdReq';
 import type { IdResp as _common_IdResp, IdResp__Output as _common_IdResp__Output } from '../common/IdResp';
 import type { IntrospectReq as _core_IntrospectReq, IntrospectReq__Output as _core_IntrospectReq__Output } from '../core/IntrospectReq';
@@ -127,6 +129,15 @@ export interface CoreClient extends grpc.Client {
   upsertHabit(argument: _core_HabitInput, options: grpc.CallOptions, callback: grpc.requestCallback<_core_Habit__Output>): grpc.ClientUnaryCall;
   upsertHabit(argument: _core_HabitInput, callback: grpc.requestCallback<_core_Habit__Output>): grpc.ClientUnaryCall;
   
+  UpsertHabitLog(argument: _core_HabitLogInput, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_core_HabitLog__Output>): grpc.ClientUnaryCall;
+  UpsertHabitLog(argument: _core_HabitLogInput, metadata: grpc.Metadata, callback: grpc.requestCallback<_core_HabitLog__Output>): grpc.ClientUnaryCall;
+  UpsertHabitLog(argument: _core_HabitLogInput, options: grpc.CallOptions, callback: grpc.requestCallback<_core_HabitLog__Output>): grpc.ClientUnaryCall;
+  UpsertHabitLog(argument: _core_HabitLogInput, callback: grpc.requestCallback<_core_HabitLog__Output>): grpc.ClientUnaryCall;
+  upsertHabitLog(argument: _core_HabitLogInput, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_core_HabitLog__Output>): grpc.ClientUnaryCall;
+  upsertHabitLog(argument: _core_HabitLogInput, metadata: grpc.Metadata, callback: grpc.requestCallback<_core_HabitLog__Output>): grpc.ClientUnaryCall;
+  upsertHabitLog(argument: _core_HabitLogInput, options: grpc.CallOptions, callback: grpc.requestCallback<_core_HabitLog__Output>): grpc.ClientUnaryCall;
+  upsertHabitLog(argument: _core_HabitLogInput, callback: grpc.requestCallback<_core_HabitLog__Output>): grpc.ClientUnaryCall;
+  
   UpsertMetric(argument: _core_MetricInput, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_core_Metric__Output>): grpc.ClientUnaryCall;
   UpsertMetric(argument: _core_MetricInput, metadata: grpc.Metadata, callback: grpc.requestCallback<_core_Metric__Output>): grpc.ClientUnaryCall;
   UpsertMetric(argument: _core_MetricInput, options: grpc.CallOptions, callback: grpc.requestCallback<_core_Metric__Output>): grpc.ClientUnaryCall;
@@ -206,6 +217,8 @@ export interface CoreHandlers extends grpc.UntypedServiceImplementation {
   
   UpsertHabit: grpc.handleUnaryCall<_core_HabitInput__Output, _core_Habit>;
   
+  UpsertHabitLog: grpc.handleUnaryCall<_core_HabitLogInput__Output, _core_HabitLog>;
+  
   UpsertMetric: grpc.handleUnaryCall<_core_MetricInput__Output, _core_Metric>;
   
   UpsertTask: grpc.handleUnaryCall<_core_TaskInput__Output, _core_TaskMsg>;
@@ -232,6 +245,7 @@ export interface CoreDefinition extends grpc.ServiceDefinition {
   UpsertCharacter: MethodDefinition<_core_CharacterInput, _core_Character, _core_CharacterInput__Output, _core_Character__Output>
   UpsertGoal: MethodDefinition<_core_GoalInput, _core_Goal, _core_GoalInput__Output, _core_Goal__Output>
   UpsertHabit: MethodDefinition<_core_HabitInput, _core_Habit, _core_HabitInput__Output, _core_Habit__Output>
+  UpsertHabitLog: MethodDefinition<_core_HabitLogInput, _core_HabitLog, _core_HabitLogInput__Output, _core_HabitLog__Output>
   UpsertMetric: MethodDefinition<_core_MetricInput, _core_Metric, _core_MetricInput__Output, _core_Metric__Output>
   UpsertTask: MethodDefinition<_core_TaskInput, _core_TaskMsg, _core_TaskInput__Output, _core_TaskMsg__Output>
   UpsertTaskSession: MethodDefinition<_core_TaskSessionInput, _core_TaskSession, _core_TaskSessionInput__Output, _core_TaskSession__Output>
