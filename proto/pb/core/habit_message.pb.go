@@ -122,13 +122,13 @@ type Habit struct {
 	CreatedAt      int64                  `protobuf:"varint,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt      int64                  `protobuf:"varint,3,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	CharacterId    string                 `protobuf:"bytes,4,opt,name=character_id,json=characterId,proto3" json:"character_id,omitempty"`
-	CategoryId     string                 `protobuf:"bytes,5,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CategoryId     *string                `protobuf:"bytes,5,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
 	CompletionType CompletionType         `protobuf:"varint,6,opt,name=completion_type,json=completionType,proto3,enum=core.CompletionType" json:"completion_type,omitempty"`
 	Name           string                 `protobuf:"bytes,7,opt,name=name,proto3" json:"name,omitempty"`
 	Value          float32                `protobuf:"fixed32,8,opt,name=value,proto3" json:"value,omitempty"`
-	Unit           string                 `protobuf:"bytes,9,opt,name=unit,proto3" json:"unit,omitempty"`
+	Unit           *string                `protobuf:"bytes,9,opt,name=unit,proto3,oneof" json:"unit,omitempty"`
 	Rrule          string                 `protobuf:"bytes,10,opt,name=rrule,proto3" json:"rrule,omitempty"`
-	Reset_         HabitReset             `protobuf:"varint,11,opt,name=reset,proto3,enum=core.HabitReset" json:"reset,omitempty"`
+	ResetDuration  HabitReset             `protobuf:"varint,11,opt,name=reset_duration,json=resetDuration,proto3,enum=core.HabitReset" json:"reset_duration,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -192,8 +192,8 @@ func (x *Habit) GetCharacterId() string {
 }
 
 func (x *Habit) GetCategoryId() string {
-	if x != nil {
-		return x.CategoryId
+	if x != nil && x.CategoryId != nil {
+		return *x.CategoryId
 	}
 	return ""
 }
@@ -220,8 +220,8 @@ func (x *Habit) GetValue() float32 {
 }
 
 func (x *Habit) GetUnit() string {
-	if x != nil {
-		return x.Unit
+	if x != nil && x.Unit != nil {
+		return *x.Unit
 	}
 	return ""
 }
@@ -233,23 +233,23 @@ func (x *Habit) GetRrule() string {
 	return ""
 }
 
-func (x *Habit) GetReset_() HabitReset {
+func (x *Habit) GetResetDuration() HabitReset {
 	if x != nil {
-		return x.Reset_
+		return x.ResetDuration
 	}
 	return HabitReset_Daily
 }
 
 type HabitInput struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	CategoryId     string                 `protobuf:"bytes,2,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	Id             *string                `protobuf:"bytes,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	CategoryId     *string                `protobuf:"bytes,2,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
 	CompletionType CompletionType         `protobuf:"varint,3,opt,name=completion_type,json=completionType,proto3,enum=core.CompletionType" json:"completion_type,omitempty"`
 	Name           string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
 	Value          float32                `protobuf:"fixed32,5,opt,name=value,proto3" json:"value,omitempty"`
-	Unit           string                 `protobuf:"bytes,6,opt,name=unit,proto3" json:"unit,omitempty"`
+	Unit           *string                `protobuf:"bytes,6,opt,name=unit,proto3,oneof" json:"unit,omitempty"`
 	Rrule          string                 `protobuf:"bytes,7,opt,name=rrule,proto3" json:"rrule,omitempty"`
-	Reset_         HabitReset             `protobuf:"varint,8,opt,name=reset,proto3,enum=core.HabitReset" json:"reset,omitempty"`
+	ResetDuration  HabitReset             `protobuf:"varint,8,opt,name=reset_duration,json=resetDuration,proto3,enum=core.HabitReset" json:"reset_duration,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -285,15 +285,15 @@ func (*HabitInput) Descriptor() ([]byte, []int) {
 }
 
 func (x *HabitInput) GetId() string {
-	if x != nil {
-		return x.Id
+	if x != nil && x.Id != nil {
+		return *x.Id
 	}
 	return ""
 }
 
 func (x *HabitInput) GetCategoryId() string {
-	if x != nil {
-		return x.CategoryId
+	if x != nil && x.CategoryId != nil {
+		return *x.CategoryId
 	}
 	return ""
 }
@@ -320,8 +320,8 @@ func (x *HabitInput) GetValue() float32 {
 }
 
 func (x *HabitInput) GetUnit() string {
-	if x != nil {
-		return x.Unit
+	if x != nil && x.Unit != nil {
+		return *x.Unit
 	}
 	return ""
 }
@@ -333,9 +333,9 @@ func (x *HabitInput) GetRrule() string {
 	return ""
 }
 
-func (x *HabitInput) GetReset_() HabitReset {
+func (x *HabitInput) GetResetDuration() HabitReset {
 	if x != nil {
-		return x.Reset_
+		return x.ResetDuration
 	}
 	return HabitReset_Daily
 }
@@ -344,34 +344,39 @@ var File_core_habit_message_proto protoreflect.FileDescriptor
 
 const file_core_habit_message_proto_rawDesc = "" +
 	"\n" +
-	"\x18core/habit_message.proto\x12\x04core\"\xd4\x02\n" +
+	"\x18core/habit_message.proto\x12\x04core\"\x88\x03\n" +
 	"\x05Habit\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
 	"created_at\x18\x02 \x01(\x03R\tcreatedAt\x12\x1d\n" +
 	"\n" +
 	"updated_at\x18\x03 \x01(\x03R\tupdatedAt\x12!\n" +
-	"\fcharacter_id\x18\x04 \x01(\tR\vcharacterId\x12\x1f\n" +
-	"\vcategory_id\x18\x05 \x01(\tR\n" +
-	"categoryId\x12=\n" +
+	"\fcharacter_id\x18\x04 \x01(\tR\vcharacterId\x12$\n" +
+	"\vcategory_id\x18\x05 \x01(\tH\x00R\n" +
+	"categoryId\x88\x01\x01\x12=\n" +
 	"\x0fcompletion_type\x18\x06 \x01(\x0e2\x14.core.CompletionTypeR\x0ecompletionType\x12\x12\n" +
 	"\x04name\x18\a \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\b \x01(\x02R\x05value\x12\x12\n" +
-	"\x04unit\x18\t \x01(\tR\x04unit\x12\x14\n" +
+	"\x05value\x18\b \x01(\x02R\x05value\x12\x17\n" +
+	"\x04unit\x18\t \x01(\tH\x01R\x04unit\x88\x01\x01\x12\x14\n" +
 	"\x05rrule\x18\n" +
-	" \x01(\tR\x05rrule\x12&\n" +
-	"\x05reset\x18\v \x01(\x0e2\x10.core.HabitResetR\x05reset\"\xf8\x01\n" +
+	" \x01(\tR\x05rrule\x127\n" +
+	"\x0ereset_duration\x18\v \x01(\x0e2\x10.core.HabitResetR\rresetDurationB\x0e\n" +
+	"\f_category_idB\a\n" +
+	"\x05_unit\"\xb8\x02\n" +
 	"\n" +
-	"HabitInput\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
-	"\vcategory_id\x18\x02 \x01(\tR\n" +
-	"categoryId\x12=\n" +
+	"HabitInput\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12$\n" +
+	"\vcategory_id\x18\x02 \x01(\tH\x01R\n" +
+	"categoryId\x88\x01\x01\x12=\n" +
 	"\x0fcompletion_type\x18\x03 \x01(\x0e2\x14.core.CompletionTypeR\x0ecompletionType\x12\x12\n" +
 	"\x04name\x18\x04 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x05 \x01(\x02R\x05value\x12\x12\n" +
-	"\x04unit\x18\x06 \x01(\tR\x04unit\x12\x14\n" +
-	"\x05rrule\x18\a \x01(\tR\x05rrule\x12&\n" +
-	"\x05reset\x18\b \x01(\x0e2\x10.core.HabitResetR\x05reset*&\n" +
+	"\x05value\x18\x05 \x01(\x02R\x05value\x12\x17\n" +
+	"\x04unit\x18\x06 \x01(\tH\x02R\x04unit\x88\x01\x01\x12\x14\n" +
+	"\x05rrule\x18\a \x01(\tR\x05rrule\x127\n" +
+	"\x0ereset_duration\x18\b \x01(\x0e2\x10.core.HabitResetR\rresetDurationB\x05\n" +
+	"\x03_idB\x0e\n" +
+	"\f_category_idB\a\n" +
+	"\x05_unit*&\n" +
 	"\x0eCompletionType\x12\n" +
 	"\n" +
 	"\x06Number\x10\x00\x12\b\n" +
@@ -405,9 +410,9 @@ var file_core_habit_message_proto_goTypes = []any{
 }
 var file_core_habit_message_proto_depIdxs = []int32{
 	0, // 0: core.Habit.completion_type:type_name -> core.CompletionType
-	1, // 1: core.Habit.reset:type_name -> core.HabitReset
+	1, // 1: core.Habit.reset_duration:type_name -> core.HabitReset
 	0, // 2: core.HabitInput.completion_type:type_name -> core.CompletionType
-	1, // 3: core.HabitInput.reset:type_name -> core.HabitReset
+	1, // 3: core.HabitInput.reset_duration:type_name -> core.HabitReset
 	4, // [4:4] is the sub-list for method output_type
 	4, // [4:4] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name
@@ -420,6 +425,8 @@ func file_core_habit_message_proto_init() {
 	if File_core_habit_message_proto != nil {
 		return
 	}
+	file_core_habit_message_proto_msgTypes[0].OneofWrappers = []any{}
+	file_core_habit_message_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

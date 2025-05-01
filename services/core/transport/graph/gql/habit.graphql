@@ -5,12 +5,12 @@ type Habit {
   characterID: ID!
   categoryID: ID
   category: Category
-  completionType: CompletionType
+  completionType: CompletionType!
   name: String!
   value: Float!
   unit: String
-  rrule: String
-  reset: HabitReset!
+  rrule: String!
+  resetDuration: HabitReset!
 }
 
 enum CompletionType {
@@ -27,7 +27,7 @@ input HabitInput {
   value: Float!
   unit: String
   rrule: String!
-  reset: HabitReset!
+  resetDuration: HabitReset!
 }
 
 enum HabitReset {

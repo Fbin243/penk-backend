@@ -19,11 +19,11 @@ type HabitLogPipeline struct {
 }
 
 type HabitLogFilter struct {
-	HabitIDs  []string    `json:"habit_ids"`
-	HabitID   *string     `json:"habit_id"`
-	StartTime *time.Time  `json:"start_time"`
-	EndTime   *time.Time  `json:"end_time"`
-	Reset     *HabitReset `json:"reset"`
+	HabitIDs      []string    `json:"habit_ids"`
+	HabitID       *string     `json:"habit_id"`
+	StartTime     *time.Time  `json:"start_time"`
+	EndTime       *time.Time  `json:"end_time"`
+	ResetDuration *HabitReset `json:"resetDuration"`
 }
 
 type HabitLogOrderBy struct {

@@ -66,7 +66,7 @@ func (r *HabitLogRepo) addMatchStage(p []bson.M, filter *entity.HabitLogFilter) 
 		matchStage["timestamp"] = timeRange
 	}
 
-	if filter.Reset != nil {
+	if filter.ResetDuration != nil {
 		// Get all habit logs of a habit has this reset
 		p = append(p, bson.M{"$lookup": bson.M{
 			"from":         mongodb.HabitsCollection,
@@ -75,7 +75,7 @@ func (r *HabitLogRepo) addMatchStage(p []bson.M, filter *entity.HabitLogFilter) 
 			"as":           "habit",
 		}})
 		p = append(p, bson.M{"$unwind": "$habit"})
-		matchStage["habit.reset"] = *filter.Reset
+		matchStage["habit.reset_duration"] = *filter.ResetDuration
 	}
 
 	return append(p, bson.M{"$match": matchStage})
