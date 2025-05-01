@@ -60,9 +60,13 @@ var UnixTimeConverter = []copier.TypeConverter{
 		SrcType: lo.ToPtr(int64(0)),
 		DstType: &time.Time{},
 		Fn: func(src any) (any, error) {
+			if src.(*int64) == nil {
+				return nil, nil
+			}
 			return lo.ToPtr(time.Unix(*src.(*int64), 0)), nil
 		},
 	},
+	// Handle for int64 to *time.Time
 	{
 		SrcType: int64(0),
 		DstType: &time.Time{},
