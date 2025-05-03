@@ -86,10 +86,10 @@ make restore-col COL=<colection-name>
 
 ```sh
 # Microservices (Test DB)
-make test SERVICE="core analytic timetracking currency penk"
+make test SERVICE="core analytic timetracking currency notification penk payment"
 
 # Microservices (Dev DB)
-make dev SERVICE="core analytic timetracking currency penk"
+make dev SERVICE="ccore analytic timetracking currency notification penk payment"
 
 # Gateway
 make gateway

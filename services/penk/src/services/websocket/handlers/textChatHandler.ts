@@ -1,11 +1,13 @@
 import { WebSocket } from "ws";
 
 import { textStream } from "../../../utils/ai";
-import { PenKMessageModel, PenKUsageModel } from "../../../utils/database/mongo";
+import { MembershipModel, PenKMessageModel } from "../../../utils/database/mongo";
 import { getPenKData, getPenKMessages } from "../../../utils/database/utils";
 import { Ws_Message, Ws_MessageType } from "../../../utils/types";
 import { WebSocketContext } from "../types";
 import { sendErrorResponse } from "../utils";
+
+const costMultiplier = 5;
 
 export const handleTextChat = (ws: WebSocket, context: WebSocketContext) => {
   console.log(`Text chat connection established for user: ${context.email}`);
@@ -13,6 +15,17 @@ export const handleTextChat = (ws: WebSocket, context: WebSocketContext) => {
   ws.on("message", async (message: string) => {
     try {
       const { data } = JSON.parse(message.toString()) as Ws_Message;
+
+      const membership = await MembershipModel.findOne({ email: context.email }).catch((error) => {
+        console.error("Error fetching membership data:", error);
+        return null;
+      });
+      const monthlyCredit = membership?.monthly_credit || 0;
+      const persistentCredit = membership?.persistent_credit || 0;
+      if (monthlyCredit <= 0 && persistentCredit <= 0) {
+        sendErrorResponse(ws, "Not enough credits");
+        return;
+      }
 
       const [penkData, history] = await Promise.all([
         getPenKData(context.userId),
@@ -70,14 +83,21 @@ export const handleTextChat = (ws: WebSocket, context: WebSocketContext) => {
           });
         }
 
-        console.log("Total cost:", cost);
-        console.log();
-        PenKUsageModel.updateOne(
-          { profile_id: context.profileId },
-          { $inc: { total_cost: cost, text_chat_count: 1 } },
-          { upsert: true },
+        const creditCost = cost * costMultiplier;
+        const monthlyCreditUsed = monthlyCredit > creditCost ? creditCost : monthlyCredit;
+        const persistentCreditUsed = monthlyCredit > creditCost ? 0 : creditCost - monthlyCredit;
+        await MembershipModel.findOneAndUpdate(
+          { email: context.email },
+          {
+            $inc: {
+              monthly_credit: -monthlyCreditUsed,
+              persistent_credit: -persistentCreditUsed,
+            },
+          },
+          { new: true },
         ).catch((error) => {
-          console.error("Error updating usage:", error);
+          console.error("Error updating payment data:", error);
+          return null;
         });
       } catch (error) {
         console.error("Error in streaming chat:", error);

@@ -17,7 +17,7 @@ const ProfileSchema = new Schema({
 
 export const ProfileModel = conn.model("profiles", ProfileSchema);
 
-const PaymentSchema = new Schema({
+const MembershipSchema = new Schema({
     // I don't use `user_id` because a user may make a purchase before creating an account
     email: { type: String, required: true },
     monthly_credit: { type: Number, default: 0 },
@@ -25,4 +25,4 @@ const PaymentSchema = new Schema({
     period_end: { type: Date, default: null },
 });
 
-export const PaymentModel = conn.model("payments", PaymentSchema);
+export const MembershipModel = conn.model("memberships", MembershipSchema);

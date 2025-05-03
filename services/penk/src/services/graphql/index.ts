@@ -3,7 +3,7 @@ import { ApolloServer, gql } from "apollo-server";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
-import { OAuthTokenModel, PenKContextModel } from "../../utils/database/mongo";
+import { MembershipModel, OAuthTokenModel, PenKContextModel } from "../../utils/database/mongo";
 import { getRedisClient } from "../../utils/database/redis";
 import { getLinkedAccounts, getPenKMessages, getProfileByEmail } from "../../utils/database/utils";
 import { decodeFirebaseJwt } from "../../utils/firebase";
@@ -55,6 +55,32 @@ const resolvers: Resolvers = {
       requireAuth(context);
       const linkedAccounts = await getLinkedAccounts(context.profileId);
       return linkedAccounts;
+    },
+    membership: async (_, __, context) => {
+      requireAuth(context);
+      const membership = await MembershipModel.findOne({ email: context.email });
+      if (membership) {
+        return {
+          monthlyCredit: membership.monthly_credit,
+          persistentCredit: membership.persistent_credit,
+          periodEnd: membership.period_end ? membership.period_end.toISOString() : null,
+        };
+      } else {
+        // TODO: Get the free persistent credit from the config/database
+        const freePersistentCredit = 20;
+        const newMembership = new MembershipModel({
+          email: context.email,
+          monthly_credit: 0,
+          persistent_credit: freePersistentCredit,
+          period_end: null,
+        });
+        await newMembership.save();
+        return {
+          monthlyCredit: newMembership.monthly_credit,
+          persistentCredit: newMembership.persistent_credit,
+          periodEnd: newMembership.period_end ? newMembership.period_end.toISOString() : null,
+        };
+      }
     },
   },
   Mutation: {

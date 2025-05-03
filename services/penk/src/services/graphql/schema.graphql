@@ -3,6 +3,7 @@ type Query {
   messages: [Message!]!
   googleAuthUrl(type: LinkedAccountType!): String!
   linkedAccounts: [LinkedAccount!]!
+  membership: Membership!
 }
 
 type Mutation {
@@ -85,6 +86,12 @@ input ContextInput {
   context: String!
 }
 
+type Membership {
+  monthlyCredit: Float!
+  persistentCredit: Float!
+  periodEnd: String
+}
+
 # WS Types
 type WS_Message {
   type: WS_MessageType!
@@ -95,6 +102,7 @@ type WS_Message {
 enum WS_MessageType {
   AUTH
   INFO
+  ERROR
   TEXT_CHAT
   TEXT_STREAM
   TEXT_STREAM_ENDED

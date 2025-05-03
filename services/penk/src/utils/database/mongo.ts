@@ -68,18 +68,14 @@ PenKMessageSchema.index(
 
 export const PenKMessageModel = conn.model("penk_messages", PenKMessageSchema);
 
-const PenKUsageSchema = new Schema({
-  profile_id: {
-    type: Schema.Types.ObjectId,
-    ref: "characters",
-    required: true,
-  },
-  total_cost: { type: Number, required: true },
-  text_chat_count: { type: Number, required: true },
-  voice_chat_count: { type: Number, required: true },
+const MembershipSchema = new Schema({
+  email: { type: String, required: true },
+  monthly_credit: { type: Number, default: 0 },
+  persistent_credit: { type: Number, default: 0 },
+  period_end: { type: Date, default: null },
 });
 
-export const PenKUsageModel = conn.model("penk_usages", PenKUsageSchema);
+export const MembershipModel = conn.model("memberships", MembershipSchema);
 
 // 1 profile can link multiple oauth tokens
 export const OAuthTokenSchema = new Schema({

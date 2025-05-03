@@ -13,7 +13,7 @@ export const sendInfoResponse = (ws: WebSocket, infoType: Ws_InfoType): void => 
 
 export const sendErrorResponse = (ws: WebSocket, message: string): void => {
   const response: Ws_Message = {
-    type: Ws_MessageType.Info,
+    type: Ws_MessageType.Error,
     data: message,
     timestamp: new Date().toISOString(),
   };

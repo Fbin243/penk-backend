@@ -43,6 +43,10 @@ penk:
 	@echo "Starting penk service..."
 	cd services/penk && npm run start
 
+payment:
+	@echo "Starting payment service..."
+	cd services/payment && npm run start
+
 gateway:
 	@cd services/gateway && npm run dev
 

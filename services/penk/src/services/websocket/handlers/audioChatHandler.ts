@@ -2,7 +2,7 @@ import { WebSocket } from "ws";
 
 import { audioChat, base64ToUploadable, transcribeAudio } from "../../../utils/ai";
 import { convertAudioFormatToMp3 } from "../../../utils/audio";
-import { PenKMessageModel, PenKUsageModel } from "../../../utils/database/mongo";
+import { PenKMessageModel } from "../../../utils/database/mongo";
 import { getPenKData, getPenKMessages } from "../../../utils/database/utils";
 import {
   Message,
@@ -140,14 +140,6 @@ export const handleAudioChat = (ws: WebSocket, context: WebSocketContext) => {
 
           const totalCost = transcriptionResult.cost + cost;
           console.log("Total cost:", totalCost);
-
-          PenKUsageModel.updateOne(
-            { profile_id: context.profileId },
-            { $inc: { total_cost: totalCost, voice_chat_count: 1 } },
-            { upsert: true },
-          ).catch((error) => {
-            console.error("Error updating usage:", error);
-          });
 
           const totalTime = Date.now() - startTime;
           console.log(`Total audio chat processing completed in ${totalTime}ms`);

@@ -43,6 +43,13 @@ export enum LinkedAccountType {
   GoogleCalendar = 'GoogleCalendar'
 }
 
+export type Membership = {
+  __typename?: 'Membership';
+  monthlyCredit: Scalars['Float']['output'];
+  periodEnd?: Maybe<Scalars['String']['output']>;
+  persistentCredit: Scalars['Float']['output'];
+};
+
 export type Message = {
   __typename?: 'Message';
   content: Scalars['String']['output'];
@@ -77,6 +84,7 @@ export type Query = {
   context?: Maybe<Context>;
   googleAuthUrl: Scalars['String']['output'];
   linkedAccounts: Array<LinkedAccount>;
+  membership: Membership;
   messages: Array<Message>;
 };
 
@@ -134,6 +142,7 @@ export enum Ws_MessageType {
   Auth = 'AUTH',
   ConfigAudioFormat = 'CONFIG_AUDIO_FORMAT',
   DownloadAudio = 'DOWNLOAD_AUDIO',
+  Error = 'ERROR',
   Info = 'INFO',
   TextChat = 'TEXT_CHAT',
   TextStream = 'TEXT_STREAM',
@@ -218,9 +227,11 @@ export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Context: ResolverTypeWrapper<Context>;
   ContextInput: ContextInput;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   LinkedAccount: ResolverTypeWrapper<LinkedAccount>;
   LinkedAccountType: LinkedAccountType;
+  Membership: ResolverTypeWrapper<Membership>;
   Message: ResolverTypeWrapper<Message>;
   MessageType: MessageType;
   Mutation: ResolverTypeWrapper<{}>;
@@ -237,8 +248,10 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
   Context: Context;
   ContextInput: ContextInput;
+  Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
   LinkedAccount: LinkedAccount;
+  Membership: Membership;
   Message: Message;
   Mutation: {};
   Query: {};
@@ -261,6 +274,13 @@ export type LinkedAccountResolvers<ContextType = ResolverContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type MembershipResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Membership'] = ResolversParentTypes['Membership']> = ResolversObject<{
+  monthlyCredit?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  periodEnd?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  persistentCredit?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MessageResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Message'] = ResolversParentTypes['Message']> = ResolversObject<{
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -277,6 +297,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   context?: Resolver<Maybe<ResolversTypes['Context']>, ParentType, ContextType>;
   googleAuthUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryGoogleAuthUrlArgs, 'type'>>;
   linkedAccounts?: Resolver<Array<ResolversTypes['LinkedAccount']>, ParentType, ContextType>;
+  membership?: Resolver<ResolversTypes['Membership'], ParentType, ContextType>;
   messages?: Resolver<Array<ResolversTypes['Message']>, ParentType, ContextType>;
 }>;
 
@@ -290,6 +311,7 @@ export type Ws_MessageResolvers<ContextType = ResolverContext, ParentType extend
 export type Resolvers<ContextType = ResolverContext> = ResolversObject<{
   Context?: ContextResolvers<ContextType>;
   LinkedAccount?: LinkedAccountResolvers<ContextType>;
+  Membership?: MembershipResolvers<ContextType>;
   Message?: MessageResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

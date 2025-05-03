@@ -2,7 +2,7 @@ import "./bootstrap";
 
 import express from "express";
 import { Webhooks } from "@polar-sh/express";
-import { PaymentModel } from "./utils/database/mongo";
+import { MembershipModel } from "./utils/database/mongo";
 
 const app = express();
 const PORT = 8095;
@@ -21,7 +21,7 @@ app.use(express.json()).post(
                 const email = payload.data.customer.email;
                 const monthlyCredit = proTierMonthlyCredit;
                 const periodEnd = payload.data.subscription.currentPeriodEnd;
-                PaymentModel.findOneAndUpdate(
+                MembershipModel.findOneAndUpdate(
                     { email },
                     {
                         $set: {
@@ -38,7 +38,7 @@ app.use(express.json()).post(
                 const email = payload.data.customer.email;
                 const creditsPurchased =
                     payload.data.subtotalAmount / 100 / costPerCredit; // The amount is in cents
-                PaymentModel.findOneAndUpdate(
+                MembershipModel.findOneAndUpdate(
                     { email },
                     {
                         $inc: {
