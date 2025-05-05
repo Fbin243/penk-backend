@@ -17,7 +17,7 @@ type Task struct {
 	Priority            int                 `json:"priority"      bson:"priority"`
 	CompletedTime       *time.Time          `json:"completedTime" bson:"completed_time"`
 	Subtasks            []Checkbox          `json:"subtasks"      bson:"subtasks"`
-	Description         string              `json:"description"   bson:"description"`
+	Description         *string             `json:"description"   bson:"description"`
 	Deadline            *time.Time          `json:"deadline"      bson:"deadline"`
 }
 
