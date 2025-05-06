@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"tenkhours/pkg/errors"
+	"tenkhours/pkg/middlewares"
 	"tenkhours/proto/pb/notification"
 	"tenkhours/services/notification/composer"
 	"tenkhours/services/notification/transport/graph"
@@ -27,6 +28,9 @@ func main() {
 		log.Printf("Error loading .env file: %v", err)
 	}
 
+	// Initialize the Composer to get all dependencies
+	comp := composer.GetComposer()
+
 	app := gin.Default()
 
 	app.Use(cors.New(cors.Config{
@@ -40,6 +44,10 @@ func main() {
 		})
 	})
 
+	authClient, conn := middlewares.ComposeAuthClient()
+	defer conn.Close()
+	app.Use(middlewares.RequireAuth(authClient))
+
 	// Init GraphQL server
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: composer.ComposeGraphQLResolver(),
@@ -51,6 +59,16 @@ func main() {
 
 	// Start RPC server
 	go startRPCServer()
+
+	// Start the Reminder Cron job in a separate goroutine
+	go comp.ReminderCron.Start()
+
+	// Start the Kafka Consumer in a separate goroutine
+	go comp.KafkaConsumer.Start()
+
+	// Defer closing Kafka connections to ensure proper cleanup
+	defer comp.KafkaProducer.Close()
+	defer comp.KafkaConsumer.Close()
 
 	port, found := os.LookupEnv("NOTIFICATION_PORT")
 	if !found {

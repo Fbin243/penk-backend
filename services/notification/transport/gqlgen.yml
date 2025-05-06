@@ -92,3 +92,11 @@ models:
     - github.com/99designs/gqlgen/graphql.Int
     - github.com/99designs/gqlgen/graphql.Int64
     - github.com/99designs/gqlgen/graphql.Int32
+  Reminder:
+    model: tenkhours/services/notification/entity.Reminder
+  ReminderInput:
+    model: tenkhours/services/notification/entity.ReminderInput
+  ReminderType:
+    model: tenkhours/services/notification/entity.ReminderType
+  ReminderStatus:
+    model: tenkhours/services/notification/entity.ReminderStatus

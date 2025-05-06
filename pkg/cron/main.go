@@ -23,3 +23,8 @@ func (c *Cron) RunEverySeconds(task func(), seconds int) {
 	_, _ = c.AddFunc(fmt.Sprintf("@every %ds", seconds), task)
 	c.Start()
 }
+
+func (c *Cron) RunEveryHours(task func()) {
+	c.AddFunc("0 * * * *", task)
+	c.Start()
+}

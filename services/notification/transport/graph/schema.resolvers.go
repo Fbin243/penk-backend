@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"tenkhours/services/notification/entity"
 )
 
 // AddToWaitlist is the resolver for the addToWaitlist field.
@@ -42,14 +43,61 @@ func (r *mutationResolver) RemoveDeviceToken(ctx context.Context, token string, 
 	return true, nil
 }
 
+// CreateReminder is the resolver for the createReminder field.
+func (r *mutationResolver) CreateReminder(ctx context.Context, input entity.ReminderInput) (*entity.Reminder, error) {
+	createdReminder, err := r.ReminderBusiness.CreateReminder(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create reminder: %w", err)
+	}
+
+	return createdReminder, nil
+}
+
+// UpdateReminder is the resolver for the updateReminder field.
+func (r *mutationResolver) UpdateReminder(ctx context.Context, id string, input entity.ReminderInput) (*entity.Reminder, error) {
+	updatedReminder, err := r.ReminderBusiness.UpdateReminder(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update reminder: %w", err)
+	}
+
+	return updatedReminder, nil
+}
+
+// DeleteReminder is the resolver for the deleteReminder field.
+func (r *mutationResolver) DeleteReminder(ctx context.Context, id string) (bool, error) {
+	deleted, err := r.ReminderBusiness.DeleteReminder(ctx, id)
+	if err != nil {
+		return false, fmt.Errorf("failed to delete reminder: %w", err)
+	}
+
+	return deleted, nil
+}
+
+// GetReminders is the resolver for the getReminders field.
+func (r *queryResolver) GetReminders(ctx context.Context) ([]*entity.Reminder, error) {
+	reminders, err := r.ReminderBusiness.GetRemindersByProfileID(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get reminders: %w", err)
+	}
+
+	return reminders, nil
+}
+
+// GetReminder is the resolver for the getReminder field.
+func (r *queryResolver) GetReminder(ctx context.Context, id string) (*entity.Reminder, error) {
+	reminder, err := r.ReminderBusiness.GetReminderByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get reminder: %w", err)
+	}
+
+	return reminder, nil
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
-type mutationResolver struct{ *Resolver }
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
