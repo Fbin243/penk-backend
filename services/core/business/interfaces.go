@@ -61,6 +61,10 @@ type ITaskBusiness interface {
 	DeleteTaskSession(ctx context.Context, id string) (*entity.TaskSession, error)
 }
 
+type IReminderBusiness interface {
+	base.IBaseBusiness[entity.Reminder, entity.ReminderInput, entity.ReminderFilter, entity.ReminderOrderBy]
+}
+
 // Repository
 type IProfileRepo interface {
 	base.IBaseRepo[entity.Profile]
@@ -178,6 +182,14 @@ type ITaskSessionRepo interface {
 	DeleteByTaskID(ctx context.Context, taskID string) error
 	DeleteByTaskIDs(ctx context.Context, taskIDs []string) error
 	CountByTaskID(ctx context.Context, taskID string) (int, error)
+}
+
+type IReminderRepo interface {
+	base.IBaseRepo[entity.Reminder]
+	FindByCharacterID(ctx context.Context, characterID string) ([]entity.Reminder, error)
+	CountByCharacterID(ctx context.Context, characterID string) (int, error)
+	Find(ctx context.Context, p entity.ReminderPipeline) ([]entity.Reminder, error)
+	CountByFilter(ctx context.Context, filter *entity.ReminderFilter) (int, error)
 }
 
 // RPCs

@@ -8,6 +8,7 @@ const (
 	LimitedHabitNumber     = 100
 	LimitedGoalNumber      = 100
 	LimitedTaskNumber      = 100
+	LimitedReminderNumber  = 50
 	MinDurationTime        = 0
 	MaxDurationTime        = 4 * 60 * 60
 	MaxTimeDifference      = 60

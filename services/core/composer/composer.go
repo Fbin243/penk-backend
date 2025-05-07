@@ -20,6 +20,7 @@ type Composer struct {
 	HabitBiz        business.IHabitBusiness
 	TimeTrackingBiz business.ITimeTrackingBusiness
 	TaskBiz         business.ITaskBusiness
+	ReminderBiz     business.IReminderBusiness
 
 	CharacterRepo    business.ICharacterRepo
 	CategoryRepo     business.ICategoryRepo
@@ -62,6 +63,7 @@ func GetComposer() *Composer {
 	taskRepo := mongorepo.NewTaskRepo(mongodb)
 	taskSessionRepo := mongorepo.NewTaskSessionRepo(mongodb)
 	rewardRepo := rewardrepo.NewRewardRepo(mongodb)
+	reminderRepo := mongorepo.NewReminderRepo(mongodb)
 
 	// RPC Clients
 	currencyClient, currencyConn := ComposeCurrencyClient()
@@ -77,6 +79,7 @@ func GetComposer() *Composer {
 	habitBiz := business.NewHabitBusiness(permBiz, habitRepo, habitLogRepo, categoryRepo, timetrackingRepo)
 	timetrackingBiz := business.NewTimeTrackingBusiness(permBiz, notiClient, habitRepo, habitLogRepo, timetrackingRepo)
 	taskBiz := business.NewTaskBusiness(permBiz, taskRepo, taskSessionRepo, timetrackingRepo)
+	reminderBiz := business.NewReminderBusiness(reminderRepo, permBiz)
 
 	return &Composer{
 		ProfileBiz:      profileBiz,
@@ -87,6 +90,7 @@ func GetComposer() *Composer {
 		HabitBiz:        habitBiz,
 		TimeTrackingBiz: timetrackingBiz,
 		TaskBiz:         taskBiz,
+		ReminderBiz:     reminderBiz,
 
 		CharacterRepo:    characterRepo,
 		CategoryRepo:     categoryRepo,

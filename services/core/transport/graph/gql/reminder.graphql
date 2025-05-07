@@ -1,0 +1,33 @@
+type Reminder {
+    id: ID!
+    createdAt: Time!
+    updatedAt: Time!
+    characterID: ID!
+    name: String!
+    remindTime: Time!
+    rrule: String!
+    referenceID: ID
+    referenceType: EntityType
+}
+
+input ReminderInput {
+    id: ID
+    name: String!
+    remindTime: Time!
+    rrule: String!
+    referenceID: ID
+    referenceType: EntityType
+}
+
+input ReminderFilter {
+    _keep: Boolean
+}
+
+input ReminderOrderBy {
+    _keep: Boolean
+}
+
+type ReminderConnection {
+    totalCount: Int!
+    edges: [Reminder!]!
+}

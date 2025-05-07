@@ -54,6 +54,11 @@ type Mutation struct {
 type Query struct {
 }
 
+type ReminderConnection struct {
+	TotalCount int               `json:"totalCount"`
+	Edges      []entity.Reminder `json:"edges"`
+}
+
 type TaskConnection struct {
 	TotalCount int           `json:"totalCount"`
 	Edges      []entity.Task `json:"edges"`
