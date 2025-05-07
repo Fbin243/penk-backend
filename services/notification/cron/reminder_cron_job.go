@@ -10,14 +10,14 @@ import (
 )
 
 type ReminderCron struct {
-	ReminderRepo  business.IReminderRepo
-	KafkaProducer *messagequeue.KafkaProducer
+	ReminderRepo      business.IReminderRepo
+	NotificationQueue *messagequeue.NotificationQueue
 }
 
-func NewReminderCron(reminderRepo business.IReminderRepo, kafkaProducer *messagequeue.KafkaProducer) *ReminderCron {
+func NewReminderCron(reminderRepo business.IReminderRepo, notificationQueue *messagequeue.NotificationQueue) *ReminderCron {
 	return &ReminderCron{
-		ReminderRepo:  reminderRepo,
-		KafkaProducer: kafkaProducer,
+		ReminderRepo:      reminderRepo,
+		NotificationQueue: notificationQueue,
 	}
 }
 
@@ -46,7 +46,7 @@ func (r *ReminderCron) ProcessReminders() {
 
 	// Publish each reminder to Kafka
 	for _, reminder := range reminders {
-		err := r.KafkaProducer.Publish(ctx, reminder)
+		err := r.NotificationQueue.PublishReminder(ctx, reminder)
 		if err != nil {
 			log.Printf("Failed to publish reminder %s to Kafka: %v\n", reminder.ID, err)
 		} else {

@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
@@ -27,6 +30,10 @@ func main() {
 	if err := godotenv.Load(".env." + env); err != nil {
 		log.Printf("Error loading .env file: %v", err)
 	}
+
+	// Create a context that will be canceled on shutdown
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	// Initialize the Composer to get all dependencies
 	comp := composer.GetComposer()
@@ -64,20 +71,40 @@ func main() {
 	go comp.ReminderCron.Start()
 
 	// Start the Kafka Consumer in a separate goroutine
-	go comp.KafkaConsumer.Start()
-
-	// Defer closing Kafka connections to ensure proper cleanup
-	defer comp.KafkaProducer.Close()
-	defer comp.KafkaConsumer.Close()
-
-	port, found := os.LookupEnv("NOTIFICATION_PORT")
-	if !found {
-		port = "8084"
+	if err := comp.NotificationQueue.Start(ctx); err != nil {
+		log.Printf("Failed to start notification queue: %v", err)
 	}
 
-	if err := app.Run(":" + port); err != nil {
-		log.Fatalf("failed to run server: %v", err)
+	// Handle graceful shutdown
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	// Start the server in a goroutine
+	go func() {
+		port, found := os.LookupEnv("NOTIFICATION_PORT")
+		if !found {
+			port = "8084"
+		}
+
+		if err := app.Run(":" + port); err != nil {
+			log.Printf("Failed to run server: %v", err)
+			cancel()
+		}
+	}()
+
+	// Wait for shutdown signal
+	<-sigChan
+	log.Println("Shutting down...")
+
+	// Cancel context to stop all goroutines
+	cancel()
+
+	// Close Kafka connections
+	if err := comp.NotificationQueue.Close(); err != nil {
+		log.Printf("Error closing notification queue: %v", err)
 	}
+
+	log.Println("Shutdown complete")
 }
 
 func startRPCServer() {
