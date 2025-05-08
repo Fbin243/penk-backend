@@ -35,7 +35,6 @@ type Composer struct {
 	ReminderCache    business.IReminderCache
 
 	CurrencyConn *grpc.ClientConn
-	AnalyticConn *grpc.ClientConn
 	NotiConn     *grpc.ClientConn
 
 	RewardRepo business.IRewardRepo
@@ -108,7 +107,6 @@ func GetComposer() *Composer {
 		ReminderCache:    reminderCache,
 
 		CurrencyConn: currencyConn,
-		AnalyticConn: nil,
 		NotiConn:     notiConn,
 
 		RewardRepo: rewardRepo,
@@ -118,7 +116,6 @@ func GetComposer() *Composer {
 }
 
 func (c *Composer) Close() {
-	c.AnalyticConn.Close()
 	c.CurrencyConn.Close()
 	c.NotiConn.Close()
 }

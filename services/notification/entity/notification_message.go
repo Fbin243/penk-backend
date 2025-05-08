@@ -10,7 +10,7 @@ type NotificationMessage struct {
 	CharacterID string `json:"character_id"`
 
 	// Notification content
-	Name     string `json:"title"`
+	Name     string `json:"name"`
 	Body     string `json:"body"`
 	Priority string `json:"priority"` // high, normal, low
 
@@ -19,5 +19,5 @@ type NotificationMessage struct {
 	ReferenceType *core_entity.EntityType `json:"reference_type,omitempty"`
 
 	// Additional data for deep linking
-	Data map[string]interface{} `json:"data,omitempty"`
+	Data map[string]any `json:"data,omitempty"`
 }

@@ -19,15 +19,6 @@ import (
 	"github.com/teambition/rrule-go"
 )
 
-type CreateReminderInput struct {
-	CharacterID   string
-	Name          string
-	RemindTimeStr string
-	RRule         string
-	ReferenceID   *string
-	ReferenceType *entity.EntityType
-}
-
 func (b *ReminderBusiness) Upsert(ctx context.Context, input *entity.ReminderInput) (*entity.Reminder, error) {
 	authSession, err := auth.GetAuthSession(ctx)
 	if err != nil {
