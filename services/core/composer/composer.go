@@ -31,8 +31,8 @@ type Composer struct {
 	TaskRepo         business.ITaskRepo
 	TaskSessionRepo  business.ITaskSessionRepo
 	GoalRepo         business.IGoalRepo
-	ReminderRepo     *mongorepo.ReminderRepo
-	ReminderCache    *redisrepo.ReminderCache
+	ReminderRepo     business.IReminderRepo
+	ReminderCache    business.IReminderCache
 
 	CurrencyConn *grpc.ClientConn
 	AnalyticConn *grpc.ClientConn
@@ -82,7 +82,7 @@ func GetComposer() *Composer {
 	habitBiz := business.NewHabitBusiness(permBiz, habitRepo, habitLogRepo, categoryRepo, timetrackingRepo)
 	timetrackingBiz := business.NewTimeTrackingBusiness(permBiz, notiClient, habitRepo, habitLogRepo, timetrackingRepo)
 	taskBiz := business.NewTaskBusiness(permBiz, taskRepo, taskSessionRepo, timetrackingRepo)
-	reminderBiz := business.NewReminderBusiness(reminderRepo, permBiz)
+	reminderBiz := business.NewReminderBusiness(reminderRepo, permBiz, reminderCache)
 
 	composer = &Composer{
 		ProfileBiz:      profileBiz,

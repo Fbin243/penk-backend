@@ -1,13 +1,15 @@
 package business
 
 type ReminderBusiness struct {
-	reminderRepo IReminderRepo
-	permBiz      IPermissionBusiness
+	reminderRepo  IReminderRepo
+	permBiz       IPermissionBusiness
+	reminderCache IReminderCache
 }
 
-func NewReminderBusiness(reminderRepo IReminderRepo, permBiz IPermissionBusiness) *ReminderBusiness {
+func NewReminderBusiness(reminderRepo IReminderRepo, permBiz IPermissionBusiness, reminderCache IReminderCache) *ReminderBusiness {
 	return &ReminderBusiness{
-		reminderRepo: reminderRepo,
-		permBiz:      permBiz,
+		reminderRepo:  reminderRepo,
+		permBiz:       permBiz,
+		reminderCache: reminderCache,
 	}
 }

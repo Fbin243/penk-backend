@@ -192,6 +192,12 @@ type IReminderRepo interface {
 	CountByFilter(ctx context.Context, filter *entity.ReminderFilter) (int, error)
 }
 
+type IReminderCache interface {
+	Exist(ctx context.Context, reminder *entity.Reminder) error
+	UpsertReminder(ctx context.Context, reminder *entity.Reminder) error
+	DeleteReminder(ctx context.Context, id string) error
+}
+
 // RPCs
 type ICurrencyClient interface {
 	CreateFish(ctx context.Context, profileID string) error

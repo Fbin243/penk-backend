@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"tenkhours/pkg/utils"
 	core_entity "tenkhours/services/core/entity"
 
 	"github.com/samber/lo"
@@ -48,6 +49,8 @@ func (biz *NotificationBusiness) UpdateOutdatedReminders(ctx context.Context) er
 		return fmt.Errorf("failed to get reminders from redis: %v", err)
 	}
 
+	log.Printf("Redis reminders: %v", redisReminders)
+
 	if err := biz.ReminderRepo.BulkUpdateRemindTimes(ctx, redisReminders); err != nil {
 		return fmt.Errorf("failed to update reminders in MongoDB: %v", err)
 	}
@@ -58,6 +61,8 @@ func (biz *NotificationBusiness) UpdateOutdatedReminders(ctx context.Context) er
 	if err != nil {
 		return fmt.Errorf("failed to get outdated reminders from MongoDB: %v", err)
 	}
+
+	log.Printf("Outdated reminders: %v", outdatedReminders)
 
 	// Calculate next occurrence for each outdated reminder
 	updatedReminders := make([]core_entity.Reminder, 0, len(outdatedReminders))
@@ -90,23 +95,39 @@ func (biz *NotificationBusiness) UpdateOutdatedReminders(ctx context.Context) er
 
 // ProcessRemindersWithMinScore processes all reminders with the minimum score
 func (biz *NotificationBusiness) ProcessRemindersWithMinScore(ctx context.Context) (float64, error) {
-	// 1. Get all reminders with min score
-	reminders, err := biz.ReminderCache.GetRemindersWithMinScore(ctx)
+	// 1. Get all reminders with min score before now
+	minScore, err := biz.ReminderCache.GetMinScore(ctx)
 	if err != nil {
-		return 0, fmt.Errorf("failed to get reminders with min score: %v", err)
+		return 0, err
 	}
 
-	// TODO: Query data from mongodb and compose message to Kafka
-	// 2. Print all reminders to console
+	// TODO: Testing with maxScore = minScore
+	reminders, err := biz.ReminderCache.GetRemindersByScore(ctx, minScore, minScore)
+	if err != nil {
+		return 0, err
+	}
+
+	// 2. Query data from mongodb and compose message to Kafka
+	reminderIDs := lo.Map(reminders, func(reminder core_entity.Reminder, _ int) string {
+		return reminder.ID
+	})
+
+	log.Printf("Reminder IDs: %v", reminderIDs)
+
+	reminderWithMetadata, err := biz.ReminderRepo.GetRemindersAndMetadataByIDs(ctx, reminderIDs)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get reminders by IDs: %v", err)
+	}
+
 	fmt.Println("Processing reminders with minimum score:")
-	for _, reminder := range reminders {
-		fmt.Printf("Reminder ID: %s, RemindTime: %v, RRule: %s\n", reminder.ID, reminder.RemindTime, reminder.RRule)
+	for _, reminder := range reminderWithMetadata {
+		log.Println(utils.PrettyJSON(reminder))
 	}
 
 	// 3. Recalculate scores for all reminders
 	updatedReminders := make([]core_entity.Reminder, 0, len(reminders))
-	for _, reminder := range reminders {
-		updatedReminders = append(updatedReminders, *updateRemindTime(&reminder))
+	for _, reminder := range reminderWithMetadata {
+		updatedReminders = append(updatedReminders, *updateRemindTime(&reminder.Reminder))
 	}
 
 	// 4. Update reminders in Redis

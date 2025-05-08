@@ -33,6 +33,7 @@ type IReminderRepo interface {
 	GetTodayReminders(ctx context.Context) ([]core_entity.Reminder, error)
 	BulkUpdateRemindTimes(ctx context.Context, reminders []core_entity.Reminder) error
 	GetOutdatedReminders(ctx context.Context, now time.Time) ([]core_entity.Reminder, error)
+	GetRemindersAndMetadataByIDs(ctx context.Context, ids []string) ([]entity.ReminderWithMetadata, error)
 }
 
 type IReminderCache interface {
@@ -42,7 +43,6 @@ type IReminderCache interface {
 	SetReminders(ctx context.Context, reminders []core_entity.Reminder) error
 	GetAllReminders(ctx context.Context) ([]core_entity.Reminder, error)
 	ClearReminders(ctx context.Context) error
-	GetRemindersWithMinScore(ctx context.Context) ([]core_entity.Reminder, error)
-	GetRemindersByScore(ctx context.Context, score float64) ([]core_entity.Reminder, error)
+	GetRemindersByScore(ctx context.Context, minScore, maxScore float64) ([]core_entity.Reminder, error)
 	GetMinScore(ctx context.Context) (float64, error)
 }

@@ -263,6 +263,7 @@ type ComplexityRoot struct {
 		ReferenceID   func(childComplexity int) int
 		ReferenceType func(childComplexity int) int
 		RemindTime    func(childComplexity int) int
+		RemindTimeStr func(childComplexity int) int
 		UpdatedAt     func(childComplexity int) int
 	}
 
@@ -1504,6 +1505,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Reminder.RemindTime(childComplexity), true
+
+	case "Reminder.remindTimeStr":
+		if e.complexity.Reminder.RemindTimeStr == nil {
+			break
+		}
+
+		return e.complexity.Reminder.RemindTimeStr(childComplexity), true
 
 	case "Reminder.updatedAt":
 		if e.complexity.Reminder.UpdatedAt == nil {
@@ -7734,6 +7742,8 @@ func (ec *executionContext) fieldContext_Mutation_upsertReminder(ctx context.Con
 				return ec.fieldContext_Reminder_name(ctx, field)
 			case "remindTime":
 				return ec.fieldContext_Reminder_remindTime(ctx, field)
+			case "remindTimeStr":
+				return ec.fieldContext_Reminder_remindTimeStr(ctx, field)
 			case "rrule":
 				return ec.fieldContext_Reminder_rrule(ctx, field)
 			case "referenceID":
@@ -7809,6 +7819,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteReminder(ctx context.Con
 				return ec.fieldContext_Reminder_name(ctx, field)
 			case "remindTime":
 				return ec.fieldContext_Reminder_remindTime(ctx, field)
+			case "remindTimeStr":
+				return ec.fieldContext_Reminder_remindTimeStr(ctx, field)
 			case "rrule":
 				return ec.fieldContext_Reminder_rrule(ctx, field)
 			case "referenceID":
@@ -9517,14 +9529,11 @@ func (ec *executionContext) _Reminder_remindTime(ctx context.Context, field grap
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*time.Time)
 	fc.Result = res
-	return ec.marshalNTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Reminder_remindTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9535,6 +9544,50 @@ func (ec *executionContext) fieldContext_Reminder_remindTime(_ context.Context, 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Reminder_remindTimeStr(ctx context.Context, field graphql.CollectedField, obj *entity.Reminder) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Reminder_remindTimeStr(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RemindTimeStr, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Reminder_remindTimeStr(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Reminder",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9761,6 +9814,8 @@ func (ec *executionContext) fieldContext_ReminderConnection_edges(_ context.Cont
 				return ec.fieldContext_Reminder_name(ctx, field)
 			case "remindTime":
 				return ec.fieldContext_Reminder_remindTime(ctx, field)
+			case "remindTimeStr":
+				return ec.fieldContext_Reminder_remindTimeStr(ctx, field)
 			case "rrule":
 				return ec.fieldContext_Reminder_rrule(ctx, field)
 			case "referenceID":
@@ -13658,7 +13713,7 @@ func (ec *executionContext) unmarshalInputReminderInput(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "remindTime", "rrule", "referenceID", "referenceType"}
+	fieldsInOrder := [...]string{"id", "name", "remindTimeStr", "rrule", "referenceID", "referenceType"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -13679,13 +13734,13 @@ func (ec *executionContext) unmarshalInputReminderInput(ctx context.Context, obj
 				return it, err
 			}
 			it.Name = data
-		case "remindTime":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remindTime"))
-			data, err := ec.unmarshalNTime2ᚖtimeᚐTime(ctx, v)
+		case "remindTimeStr":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remindTimeStr"))
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.RemindTime = data
+			it.RemindTimeStr = data
 		case "rrule":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rrule"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -16074,6 +16129,8 @@ func (ec *executionContext) _Reminder(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "remindTime":
 			out.Values[i] = ec._Reminder_remindTime(ctx, field, obj)
+		case "remindTimeStr":
+			out.Values[i] = ec._Reminder_remindTimeStr(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -17845,27 +17902,6 @@ func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v in
 
 func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
 	res := graphql.MarshalTime(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
-	res, err := graphql.UnmarshalTime(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	res := graphql.MarshalTime(*v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

@@ -2,11 +2,11 @@ package redisrepo
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"time"
 
+	rdb "tenkhours/pkg/db/redis"
 	"tenkhours/services/core/entity"
+
+	errs "tenkhours/pkg/errors"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -19,43 +19,28 @@ func NewReminderCache(client *redis.Client) *ReminderCache {
 	return &ReminderCache{client}
 }
 
-func (r *ReminderCache) GetReminder(ctx context.Context, id string) (*entity.Reminder, error) {
-	key := fmt.Sprintf("reminder:%s", id)
-	data, err := r.Get(ctx, key).Result()
-	if err == redis.Nil {
-		return nil, nil
+func (r *ReminderCache) Exist(ctx context.Context, reminder *entity.Reminder) error {
+	exists, err := r.Exists(ctx, rdb.ReminderKey).Result()
+	if err == redis.Nil || exists == 0 {
+		return errs.ErrRedisNotFound
 	}
 	if err != nil {
-		return nil, fmt.Errorf("failed to get reminder from redis: %v", err)
-	}
-
-	var reminder entity.Reminder
-	if err := json.Unmarshal([]byte(data), &reminder); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal reminder: %v", err)
-	}
-
-	return &reminder, nil
-}
-
-func (r *ReminderCache) SetReminder(ctx context.Context, reminder *entity.Reminder) error {
-	key := fmt.Sprintf("reminder:%s", reminder.ID)
-	data, err := json.Marshal(reminder)
-	if err != nil {
-		return fmt.Errorf("failed to marshal reminder: %v", err)
-	}
-
-	if err := r.Set(ctx, key, data, 24*time.Hour).Err(); err != nil {
-		return fmt.Errorf("failed to set reminder in redis: %v", err)
+		return err
 	}
 
 	return nil
 }
 
+// UpsertReminder adds or updates a reminder in the sorted set
+// Score is the Unix timestamp of the reminder time
+func (r *ReminderCache) UpsertReminder(ctx context.Context, reminder *entity.Reminder) error {
+	return r.ZAdd(ctx, rdb.ReminderKey, &redis.Z{
+		Score:  float64(reminder.RemindTime.Unix()),
+		Member: reminder.ID,
+	}).Err()
+}
+
+// DeleteReminder removes a reminder from the sorted set
 func (r *ReminderCache) DeleteReminder(ctx context.Context, id string) error {
-	key := fmt.Sprintf("reminder:%s", id)
-	if err := r.Del(ctx, key).Err(); err != nil {
-		return fmt.Errorf("failed to delete reminder from redis: %v", err)
-	}
-
-	return nil
+	return r.ZRem(ctx, rdb.ReminderKey, id).Err()
 }

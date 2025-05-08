@@ -29,7 +29,8 @@ func (c *Cron) RunEverySeconds(task func(), seconds int) {
 // and reschedules it based on the new timestamp returned by the task
 func (c *Cron) RunAtTimestampAndReschedule(task func() *int64, targetTimePtr *int64) {
 	// Run a check every minute to see if we've passed the target time
-	_, _ = c.AddFunc("@every 1m", func() {
+	// TODO: Testing with 10s
+	_, _ = c.AddFunc("@every 10s", func() {
 		// Check if current time has passed the target time
 		if targetTimePtr != nil && time.Now().Unix() >= *targetTimePtr {
 			targetTimePtr = task()

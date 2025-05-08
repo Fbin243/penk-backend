@@ -4,7 +4,8 @@ type Reminder {
     updatedAt: Time!
     characterID: ID!
     name: String!
-    remindTime: Time!
+    remindTime: Time
+    remindTimeStr: String!
     rrule: String!
     referenceID: ID
     referenceType: EntityType
@@ -13,7 +14,7 @@ type Reminder {
 input ReminderInput {
     id: ID
     name: String!
-    remindTime: Time!
+    remindTimeStr: String!
     rrule: String!
     referenceID: ID
     referenceType: EntityType

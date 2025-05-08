@@ -1,15 +1,13 @@
 package entity
 
 import (
-	"time"
-
 	"tenkhours/pkg/types"
 )
 
 type ReminderInput struct {
 	ID            *string     `json:"id"`
 	Name          string      `json:"name"`
-	RemindTime    *time.Time  `json:"remindTime"`
+	RemindTimeStr string      `json:"remindTimeStr"`
 	RRule         string      `json:"rrule"`
 	ReferenceID   *string     `json:"referenceId"`
 	ReferenceType *EntityType `json:"referenceType"`
