@@ -66,6 +66,8 @@ func (b *ReminderBusiness) Upsert(ctx context.Context, input *entity.ReminderInp
 		return nil, err
 	}
 
+	dNext := r.After(time.Now(), false)
+
 	if input.ID == nil {
 		count, err := b.reminderRepo.CountByCharacterID(ctx, authSession.CurrentCharacterID)
 		if err != nil {
@@ -75,7 +77,7 @@ func (b *ReminderBusiness) Upsert(ctx context.Context, input *entity.ReminderInp
 			return nil, errors.ErrLimitReminder
 		}
 
-		remindTime, err := calculateRemindTime(r.GetDTStart(), input.RemindTimeStr)
+		remindTime, err := calculateRemindTime(dNext, input.RemindTimeStr)
 		if err != nil {
 			return nil, err
 		}
@@ -95,7 +97,7 @@ func (b *ReminderBusiness) Upsert(ctx context.Context, input *entity.ReminderInp
 
 		if input.RemindTimeStr != reminder.RemindTimeStr {
 			if b.reminderCache.Exist(ctx, reminder) == nil {
-				reminder.RemindTime, err = calculateRemindTime(r.GetDTStart(), input.RemindTimeStr)
+				reminder.RemindTime, err = calculateRemindTime(dNext, input.RemindTimeStr)
 				if err != nil {
 					return nil, err
 				}
