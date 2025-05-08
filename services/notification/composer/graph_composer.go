@@ -7,6 +7,5 @@ import (
 func ComposeGraphQLResolver() *graph.Resolver {
 	return &graph.Resolver{
 		NotificationBusiness: GetComposer().NotificationBiz,
-		ReminderBusiness:     GetComposer().ReminderBiz,
 	}
 }

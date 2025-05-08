@@ -22,21 +22,3 @@ type IDeviceTokenRepo interface {
 	GetDeviceTokenByDeviceID(ctx context.Context, deviceID string) (string, error)
 	GetDeviceIDsByProfileID(ctx context.Context, profileID string) ([]string, error)
 }
-
-type IReminderBusiness interface {
-	CreateReminder(ctx context.Context, reminder entity.ReminderInput) (*entity.Reminder, error)
-	GetRemindersByProfileID(ctx context.Context) ([]*entity.Reminder, error)
-	GetReminderByID(ctx context.Context, reminderID string) (*entity.Reminder, error)
-	UpdateReminder(ctx context.Context, reminder entity.ReminderInput) (*entity.Reminder, error)
-	DeleteReminder(ctx context.Context, reminderID string) (bool, error)
-}
-
-type IReminderRepo interface {
-	base.IBaseRepo[entity.Reminder]
-	CreateReminder(ctx context.Context, reminder *entity.Reminder) (*entity.Reminder, error)
-	GetRemindersByProfileID(ctx context.Context, profileID string) ([]*entity.Reminder, error)
-	GetReminderByID(ctx context.Context, reminderID string) (*entity.Reminder, error)
-	UpdateReminder(ctx context.Context, reminder *entity.Reminder) (*entity.Reminder, error)
-	DeleteReminder(ctx context.Context, reminderID string) (bool, error)
-	GetUpcomingReminders(ctx context.Context) ([]*entity.Reminder, error)
-}

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net"
 	"os"
@@ -30,13 +29,6 @@ func main() {
 	if err := godotenv.Load(".env." + env); err != nil {
 		log.Printf("Error loading .env file: %v", err)
 	}
-
-	// Create a context that will be canceled on shutdown
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Initialize the Composer to get all dependencies
-	comp := composer.GetComposer()
 
 	app := gin.Default()
 
@@ -67,14 +59,6 @@ func main() {
 	// Start RPC server
 	go startRPCServer()
 
-	// Start the Reminder Cron job in a separate goroutine
-	go comp.ReminderCron.Start()
-
-	// Start the Kafka Consumer in a separate goroutine
-	if err := comp.NotificationQueue.Start(ctx); err != nil {
-		log.Printf("Failed to start notification queue: %v", err)
-	}
-
 	// Handle graceful shutdown
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
@@ -88,21 +72,12 @@ func main() {
 
 		if err := app.Run(":" + port); err != nil {
 			log.Printf("Failed to run server: %v", err)
-			cancel()
 		}
 	}()
 
 	// Wait for shutdown signal
 	<-sigChan
 	log.Println("Shutting down...")
-
-	// Cancel context to stop all goroutines
-	cancel()
-
-	// Close Kafka connections
-	if err := comp.NotificationQueue.Close(); err != nil {
-		log.Printf("Error closing notification queue: %v", err)
-	}
 
 	log.Println("Shutdown complete")
 }

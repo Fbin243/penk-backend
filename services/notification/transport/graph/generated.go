@@ -11,9 +11,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-	"tenkhours/services/notification/entity"
 	"tenkhours/services/notification/transport/graph/model"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -43,7 +41,6 @@ type Config struct {
 
 type ResolverRoot interface {
 	Mutation() MutationResolver
-	Query() QueryResolver
 }
 
 type DirectiveRoot struct {
@@ -52,29 +49,12 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		AddToWaitlist       func(childComplexity int, email string) int
-		CreateReminder      func(childComplexity int, input entity.ReminderInput) int
-		DeleteReminder      func(childComplexity int, id string) int
 		RegisterDeviceToken func(childComplexity int, token string, profileID string, deviceID string, platform string) int
 		RemoveDeviceToken   func(childComplexity int, token string, profileID string, deviceID string) int
-		UpdateReminder      func(childComplexity int, id string, input entity.ReminderInput) int
 	}
 
 	Query struct {
-		GetReminder        func(childComplexity int, id string) int
-		GetReminders       func(childComplexity int) int
 		__resolve__service func(childComplexity int) int
-	}
-
-	Reminder struct {
-		CreatedAt    func(childComplexity int) int
-		ID           func(childComplexity int) int
-		LinkedItemID func(childComplexity int) int
-		ProfileID    func(childComplexity int) int
-		Recurrence   func(childComplexity int) int
-		RemindTime   func(childComplexity int) int
-		Title        func(childComplexity int) int
-		Type         func(childComplexity int) int
-		UpdatedAt    func(childComplexity int) int
 	}
 
 	Token struct {
@@ -100,13 +80,6 @@ type MutationResolver interface {
 	AddToWaitlist(ctx context.Context, email string) (bool, error)
 	RegisterDeviceToken(ctx context.Context, token string, profileID string, deviceID string, platform string) (bool, error)
 	RemoveDeviceToken(ctx context.Context, token string, profileID string, deviceID string) (bool, error)
-	CreateReminder(ctx context.Context, input entity.ReminderInput) (*entity.Reminder, error)
-	UpdateReminder(ctx context.Context, id string, input entity.ReminderInput) (*entity.Reminder, error)
-	DeleteReminder(ctx context.Context, id string) (bool, error)
-}
-type QueryResolver interface {
-	GetReminders(ctx context.Context) ([]*entity.Reminder, error)
-	GetReminder(ctx context.Context, id string) (*entity.Reminder, error)
 }
 
 type executableSchema struct {
@@ -140,30 +113,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddToWaitlist(childComplexity, args["email"].(string)), true
 
-	case "Mutation.createReminder":
-		if e.complexity.Mutation.CreateReminder == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createReminder_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CreateReminder(childComplexity, args["input"].(entity.ReminderInput)), true
-
-	case "Mutation.deleteReminder":
-		if e.complexity.Mutation.DeleteReminder == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_deleteReminder_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.DeleteReminder(childComplexity, args["id"].(string)), true
-
 	case "Mutation.registerDeviceToken":
 		if e.complexity.Mutation.RegisterDeviceToken == nil {
 			break
@@ -188,106 +137,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RemoveDeviceToken(childComplexity, args["token"].(string), args["profileID"].(string), args["deviceID"].(string)), true
 
-	case "Mutation.updateReminder":
-		if e.complexity.Mutation.UpdateReminder == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateReminder_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateReminder(childComplexity, args["id"].(string), args["input"].(entity.ReminderInput)), true
-
-	case "Query.getReminder":
-		if e.complexity.Query.GetReminder == nil {
-			break
-		}
-
-		args, err := ec.field_Query_getReminder_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GetReminder(childComplexity, args["id"].(string)), true
-
-	case "Query.getReminders":
-		if e.complexity.Query.GetReminders == nil {
-			break
-		}
-
-		return e.complexity.Query.GetReminders(childComplexity), true
-
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
 			break
 		}
 
 		return e.complexity.Query.__resolve__service(childComplexity), true
-
-	case "Reminder.createdAt":
-		if e.complexity.Reminder.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Reminder.CreatedAt(childComplexity), true
-
-	case "Reminder.id":
-		if e.complexity.Reminder.ID == nil {
-			break
-		}
-
-		return e.complexity.Reminder.ID(childComplexity), true
-
-	case "Reminder.linkedItemID":
-		if e.complexity.Reminder.LinkedItemID == nil {
-			break
-		}
-
-		return e.complexity.Reminder.LinkedItemID(childComplexity), true
-
-	case "Reminder.profileID":
-		if e.complexity.Reminder.ProfileID == nil {
-			break
-		}
-
-		return e.complexity.Reminder.ProfileID(childComplexity), true
-
-	case "Reminder.recurrence":
-		if e.complexity.Reminder.Recurrence == nil {
-			break
-		}
-
-		return e.complexity.Reminder.Recurrence(childComplexity), true
-
-	case "Reminder.remindTime":
-		if e.complexity.Reminder.RemindTime == nil {
-			break
-		}
-
-		return e.complexity.Reminder.RemindTime(childComplexity), true
-
-	case "Reminder.title":
-		if e.complexity.Reminder.Title == nil {
-			break
-		}
-
-		return e.complexity.Reminder.Title(childComplexity), true
-
-	case "Reminder.type":
-		if e.complexity.Reminder.Type == nil {
-			break
-		}
-
-		return e.complexity.Reminder.Type(childComplexity), true
-
-	case "Reminder.updatedAt":
-		if e.complexity.Reminder.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.Reminder.UpdatedAt(childComplexity), true
 
 	case "Token.createdAt":
 		if e.complexity.Token.CreatedAt == nil {
@@ -359,9 +214,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputReminderInput,
-	)
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
 	first := true
 
 	switch rc.Operation.Operation {
@@ -457,7 +310,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "gql/devices_token.graphql" "gql/enums.graphql" "gql/reminder.graphql" "gql/schema.graphql"
+//go:embed "gql/devices_token.graphql" "gql/enums.graphql" "gql/schema.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -471,7 +324,6 @@ func sourceData(filename string) string {
 var sources = []*ast.Source{
 	{Name: "gql/devices_token.graphql", Input: sourceData("gql/devices_token.graphql"), BuiltIn: false},
 	{Name: "gql/enums.graphql", Input: sourceData("gql/enums.graphql"), BuiltIn: false},
-	{Name: "gql/reminder.graphql", Input: sourceData("gql/reminder.graphql"), BuiltIn: false},
 	{Name: "gql/schema.graphql", Input: sourceData("gql/schema.graphql"), BuiltIn: false},
 	{Name: "../federation/directives.graphql", Input: `
 	directive @authenticated on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM
@@ -555,36 +407,6 @@ func (ec *executionContext) field_Mutation_addToWaitlist_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_createReminder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 entity.ReminderInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNReminderInput2tenkhoursᚋservicesᚋnotificationᚋentityᚐReminderInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_deleteReminder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_registerDeviceToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -660,30 +482,6 @@ func (ec *executionContext) field_Mutation_removeDeviceToken_args(ctx context.Co
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateReminder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	var arg1 entity.ReminderInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNReminderInput2tenkhoursᚋservicesᚋnotificationᚋentityᚐReminderInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg1
-	return args, nil
-}
-
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -696,21 +494,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_getReminder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
 	return args, nil
 }
 
@@ -917,350 +700,6 @@ func (ec *executionContext) fieldContext_Mutation_removeDeviceToken(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createReminder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createReminder(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateReminder(rctx, fc.Args["input"].(entity.ReminderInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*entity.Reminder)
-	fc.Result = res
-	return ec.marshalNReminder2ᚖtenkhoursᚋservicesᚋnotificationᚋentityᚐReminder(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_createReminder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Reminder_id(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Reminder_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Reminder_updatedAt(ctx, field)
-			case "profileID":
-				return ec.fieldContext_Reminder_profileID(ctx, field)
-			case "type":
-				return ec.fieldContext_Reminder_type(ctx, field)
-			case "title":
-				return ec.fieldContext_Reminder_title(ctx, field)
-			case "remindTime":
-				return ec.fieldContext_Reminder_remindTime(ctx, field)
-			case "recurrence":
-				return ec.fieldContext_Reminder_recurrence(ctx, field)
-			case "linkedItemID":
-				return ec.fieldContext_Reminder_linkedItemID(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Reminder", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createReminder_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateReminder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateReminder(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateReminder(rctx, fc.Args["id"].(string), fc.Args["input"].(entity.ReminderInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*entity.Reminder)
-	fc.Result = res
-	return ec.marshalNReminder2ᚖtenkhoursᚋservicesᚋnotificationᚋentityᚐReminder(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateReminder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Reminder_id(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Reminder_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Reminder_updatedAt(ctx, field)
-			case "profileID":
-				return ec.fieldContext_Reminder_profileID(ctx, field)
-			case "type":
-				return ec.fieldContext_Reminder_type(ctx, field)
-			case "title":
-				return ec.fieldContext_Reminder_title(ctx, field)
-			case "remindTime":
-				return ec.fieldContext_Reminder_remindTime(ctx, field)
-			case "recurrence":
-				return ec.fieldContext_Reminder_recurrence(ctx, field)
-			case "linkedItemID":
-				return ec.fieldContext_Reminder_linkedItemID(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Reminder", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateReminder_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_deleteReminder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteReminder(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteReminder(rctx, fc.Args["id"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_deleteReminder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteReminder_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_getReminders(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getReminders(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetReminders(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*entity.Reminder)
-	fc.Result = res
-	return ec.marshalNReminder2ᚕᚖtenkhoursᚋservicesᚋnotificationᚋentityᚐReminderᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_getReminders(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Reminder_id(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Reminder_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Reminder_updatedAt(ctx, field)
-			case "profileID":
-				return ec.fieldContext_Reminder_profileID(ctx, field)
-			case "type":
-				return ec.fieldContext_Reminder_type(ctx, field)
-			case "title":
-				return ec.fieldContext_Reminder_title(ctx, field)
-			case "remindTime":
-				return ec.fieldContext_Reminder_remindTime(ctx, field)
-			case "recurrence":
-				return ec.fieldContext_Reminder_recurrence(ctx, field)
-			case "linkedItemID":
-				return ec.fieldContext_Reminder_linkedItemID(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Reminder", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_getReminder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getReminder(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetReminder(rctx, fc.Args["id"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*entity.Reminder)
-	fc.Result = res
-	return ec.marshalNReminder2ᚖtenkhoursᚋservicesᚋnotificationᚋentityᚐReminder(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_getReminder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Reminder_id(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Reminder_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Reminder_updatedAt(ctx, field)
-			case "profileID":
-				return ec.fieldContext_Reminder_profileID(ctx, field)
-			case "type":
-				return ec.fieldContext_Reminder_type(ctx, field)
-			case "title":
-				return ec.fieldContext_Reminder_title(ctx, field)
-			case "remindTime":
-				return ec.fieldContext_Reminder_remindTime(ctx, field)
-			case "recurrence":
-				return ec.fieldContext_Reminder_recurrence(ctx, field)
-			case "linkedItemID":
-				return ec.fieldContext_Reminder_linkedItemID(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Reminder", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getReminder_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query__service(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query__service(ctx, field)
 	if err != nil {
@@ -1433,402 +872,6 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Reminder_id(ctx context.Context, field graphql.CollectedField, obj *entity.Reminder) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Reminder_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Reminder_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Reminder",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Reminder_createdAt(ctx context.Context, field graphql.CollectedField, obj *entity.Reminder) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Reminder_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Reminder_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Reminder",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Reminder_updatedAt(ctx context.Context, field graphql.CollectedField, obj *entity.Reminder) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Reminder_updatedAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Reminder_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Reminder",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Reminder_profileID(ctx context.Context, field graphql.CollectedField, obj *entity.Reminder) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Reminder_profileID(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ProfileID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Reminder_profileID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Reminder",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Reminder_type(ctx context.Context, field graphql.CollectedField, obj *entity.Reminder) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Reminder_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(entity.ReminderType)
-	fc.Result = res
-	return ec.marshalNReminderType2tenkhoursᚋservicesᚋnotificationᚋentityᚐReminderType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Reminder_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Reminder",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ReminderType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Reminder_title(ctx context.Context, field graphql.CollectedField, obj *entity.Reminder) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Reminder_title(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Reminder_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Reminder",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Reminder_remindTime(ctx context.Context, field graphql.CollectedField, obj *entity.Reminder) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Reminder_remindTime(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.RemindTime, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Reminder_remindTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Reminder",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Reminder_recurrence(ctx context.Context, field graphql.CollectedField, obj *entity.Reminder) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Reminder_recurrence(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Recurrence, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Reminder_recurrence(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Reminder",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Reminder_linkedItemID(ctx context.Context, field graphql.CollectedField, obj *entity.Reminder) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Reminder_linkedItemID(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.LinkedItemID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Reminder_linkedItemID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Reminder",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4012,61 +3055,6 @@ func (ec *executionContext) fieldContext_devicesToken_tokens(_ context.Context, 
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputReminderInput(ctx context.Context, obj interface{}) (entity.ReminderInput, error) {
-	var it entity.ReminderInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"type", "title", "remindTime", "recurrence", "linkedItemID"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "type":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalNReminderType2tenkhoursᚋservicesᚋnotificationᚋentityᚐReminderType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Type = data
-		case "title":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Title = data
-		case "remindTime":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remindTime"))
-			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.RemindTime = data
-		case "recurrence":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("recurrence"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Recurrence = data
-		case "linkedItemID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("linkedItemID"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.LinkedItemID = data
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4115,27 +3103,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "createReminder":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createReminder(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "updateReminder":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateReminder(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "deleteReminder":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteReminder(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4178,50 +3145,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "getReminders":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_getReminders(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "getReminder":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_getReminder(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "_service":
 			field := field
 
@@ -4252,85 +3175,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var reminderImplementors = []string{"Reminder"}
-
-func (ec *executionContext) _Reminder(ctx context.Context, sel ast.SelectionSet, obj *entity.Reminder) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, reminderImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Reminder")
-		case "id":
-			out.Values[i] = ec._Reminder_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._Reminder_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "updatedAt":
-			out.Values[i] = ec._Reminder_updatedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "profileID":
-			out.Values[i] = ec._Reminder_profileID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "type":
-			out.Values[i] = ec._Reminder_type(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "title":
-			out.Values[i] = ec._Reminder_title(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "remindTime":
-			out.Values[i] = ec._Reminder_remindTime(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "recurrence":
-			out.Values[i] = ec._Reminder_recurrence(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "linkedItemID":
-			out.Values[i] = ec._Reminder_linkedItemID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4869,85 +3713,6 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNReminder2tenkhoursᚋservicesᚋnotificationᚋentityᚐReminder(ctx context.Context, sel ast.SelectionSet, v entity.Reminder) graphql.Marshaler {
-	return ec._Reminder(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNReminder2ᚕᚖtenkhoursᚋservicesᚋnotificationᚋentityᚐReminderᚄ(ctx context.Context, sel ast.SelectionSet, v []*entity.Reminder) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNReminder2ᚖtenkhoursᚋservicesᚋnotificationᚋentityᚐReminder(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNReminder2ᚖtenkhoursᚋservicesᚋnotificationᚋentityᚐReminder(ctx context.Context, sel ast.SelectionSet, v *entity.Reminder) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Reminder(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNReminderInput2tenkhoursᚋservicesᚋnotificationᚋentityᚐReminderInput(ctx context.Context, v interface{}) (entity.ReminderInput, error) {
-	res, err := ec.unmarshalInputReminderInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNReminderType2tenkhoursᚋservicesᚋnotificationᚋentityᚐReminderType(ctx context.Context, v interface{}) (entity.ReminderType, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := entity.ReminderType(tmp)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNReminderType2tenkhoursᚋservicesᚋnotificationᚋentityᚐReminderType(ctx context.Context, sel ast.SelectionSet, v entity.ReminderType) graphql.Marshaler {
-	res := graphql.MarshalString(string(v))
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4955,21 +3720,6 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
-	res, err := graphql.UnmarshalTime(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
-	res := graphql.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

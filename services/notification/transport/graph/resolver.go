@@ -8,5 +8,4 @@ import "tenkhours/services/notification/business"
 
 type Resolver struct {
 	NotificationBusiness business.INotificationBusiness
-	ReminderBusiness     business.IReminderBusiness
 }
