@@ -147,7 +147,7 @@ func (c *Config) ToSaramaConfig() (*sarama.Config, error) {
 	config.Producer.Timeout = c.Producer.Timeout
 
 	// Set consumer configuration
-	config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
+	// config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
 	config.Consumer.Offsets.Initial = c.Consumer.InitialOffset
 	config.Consumer.MaxWaitTime = c.Consumer.MaxWaitTime
 	config.Consumer.MaxProcessingTime = c.Consumer.MaxProcessingTime

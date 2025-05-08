@@ -7,7 +7,7 @@ import (
 )
 
 type Reminder struct {
-	*base.BaseEntity `                     bson:",inline"`
+	*base.BaseEntity `bson:",inline"`
 	CharacterID      string      `bson:"character_id"`
 	Name             string      `bson:"name"`
 	RemindTime       time.Time   `bson:"remind_time"`

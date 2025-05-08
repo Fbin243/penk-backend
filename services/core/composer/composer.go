@@ -31,6 +31,8 @@ type Composer struct {
 	TaskRepo         business.ITaskRepo
 	TaskSessionRepo  business.ITaskSessionRepo
 	GoalRepo         business.IGoalRepo
+	ReminderRepo     *mongorepo.ReminderRepo
+	ReminderCache    *redisrepo.ReminderCache
 
 	CurrencyConn *grpc.ClientConn
 	AnalyticConn *grpc.ClientConn
@@ -64,6 +66,7 @@ func GetComposer() *Composer {
 	taskSessionRepo := mongorepo.NewTaskSessionRepo(mongodb)
 	rewardRepo := rewardrepo.NewRewardRepo(mongodb)
 	reminderRepo := mongorepo.NewReminderRepo(mongodb)
+	reminderCache := redisrepo.NewReminderCache(redisClient)
 
 	// RPC Clients
 	currencyClient, currencyConn := ComposeCurrencyClient()
@@ -81,7 +84,7 @@ func GetComposer() *Composer {
 	taskBiz := business.NewTaskBusiness(permBiz, taskRepo, taskSessionRepo, timetrackingRepo)
 	reminderBiz := business.NewReminderBusiness(reminderRepo, permBiz)
 
-	return &Composer{
+	composer = &Composer{
 		ProfileBiz:      profileBiz,
 		CharacterBiz:    characterBiz,
 		GoalBiz:         goalBiz,
@@ -101,11 +104,17 @@ func GetComposer() *Composer {
 		TaskRepo:         taskRepo,
 		TaskSessionRepo:  taskSessionRepo,
 		GoalRepo:         goalRepo,
+		ReminderRepo:     reminderRepo,
+		ReminderCache:    reminderCache,
 
 		CurrencyConn: currencyConn,
-		AnalyticConn: notiConn,
+		AnalyticConn: nil,
 		NotiConn:     notiConn,
+
+		RewardRepo: rewardRepo,
 	}
+
+	return composer
 }
 
 func (c *Composer) Close() {

@@ -5,6 +5,7 @@ const (
 	FishKey         = "fish_"
 	TimeTrackingKey = "time_tracking_"
 	DeviceTokenKey  = "device_token_"
+	ReminderKey     = "reminders"
 )
 
 func GetAuthSessionKey(firebaseUID string) string {

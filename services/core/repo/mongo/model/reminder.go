@@ -11,13 +11,13 @@ import (
 )
 
 type Reminder struct {
-	*mongodb.BaseEntity `                     bson:",inline"`
-	CharacterOID        primitive.ObjectID  `json:"characterID"   bson:"character_id"`
-	Name                string              `bson:"name"`
-	RemindTime          time.Time           `bson:"remind_time"`
-	RRule               string              `bson:"rrule"`
-	ReferenceOID        *primitive.ObjectID `bson:"reference_id"`
-	ReferenceType       *entity.EntityType  `bson:"reference_type"`
+	*mongodb.BaseEntity `                   bson:",inline"`
+	CharacterOID        primitive.ObjectID  `json:"characterID" bson:"character_id"`
+	Name                string              `                   bson:"name"`
+	RemindTime          time.Time           `                   bson:"remind_time"`
+	RRule               string              `                   bson:"rrule"`
+	ReferenceOID        *primitive.ObjectID `                   bson:"reference_id"`
+	ReferenceType       *entity.EntityType  `                   bson:"reference_type"`
 }
 
 func (r *Reminder) CharacterID(id string) {

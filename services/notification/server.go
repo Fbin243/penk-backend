@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
+	"tenkhours/pkg/cron"
 	"tenkhours/pkg/errors"
 	"tenkhours/pkg/middlewares"
 	"tenkhours/proto/pb/notification"
@@ -17,6 +20,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/samber/lo"
 	"google.golang.org/grpc"
 )
 
@@ -29,6 +33,22 @@ func main() {
 	if err := godotenv.Load(".env." + env); err != nil {
 		log.Printf("Error loading .env file: %v", err)
 	}
+
+	// Initialize cron scheduler
+	c := cron.NewCron()
+	c.RunEverySeconds(func() {
+		log.Printf("Running daily notification job at %v", time.Now())
+		// Sync today's reminders
+		if err := composer.GetComposer().NotificationBiz.SyncTodayReminders(context.Background()); err != nil {
+			log.Printf("Error syncing today's reminders: %v", err)
+			return
+		}
+		log.Printf("Successfully synced reminders for today")
+	}, 10)
+
+	c.RunOnce(func() {
+		log.Printf("Running daily notification job at %v", time.Now())
+	}, lo.ToPtr(time.Now().Unix()))
 
 	app := gin.Default()
 
@@ -78,7 +98,6 @@ func main() {
 	// Wait for shutdown signal
 	<-sigChan
 	log.Println("Shutting down...")
-
 	log.Println("Shutdown complete")
 }
 
