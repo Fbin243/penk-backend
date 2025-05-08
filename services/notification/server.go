@@ -38,6 +38,8 @@ func main() {
 	go initRPCServer()
 	go initCronJobs()
 
+	defer composer.GetComposer().Close()
+
 	// Handle graceful shutdown
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
@@ -45,6 +47,7 @@ func main() {
 	// Wait for shutdown signal
 	<-sigChan
 	log.Println("Shutting down...")
+
 	log.Println("Shutdown complete")
 }
 

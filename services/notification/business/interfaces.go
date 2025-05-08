@@ -46,3 +46,8 @@ type IReminderCache interface {
 	GetRemindersByScore(ctx context.Context, minScore, maxScore float64) ([]core_entity.Reminder, error)
 	GetMinScore(ctx context.Context) (float64, error)
 }
+
+type INotificationProducer interface {
+	SendNotification(ctx context.Context, message *entity.NotificationMessage) error
+	Close() error
+}

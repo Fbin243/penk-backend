@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"tenkhours/pkg/utils"
 	core_entity "tenkhours/services/core/entity"
+	"tenkhours/services/notification/entity"
 
 	"github.com/samber/lo"
 	"github.com/teambition/rrule-go"
@@ -119,18 +119,48 @@ func (biz *NotificationBusiness) ProcessRemindersWithMinScore(ctx context.Contex
 		return 0, fmt.Errorf("failed to get reminders by IDs: %v", err)
 	}
 
-	fmt.Println("Processing reminders with minimum score:")
+	// 3. Process each reminder and send notification
 	for _, reminder := range reminderWithMetadata {
-		log.Println(utils.PrettyJSON(reminder))
+		// Create notification message
+		msg := &entity.NotificationMessage{
+			CharacterID:   reminder.Reminder.CharacterID,
+			Name:          reminder.Reminder.Name,
+			Body:          "Time for your reminder!",
+			Priority:      "high",
+			ReferenceID:   reminder.Reminder.ReferenceID,
+			ReferenceType: reminder.Reminder.ReferenceType,
+			Data: map[string]any{
+				"reminder_id": reminder.Reminder.ID,
+				"remind_time": reminder.Reminder.RemindTime,
+			},
+		}
+
+		// Add reference-specific data
+		if reminder.Habit != nil {
+			msg.Data["habit_name"] = reminder.Habit.Name
+			msg.Data["habit_id"] = reminder.Habit.ID
+		}
+		if reminder.Task != nil {
+			msg.Data["task_name"] = reminder.Task.Name
+			msg.Data["task_id"] = reminder.Task.ID
+		}
+
+		// Send notification
+		if err := biz.notiProducer.SendNotification(ctx, msg); err != nil {
+			log.Printf("Failed to send notification for reminder %s: %v", reminder.Reminder.ID, err)
+			continue
+		}
+
+		log.Printf("Sent notification for reminder %s", reminder.Reminder.ID)
 	}
 
-	// 3. Recalculate scores for all reminders
+	// 4. Recalculate scores for all reminders
 	updatedReminders := make([]core_entity.Reminder, 0, len(reminders))
 	for _, reminder := range reminderWithMetadata {
 		updatedReminders = append(updatedReminders, *updateRemindTime(&reminder.Reminder))
 	}
 
-	// 4. Update reminders in Redis
+	// 5. Update reminders in Redis
 	if err := biz.ReminderCache.SetReminders(ctx, updatedReminders); err != nil {
 		return 0, fmt.Errorf("failed to update reminders in redis: %v", err)
 	}
