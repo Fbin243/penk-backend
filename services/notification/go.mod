@@ -11,6 +11,7 @@ require (
 	github.com/jinzhu/copier v0.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/samber/lo v1.49.1
+	github.com/teambition/rrule-go v1.8.2
 	github.com/vektah/gqlparser/v2 v2.5.20
 	go.mongodb.org/mongo-driver v1.17.1
 	google.golang.org/api v0.203.0

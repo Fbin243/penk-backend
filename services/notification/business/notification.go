@@ -72,31 +72,3 @@ func (biz *NotificationBusiness) RemoveDeviceToken(ctx context.Context, profileI
 
 	return true, nil
 }
-
-// SyncTodayReminders updates reminders in MongoDB with new remind times and syncs them to Redis
-func (biz *NotificationBusiness) SyncTodayReminders(ctx context.Context) error {
-	reminders, err := biz.ReminderCache.GetAllReminders(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to get reminders from redis: %v", err)
-	}
-
-	if err := biz.ReminderRepo.BulkUpdateRemindTimes(ctx, reminders); err != nil {
-		return fmt.Errorf("failed to update reminders in MongoDB: %v", err)
-	}
-
-	todayReminders, err := biz.ReminderRepo.GetTodayReminders(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to get today's reminders from MongoDB: %v", err)
-	}
-
-	if err := biz.ReminderCache.ClearReminders(ctx); err != nil {
-		return fmt.Errorf("failed to clear reminders from cache: %v", err)
-	}
-
-	if err := biz.ReminderCache.SetReminders(ctx, todayReminders); err != nil {
-		return fmt.Errorf("failed to cache reminders: %v", err)
-	}
-
-	log.Printf("Successfully synced %d reminders to cache", len(todayReminders))
-	return nil
-}

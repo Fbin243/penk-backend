@@ -2,6 +2,7 @@ package business
 
 import (
 	"context"
+	"time"
 
 	"tenkhours/pkg/db/base"
 	core_entity "tenkhours/services/core/entity"
@@ -29,6 +30,7 @@ type IReminderRepo interface {
 	base.IBaseRepo[core_entity.Reminder]
 	GetTodayReminders(ctx context.Context) ([]core_entity.Reminder, error)
 	BulkUpdateRemindTimes(ctx context.Context, reminders []core_entity.Reminder) error
+	GetOutdatedReminders(ctx context.Context, now time.Time) ([]core_entity.Reminder, error)
 }
 
 type IReminderCache interface {
@@ -38,4 +40,5 @@ type IReminderCache interface {
 	SetReminders(ctx context.Context, reminders []core_entity.Reminder) error
 	GetAllReminders(ctx context.Context) ([]core_entity.Reminder, error)
 	ClearReminders(ctx context.Context) error
+	GetRemindersWithMinScore(ctx context.Context) ([]core_entity.Reminder, error)
 }

@@ -9,7 +9,7 @@ import (
 type ReminderInput struct {
 	ID            *string     `json:"id"`
 	Name          string      `json:"name"`
-	RemindTime    time.Time   `json:"remindTime"`
+	RemindTime    *time.Time  `json:"remindTime"`
 	RRule         string      `json:"rrule"`
 	ReferenceID   *string     `json:"referenceId"`
 	ReferenceType *EntityType `json:"referenceType"`

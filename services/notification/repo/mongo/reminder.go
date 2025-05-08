@@ -70,3 +70,12 @@ func (r *ReminderRepo) BulkUpdateRemindTimes(ctx context.Context, reminders []co
 		len(reminders), result.MatchedCount, result.ModifiedCount)
 	return nil
 }
+
+// GetOutdatedReminders gets all reminders that have passed their remind time
+func (r *ReminderRepo) GetOutdatedReminders(ctx context.Context, now time.Time) ([]core_entity.Reminder, error) {
+	return r.FindMany(ctx, bson.M{
+		"remind_time": bson.M{
+			"$lt": now,
+		},
+	})
+}

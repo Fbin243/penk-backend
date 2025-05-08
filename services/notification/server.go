@@ -46,8 +46,8 @@ func main() {
 		log.Printf("Successfully synced reminders for today")
 	}, 10)
 
-	c.RunOnce(func() {
-		log.Printf("Running daily notification job at %v", time.Now())
+	c.RunAtTimestampAndReschedule(func() int64 {
+		return time.Now().Add(1 * time.Hour).Unix()
 	}, lo.ToPtr(time.Now().Unix()))
 
 	app := gin.Default()

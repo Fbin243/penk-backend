@@ -7,11 +7,11 @@ import (
 )
 
 type Reminder struct {
-	*base.BaseEntity `bson:",inline"`
-	CharacterID      string      `bson:"character_id"`
-	Name             string      `bson:"name"`
-	RemindTime       time.Time   `bson:"remind_time"`
-	RRule            string      `bson:"rrule"`
-	ReferenceID      *string     `bson:"reference_id"`
-	ReferenceType    *EntityType `bson:"reference_type"`
+	*base.BaseEntity `json:",inline"        bson:",inline"`
+	CharacterID      string      `json:"character_id"   bson:"character_id"`
+	Name             string      `json:"name"           bson:"name"`
+	RemindTime       *time.Time  `json:"remind_time"    bson:"remind_time"`
+	RRule            string      `json:"rrule"          bson:"rrule"`
+	ReferenceID      *string     `json:"reference_id"   bson:"reference_id"`
+	ReferenceType    *EntityType `json:"reference_type" bson:"reference_type"`
 }
