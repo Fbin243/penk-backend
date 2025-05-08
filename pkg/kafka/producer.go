@@ -58,4 +58,3 @@ func (p *Producer) Publish(ctx context.Context, message interface{}) error {
 func (p *Producer) Close() error {
 	return p.producer.Close()
 }
- 

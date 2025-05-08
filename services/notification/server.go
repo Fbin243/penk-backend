@@ -95,15 +95,15 @@ func initCronJobs() {
 
 	c := cron.NewCron()
 	// Cron job sync today's reminders
-	// c.RunEverySeconds(func() {
-	// 	log.Printf("Running daily notification job at %v", time.Now())
-	// 	// Sync today's reminders
-	// 	if err := com.NotificationBiz.SyncTodayReminders(context.Background()); err != nil {
-	// 		log.Printf("Error syncing today's reminders: %v", err)
-	// 		return
-	// 	}
-	// 	log.Printf("Successfully synced reminders for today")
-	// }, 10)
+	c.RunDaily(func() {
+		log.Printf("Running daily notification job at %v", time.Now())
+		// Sync today's reminders
+		if err := com.NotificationBiz.SyncTodayReminders(context.Background()); err != nil {
+			log.Printf("Error syncing today's reminders: %v", err)
+			return
+		}
+		log.Printf("Successfully synced reminders for today")
+	})
 
 	// Cron job process reminders with min score
 	c.RunAtTimestampAndReschedule(func() *int64 {

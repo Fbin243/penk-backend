@@ -77,4 +77,3 @@ func (c *Consumer) Close() error {
 func UnmarshalMessage(data []byte, v interface{}) error {
 	return json.Unmarshal(data, v)
 }
- 
