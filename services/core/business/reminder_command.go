@@ -12,24 +12,24 @@ import (
 	"github.com/jinzhu/copier"
 )
 
-func (b *ReminderBusiness) Upsert(ctx context.Context, reminderInput *entity.ReminderInput) (*entity.Reminder, error) {
+func (b *ReminderBusiness) Upsert(ctx context.Context, input *entity.ReminderInput) (*entity.Reminder, error) {
 	authSession, err := auth.GetAuthSession(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	permEntities := []PermissionEntity{}
-	if reminderInput.ID != nil {
+	if input.ID != nil {
 		permEntities = append(permEntities, PermissionEntity{
-			ID:   *reminderInput.ID,
+			ID:   *input.ID,
 			Type: entity.EntityTypeReminder,
 		})
 	}
 
-	if reminderInput.ReferenceID != nil && reminderInput.ReferenceType != nil {
+	if input.ReferenceID != nil && input.ReferenceType != nil {
 		permEntities = append(permEntities, PermissionEntity{
-			ID:   *reminderInput.ReferenceID,
-			Type: *reminderInput.ReferenceType,
+			ID:   *input.ReferenceID,
+			Type: *input.ReferenceType,
 		})
 	}
 
@@ -43,7 +43,7 @@ func (b *ReminderBusiness) Upsert(ctx context.Context, reminderInput *entity.Rem
 		CharacterID: authSession.CurrentCharacterID,
 	}
 
-	if reminderInput.ID == nil {
+	if input.ID == nil {
 		count, err := b.reminderRepo.CountByCharacterID(ctx, authSession.CurrentCharacterID)
 		if err != nil {
 			return nil, err
@@ -52,19 +52,19 @@ func (b *ReminderBusiness) Upsert(ctx context.Context, reminderInput *entity.Rem
 			return nil, errors.ErrLimitCategory
 		}
 	} else {
-		reminder, err = b.reminderRepo.FindByID(ctx, *reminderInput.ID)
+		reminder, err = b.reminderRepo.FindByID(ctx, *input.ID)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	err = copier.Copy(reminder, reminderInput)
+	err = copier.Copy(reminder, input)
 	if err != nil {
 		return nil, err
 	}
 
-	if reminderInput.ID != nil {
-		return b.reminderRepo.FindAndUpdateByID(ctx, *reminderInput.ID, reminder)
+	if input.ID != nil {
+		return b.reminderRepo.FindAndUpdateByID(ctx, *input.ID, reminder)
 	}
 
 	return b.reminderRepo.InsertOne(ctx, reminder)

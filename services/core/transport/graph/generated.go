@@ -1857,7 +1857,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "gql/category.graphql" "gql/character.graphql" "gql/checkbox.graphql" "gql/error_code.graphql" "gql/goal.graphql" "gql/habit.graphql" "gql/habit_log.graphql" "gql/metric.graphql" "gql/profile.graphql" "gql/reminder.graphql" "gql/schema.graphql" "gql/setting.graphql" "gql/task.graphql" "gql/task_session.graphql" "gql/time.graphql" "gql/timetracking.graphql"
+//go:embed "gql/category.graphql" "gql/character.graphql" "gql/checkbox.graphql" "gql/entity_type.graphql" "gql/error_code.graphql" "gql/goal.graphql" "gql/habit.graphql" "gql/habit_log.graphql" "gql/metric.graphql" "gql/profile.graphql" "gql/reminder.graphql" "gql/schema.graphql" "gql/setting.graphql" "gql/task.graphql" "gql/task_session.graphql" "gql/time.graphql" "gql/timetracking.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -1872,6 +1872,7 @@ var sources = []*ast.Source{
 	{Name: "gql/category.graphql", Input: sourceData("gql/category.graphql"), BuiltIn: false},
 	{Name: "gql/character.graphql", Input: sourceData("gql/character.graphql"), BuiltIn: false},
 	{Name: "gql/checkbox.graphql", Input: sourceData("gql/checkbox.graphql"), BuiltIn: false},
+	{Name: "gql/entity_type.graphql", Input: sourceData("gql/entity_type.graphql"), BuiltIn: false},
 	{Name: "gql/error_code.graphql", Input: sourceData("gql/error_code.graphql"), BuiltIn: false},
 	{Name: "gql/goal.graphql", Input: sourceData("gql/goal.graphql"), BuiltIn: false},
 	{Name: "gql/habit.graphql", Input: sourceData("gql/habit.graphql"), BuiltIn: false},
@@ -9606,9 +9607,9 @@ func (ec *executionContext) _Reminder_referenceID(ctx context.Context, field gra
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOID2string(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Reminder_referenceID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9647,9 +9648,9 @@ func (ec *executionContext) _Reminder_referenceType(ctx context.Context, field g
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(entity.EntityType)
+	res := resTmp.(*entity.EntityType)
 	fc.Result = res
-	return ec.marshalOEntityType2tenkhoursᚋservicesᚋcoreᚋentityᚐEntityType(ctx, field.Selections, res)
+	return ec.marshalOEntityType2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐEntityType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Reminder_referenceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18444,17 +18445,6 @@ func (ec *executionContext) unmarshalOCheckboxInput2ᚕtenkhoursᚋservicesᚋco
 		}
 	}
 	return res, nil
-}
-
-func (ec *executionContext) unmarshalOEntityType2tenkhoursᚋservicesᚋcoreᚋentityᚐEntityType(ctx context.Context, v interface{}) (entity.EntityType, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := entity.EntityType(tmp)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOEntityType2tenkhoursᚋservicesᚋcoreᚋentityᚐEntityType(ctx context.Context, sel ast.SelectionSet, v entity.EntityType) graphql.Marshaler {
-	res := graphql.MarshalString(string(v))
-	return res
 }
 
 func (ec *executionContext) unmarshalOEntityType2ᚖtenkhoursᚋservicesᚋcoreᚋentityᚐEntityType(ctx context.Context, v interface{}) (*entity.EntityType, error) {
