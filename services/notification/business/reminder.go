@@ -8,6 +8,7 @@ import (
 
 	core_entity "tenkhours/services/core/entity"
 
+	"github.com/samber/lo"
 	"github.com/teambition/rrule-go"
 )
 
@@ -61,21 +62,7 @@ func (biz *NotificationBusiness) UpdateOutdatedReminders(ctx context.Context) er
 	// Calculate next occurrence for each outdated reminder
 	updatedReminders := make([]core_entity.Reminder, 0, len(outdatedReminders))
 	for _, reminder := range outdatedReminders {
-		rule, err := rrule.StrToRRule(reminder.RRule)
-		if err != nil {
-			log.Printf("Warning: failed to parse RRule for reminder %s: %v", reminder.ID, err)
-			continue
-		}
-
-		nextTime := rule.After(now, false)
-		if nextTime.IsZero() {
-			// For recurring reminders with no next occurrence, set RemindTime to nil
-			reminder.RemindTime = nil
-		} else {
-			reminder.RemindTime = &nextTime
-		}
-
-		updatedReminders = append(updatedReminders, reminder)
+		updatedReminders = append(updatedReminders, *updateRemindTime(&reminder))
 	}
 
 	// 3. Bulk update MongoDB with new remind times
@@ -99,4 +86,51 @@ func (biz *NotificationBusiness) UpdateOutdatedReminders(ctx context.Context) er
 
 	log.Printf("Successfully updated %d outdated reminders", len(updatedReminders))
 	return nil
+}
+
+// ProcessRemindersWithMinScore processes all reminders with the minimum score
+func (biz *NotificationBusiness) ProcessRemindersWithMinScore(ctx context.Context) (float64, error) {
+	// 1. Get all reminders with min score
+	reminders, err := biz.ReminderCache.GetRemindersWithMinScore(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get reminders with min score: %v", err)
+	}
+
+	// TODO: Query data from mongodb and compose message to Kafka
+	// 2. Print all reminders to console
+	fmt.Println("Processing reminders with minimum score:")
+	for _, reminder := range reminders {
+		fmt.Printf("Reminder ID: %s, RemindTime: %v, RRule: %s\n", reminder.ID, reminder.RemindTime, reminder.RRule)
+	}
+
+	// 3. Recalculate scores for all reminders
+	updatedReminders := make([]core_entity.Reminder, 0, len(reminders))
+	for _, reminder := range reminders {
+		updatedReminders = append(updatedReminders, *updateRemindTime(&reminder))
+	}
+
+	// 4. Update reminders in Redis
+	if err := biz.ReminderCache.SetReminders(ctx, updatedReminders); err != nil {
+		return 0, fmt.Errorf("failed to update reminders in redis: %v", err)
+	}
+
+	log.Printf("Successfully processed %d reminders with minimum score", len(reminders))
+	return biz.ReminderCache.GetMinScore(ctx)
+}
+
+func updateRemindTime(reminder *core_entity.Reminder) *core_entity.Reminder {
+	rule, err := rrule.StrToRRule(reminder.RRule)
+	if err != nil {
+		log.Printf("Warning: failed to parse RRule for reminder %s: %v", reminder.ID, err)
+		return reminder
+	}
+
+	nextOccurrence := rule.After(time.Now(), false)
+	if nextOccurrence.IsZero() {
+		reminder.RemindTime = nil
+	} else {
+		reminder.RemindTime = lo.ToPtr(time.Date(nextOccurrence.Year(), nextOccurrence.Month(), nextOccurrence.Day(), reminder.RemindTime.Hour(), reminder.RemindTime.Minute(), 0, 0, time.UTC))
+	}
+
+	return reminder
 }

@@ -34,24 +34,22 @@ func main() {
 		log.Printf("Error loading .env file: %v", err)
 	}
 
-	// Initialize cron scheduler
-	c := cron.NewCron()
-	c.RunEverySeconds(func() {
-		log.Printf("Running daily notification job at %v", time.Now())
-		// Sync today's reminders
-		if err := composer.GetComposer().NotificationBiz.SyncTodayReminders(context.Background()); err != nil {
-			log.Printf("Error syncing today's reminders: %v", err)
-			return
-		}
-		log.Printf("Successfully synced reminders for today")
-	}, 10)
+	go initGraphqlServer()
+	go initRPCServer()
+	go initCronJobs()
 
-	c.RunAtTimestampAndReschedule(func() int64 {
-		return time.Now().Add(1 * time.Hour).Unix()
-	}, lo.ToPtr(time.Now().Unix()))
+	// Handle graceful shutdown
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
+	// Wait for shutdown signal
+	<-sigChan
+	log.Println("Shutting down...")
+	log.Println("Shutdown complete")
+}
+
+func initGraphqlServer() {
 	app := gin.Default()
-
 	app.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowHeaders:    []string{"Content-Type", "Authorization", "X-Device-Id", "X-User-Id"},
@@ -76,32 +74,49 @@ func main() {
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 
-	// Start RPC server
-	go startRPCServer()
+	port, found := os.LookupEnv("NOTIFICATION_PORT")
+	if !found {
+		port = "8084"
+	}
 
-	// Handle graceful shutdown
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-
-	// Start the server in a goroutine
-	go func() {
-		port, found := os.LookupEnv("NOTIFICATION_PORT")
-		if !found {
-			port = "8084"
-		}
-
-		if err := app.Run(":" + port); err != nil {
-			log.Printf("Failed to run server: %v", err)
-		}
-	}()
-
-	// Wait for shutdown signal
-	<-sigChan
-	log.Println("Shutting down...")
-	log.Println("Shutdown complete")
+	if err := app.Run(":" + port); err != nil {
+		log.Printf("Failed to run server: %v", err)
+	}
 }
 
-func startRPCServer() {
+func initCronJobs() {
+	com := composer.GetComposer()
+
+	// Update outdated reminders before cron job start
+	if err := com.NotificationBiz.UpdateOutdatedReminders(context.Background()); err != nil {
+		log.Printf("Error updating outdated reminders: %v", err)
+		return
+	}
+
+	c := cron.NewCron()
+	// Cron job sync today's reminders
+	// c.RunEverySeconds(func() {
+	// 	log.Printf("Running daily notification job at %v", time.Now())
+	// 	// Sync today's reminders
+	// 	if err := com.NotificationBiz.SyncTodayReminders(context.Background()); err != nil {
+	// 		log.Printf("Error syncing today's reminders: %v", err)
+	// 		return
+	// 	}
+	// 	log.Printf("Successfully synced reminders for today")
+	// }, 10)
+
+	// Cron job process reminders with min score
+	c.RunAtTimestampAndReschedule(func() *int64 {
+		minScore, err := com.NotificationBiz.ProcessRemindersWithMinScore(context.Background())
+		if minScore == 0 || err != nil {
+			log.Printf("Error processing reminders with min score: %v", err)
+			return nil
+		}
+		return lo.ToPtr(int64(minScore))
+	}, lo.ToPtr(time.Now().Unix()))
+}
+
+func initRPCServer() {
 	port, found := os.LookupEnv("NOTIFICATION_GRPC_PORT")
 	if !found {
 		port = "50054"

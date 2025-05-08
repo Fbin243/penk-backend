@@ -15,6 +15,8 @@ type INotificationBusiness interface {
 	RegisterDeviceToken(ctx context.Context, profileID, token, deviceID, platform string) (bool, error)
 	RemoveDeviceToken(ctx context.Context, profileID, token string) (bool, error)
 	SyncTodayReminders(ctx context.Context) error
+	ProcessRemindersWithMinScore(ctx context.Context) (float64, error)
+	UpdateOutdatedReminders(ctx context.Context) error
 }
 
 // repository
@@ -41,4 +43,6 @@ type IReminderCache interface {
 	GetAllReminders(ctx context.Context) ([]core_entity.Reminder, error)
 	ClearReminders(ctx context.Context) error
 	GetRemindersWithMinScore(ctx context.Context) ([]core_entity.Reminder, error)
+	GetRemindersByScore(ctx context.Context, score float64) ([]core_entity.Reminder, error)
+	GetMinScore(ctx context.Context) (float64, error)
 }
