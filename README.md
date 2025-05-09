@@ -1,133 +1,126 @@
-# TenK Backend
+<h1 align="center">PenK Backend</h1>
 
-## Setup
+<p align="center">A monorepo of microservices-based backend system for PenK Assistant.</p>
 
-### Environment
+![PenK Architecture](./docs/penk_architecture.png)
 
-1. Create a `.env.development` at the root level
-2. Go to our discord server, look for `secret` channel in category `Development`, find and copy the `.env.development` content
-3. Paste that content into the `.env.development`
 
-### Air for Live Reload
+## Table of Contents
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Database Management](#database-management)
+- [Running Microservices](#running-microservices)
+- [Linters](#linters)
+- [Docker](#docker)
 
-Check if your machine has installed Air already or not
+## Prerequisites
 
+### Dev Tools
+- [Air](https://github.com/cosmtrek/air) - For live reload
+- [Make](https://www.gnu.org/software/make/) - For running commands
+- [MongoDB Database Tools](https://www.mongodb.com/docs/database-tools/installation) - For database operations
+- [Protocol Buffer Compiler](https://grpc.io/docs/protoc-installation/) - For compiling Protocol Buffer files
+- [Go Protocol Buffer Plugin](https://grpc.io/docs/languages/go/quickstart/#prerequisites) - For generating Go code from Protocol Buffers
+- [golangci-lint](https://golangci-lint.run/welcome/install/) - For Go code linting
+- [protolint](https://github.com/yoheimuta/protolint) - For Protocol Buffer linting
+
+### VSCode Setup
+1. Install the `Go` extension
+2. Install `gofumpt`:
+   ```sh
+   go install mvdan.cc/gofumpt@latest
+   ```
+3. Configure VSCode settings (Ctrl/Cmd + Shift + P → "Preferences: Open User Settings (JSON)"):
+   ```json
+   {
+     "go.useLanguageServer": true,
+     "gopls": {
+       "formatting.gofumpt": true
+     }
+   }
+   ```
+
+
+### Install dependencies
 ```sh
-air -v
+# Install golang dependencies of all modules 
+make tidy
+
+# Install node modules
+cd services/gateway
+npm install
 ```
 
-- [Install Air on your local machine](https://github.com/cosmtrek/air)
+## Getting Started
 
-### Make
+1. Create `.env.development` file at the root level of the project
+2. Copy `.env.example` to `.env.development` and fill in secrets
+3. Prepare some credential files of Firebase and OpenAI
+4. Run microsevices and gateway
 
-Check if your machine has installed Make already or not
+## Database Management
 
-```sh
-make -v
-```
-
-- [Install Make for Windows](https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows)
-- [Install Make for MacOS](https://stackoverflow.com/questions/10265742/how-to-install-make-and-gcc-on-a-mac)
-
-### VSCode tools
-
-1. Install `Go` extension
-2. Install `gofumpt` in your local machine: `go install mvdan.cc/gofumpt@latest`
-3. Press `Ctrl/Cmd + Shift + P`, search `Preferences: Open User Settings (JSON)` and paste these line at the end of the json
-
-```json
-"go.useLanguageServer": true,
-"gopls": {
- "formatting.gofumpt": true,
-},
-```
-
-## Development
-
-To run a specific service with Air
+### MongoDB Migrations
+Using [migrate-mongo](https://www.npmjs.com/package/migrate-mongo):
 
 ```sh
-# Run core service with air
-make core
-
-# Run analytic service with air
-make analytic
-```
-
-## MongoDB Migration
-
-Please follow this guide: <https://www.npmjs.com/package/migrate-mongo>
-
-```sh
+# Install migrate-mongo
 npm i -g migrate-mongo
 
-# Manage migrations
+# Migration commands
 migrate-mongo up
 migrate-mongo down
 migrate-mongo status
 ```
 
-## Mongo backup and restore
-
-Install the Database Tools: <https://www.mongodb.com/docs/database-tools/installation>
-
+### MongoDB Tools
 ```sh
-# Backup database
+# Backup entire database
 make dump
 
-# Restore database
+# Restore entire database
 make restore
 
 # Restore specific collection
-make restore-col COL=<colection-name>
+make restore-col COL=<collection-name>
 ```
 
-## Start services, run unit tests and API tests
-
+## Running microservices
 ```sh
-# Microservices (Test DB)
-make test SERVICE="core analytic timetracking currency notification penk payment"
+# Run a specific service
+make core
 
-# Microservices (Dev DB)
-make dev SERVICE="ccore analytic timetracking currency notification penk payment"
+# Run microservices (Test DB)
+make test SERVICE="core analytic timetracking notification penk payment"
 
-# Gateway
+# Run microservices (Dev DB)
+make dev SERVICE="core analytic timetracking notification penk payment"
+
+# Run gateway 
 make gateway
 
 # Run unit tests
 make unit-test
 
-# Run api tests
+# Run API tests
 make api-test
 ```
 
-## Linters with golangci-lint and protolint
-
-- Install [golangci-lint](https://golangci-lint.run/welcome/install/) for linting the Golang source code based on the rules defined in `.golangci.yml`
-
+## Linters
 ```sh
-# Run golangci-lint to check issues for all .go files
+# Code linting check and fix
 make lint
-
-# Run golangci-lint and automatically fix if possible
 make lint-fix
-```
 
-- Install [protolint](https://github.com/yoheimuta/protolint) for linting Protocol Buffer (.proto) files to ensure they follow best practices.
-
-```sh
-# Run protolint to check issues for all .proto files
+# Protocol Buffer linting check and fix
 make protolint
-
-# Run protolint and automatically fix if possible
 make protolint-fix
 ```
 
 ## Docker
 
 ```sh
-# Build docker images from Dockerfile
-# Run containers with docker compose
+# Build and start containers
 make up
 
 # Stop containers
@@ -136,9 +129,9 @@ make down
 # Stop containers and remove images
 make down-rmi
 
-# Clean up unused images, containers, volumes, and networks
+# Clean up unused resources
 make clean
 
-# Capture logs of containers
+# View container logs
 make logs
 ```
