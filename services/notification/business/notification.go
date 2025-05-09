@@ -14,12 +14,18 @@ import (
 type NotificationBusiness struct {
 	MessagingClient  *messaging.Client
 	DevicesTokenRepo IDeviceTokenRepo
+	ReminderRepo     IReminderRepo
+	ReminderCache    IReminderCache
+	notiProducer     INotificationProducer
 }
 
-func NewNotificationBusiness(messagingClient *messaging.Client, devicesTokenRepo IDeviceTokenRepo) *NotificationBusiness {
+func NewNotificationBusiness(messagingClient *messaging.Client, devicesTokenRepo IDeviceTokenRepo, reminderRepo IReminderRepo, reminderCache IReminderCache, notiProducer INotificationProducer) *NotificationBusiness {
 	return &NotificationBusiness{
 		MessagingClient:  messagingClient,
 		DevicesTokenRepo: devicesTokenRepo,
+		ReminderRepo:     reminderRepo,
+		ReminderCache:    reminderCache,
+		notiProducer:     notiProducer,
 	}
 }
 

@@ -1,16 +1,23 @@
 package composer
 
 import (
-	mongodb "tenkhours/pkg/db/mongo"
-	"tenkhours/services/notification/business"
-	mongorepo "tenkhours/services/notification/repo/mongo"
+	"log"
+	"os"
 
 	"tenkhours/pkg/auth"
+	mongodb "tenkhours/pkg/db/mongo"
+	rdb "tenkhours/pkg/db/redis"
+	"tenkhours/pkg/kafka"
+	"tenkhours/services/notification/business"
+	message_queue "tenkhours/services/notification/message-queue"
+	mongorepo "tenkhours/services/notification/repo/mongo"
+	redisrepo "tenkhours/services/notification/repo/redis"
 )
 
 type Composer struct {
 	DeviceTokenRepo business.IDeviceTokenRepo
 	NotificationBiz business.INotificationBusiness
+	kafkaProducer   *message_queue.KafkaProducer
 }
 
 var composer *Composer
@@ -20,19 +27,40 @@ func GetComposer() *Composer {
 		return composer
 	}
 
-	// Database
 	db := mongodb.GetDBManager().DB
+	redisClient := rdb.GetRedisClient()
 
-	// Repository
 	devicesTokenRepo := mongorepo.NewDevicesTokenRepo(db)
+	reminderRepo := mongorepo.NewReminderRepo(db)
+	reminderCache := redisrepo.NewReminderCache(redisClient)
 
-	// Business
+	// Get Kafka brokers from environment or use default
+	// TODO: Testing with localhost (need to change to kafka:9092 when running in docker)
+	brokers := []string{"localhost:9092"}
+	if envBrokers := os.Getenv("KAFKA_BROKERS"); envBrokers != "" {
+		brokers = []string{envBrokers}
+	}
+
+	// Create Kafka configuration
+	cfg := kafka.DefaultConfig()
+	cfg.Brokers = brokers
+
 	firebaseManager := auth.GetFirebaseManager()
+	notiProducer, err := message_queue.NewKafkaProducer(cfg)
+	if err != nil {
+		log.Fatalf("Failed to create Kafka producer: %v", err)
+	}
+	notiBiz := business.NewNotificationBusiness(firebaseManager.MessagingClient, devicesTokenRepo, reminderRepo, reminderCache, notiProducer)
 
-	notiBiz := business.NewNotificationBusiness(firebaseManager.MessagingClient, devicesTokenRepo)
-
-	return &Composer{
+	composer = &Composer{
 		DeviceTokenRepo: devicesTokenRepo,
 		NotificationBiz: notiBiz,
+		kafkaProducer:   notiProducer,
 	}
+
+	return composer
+}
+
+func (c *Composer) Close() error {
+	return c.kafkaProducer.Close()
 }

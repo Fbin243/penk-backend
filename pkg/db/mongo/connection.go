@@ -24,6 +24,7 @@ var (
 	TemplatesCollection       = "templates"
 	TemplateTopicsCollection  = "template_topics"
 	DevicesTokensCollection   = "devices_tokens"
+	RemindersCollection       = "reminders"
 	HabitsCollection          = "habits"
 	HabitLogsCollection       = "habit_logs"
 	TasksCollection           = "tasks"

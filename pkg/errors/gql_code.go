@@ -20,6 +20,7 @@ const (
 	ErrCodeLimitCheckbox             ErrorCode = "LIMIT_CHECKBOX"
 	ErrCodeLimitHabit                ErrorCode = "LIMIT_HABIT"
 	ErrCodeLimitTask                 ErrorCode = "LIMIT_TASK"
+	ErrCodeLimitReminder             ErrorCode = "LIMIT_REMINDER"
 	ErrCodeUnderMinDuration          ErrorCode = "UNDER_MIN_DURATION"
 	ErrCodeOverMaxDifferenceDuration ErrorCode = "OVER_MAX_DIFFERENCE_DURATION"
 	ErrCodeTimeTrackingAlreadyExists ErrorCode = "TIME_TRACKING_ALREADY_EXISTS"

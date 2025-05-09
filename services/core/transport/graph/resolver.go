@@ -18,6 +18,7 @@ type Resolver struct {
 	HabitBusiness        business.IHabitBusiness
 	TimeTrackingBusiness business.ITimeTrackingBusiness
 	TaskBusiness         business.ITaskBusiness
+	ReminderBusiness     business.IReminderBusiness
 
 	CharacterRepo    business.ICharacterRepo
 	MetricRepo       business.IMetricRepo

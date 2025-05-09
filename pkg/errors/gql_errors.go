@@ -20,6 +20,7 @@ var (
 	ErrLimitGoal        = NewGQLError(ErrCodeLimitGoal, "over limit goal")
 	ErrLimitHabit       = NewGQLError(ErrCodeLimitHabit, "over limit habit")
 	ErrLimitTask        = NewGQLError(ErrCodeLimitTask, "over limit task")
+	ErrLimitReminder    = NewGQLError(ErrCodeLimitReminder, "over limit reminder")
 )
 
 func NewGQLError(code ErrorCode, msg any) *gqlerror.Error {

@@ -310,7 +310,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "gql/devices_token.graphql" "gql/schema.graphql"
+//go:embed "gql/devices_token.graphql" "gql/enums.graphql" "gql/schema.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -323,6 +323,7 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "gql/devices_token.graphql", Input: sourceData("gql/devices_token.graphql"), BuiltIn: false},
+	{Name: "gql/enums.graphql", Input: sourceData("gql/enums.graphql"), BuiltIn: false},
 	{Name: "gql/schema.graphql", Input: sourceData("gql/schema.graphql"), BuiltIn: false},
 	{Name: "../federation/directives.graphql", Input: `
 	directive @authenticated on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM

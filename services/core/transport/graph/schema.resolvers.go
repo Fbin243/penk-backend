@@ -142,6 +142,16 @@ func (r *mutationResolver) UpsertTimeTracking(ctx context.Context, input entity.
 	return r.TimeTrackingBusiness.UpsertTimeTracking(ctx, &input)
 }
 
+// UpsertReminder is the resolver for the upsertReminder field.
+func (r *mutationResolver) UpsertReminder(ctx context.Context, input entity.ReminderInput) (*entity.Reminder, error) {
+	return r.ReminderBusiness.Upsert(ctx, &input)
+}
+
+// DeleteReminder is the resolver for the deleteReminder field.
+func (r *mutationResolver) DeleteReminder(ctx context.Context, id string) (*entity.Reminder, error) {
+	return r.ReminderBusiness.Delete(ctx, id)
+}
+
 // Characters is the resolver for the characters field.
 func (r *queryResolver) Characters(ctx context.Context) ([]entity.Character, error) {
 	return r.CharacterBusiness.GetCharactersByProfileID(ctx)
@@ -278,6 +288,23 @@ func (r *queryResolver) TaskSessions(ctx context.Context, filter *entity.TaskSes
 	return &model.TaskSessionConnection{
 		TotalCount: totalCount,
 		Edges:      taskSessions,
+	}, err
+}
+
+// Reminders is the resolver for the reminders field.
+func (r *queryResolver) Reminders(ctx context.Context, filter *entity.ReminderFilter, orderBy *entity.ReminderOrderBy, limit *int, offset *int) (*model.ReminderConnection, error) {
+	totalCount, reminders, err := paginate(ctx,
+		func() (int, error) {
+			return r.ReminderBusiness.Count(ctx, filter)
+		},
+		func() ([]entity.Reminder, error) {
+			return r.ReminderBusiness.Get(ctx, filter, orderBy, limit, offset)
+		},
+	)
+
+	return &model.ReminderConnection{
+		TotalCount: totalCount,
+		Edges:      reminders,
 	}, err
 }
 

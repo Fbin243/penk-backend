@@ -8,11 +8,6 @@ type TimeTracking {
   duration: Int!
 }
 
-enum EntityType {
-  Habit
-  Task
-}
-
 input TimeTrackingInput {
   referenceID: ID!
   referenceType: EntityType!

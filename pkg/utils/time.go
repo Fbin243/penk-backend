@@ -48,3 +48,12 @@ func PrintTimeSlice(ts []time.Time) {
 		fmt.Println(t)
 	}
 }
+
+func CompareTwoTimeWithoutSecond(t1, t2 time.Time) bool {
+	// Compare year, month, day, hour, minute
+	return t1.Year() == t2.Year() && t1.Month() == t2.Month() && t1.Day() == t2.Day() && t1.Hour() == t2.Hour() && t1.Minute() == t2.Minute()
+}
+
+func IsToday(t time.Time) bool {
+	return CompareTwoTimeWithoutSecond(t, Now())
+}

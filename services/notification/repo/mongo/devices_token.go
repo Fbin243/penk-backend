@@ -114,3 +114,30 @@ func (r *DeviceTokenRepo) GetDeviceTokenByDeviceID(ctx context.Context, deviceID
 	}
 	return "", nil
 }
+
+func (r *DeviceTokenRepo) GetDeviceIDsByProfileID(ctx context.Context, profileID string) ([]string, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"profile_id": profileID}
+	devicesToken := new(entity.DevicesToken)
+
+	err := r.Collection.FindOne(ctx, filter).Decode(devicesToken)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if len(devicesToken.Tokens) == 0 {
+		return nil, nil
+	}
+
+	var deviceIDs []string
+	for _, token := range devicesToken.Tokens {
+		deviceIDs = append(deviceIDs, token.DeviceID)
+	}
+
+	return deviceIDs, nil
+}

@@ -9,6 +9,7 @@ type Query {
   habitLogs(filter: HabitLogFilter, orderBy: HabitLogOrderBy, limit: Int, offset: Int): HabitLogConnection!
   tasks(filter: TaskFilter, orderBy: TaskOrderBy, limit: Int, offset: Int): TaskConnection!
   taskSessions(filter: TaskSessionFilter, orderBy: TaskSessionOrderBy, limit: Int, offset: Int): TaskSessionConnection!
+  reminders(filter: ReminderFilter, orderBy: ReminderOrderBy, limit: Int, offset: Int): ReminderConnection!
 }
 
 type Mutation {
@@ -30,4 +31,6 @@ type Mutation {
   upsertTaskSession(input: TaskSessionInput!): TaskSession!
   deleteTaskSession(id: ID!): TaskSession!
   upsertTimeTracking(input: TimeTrackingInput!): TimeTracking!
+  upsertReminder(input: ReminderInput!): Reminder!
+  deleteReminder(id: ID!): Reminder!
 }

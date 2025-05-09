@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 )
 
-func PrettyJSON(data interface{}) string {
+func PrettyJSON(data any) string {
 	prettyJSON, _ := json.MarshalIndent(data, "", "  ")
 	return string(prettyJSON)
 }

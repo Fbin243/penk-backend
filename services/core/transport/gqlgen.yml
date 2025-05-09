@@ -192,3 +192,11 @@ models:
     model: tenkhours/services/core/entity.TaskSessionFilter
   TaskSessionOrderBy:
     model: tenkhours/services/core/entity.TaskSessionOrderBy
+  Reminder:
+    model: tenkhours/services/core/entity.Reminder
+  ReminderInput:
+    model: tenkhours/services/core/entity.ReminderInput
+  ReminderFilter:
+    model: tenkhours/services/core/entity.ReminderFilter
+  ReminderOrderBy:
+    model: tenkhours/services/core/entity.ReminderOrderBy

@@ -8,4 +8,5 @@ const (
 	EntityTypeGoal     EntityType = "Goal"
 	EntityTypeHabit    EntityType = "Habit"
 	EntityTypeTask     EntityType = "Task"
+	EntityTypeReminder EntityType = "Reminder"
 )

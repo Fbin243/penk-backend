@@ -15,6 +15,7 @@ func ComposeGraphQLResolver() *graph.Resolver {
 		CategoryBusiness:     composer.CategoryBiz,
 		TimeTrackingBusiness: composer.TimeTrackingBiz,
 		TaskBusiness:         composer.TaskBiz,
+		ReminderBusiness:     composer.ReminderBiz,
 
 		CharacterRepo:    composer.CharacterRepo,
 		MetricRepo:       composer.MetricRepo,
