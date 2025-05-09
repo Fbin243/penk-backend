@@ -1,9 +1,9 @@
-<h1 align="center">PenK Backend</h1>
+
+<h1 align="center"><img src="./docs/penk_logo.webp" alt="PenK Logo" width=40> <span>PenK Backend</span></h1>
 
 <p align="center">A monorepo of microservices-based backend system for PenK Assistant.</p>
 
 ![PenK Architecture](./docs/penk_architecture.png)
-
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
