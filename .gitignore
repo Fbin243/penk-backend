@@ -28,6 +28,7 @@ firebase-admin.*.json
 waitlist.*.json
 fish_config.csv
 exchange_config.csv
+.certs/
 
 # OS
 .DS_Store

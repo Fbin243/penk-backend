@@ -85,8 +85,11 @@ make restore-col COL=<colection-name>
 ## Start services, run unit tests and API tests
 
 ```sh
-# Microservices
-make test SERVICE="core analytic timetracking currency"
+# Microservices (Test DB)
+make test SERVICE="core analytic timetracking currency notification penk payment"
+
+# Microservices (Dev DB)
+make dev SERVICE="ccore analytic timetracking currency notification penk payment"
 
 # Gateway
 make gateway

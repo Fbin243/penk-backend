@@ -1,0 +1,123 @@
+type Query {
+  context: Context
+  messages: [Message!]!
+  googleAuthUrl(type: LinkedAccountType!): String!
+  linkedAccounts: [LinkedAccount!]!
+  membership: Membership!
+}
+
+type Mutation {
+  upsertContext(input: ContextInput!): Context!
+  revokeLinkedAccount(id: ID!): Boolean!
+}
+
+type LinkedAccount {
+  id: ID!
+  email: String!
+  type: LinkedAccountType!
+  accessToken: String!
+}
+
+enum LinkedAccountType {
+  Gmail
+  GoogleCalendar
+}
+
+type Message {
+  type: MessageType!
+  content: String!
+  timestamp: String!
+}
+
+enum MessageType {
+  USER_MESSAGE
+  AI_MESSAGE
+  TOOL_CALL_MESSAGE
+}
+
+enum Tool {
+  GET_CALENDAR_EVENTS
+  GET_EMAILS
+
+  # Categories
+  CREATE_CATEGORY
+  UPDATE_CATEGORY
+  DELETE_CATEGORY
+
+  # Tasks & Planner
+  GET_TASKS
+  CREATE_TASK
+  UPDATE_TASK
+  DELETE_TASK
+  GET_TASK_SESSIONS
+  CREATE_TASK_SESSION
+  UPDATE_TASK_SESSION
+  DELETE_TASK_SESSION
+  PLAN_DAY
+
+  # Metrics
+  GET_METRICS
+  CREATE_METRIC
+  UPDATE_METRIC
+  DELETE_METRIC
+
+  # Habits
+  GET_HABITS
+  CREATE_HABIT
+  UPDATE_HABIT
+  DELETE_HABIT
+
+  # Goals
+  GET_GOALS
+  CREATE_GOAL
+  UPDATE_GOAL
+  DELETE_GOAL
+}
+
+type Context {
+  timezone: String!
+  locale: String!
+  context: String!
+}
+
+input ContextInput {
+  timezone: String!
+  locale: String!
+  context: String!
+}
+
+type Membership {
+  monthlyCredit: Float!
+  persistentCredit: Float!
+  periodEnd: String
+}
+
+# WS Types
+type WS_Message {
+  type: WS_MessageType!
+  data: String!
+  timestamp: String!
+}
+
+enum WS_MessageType {
+  AUTH
+  INFO
+  ERROR
+  TEXT_CHAT
+  TEXT_STREAM
+  TEXT_STREAM_ENDED
+  TOOL_CALL
+  CONFIG_AUDIO_FORMAT
+  TRANSCRIPT_RESULT
+  UPLOAD_AUDIO
+  DOWNLOAD_AUDIO
+}
+
+enum WS_InfoType {
+  AUTHENTICATION_SUCCESS
+  AUTHENTICATION_FAILED
+  AUTHENTICATION_REQUIRED
+  AUTHENTICATION_TIMEOUT
+  AUDIO_STREAM_COMPLETED
+  TRANSCRIPTION_FAILED
+}
