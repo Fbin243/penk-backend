@@ -1,12 +1,14 @@
 module tenkhours/test
 
-go 1.22.3
+go 1.23.0
+
+toolchain go1.24.1
 
 require (
 	github.com/steinfletcher/apitest v1.5.17
 	github.com/steinfletcher/apitest-jsonpath v1.7.2
 	github.com/tidwall/gjson v1.18.0
-	golang.org/x/net v0.32.0
+	golang.org/x/net v0.38.0
 )
 
 require (
