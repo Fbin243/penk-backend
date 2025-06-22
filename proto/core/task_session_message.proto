@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package core;
+
+option go_package = "tenkhours/proto/pb/core";
+
+message TaskSession {
+  string id = 1;
+  string task_id = 2;
+  int64 start_time = 3;
+  int64 end_time = 4;
+  optional int64 completed_time = 5;
+}
+
+message TaskSessions {
+  repeated TaskSession task_sessions = 1;
+}
+
+message TaskSessionInput {
+  optional string id = 1;
+  string task_id = 2;
+  int64 start_time = 3;
+  int64 end_time = 4;
+  optional int64 completed_time = 5;
+}
+
+message TaskSessionInputs {
+  repeated TaskSessionInput task_session_inputs = 1;
+}

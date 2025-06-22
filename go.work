@@ -1,0 +1,21 @@
+go 1.22.3
+
+use (
+	.
+	./cmd
+	./pkg/auth
+	./pkg/cron
+	./pkg/db
+	./pkg/errors
+	./pkg/graphql
+	./pkg/kafka
+	./pkg/middlewares
+	./pkg/utils
+	./proto
+	./services/analytic
+	./services/core
+	./services/currency
+	./services/event
+	./services/notification
+	./test
+)

@@ -1,0 +1,37 @@
+type Task {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  characterID: ID!
+  categoryID: ID
+  name: String!
+  priority: Int!
+  completedTime: Time
+  subtasks: [Checkbox!]!
+  description: String
+  deadline: Time
+}
+
+input TaskInput {
+  id: ID
+  categoryID: ID
+  name: String!
+  priority: Int!
+  completedTime: Time
+  subtasks: [CheckboxInput!]
+  description: String
+  deadline: Time
+}
+
+input TaskFilter {
+  isCompleted: Boolean
+}
+
+input TaskOrderBy {
+  priority: SortOrder
+}
+
+type TaskConnection {
+  totalCount: Int!
+  edges: [Task!]!
+}

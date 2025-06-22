@@ -1,0 +1,80 @@
+type Goal {
+  id: ID!
+  createdAt: Time
+  updatedAt: Time
+  characterID: ID!
+  name: String!
+  description: String!
+  startTime: Time!
+  endTime: Time!
+  completedTime: Time
+  status: GoalStatus!
+  metrics: [GoalMetric!]!
+  checkboxes: [Checkbox!]!
+}
+
+type GoalMetric {
+  id: ID!
+  metric: Metric!
+  condition: MetricCondition!
+  targetValue: Float
+  rangeValue: Range
+}
+
+type Range {
+  min: Float!
+  max: Float!
+}
+
+# Inputs
+input GoalInput {
+  id: ID
+  name: String!
+  description: String
+  startTime: Time!
+  endTime: Time!
+  metrics: [GoalMetricInput!]
+  checkboxes: [CheckboxInput!]
+}
+
+input GoalMetricInput {
+  id: ID!
+  condition: MetricCondition!
+  targetValue: Float
+  rangeValue: RangeInput
+}
+
+input RangeInput {
+  min: Float!
+  max: Float!
+}
+
+enum MetricCondition {
+  lt
+  lte
+  eq
+  gte
+  gt
+  ir
+}
+
+enum GoalStatus {
+  Planned
+  InProgress
+  Completed
+  Overdue
+}
+
+input GoalFilter {
+  status: GoalStatus
+}
+
+input GoalOrderBy {
+  _keep: Boolean
+}
+
+# Pagination
+type GoalConnection {
+  totalCount: Int!
+  edges: [Goal!]!
+}

@@ -1,0 +1,18 @@
+{
+  "name": "db-migration",
+  "version": "1.0.0",
+  "description": "tenk db migration management",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "flow-erz",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "mongodb": "^6.13.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2"
+  }
+}

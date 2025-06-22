@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package notification;
+
+import "notification/notification_message.proto";
+
+option go_package = "tenkhours/proto/pb/notification";
+
+service Notification {
+  rpc SendPushNotification(SendPushNotificationReq) returns (SendPushNotificationResp);
+}
+
+

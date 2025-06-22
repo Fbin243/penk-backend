@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package core;
+
+import "core/entity_type_message.proto";
+
+option go_package = "tenkhours/proto/pb/core";
+
+message TimeTracking {
+  string id = 1;
+  string character_id = 2;
+  optional string category_id = 3;
+  optional string reference_id = 4;
+  optional EntityType reference_type = 5;
+  int64 timestamp = 6;
+  int64 duration = 7;
+}
+
+message TimeTrackingInput {
+  optional string reference_id = 1;
+  optional EntityType reference_type = 2;
+  int64 timestamp = 3;
+  int64 duration = 4;
+}

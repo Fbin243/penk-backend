@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package core;
+
+option go_package = "tenkhours/proto/pb/core";
+
+message Checkbox {
+  string id = 1;
+  string name = 2;
+  bool value = 3;
+}
+
+message CheckboxInput {
+  optional string id = 1;
+  string name = 2;
+  bool value = 3;
+}

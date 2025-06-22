@@ -1,0 +1,7 @@
+type AppSettings {
+  minDurationTime: Int!
+  maxDurationTime: Int!
+  limitedCharacterNumber: Int!
+  limitedCategoryNumber: Int!
+  limitedMetricNumber: Int!
+}

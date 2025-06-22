@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package core;
+
+option go_package = "tenkhours/proto/pb/core";
+
+message HabitLog {
+  string id = 1;
+  string timestamp = 2;
+  string habit_id = 3;
+  float value = 4;
+}
+
+message HabitLogInput {
+  string timestamp = 1;
+  string habit_id = 2;
+  float value = 3;
+}

@@ -1,0 +1,32 @@
+type Metric {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  characterID: ID!
+  categoryID: ID
+  category: Category
+  name: String!
+  value: Float!
+  unit: String!
+}
+
+input MetricInput {
+  id: ID
+  categoryID: ID
+  name: String!
+  value: Float!
+  unit: String!
+}
+
+input MetricFilter {
+  _keep: Boolean
+}
+
+input MetricOrderBy {
+  _keep: Boolean
+}
+
+type MetricConnection {
+  totalCount: Int!
+  edges: [Metric!]!
+}

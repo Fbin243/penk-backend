@@ -1,0 +1,24 @@
+scalar Time
+
+type Profile {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  name: String!
+  email: String!
+  firebaseUID: String!
+  imageURL: String!
+  currentCharacterID: ID
+  characters: [Character!]!
+  fish: Fish!
+}
+
+type Fish @key(fields: "profileID", resolvable: false) {
+  profileID: ID!
+}
+
+input ProfileInput {
+  name: String!
+  imageURL: String!
+  currentCharacterID: ID!
+}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "tenkhours/proto/pb/common";
+
+message EmptyReq {}
+
+message EmptyResp {}
+
+message IdReq {
+  string id = 1;
+}
+
+message IdResp {
+  string id = 1;
+}

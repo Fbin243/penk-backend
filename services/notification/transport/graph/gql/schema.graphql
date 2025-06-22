@@ -1,0 +1,5 @@
+type Mutation {
+  addToWaitlist(email: String!): Boolean!
+  registerDeviceToken(token: String!, profileID: String!, deviceID: String!, platform: String!): Boolean!
+  removeDeviceToken(token: String!, profileID: String!, deviceID: String!): Boolean!
+}

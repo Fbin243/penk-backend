@@ -1,0 +1,11 @@
+type Checkbox {
+  id: ID!
+  name: String!
+  value: Boolean!
+}
+
+input CheckboxInput {
+  id: ID
+  name: String!
+  value: Boolean!
+}

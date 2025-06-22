@@ -1,0 +1,50 @@
+type Habit {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  characterID: ID!
+  categoryID: ID
+  category: Category
+  completionType: CompletionType!
+  name: String!
+  value: Float!
+  unit: String
+  rrule: String!
+  resetDuration: HabitReset!
+}
+
+enum CompletionType {
+  Number
+  Time
+}
+
+# Inputs
+input HabitInput {
+  id: ID
+  categoryID: ID
+  completionType: CompletionType!
+  name: String!
+  value: Float!
+  unit: String
+  rrule: String!
+  resetDuration: HabitReset!
+}
+
+enum HabitReset {
+  Daily
+  Weekly
+  Monthly
+}
+
+input HabitFilter {
+  _keep: Boolean
+}
+
+input HabitOrderBy {
+  _keep: Boolean
+}
+
+type HabitConnection {
+  totalCount: Int!
+  edges: [Habit!]!
+}

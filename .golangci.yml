@@ -1,0 +1,50 @@
+linters:
+  enable:
+  - tagalign
+  - gofumpt
+  - gocyclo
+  - goconst
+  - goimports
+
+linters-settings:
+  tagalign:
+    # Align and sort can be used together or separately.
+    #
+    # Whether enable align. If true, the struct tags will be aligned.
+    # e.g.:
+    # type FooBar struct {
+    #     Bar    string `json:"bar" validate:"required"`
+    #     FooFoo int8   `json:"foo_foo" validate:"required"`
+    # }
+    # will be formatted to:
+    # type FooBar struct {
+    #     Bar    string `json:"bar"     validate:"required"`
+    #     FooFoo int8   `json:"foo_foo" validate:"required"`
+    # }
+    # Default: true.
+    align: true
+    # Whether enable tags sort.
+    # If true, the tags will be sorted by name in ascending order.
+    # e.g.: `xml:"bar" json:"bar" validate:"required"` -> `json:"bar" validate:"required" xml:"bar"`
+    # Default: true
+    sort: true
+    # Specify the order of tags, the other tags will be sorted by name.
+    # This option will be ignored if `sort` is false.
+    # Default: []
+    order:
+    - json
+    - yaml
+    - yml
+    - toml
+    - mapstructure
+    - binding
+    - validate
+    # Whether enable strict style.
+    # In this style, the tags will be sorted and aligned in the dictionary order,
+    # and the tags with the same name will be aligned together.
+    # Note: This option will be ignored if 'align' or 'sort' is false.
+    # Default: false
+    strict: true
+  gofumpt:
+    module-path: tenkhours
+    extra-rules: true

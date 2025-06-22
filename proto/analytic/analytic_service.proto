@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package analytic;
+
+import "analytic/analytic_message.proto";
+
+option go_package = "tenkhours/proto/pb/analytic";
+
+service Analytic {
+  rpc DeleteCapturedRecords(DeleteCapturedRecordsReq) returns (DeleteCapturedRecordsResp) {}
+}

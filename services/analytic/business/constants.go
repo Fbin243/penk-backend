@@ -1,0 +1,8 @@
+package business
+
+const (
+	NUMBER_OF_DAYS_IN_A_WEEK   = 7
+	NUMBER_OF_WEEKS_IN_A_MONTH = 4
+	NUMBER_OF_FREQUENCY_RANGE  = 4
+	NUMBER_OF_HOUR_IN_A_DAY    = 24
+)

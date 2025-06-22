@@ -1,0 +1,21 @@
+type TimeTracking {
+  id: ID!
+  characterID: ID!
+  categoryID: ID
+  referenceID: ID
+  referenceType: EntityType
+  timestamp: Time!
+  duration: Int!
+}
+
+enum EntityType {
+  Habit
+  Task
+}
+
+input TimeTrackingInput {
+  referenceID: ID!
+  referenceType: EntityType!
+  timestamp: Time!
+  duration: Int!
+}
